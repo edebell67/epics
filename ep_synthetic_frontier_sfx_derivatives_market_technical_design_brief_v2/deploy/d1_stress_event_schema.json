@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://eds.local/sfx/d1_stress_event_schema.json",
+  "title": "D1 Stress Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "instrument_id",
+    "market_id",
+    "event_timestamp",
+    "evaluation_window",
+    "stress_level",
+    "stress_score",
+    "metric_values",
+    "metric_severities",
+    "triggered_thresholds",
+    "dependency_snapshot",
+    "recommended_actions",
+    "oracle_override",
+    "audit_context"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "instrument_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "market_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evaluation_window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "started_at",
+        "ended_at",
+        "evaluation_interval_seconds"
+      ],
+      "properties": {
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ended_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evaluation_interval_seconds": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "stress_level": {
+      "type": "string",
+      "enum": [
+        "normal",
+        "warning",
+        "elevated",
+        "emergency"
+      ]
+    },
+    "stress_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 12
+    },
+    "metric_values": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "volatility_acceleration",
+        "imbalance_slope_change",
+        "liquidation_cluster_density",
+        "order_book_thinning_rate"
+      ],
+      "properties": {
+        "volatility_acceleration": {
+          "type": "number",
+          "minimum": 0
+        },
+        "imbalance_slope_change": {
+          "type": "number",
+          "minimum": 0
+        },
+        "liquidation_cluster_density": {
+          "type": "number",
+          "minimum": 0
+        },
+        "order_book_thinning_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "metric_severities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "volatility_acceleration",
+        "imbalance_slope_change",
+        "liquidation_cluster_density",
+        "order_book_thinning_rate"
+      ],
+      "properties": {
+        "volatility_acceleration": {
+          "$ref": "#/$defs/severity"
+        },
+        "imbalance_slope_change": {
+          "$ref": "#/$defs/severity"
+        },
+        "liquidation_cluster_density": {
+          "$ref": "#/$defs/severity"
+        },
+        "order_book_thinning_rate": {
+          "$ref": "#/$defs/severity"
+        }
+      }
+    },
+    "triggered_thresholds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "metric",
+          "severity",
+          "threshold"
+        ],
+        "properties": {
+          "metric": {
+            "type": "string",
+            "enum": [
+              "volatility_acceleration",
+              "imbalance_slope_change",
+              "liquidation_cluster_density",
+              "order_book_thinning_rate",
+              "oracle_override"
+            ]
+          },
+          "severity": {
+            "$ref": "#/$defs/severity"
+          },
+          "threshold": {
+            "type": [
+              "number",
+              "string"
+            ]
+          }
+        }
+      }
+    },
+    "dependency_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "oracle_health",
+        "order_book",
+        "vault_state",
+        "leverage_state",
+        "spread_state"
+      ],
+      "properties": {
+        "oracle_health": {
+          "type": "object"
+        },
+        "order_book": {
+          "type": "object"
+        },
+        "vault_state": {
+          "type": "object"
+        },
+        "leverage_state": {
+          "type": "object"
+        },
+        "spread_state": {
+          "type": "object"
+        }
+      }
+    },
+    "recommended_actions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "oracle_override": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "halt_recommendation",
+        "instability_state"
+      ],
+      "properties": {
+        "halt_recommendation": {
+          "type": "boolean"
+        },
+        "instability_state": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "audit_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule_version",
+        "producer",
+        "sequence_id"
+      ],
+      "properties": {
+        "rule_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sequence_id": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "$defs": {
+    "severity": {
+      "type": "string",
+      "enum": [
+        "normal",
+        "warning",
+        "elevated",
+        "emergency"
+      ]
+    }
+  }
+}

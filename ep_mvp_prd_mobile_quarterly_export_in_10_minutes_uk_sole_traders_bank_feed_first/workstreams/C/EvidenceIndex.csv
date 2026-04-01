@@ -1,0 +1,2 @@
+evidence_id,type,captured_at,doc_date,merchant,amount,storage_link,extraction_confidence,matched_bank_txn_id,user_confirmed
+e1,receipt,2026-03-22T19:05:41.900Z,2026-01-10,Tesco,45.50,https://storage.example.com/receipt1.jpg,,t1,true

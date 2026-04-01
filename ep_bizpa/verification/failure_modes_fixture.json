@@ -1,0 +1,138 @@
+{
+  "monetary_integrity": {
+    "committed_item": {
+      "id": "item-900",
+      "type": "invoice",
+      "status": "confirmed",
+      "amount": 120,
+      "currency": "GBP",
+      "net_amount": 100,
+      "gross_amount": 120,
+      "vat_amount": 20,
+      "vat_rate": 20,
+      "vat_type": "output",
+      "quarter_ref": "Q1-2026",
+      "payment_status": "draft"
+    },
+    "mutation_attempt": {
+      "amount": 125
+    }
+  },
+  "sync_corruption": {
+    "changes": [
+      {
+        "table_name": "capture_items",
+        "entity_id": "sync-1",
+        "action": "upsert",
+        "data": {
+          "amount": 99,
+          "id": "malicious-overwrite"
+        }
+      },
+      {
+        "table_name": "unknown_table",
+        "entity_id": "sync-2",
+        "action": "delete",
+        "data": {}
+      },
+      {
+        "table_name": "capture_items",
+        "entity_id": "sync-1",
+        "action": "delete",
+        "data": {}
+      }
+    ]
+  },
+  "notifications": {
+    "items": [
+      {
+        "id": "notif-1",
+        "priority": "important",
+        "created_at": "2026-03-11T08:00:00.000Z"
+      },
+      {
+        "id": "notif-2",
+        "priority": "critical",
+        "created_at": "2026-03-11T07:00:00.000Z"
+      },
+      {
+        "id": "notif-3",
+        "priority": "critical",
+        "created_at": "2026-03-11T09:00:00.000Z"
+      },
+      {
+        "id": "notif-4",
+        "priority": "info",
+        "created_at": "2026-03-11T10:00:00.000Z"
+      }
+    ],
+    "expected_order": [
+      "notif-3",
+      "notif-2",
+      "notif-1",
+      "notif-4"
+    ]
+  },
+  "audit_trace": {
+    "events": [
+      {
+        "event_id": "evt-1",
+        "event_type": "entity_created",
+        "entity_id": "txn-300",
+        "entity_type": "bank_transaction",
+        "created_at": "2026-01-03T09:00:00.000Z",
+        "description": "Bank transaction created",
+        "quarter_reference": "Q1-2026"
+      },
+      {
+        "event_id": "evt-2",
+        "event_type": "readiness_recalculated",
+        "entity_id": "readiness-q1",
+        "entity_type": "readiness",
+        "created_at": "2026-01-03T09:05:00.000Z",
+        "description": "Readiness recalculated for Q1-2026",
+        "quarter_reference": "Q1-2026"
+      },
+      {
+        "event_id": "evt-3",
+        "event_type": "quarter_closed",
+        "entity_id": "quarter-q1",
+        "entity_type": "quarter",
+        "created_at": "2026-03-31T17:00:00.000Z",
+        "description": "Q1-2026 marked ready",
+        "quarter_reference": "Q1-2026",
+        "status_to": "ready"
+      }
+    ],
+    "snapshots": [
+      {
+        "snapshot_id": "snap-1",
+        "created_at": "2026-03-31T17:05:00.000Z",
+        "quarter_reference": "Q1-2026",
+        "description": "Quarter snapshot generated",
+        "included_transaction_ids": [
+          "txn-300"
+        ]
+      }
+    ],
+    "expected_audit_trace": {
+      "immutable_history": true,
+      "total_events": 3,
+      "snapshot_count": 1,
+      "event_types": [
+        "entity_created",
+        "quarter_closed",
+        "readiness_recalculated"
+      ],
+      "quarter_references": [
+        "Q1-2026"
+      ],
+      "unique_entities": [
+        "quarter-q1",
+        "readiness-q1",
+        "snap-1",
+        "txn-300"
+      ]
+    }
+  }
+}

@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | Fun Cuts Hairdressers</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/font.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .success-message {
+            display: none;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--emerald);
+            color: var(--emerald);
+            padding: 1.5rem;
+            border-radius: 1.25rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+    <nav id="main-nav" class="fixed top-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-fit px-4"></nav>
+
+    <main class="max-w-[1400px] mx-auto px-6 pt-32 pb-24">
+        <header class="mb-24 text-center">
+            <span class="section-tag">Get in Touch</span>
+            <h1 class="hero-title text-5xl md:text-7xl mb-8">Contact Us</h1>
+            <p class="text-xl text-zinc-500 max-w-2xl mx-auto">
+                Ready for a transformation? Book your appointment or ask us anything.
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+            <div class="space-y-12">
+                <div class="ethereal-glass rounded-[2.5rem] p-10 space-y-8">
+                    <div class="flex items-start gap-6">
+                        <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-zinc-400 shrink-0">
+                            <i class="ph ph-map-pin text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xl mb-2">Our Location</h4>
+                            <p class="text-zinc-400 leading-relaxed">
+                                4 Central Parade, Penge High Street<br>
+                                London, SE20 7TN
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-6">
+                        <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-zinc-400 shrink-0">
+                            <i class="ph ph-phone text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xl mb-2">Phone</h4>
+                            <p class="text-zinc-400 text-lg font-bold">020 8676 0226</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-6">
+                        <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-zinc-400 shrink-0">
+                            <i class="ph ph-envelope text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xl mb-2">Email</h4>
+                            <p class="text-zinc-400">info@funcuts.co.uk</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="double-bezel h-80 overflow-hidden">
+                    <div class="double-bezel-inner p-0 h-full">
+                        <iframe allowfullscreen="" frameborder="0" height="100%" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2488.4420183718817!2d-0.053754583989259065!3d51.41330647961976!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487601746f4869a7%3A0x5a10ed5ed683f8b!2sFun+Cuts!5e0!3m2!1sen!2suk!4v1485368771550" style="border:0; filter: invert(90%) hue-rotate(180deg) grayscale(100%);" width="100%"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ethereal-glass rounded-[3rem] p-10 md:p-16">
+                <h3 class="text-3xl font-bold mb-10">Send a Message</h3>
+                <form id="contactForm" class="space-y-8">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-2">Name</label>
+                        <input type="text" id="name" required class="contact-input" placeholder="Your name">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-2">Email Address</label>
+                        <input type="email" id="email" required class="contact-input" placeholder="your@email.com">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-2">Message</label>
+                        <textarea id="message" required rows="5" class="contact-input" placeholder="How can we help?"></textarea>
+                    </div>
+                    <div class="pt-4">
+                        <button type="submit" class="btn-island w-full justify-center text-lg py-4">
+                            Send Message
+                            <div class="btn-icon-wrapper">
+                                <i class="ph ph-paper-plane-tilt"></i>
+                            </div>
+                        </button>
+                    </div>
+                </form>
+                <div id="successMessage" class="success-message">
+                    <div class="flex items-center justify-center gap-3 mb-2">
+                        <i class="ph ph-check-circle text-2xl"></i>
+                        <span class="font-bold text-xl">Message Sent</span>
+                    </div>
+                    <p>Thank you for reaching out! We'll get back to you shortly.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-40 pt-24 border-t border-white/10">
+            <div class="flex justify-between items-center">
+                <p class="text-[10px] text-zinc-600 uppercase tracking-widest">&copy; 2026 Fun Cuts. All Rights Reserved.</p>
+                <p class="text-[10px] text-zinc-600 uppercase tracking-widest">Built by Strategy Warehouse</p>
+            </div>
+        </footer>
+    </main>
+
+    <script src="../js/layout.js"></script>
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            this.style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+        });
+    </script>
+</body>
+</html>

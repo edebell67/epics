@@ -1,0 +1,207 @@
+name: Epic CI
+
+on:
+  push:
+    paths:
+      - "ep_mvp_prd_mobile_quarterly_export_in_10_minutes_uk_sole_traders_bank_feed_first/.github/workflows/ci.yml"
+      - "ep_mvp_prd_mobile_quarterly_export_in_10_minutes_uk_sole_traders_bank_feed_first/deploy/**"
+      - "ep_mvp_prd_mobile_quarterly_export_in_10_minutes_uk_sole_traders_bank_feed_first/solution/**"
+      - "ep_mvp_prd_mobile_quarterly_export_in_10_minutes_uk_sole_traders_bank_feed_first/verification/**"
+      - "ep_mvp_prd_mobile_quarterly_export_in_10_minutes_uk_sole_traders_bank_feed_first/*.md"
+      - "ep_mvp_prd_mobile_quarterly_export_in_10_minutes_uk_sole_traders_bank_feed_first/docker-compose.yml"
+  pull_request:
+    paths:
+      - "ep_mvp_prd_mobile_quarterly_export_in_10_minutes_uk_sole_traders_bank_feed_first/.github/workflows/ci.yml"
+      - "ep_mvp_prd_mobile_quarterly_export_in_10_minutes_uk_sole_traders_bank_feed_first/deploy/**"
+      - "ep_mvp_prd_mobile_quarterly_export_in_10_minutes_uk_sole_traders_bank_feed_first/solution/**"
+      - "ep_mvp_prd_mobile_quarterly_export_in_10_minutes_uk_sole_traders_bank_feed_first/verification/**"
+      - "ep_mvp_prd_mobile_quarterly_export_in_10_minutes_uk_sole_traders_bank_feed_first/*.md"
+      - "ep_mvp_prd_mobile_quarterly_export_in_10_minutes_uk_sole_traders_bank_feed_first/docker-compose.yml"
+  workflow_dispatch:
+    inputs:
+      deployment_environment:
+        description: "Deployment target for manual runs"
+        required: false
+        default: "staging"
+      smoke_base_url:
+        description: "Optional base URL for contract smoke tests"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+env:
+  PROJECT_ROOT: ep_mvp_prd_mobile_quarterly_export_in_10_minutes_uk_sole_traders_bank_feed_first
+  NODE_VERSION: "20"
+  BACKEND_IMAGE_NAME: quarterly-export-backend
+  FRONTEND_IMAGE_NAME: quarterly-export-frontend
+
+jobs:
+  validate-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install markdown and OpenAPI linters
+        run: |
+          npm install --global markdownlint-cli @redocly/cli
+
+      - name: Lint markdown assets
+        shell: bash
+        run: |
+          cd "${PROJECT_ROOT}"
+
+          mapfile -t markdown_files < <(find . \
+            -path './.git' -prune -o \
+            -path './verification/chrome_headless_profile_inbox' -prune -o \
+            -path './verification/chrome_headless_profile_voice' -prune -o \
+            -type f \( -name '*.md' -o -name '*.markdown' \) -print)
+
+          if [ "${#markdown_files[@]}" -eq 0 ]; then
+            echo "No markdown files found"
+            exit 0
+          fi
+
+          markdownlint "${markdown_files[@]}"
+
+      - name: Lint OpenAPI contracts when present
+        shell: bash
+        run: |
+          cd "${PROJECT_ROOT}"
+
+          mapfile -t openapi_files < <(find . -type f \( -iname '*openapi*.yml' -o -iname '*openapi*.yaml' -o -iname '*openapi*.json' \) -print)
+
+          if [ "${#openapi_files[@]}" -eq 0 ]; then
+            echo "No OpenAPI contracts present yet"
+            exit 0
+          fi
+
+          redocly lint "${openapi_files[@]}"
+
+      - name: Install backend dependencies when package exists
+        shell: bash
+        run: |
+          if [ ! -f "${PROJECT_ROOT}/solution/backend/package.json" ]; then
+            echo "No backend package.json present"
+            exit 0
+          fi
+
+          cd "${PROJECT_ROOT}/solution/backend"
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install --package-lock=false
+          fi
+
+      - name: Validate MVP backend contracts
+        shell: bash
+        run: |
+          if [ ! -f "${PROJECT_ROOT}/solution/backend/package.json" ]; then
+            echo "Backend validation skipped because package.json is absent"
+            exit 0
+          fi
+
+          cd "${PROJECT_ROOT}/solution/backend"
+          npm run validate:mvp-domain-schemas
+          npm run verify:transaction-import
+
+      - name: Validate docker compose when file exists
+        shell: bash
+        run: |
+          if [ ! -f "${PROJECT_ROOT}/docker-compose.yml" ]; then
+            echo "docker-compose.yml not present yet"
+            exit 0
+          fi
+
+          docker compose -f "${PROJECT_ROOT}/docker-compose.yml" config >/tmp/docker-compose.rendered.yml
+          test -s /tmp/docker-compose.rendered.yml
+
+      - name: Record validation surface
+        shell: bash
+        run: |
+          echo "Validated markdown/docs, backend contracts, optional OpenAPI contracts, and optional docker compose assets."
+
+  build-images:
+    runs-on: ubuntu-latest
+    needs: validate-assets
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image when Dockerfile exists
+        shell: bash
+        run: |
+          if [ ! -f "${PROJECT_ROOT}/solution/backend/Dockerfile" ]; then
+            echo "Backend Dockerfile not present yet"
+            exit 0
+          fi
+
+          docker build \
+            --tag "${BACKEND_IMAGE_NAME}:ci" \
+            "${PROJECT_ROOT}/solution/backend"
+
+      - name: Build frontend image when Dockerfile exists
+        shell: bash
+        run: |
+          if [ ! -f "${PROJECT_ROOT}/solution/frontend/Dockerfile" ]; then
+            echo "Frontend Dockerfile not present yet"
+            exit 0
+          fi
+
+          docker build \
+            --tag "${FRONTEND_IMAGE_NAME}:ci" \
+            "${PROJECT_ROOT}/solution/frontend"
+
+  smoke-contract-hooks:
+    runs-on: ubuntu-latest
+    needs: build-images
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.smoke_base_url != '' }}
+    steps:
+      - name: Exercise import contract hook
+        shell: bash
+        env:
+          SMOKE_BASE_URL: ${{ github.event.inputs.smoke_base_url }}
+        run: |
+          curl --fail --show-error --silent \
+            -X POST "${SMOKE_BASE_URL}/api/v1/imports" \
+            -H "Content-Type: application/json" \
+            -d '{"mode":"smoke","source":"ci-hook"}'
+
+      - name: Exercise quarterly export contract hook
+        shell: bash
+        env:
+          SMOKE_BASE_URL: ${{ github.event.inputs.smoke_base_url }}
+        run: |
+          curl --fail --show-error --silent \
+            -X POST "${SMOKE_BASE_URL}/api/v1/exports/quarterly" \
+            -H "Content-Type: application/json" \
+            -d '{"mode":"smoke","quarter":"2026-Q1"}'
+
+  deployment-readiness:
+    runs-on: ubuntu-latest
+    needs: validate-assets
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Summarize deployment hooks
+        shell: bash
+        env:
+          DEPLOYMENT_ENVIRONMENT: ${{ github.event.inputs.deployment_environment }}
+        run: |
+          echo "Deployment environment: ${DEPLOYMENT_ENVIRONMENT}"
+          echo "Review deploy/README.md and deploy/release-checklist.md before promoting artifacts."
+          echo "Future release smoke tests target POST /api/v1/imports and POST /api/v1/exports/quarterly."

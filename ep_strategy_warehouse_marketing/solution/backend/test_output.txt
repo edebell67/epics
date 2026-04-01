@@ -1,0 +1,82 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-7.4.4, pluggy-1.0.0
+rootdir: C:\Users\edebe\eds\ep_strategy_warehouse_marketing\solution\backend
+plugins: anyio-4.9.0, langsmith-0.3.19
+collected 21 items / 6 errors
+
+=================================== ERRORS ====================================
+_______________ ERROR collecting tests/test_reddit_connector.py _______________
+ImportError while importing test module 'C:\Users\edebe\eds\ep_strategy_warehouse_marketing\solution\backend\tests\test_reddit_connector.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\anaconda3\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests\test_reddit_connector.py:4: in <module>
+    from src.connectors.redditConnector import RedditConnector
+src\connectors\redditConnector.py:1: in <module>
+    import praw
+E   ModuleNotFoundError: No module named 'praw'
+____________ ERROR collecting tests/test_twitter_connector_init.py ____________
+ImportError while importing test module 'C:\Users\edebe\eds\ep_strategy_warehouse_marketing\solution\backend\tests\test_twitter_connector_init.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\anaconda3\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests\test_twitter_connector_init.py:4: in <module>
+    from src.connectors.twitterConnector import TwitterConnector
+src\connectors\twitterConnector.py:8: in <module>
+    import tweepy
+E   ModuleNotFoundError: No module named 'tweepy'
+______________ ERROR collecting tests/test_twitter_post_media.py ______________
+ImportError while importing test module 'C:\Users\edebe\eds\ep_strategy_warehouse_marketing\solution\backend\tests\test_twitter_post_media.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\anaconda3\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests\test_twitter_post_media.py:5: in <module>
+    from src.connectors.twitterConnector import TwitterConnector
+src\connectors\twitterConnector.py:8: in <module>
+    import tweepy
+E   ModuleNotFoundError: No module named 'tweepy'
+______________ ERROR collecting tests/test_twitter_post_text.py _______________
+ImportError while importing test module 'C:\Users\edebe\eds\ep_strategy_warehouse_marketing\solution\backend\tests\test_twitter_post_text.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\anaconda3\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests\test_twitter_post_text.py:5: in <module>
+    from src.connectors.twitterConnector import TwitterConnector
+src\connectors\twitterConnector.py:8: in <module>
+    import tweepy
+E   ModuleNotFoundError: No module named 'tweepy'
+_____________ ERROR collecting tests/test_twitter_post_thread.py ______________
+ImportError while importing test module 'C:\Users\edebe\eds\ep_strategy_warehouse_marketing\solution\backend\tests\test_twitter_post_thread.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\anaconda3\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests\test_twitter_post_thread.py:4: in <module>
+    from src.connectors.twitterConnector import TwitterConnector
+src\connectors\twitterConnector.py:8: in <module>
+    import tweepy
+E   ModuleNotFoundError: No module named 'tweepy'
+____________ ERROR collecting tests/test_twitter_rate_limiting.py _____________
+ImportError while importing test module 'C:\Users\edebe\eds\ep_strategy_warehouse_marketing\solution\backend\tests\test_twitter_rate_limiting.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\..\anaconda3\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests\test_twitter_rate_limiting.py:5: in <module>
+    from src.connectors.twitterConnector import TwitterConnector
+src\connectors\twitterConnector.py:8: in <module>
+    import tweepy
+E   ModuleNotFoundError: No module named 'tweepy'
+=========================== short test summary info ===========================
+ERROR tests/test_reddit_connector.py
+ERROR tests/test_twitter_connector_init.py
+ERROR tests/test_twitter_post_media.py
+ERROR tests/test_twitter_post_text.py
+ERROR tests/test_twitter_post_thread.py
+ERROR tests/test_twitter_rate_limiting.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 6 errors in 1.03s ==============================

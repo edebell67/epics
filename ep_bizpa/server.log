@@ -1,0 +1,10 @@
+[dotenv@17.3.1] injecting env (10) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+BizPA API server running on http://127.0.0.1:5055
+API docs: http://127.0.0.1:5055/api/v1
+Health check: http://127.0.0.1:5055/health
+[DB] Connected to PostgreSQL
+[0mGET /api/v1/clients [32m200[0m 189.459 ms - 3630[0m
+[0mGET / [33m404[0m 2.525 ms - 32[0m
+[0mGET /health [32m200[0m 2.061 ms - 54[0m
+[0mGET / [33m404[0m 0.564 ms - 32[0m
+[0mGET /api/v1 [36m304[0m 0.900 ms - -[0m

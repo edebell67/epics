@@ -1,0 +1,75 @@
+{
+  "package_id": "f4.mvp_launch_readiness.v1",
+  "generated_on": "2026-03-19",
+  "decision_status": "no_go",
+  "checklist": [
+    {
+      "check_id": "phase_1_config",
+      "prelaunch_check": "Validate the F2 listing pack is the approved phase-1 configuration for NGN_VOL, KES_VOL, GHS_VOL, and ZAR_VOL with operational leverage at or below 2.0x.",
+      "runtime_monitor": "Watch current_leverage_band, open_interest, and exposure_utilization every 60 seconds for drift outside the approved launch posture.",
+      "halt_procedure": "If any instrument breaches approved launch posture or cap logic, force reduce-only through the restrictive emergency path and hold the market in HALTED or HALTED_LOCKDOWN.",
+      "reopen_procedure": "Resume only through D3 staged reopening after the validated configuration has been restored and recovery checks remain green for the full stability window.",
+      "owner": "Launch Commander",
+      "evidence_link": "C:\\Users\\edebe\\eds\\ep_synthetic_frontier_sfx_derivatives_market_technical_design_brief_v2\\solution\\workstreams\\workstream_f2_phase_1_listing_pack.json"
+    },
+    {
+      "check_id": "governance_safety",
+      "prelaunch_check": "Confirm the governance registry is present, bounded, and restrictive-only for emergency operation.",
+      "runtime_monitor": "Watch for any parameter activation outside published min or max bands and confirm immediate disclosure of any emergency action.",
+      "halt_procedure": "If governance integrity fails, revert the affected parameter to last-good value and keep the affected market in the protective halt path.",
+      "reopen_procedure": "Allow staged reopening only after the registry is revalidated, incident logging is complete, and no emergency override remains active beyond its expiry.",
+      "owner": "Governance Liaison",
+      "evidence_link": "C:\\Users\\edebe\\eds\\ep_synthetic_frontier_sfx_derivatives_market_technical_design_brief_v2\\solution\\workstreams\\workstreamE_governance_parameter_band_registry.json"
+    },
+    {
+      "check_id": "transparency_contract",
+      "prelaunch_check": "Confirm required public fields, cadences, and redaction boundaries are validated and the operator surface is reachable.",
+      "runtime_monitor": "Watch market_status, funding_rate, current_leverage_band, volatility_metric, and risk_parameter_band for freshness and completeness every 60 seconds.",
+      "halt_procedure": "If required transparency fields are stale or missing, block external launch and fall back to internal drill mode until publication integrity is restored.",
+      "reopen_procedure": "Resume launch readiness only after contract validation passes and the operator surface is confirmed to be live-backed rather than mock-backed.",
+      "owner": "Transparency Operator",
+      "evidence_link": "C:\\Users\\edebe\\eds\\ep_synthetic_frontier_sfx_derivatives_market_technical_design_brief_v2\\solution\\transparency\\public_transparency_disclosure_pack.md"
+    },
+    {
+      "check_id": "shock_resilience",
+      "prelaunch_check": "Confirm the deterministic 30% to 50% macro-shock scenarios still pass vault integrity, liquidity continuity, funding stabilization, transparency output, and governance stability checks.",
+      "runtime_monitor": "Watch for live stress states or exposure-utilization patterns that resemble the validated 45% and 50% scenarios and confirm protective controls activate immediately.",
+      "halt_procedure": "If live stress enters emergency state without the expected control reactions, halt the affected instrument and escalate to Market Controls Engineer.",
+      "reopen_procedure": "Use the D3 staged path only after depth, source stability, and divergence recovery requirements stay green for the full window.",
+      "owner": "Risk Duty Officer",
+      "evidence_link": "C:\\Users\\edebe\\eds\\ep_synthetic_frontier_sfx_derivatives_market_technical_design_brief_v2\\verification\\workstream_f3_shock_validation_results.json"
+    },
+    {
+      "check_id": "isolation_containment",
+      "prelaunch_check": "Confirm per-instrument vault isolation remains in force with no cross-margin or inter-vault borrowing enabled.",
+      "runtime_monitor": "Watch incident scope and loss accounting to ensure losses remain instrument-local and unaffected markets remain operable.",
+      "halt_procedure": "If any evidence of cross-instrument loss transfer appears, halt the affected scope immediately and treat it as a global launch blocker.",
+      "reopen_procedure": "Do not reopen until the containment boundary is restored and a post-incident review proves local-only loss absorption.",
+      "owner": "Risk Duty Officer",
+      "evidence_link": "C:\\Users\\edebe\\eds\\ep_synthetic_frontier_sfx_derivatives_market_technical_design_brief_v2\\workstreams\\F\\f1_isolated_margin_and_per_instrument_containment_model.md"
+    },
+    {
+      "check_id": "dashboard_operability",
+      "prelaunch_check": "Confirm the market-state dashboard is reachable and identify whether it is operating on live publication inputs or deterministic mock transparency data.",
+      "runtime_monitor": "Watch the dashboard for state changes, freshness, and incident visibility during the launch window.",
+      "halt_procedure": "If the operator surface is unavailable or mock-backed for a public launch, stop the release and continue only as an internal rehearsal.",
+      "reopen_procedure": "Reconsider launch only after a fresh smoke test proves live-backed dashboard operation with the required public fields.",
+      "owner": "Transparency Operator",
+      "evidence_link": "C:\\Users\\edebe\\eds\\ep_synthetic_frontier_sfx_derivatives_market_technical_design_brief_v2\\verification\\20260316_sfx_dashboard_smoke.txt"
+    }
+  ],
+  "unresolved_risks": [
+    {
+      "risk_id": "r1",
+      "summary": "Dashboard evidence available in the workspace is smoke-tested but explicitly uses deterministic mock transparency data rather than proven live publication inputs.",
+      "owner": "Transparency Operator",
+      "follow_up_action": "Complete live data integration and rerun dashboard smoke plus snapshot validation before external launch."
+    },
+    {
+      "risk_id": "r2",
+      "summary": "The launch package relies on design-time and deterministic validation artifacts rather than a live exchange rehearsal with real production telemetry.",
+      "owner": "Launch Commander",
+      "follow_up_action": "Run an internal shadow launch using live publication and control services before any public MVP release."
+    }
+  ]
+}

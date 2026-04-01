@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>bizPA Entity Deep Dive</title>
+  <style>
+    :root {
+      --bg: #eef3eb;
+      --panel: rgba(255, 255, 255, 0.94);
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #0f766e;
+      --accent-soft: #ccfbf1;
+      --border: #dbe4dc;
+      --hero: #0f172a;
+      --hero-text: #f8fafc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(15, 118, 110, 0.16), transparent 30%),
+        radial-gradient(circle at top right, rgba(14, 165, 233, 0.16), transparent 26%),
+        linear-gradient(180deg, #f7fbf7 0%, var(--bg) 100%);
+    }
+    .app { max-width: 1320px; margin: 0 auto; padding: 28px 20px 48px; }
+    .header, .hero-stats, .detail-grid, .section-head { display: flex; gap: 16px; }
+    .header, .section-head { justify-content: space-between; align-items: center; }
+    .title { font-size: 2.1rem; font-weight: 800; color: var(--accent); }
+    .subtle { color: var(--muted); }
+    .banner, .hero, .panel, .detail-card { border-radius: 26px; }
+    .banner {
+      margin: 18px 0;
+      padding: 12px 15px;
+      color: #7c5f12;
+      background: #fff7d6;
+      border: 1px solid #f3dfa1;
+      font-weight: 700;
+    }
+    .hero {
+      background: linear-gradient(140deg, #0f172a 0%, #123b38 58%, #0f766e 100%);
+      color: var(--hero-text);
+      padding: 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 18px 48px rgba(15, 23, 42, 0.18);
+    }
+    .hero h1 { margin: 10px 0 8px; font-size: 2.9rem; }
+    .hero-stats { margin-top: 20px; flex-wrap: wrap; }
+    .hero-stat {
+      min-width: 180px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 14px 16px;
+    }
+    .hero-stat span {
+      display: block;
+      color: #bae6fd;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .hero-stat strong { display: block; margin-top: 6px; font-size: 1.45rem; }
+    .entity-nav {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 18px;
+    }
+    .entity-tab {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 16px;
+      background: #ffffff;
+      color: var(--text);
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 1px 0 rgba(15, 23, 42, 0.08);
+    }
+    .entity-tab.active {
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .detail-grid {
+      align-items: flex-start;
+    }
+    .panel {
+      flex: 1.1;
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(219, 228, 220, 0.75);
+      padding: 20px;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+    .detail-card {
+      background: #ffffff;
+      border: 1px solid rgba(219, 228, 220, 0.75);
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .detail-card h3 { margin: 0 0 14px; font-size: 0.94rem; text-transform: uppercase; letter-spacing: 0.08em; color: #334155; }
+    .hero-chip-row, .action-row, .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .chip, .tag, .action {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .chip.info { background: #dbeafe; color: #155e75; }
+    .chip.success { background: #d1fae5; color: #065f46; }
+    .chip.warning { background: #fef3c7; color: #92400e; }
+    .chip.muted { background: #e2e8f0; color: #334155; }
+    .tag { background: #e0f2fe; color: #075985; }
+    .action { background: #dcfce7; color: #166534; text-transform: none; }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .metric {
+      border-radius: 18px;
+      padding: 15px;
+      background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
+      border: 1px solid #dbe4dc;
+    }
+    .metric span { display: block; color: var(--muted); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    .metric strong { display: block; margin-top: 8px; font-size: 1.15rem; }
+    .field-list, .timeline-list, .note-list, .attachment-list { display: grid; gap: 12px; }
+    .field-row, .note-item, .attachment-item {
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .field-row span, .note-item span, .attachment-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .field-row strong, .note-item strong, .attachment-item strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 0.98rem;
+      line-height: 1.5;
+    }
+    .timeline-item {
+      display: flex;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .timeline-dot {
+      width: 12px;
+      height: 12px;
+      margin-top: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(15, 118, 110, 0.12);
+      flex: 0 0 auto;
+    }
+    .timeline-item h4 { margin: 0; font-size: 0.98rem; }
+    .timeline-item p { margin: 8px 0 0; color: #475569; line-height: 1.55; }
+    .timeline-meta { color: var(--muted); font-size: 0.82rem; margin-top: 4px; }
+    .timeline-proof {
+      border-radius: 18px;
+      background: var(--accent-soft);
+      color: #115e59;
+      padding: 13px 15px;
+      font-weight: 700;
+    }
+    @media (max-width: 980px) {
+      .detail-grid { flex-direction: column; }
+      .metric-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div>
+        <div class="title">bizPA Entity Deep Dive</div>
+        <div class="subtle">Scoped operator view for one invoice, receipt, quote, payment, or note at a time.</div>
+      </div>
+      <div class="subtle">Route: <strong>/business_entity_deep_dive_preview.html?entity=invoice</strong></div>
+    </div>
+
+    <div class="banner">No HMRC submission. Not tax advice.</div>
+
+    <div class="hero" id="hero"></div>
+    <div class="entity-nav" id="entityNav"></div>
+
+    <div class="detail-grid">
+      <div class="panel">
+        <div class="detail-card" id="summaryCard"></div>
+        <div class="detail-card" id="timelineCard"></div>
+      </div>
+      <div class="panel">
+        <div class="detail-card" id="counterpartyCard"></div>
+        <div class="detail-card" id="amountCard"></div>
+        <div class="detail-card" id="attachmentCard"></div>
+        <div class="detail-card" id="noteCard"></div>
+        <div class="detail-card" id="actionCard"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const entities = {
+      invoice: {
+        entityType: 'invoice',
+        title: 'Invoice INV-24031',
+        subtitle: 'Acorn Joinery',
+        description: 'Overdue invoice for spring repair works. Operator deep dive includes status, due date, notes, attachments, and only invoice-linked events.',
+        status: 'Overdue',
+        paymentStatus: 'Overdue',
+        correctionState: 'Original',
+        tags: ['priority', 'spring_jobs'],
+        dueDate: '2026-03-20',
+        net: 'GBP 1200.00',
+        vat: 'GBP 240.00',
+        gross: 'GBP 1440.00',
+        counterparty: { name: 'Acorn Joinery', email: 'accounts@acornjoinery.test', phone: '020 7946 0121' },
+        attachments: [{ kind: 'pdf', path: 'uploads/invoice_inv_24031.pdf', createdAt: '2026-03-11 10:02' }],
+        notes: [
+          { kind: 'Entity Note', text: 'Operator note: customer expects reminder on Friday.', createdAt: '2026-03-11 10:00' },
+          { kind: 'Correction Reason', text: 'Payment missed due date.', createdAt: '2026-03-11 10:05' }
+        ],
+        actions: ['Send payment chase', 'Mark as paid', 'Add attachment', 'Open correction flow'],
+        timeline: [
+          { title: 'Entity status changed', meta: '2026-03-11 10:05 • Manual', body: 'Invoice moved from sent to overdue after the due date passed with no matched payment.' },
+          { title: 'Entity committed', meta: '2026-03-11 09:05 • Voice', body: 'Invoice was confirmed from draft and added to the business history feed.' }
+        ]
+      },
+      receipt: {
+        entityType: 'receipt',
+        title: 'Receipt RCT-2042',
+        subtitle: 'Fuel Station North',
+        description: 'Receipt deep dive keeps the expense self-contained, with totals, attachment evidence, and the single receipt event trail.',
+        status: 'Confirmed',
+        paymentStatus: null,
+        correctionState: 'Original',
+        tags: ['fuel'],
+        dueDate: 'Not applicable',
+        net: 'GBP 42.50',
+        vat: 'GBP 8.50',
+        gross: 'GBP 51.00',
+        counterparty: { name: 'Fuel Station North', email: 'n/a', phone: 'n/a' },
+        attachments: [{ kind: 'image', path: 'uploads/receipt_fuel_station.png', createdAt: '2026-03-11 07:31' }],
+        notes: [{ kind: 'Entity Note', text: 'Fuel stop on route to site.', createdAt: '2026-03-11 07:30' }],
+        actions: ['Categorise receipt', 'Add attachment', 'Open correction flow'],
+        timeline: [
+          { title: 'Entity committed', meta: '2026-03-11 07:05 • Voice', body: 'Receipt was committed from composition state and included in the current period history.' }
+        ]
+      },
+      quote: {
+        entityType: 'quote',
+        title: 'Quote QT-7710',
+        subtitle: 'Elm Court Management',
+        description: 'Quote view shows the approved commercial context, available conversion action, and only quote-linked activity.',
+        status: 'Confirmed',
+        paymentStatus: null,
+        correctionState: 'Original',
+        tags: ['approved'],
+        dueDate: '2026-03-18',
+        net: 'GBP 1800.00',
+        vat: 'GBP 360.00',
+        gross: 'GBP 2160.00',
+        counterparty: { name: 'Elm Court Management', email: 'ops@elmcourt.test', phone: '020 7946 0179' },
+        attachments: [],
+        notes: [{ kind: 'Entity Note', text: 'Customer asked for phased start.', createdAt: '2026-03-10 12:30' }],
+        actions: ['Convert to invoice', 'Add attachment', 'Open correction flow'],
+        timeline: [
+          { title: 'Entity status changed', meta: '2026-03-10 12:35 • Manual', body: 'Quote was approved and remains ready for invoice conversion.' }
+        ]
+      },
+      payment: {
+        entityType: 'payment',
+        title: 'Payment PAY-9914',
+        subtitle: 'Camden Kitchen Studio',
+        description: 'Payment deep dive focuses on the matched cash event, supporting evidence, and the payment-only timeline.',
+        status: 'Confirmed',
+        paymentStatus: 'Paid',
+        correctionState: 'Original',
+        tags: ['matched'],
+        dueDate: 'Not applicable',
+        net: 'GBP 900.00',
+        vat: 'GBP 0.00',
+        gross: 'GBP 900.00',
+        counterparty: { name: 'Camden Kitchen Studio', email: 'finance@camdenkitchen.test', phone: '020 7946 0147' },
+        attachments: [{ kind: 'pdf', path: 'uploads/payment_slip_pay_9914.pdf', createdAt: '2026-03-11 08:42' }],
+        notes: [{ kind: 'Entity Note', text: 'Paid by bank transfer.', createdAt: '2026-03-11 08:41' }],
+        actions: ['Match against invoice', 'Add attachment', 'Open correction flow'],
+        timeline: [
+          { title: 'Payment recorded', meta: '2026-03-11 08:40 • Manual', body: 'Payment was recorded and matched against the linked outstanding invoice.' }
+        ]
+      },
+      note: {
+        entityType: 'note',
+        title: 'Note NOTE-44',
+        subtitle: 'Acorn Joinery',
+        description: 'Notes get the same deep-dive treatment without pulling in unrelated invoice or payment history.',
+        status: 'Confirmed',
+        paymentStatus: null,
+        correctionState: 'Original',
+        tags: ['follow_up'],
+        dueDate: 'Not applicable',
+        net: 'n/a',
+        vat: 'n/a',
+        gross: 'n/a',
+        counterparty: { name: 'Acorn Joinery', email: 'n/a', phone: '020 7946 0121' },
+        attachments: [],
+        notes: [{ kind: 'Primary Note', text: 'Call back after scaffold access is confirmed.', createdAt: '2026-03-11 11:00' }],
+        actions: ['Archive note', 'Link follow-up evidence'],
+        timeline: [
+          { title: 'Entity created', meta: '2026-03-11 11:00 • Manual', body: 'Note was created as a standalone operator record.' }
+        ]
+      }
+    };
+
+    const entityKeys = Object.keys(entities);
+    const queryEntity = new URLSearchParams(window.location.search).get('entity');
+    let activeEntityKey = entityKeys.includes(queryEntity) ? queryEntity : 'invoice';
+
+    const hero = document.getElementById('hero');
+    const entityNav = document.getElementById('entityNav');
+    const summaryCard = document.getElementById('summaryCard');
+    const timelineCard = document.getElementById('timelineCard');
+    const counterpartyCard = document.getElementById('counterpartyCard');
+    const amountCard = document.getElementById('amountCard');
+    const attachmentCard = document.getElementById('attachmentCard');
+    const noteCard = document.getElementById('noteCard');
+    const actionCard = document.getElementById('actionCard');
+
+    function syncUrl() {
+      const url = new URL(window.location.href);
+      url.searchParams.set('entity', activeEntityKey);
+      window.history.replaceState({}, '', url);
+    }
+
+    function renderNav() {
+      entityNav.innerHTML = '';
+      entityKeys.forEach((key) => {
+        const button = document.createElement('button');
+        button.className = `entity-tab${key === activeEntityKey ? ' active' : ''}`;
+        button.textContent = titleCase(key);
+        button.onclick = () => {
+          activeEntityKey = key;
+          syncUrl();
+          render();
+        };
+        entityNav.appendChild(button);
+      });
+    }
+
+    function renderHero(entity) {
+      const paymentChip = entity.paymentStatus ? `<span class="chip warning">${entity.paymentStatus}</span>` : '';
+      const tags = entity.tags.map((tag) => `<span class="tag">${tag}</span>`).join('');
+      hero.innerHTML = `
+        <div class="subtle" style="color:#bae6fd;">Entity Deep Dive Route</div>
+        <h1>${entity.title}</h1>
+        <div>${entity.description}</div>
+        <div class="hero-chip-row">
+          <span class="chip info">${entity.status}</span>
+          ${paymentChip}
+          <span class="chip success">${entity.gross}</span>
+          <span class="chip muted">${entity.correctionState}</span>
+        </div>
+        <div class="tag-row">${tags}</div>
+        <div class="hero-stats">
+          <div class="hero-stat"><span>Entity Type</span><strong>${titleCase(entity.entityType)}</strong></div>
+          <div class="hero-stat"><span>Due Date</span><strong>${entity.dueDate}</strong></div>
+          <div class="hero-stat"><span>Timeline Events</span><strong>${entity.timeline.length}</strong></div>
+        </div>
+      `;
+    }
+
+    function renderSummary(entity) {
+      summaryCard.innerHTML = `
+        <div class="section-head">
+          <h3>Header Block</h3>
+          <div class="subtle">${entity.subtitle}</div>
+        </div>
+        <div class="field-list">
+          <div class="field-row"><span>Entity Type</span><strong>${titleCase(entity.entityType)}</strong></div>
+          <div class="field-row"><span>Status</span><strong>${entity.status}</strong></div>
+          <div class="field-row"><span>Payment Status</span><strong>${entity.paymentStatus || 'Not applicable'}</strong></div>
+          <div class="field-row"><span>Due Date</span><strong>${entity.dueDate}</strong></div>
+          <div class="field-row"><span>Description</span><strong>${entity.description}</strong></div>
+        </div>
+      `;
+    }
+
+    function renderTimeline(entity) {
+      timelineCard.innerHTML = `
+        <div class="section-head">
+          <h3>Entity Timeline</h3>
+          <div class="subtle">${entity.timeline.length} scoped events</div>
+        </div>
+        <div class="timeline-proof">Timeline scoping proof: only events related to the selected ${entity.entityType} are rendered here.</div>
+        <div class="timeline-list" style="margin-top:14px;">
+          ${entity.timeline.map((event) => `
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div>
+                <h4>${event.title}</h4>
+                <div class="timeline-meta">${event.meta}</div>
+                <p>${event.body}</p>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderCounterparty(entity) {
+      counterpartyCard.innerHTML = `
+        <h3>Client Or Supplier</h3>
+        <div class="field-list">
+          <div class="field-row"><span>Name</span><strong>${entity.counterparty.name}</strong></div>
+          <div class="field-row"><span>Email</span><strong>${entity.counterparty.email}</strong></div>
+          <div class="field-row"><span>Phone</span><strong>${entity.counterparty.phone}</strong></div>
+        </div>
+      `;
+    }
+
+    function renderAmounts(entity) {
+      amountCard.innerHTML = `
+        <h3>Net VAT Gross</h3>
+        <div class="metric-grid">
+          <div class="metric"><span>Net Amount</span><strong>${entity.net}</strong></div>
+          <div class="metric"><span>VAT Amount</span><strong>${entity.vat}</strong></div>
+          <div class="metric"><span>Gross Amount</span><strong>${entity.gross}</strong></div>
+          <div class="metric"><span>Correction State</span><strong>${entity.correctionState}</strong></div>
+        </div>
+      `;
+    }
+
+    function renderAttachments(entity) {
+      attachmentCard.innerHTML = `
+        <h3>Attachments</h3>
+        <div class="attachment-list">
+          ${entity.attachments.length ? entity.attachments.map((attachment) => `
+            <div class="attachment-item">
+              <span>${attachment.kind}</span>
+              <strong>${attachment.path}</strong>
+              <div class="subtle" style="margin-top:6px;">${attachment.createdAt}</div>
+            </div>
+          `).join('') : '<div class="subtle">No attachments linked to this entity.</div>'}
+        </div>
+      `;
+    }
+
+    function renderNotes(entity) {
+      noteCard.innerHTML = `
+        <h3>Notes</h3>
+        <div class="note-list">
+          ${entity.notes.length ? entity.notes.map((note) => `
+            <div class="note-item">
+              <span>${note.kind}</span>
+              <strong>${note.text}</strong>
+              <div class="subtle" style="margin-top:6px;">${note.createdAt}</div>
+            </div>
+          `).join('') : '<div class="subtle">No notes linked to this entity.</div>'}
+        </div>
+      `;
+    }
+
+    function renderActions(entity) {
+      actionCard.innerHTML = `
+        <h3>Available Actions</h3>
+        <div class="action-row">
+          ${entity.actions.map((action) => `<span class="action">${action}</span>`).join('')}
+        </div>
+      `;
+    }
+
+    function render() {
+      const entity = entities[activeEntityKey];
+      document.title = `bizPA Entity Deep Dive - ${entity.title}`;
+      renderNav();
+      renderHero(entity);
+      renderSummary(entity);
+      renderTimeline(entity);
+      renderCounterparty(entity);
+      renderAmounts(entity);
+      renderAttachments(entity);
+      renderNotes(entity);
+      renderActions(entity);
+    }
+
+    function titleCase(value) {
+      return String(value).replace(/_/g, ' ').replace(/\b\w/g, (character) => character.toUpperCase());
+    }
+
+    syncUrl();
+    render();
+  </script>
+</body>
+</html>

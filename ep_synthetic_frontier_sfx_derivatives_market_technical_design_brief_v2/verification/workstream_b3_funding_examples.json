@@ -1,0 +1,120 @@
+[
+  {
+    "scenario_id": "normal_balanced",
+    "instrument_id": "NGNUSD_VOL",
+    "config": {
+      "base_funding_rate_per_hour": 0.0001,
+      "max_abs_funding_rate_per_hour": 0.0025,
+      "funding_settlement_interval_minutes": 60,
+      "funding_snapshot_interval_seconds": 300,
+      "volatility_target": 0.08,
+      "imbalance_scale_pct": 0.25,
+      "oi_velocity_scale_per_hour": 0.4,
+      "vault_spread_retention_pct": 0.1
+    },
+    "index_state": {
+      "published_index_value": 0.08,
+      "confidence_score": 0.92,
+      "calculation_state": "normal"
+    },
+    "market_state": {
+      "mark_price": 0.0812,
+      "long_open_interest_usdc": 5300000.0,
+      "short_open_interest_usdc": 4900000.0,
+      "open_interest_velocity_per_hour": 0.12,
+      "stress_multiplier": 1.0
+    },
+    "expected_output": {
+      "imbalance_pct": 0.039216,
+      "volatility_ratio": 1.0,
+      "oi_velocity_ratio": 0.3,
+      "funding_multiplier": 1.112679,
+      "funding_rate_per_hour": 0.000017,
+      "settlement_amount_usdc": {
+        "sample_long_position_notional_usdc": 100000.0,
+        "sample_long_cashflow_usdc": -1.7,
+        "sample_short_position_notional_usdc": 100000.0,
+        "sample_short_cashflow_usdc": 1.7
+      }
+    }
+  },
+  {
+    "scenario_id": "stress_long_crowding",
+    "instrument_id": "KESUSD_VOL",
+    "config": {
+      "base_funding_rate_per_hour": 0.0001,
+      "max_abs_funding_rate_per_hour": 0.0025,
+      "funding_settlement_interval_minutes": 60,
+      "funding_snapshot_interval_seconds": 300,
+      "volatility_target": 0.08,
+      "imbalance_scale_pct": 0.25,
+      "oi_velocity_scale_per_hour": 0.4,
+      "vault_spread_retention_pct": 0.1
+    },
+    "index_state": {
+      "published_index_value": 0.132,
+      "confidence_score": 0.88,
+      "calculation_state": "normal"
+    },
+    "market_state": {
+      "mark_price": 0.145,
+      "long_open_interest_usdc": 8400000.0,
+      "short_open_interest_usdc": 2100000.0,
+      "open_interest_velocity_per_hour": 0.68,
+      "stress_multiplier": 1.35
+    },
+    "expected_output": {
+      "imbalance_pct": 0.6,
+      "volatility_ratio": 1.65,
+      "oi_velocity_ratio": 1.7,
+      "funding_multiplier": 3.610763,
+      "funding_rate_per_hour": 0.000354,
+      "vault_residual_behavior": "longs_pay_shorts_up_to_live_short_base_then_vault_retains_remaining_spread",
+      "settlement_amount_usdc": {
+        "sample_long_position_notional_usdc": 250000.0,
+        "sample_long_cashflow_usdc": -88.5,
+        "sample_short_position_notional_usdc": 250000.0,
+        "sample_short_cashflow_usdc": 88.5
+      }
+    }
+  },
+  {
+    "scenario_id": "reversal_short_crowding",
+    "instrument_id": "GHSUSD_VOL",
+    "config": {
+      "base_funding_rate_per_hour": 0.0001,
+      "max_abs_funding_rate_per_hour": 0.0025,
+      "funding_settlement_interval_minutes": 60,
+      "funding_snapshot_interval_seconds": 300,
+      "volatility_target": 0.08,
+      "imbalance_scale_pct": 0.25,
+      "oi_velocity_scale_per_hour": 0.4,
+      "vault_spread_retention_pct": 0.1
+    },
+    "index_state": {
+      "published_index_value": 0.071,
+      "confidence_score": 0.83,
+      "calculation_state": "degraded"
+    },
+    "market_state": {
+      "mark_price": 0.068,
+      "long_open_interest_usdc": 3000000.0,
+      "short_open_interest_usdc": 5900000.0,
+      "open_interest_velocity_per_hour": 0.28,
+      "stress_multiplier": 1.1
+    },
+    "expected_output": {
+      "imbalance_pct": -0.325843,
+      "volatility_ratio": 0.8875,
+      "oi_velocity_ratio": 0.7,
+      "funding_multiplier": 1.491872,
+      "funding_rate_per_hour": -0.000129,
+      "settlement_amount_usdc": {
+        "sample_long_position_notional_usdc": 100000.0,
+        "sample_long_cashflow_usdc": 12.9,
+        "sample_short_position_notional_usdc": 100000.0,
+        "sample_short_cashflow_usdc": -12.9
+      }
+    }
+  }
+]

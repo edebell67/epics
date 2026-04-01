@@ -1,0 +1,264 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "workstream_a1_macro_volatility_index_schema.json",
+  "title": "Macro Volatility Index Source Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "input_observation",
+    "published_index_output"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "a1.v1"
+    },
+    "input_observation": {
+      "$ref": "#/$defs/inputObservation"
+    },
+    "published_index_output": {
+      "$ref": "#/$defs/publishedIndexOutput"
+    }
+  },
+  "$defs": {
+    "instrumentId": {
+      "type": "string",
+      "enum": [
+        "NGN_VOL",
+        "KES_VOL",
+        "GHS_VOL",
+        "ZAR_VOL"
+      ]
+    },
+    "sourceType": {
+      "type": "string",
+      "enum": [
+        "official_reference_rate",
+        "offshore_price",
+        "parallel_market_proxy"
+      ]
+    },
+    "sourceQualityFlag": {
+      "type": "string",
+      "enum": [
+        "ok",
+        "degraded",
+        "stale",
+        "manual_holdout",
+        "rejected"
+      ]
+    },
+    "marketStateFlag": {
+      "type": "string",
+      "enum": [
+        "normal",
+        "degraded",
+        "protected",
+        "halted"
+      ]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "inputObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "instrument_id",
+        "source_id",
+        "source_type",
+        "source_class_rank",
+        "observation_timestamp",
+        "ingestion_timestamp",
+        "quote_value",
+        "quote_currency",
+        "source_weight",
+        "freshness_seconds",
+        "source_quality_flag",
+        "collection_method"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "a1.v1"
+        },
+        "instrument_id": {
+          "$ref": "#/$defs/instrumentId"
+        },
+        "source_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_\\-]+$"
+        },
+        "source_type": {
+          "$ref": "#/$defs/sourceType"
+        },
+        "source_class_rank": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "observation_timestamp": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "ingestion_timestamp": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "quote_value": {
+          "type": "number"
+        },
+        "quote_currency": {
+          "type": "string",
+          "enum": [
+            "NGN",
+            "KES",
+            "GHS",
+            "ZAR"
+          ]
+        },
+        "usd_notional_basis": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "source_weight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "freshness_seconds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "source_quality_flag": {
+          "$ref": "#/$defs/sourceQualityFlag"
+        },
+        "collection_method": {
+          "type": "string",
+          "enum": [
+            "api",
+            "file_drop",
+            "manual_capture",
+            "derived_proxy"
+          ]
+        },
+        "quality_notes": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "publishedIndexOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "instrument_id",
+        "publication_timestamp",
+        "effective_observation_timestamp",
+        "smoothing_window",
+        "weighted_median_input_value",
+        "medianized_index_value",
+        "index_return_1h",
+        "index_return_24h",
+        "usable_source_count",
+        "source_weight_sum",
+        "market_state_flag",
+        "source_quality_flag"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "a1.v1"
+        },
+        "instrument_id": {
+          "$ref": "#/$defs/instrumentId"
+        },
+        "publication_timestamp": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "effective_observation_timestamp": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "official_reference_rate": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "offshore_price": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "parallel_market_proxy": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "smoothing_window": {
+          "type": "integer",
+          "minimum": 60
+        },
+        "weighted_median_input_value": {
+          "type": "number"
+        },
+        "medianized_index_value": {
+          "type": "number"
+        },
+        "index_return_1h": {
+          "type": "number"
+        },
+        "index_return_24h": {
+          "type": "number"
+        },
+        "usable_source_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "source_weight_sum": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "market_state_flag": {
+          "$ref": "#/$defs/marketStateFlag"
+        },
+        "source_quality_flag": {
+          "$ref": "#/$defs/sourceQualityFlag"
+        },
+        "degraded_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "market_state_flag": {
+                "const": "normal"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "degraded_reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "artifact": "liquidation_workflow_and_vault_backstop_rules",
+  "version": "1.0.0",
+  "fields": [
+    "maintenance_margin",
+    "liquidation_reference_price",
+    "partial_liquidation_step",
+    "penalty_rate",
+    "vault_takeover_condition",
+    "residual_loss_handling"
+  ],
+  "liquidation_reference": {
+    "source": "instrument_index",
+    "index_role": "reference_only",
+    "trade_price_source": "order_book_only",
+    "risk_confirmation_ticks": 2
+  },
+  "partial_liquidation": {
+    "mode": "deterministic_tranches",
+    "step_fraction_of_current_notional": 0.25,
+    "max_rounds": 3,
+    "recovery_buffer_fraction_of_maintenance_requirement": 0.1,
+    "execution_constraint": "forced_order_price_band"
+  },
+  "vault_intervention": {
+    "mode": "deterministic",
+    "trigger_requirements": [
+      "forced_liquidation_active",
+      "open_market_execution_cannot_restore_maintenance",
+      "instrument_vault_cap_headroom_available",
+      "market_vault_cap_headroom_available",
+      "not_in_hard_stop_circuit_breaker"
+    ],
+    "transfer_price_rule": "worse_of_last_executable_forced_price_or_reference_plus_adverse_buffer"
+  },
+  "penalty_model": {
+    "penalty_rate_type": "per_instrument_config",
+    "routing": {
+      "vault_reserve_fraction": 0.5,
+      "insurance_buffer_fraction": 0.5
+    }
+  },
+  "residual_loss_handling": {
+    "waterfall": [
+      "defaulting_account_collateral",
+      "unrouted_liquidation_penalties",
+      "instrument_insurance_buffer",
+      "general_vault_capital",
+      "socialized_loss_if_pre_enabled_else_market_halt"
+    ],
+    "reordering_allowed": false
+  },
+  "stress_safeguards": {
+    "clustered_liquidations": true,
+    "queue_ordering": "breach_severity_then_time_priority",
+    "max_concurrent_liquidations": "per_instrument_limit",
+    "dynamic_step_reduction": true,
+    "vault_takeover_throttle": true,
+    "circuit_breaker_escalation": true
+  }
+}

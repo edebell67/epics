@@ -1,0 +1,9 @@
+{
+  "name": "mvp-quarterly-export-domain-contracts",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "validate:mvp-domain-schemas": "node validate_mvp_domain_schemas.js",
+    "verify:transaction-import": "node verify_transaction_import.js"
+  }
+}

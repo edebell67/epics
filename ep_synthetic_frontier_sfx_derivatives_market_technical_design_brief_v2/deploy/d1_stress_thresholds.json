@@ -1,0 +1,87 @@
+{
+  "version": "2026-03-16",
+  "evaluation_interval_seconds": 30,
+  "deescalation_clean_intervals": 2,
+  "reemission_interval_seconds": 300,
+  "metrics": {
+    "volatility_acceleration": {
+      "formula": "max(0, (rv_5m - rv_30m) / max(rv_30m, 0.0025))",
+      "units": "ratio",
+      "lookbacks": {
+        "short_window": "5m",
+        "baseline_window": "30m"
+      },
+      "thresholds": {
+        "warning": 0.2,
+        "elevated": 0.45,
+        "emergency": 0.75
+      }
+    },
+    "imbalance_slope_change": {
+      "formula": "abs((slope_2m(imbalance_ratio) - slope_15m(imbalance_ratio)) + 0.35 * slope_2m(flow_skew)) * 10000",
+      "units": "bps_per_minute",
+      "lookbacks": {
+        "short_window": "2m",
+        "baseline_window": "15m"
+      },
+      "thresholds": {
+        "warning": 12,
+        "elevated": 25,
+        "emergency": 40
+      }
+    },
+    "liquidation_cluster_density": {
+      "formula": "(liquidation_notional_5m / max(open_interest, 1)) * max(1, peak_liquidation_notional_60s / max(avg_liquidation_notional_60s_5m, 1))",
+      "units": "oi_ratio_weighted",
+      "lookbacks": {
+        "accumulation_window": "5m",
+        "burst_window": "60s"
+      },
+      "thresholds": {
+        "warning": 0.015,
+        "elevated": 0.03,
+        "emergency": 0.05
+      }
+    },
+    "order_book_thinning_rate": {
+      "formula": "max(0, 1 - (avg_depth_10bps_30s / max(avg_depth_10bps_15m, 1)))",
+      "units": "depth_loss_ratio",
+      "lookbacks": {
+        "current_window": "30s",
+        "baseline_window": "15m"
+      },
+      "thresholds": {
+        "warning": 0.18,
+        "elevated": 0.35,
+        "emergency": 0.55
+      }
+    }
+  },
+  "aggregate_rules": [
+    "emergency_if_any_metric_emergency",
+    "emergency_if_oracle_halt_recommendation",
+    "emergency_if_two_metrics_elevated",
+    "elevated_if_any_metric_elevated",
+    "elevated_if_three_metrics_warning",
+    "warning_if_any_metric_warning",
+    "normal_otherwise"
+  ],
+  "recommended_actions": {
+    "warning": [
+      "freeze_leverage_increases",
+      "increase_monitoring_cadence",
+      "spread_floor_plus_10pct"
+    ],
+    "elevated": [
+      "compress_leverage_band_25pct",
+      "spread_floor_plus_25pct",
+      "tighten_position_caps_15pct"
+    ],
+    "emergency": [
+      "compress_leverage_band_50pct",
+      "spread_floor_plus_50pct",
+      "halt_new_risk_increasing_orders",
+      "arm_circuit_breaker_evaluation"
+    ]
+  }
+}

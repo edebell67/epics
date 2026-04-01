@@ -1,0 +1,85 @@
+{
+  "schema_version": "2026-03-11.a1",
+  "contracts": {
+    "accounting_export": {
+      "plugin_type": "accounting_export",
+      "display_name": "Accounting Export Connector",
+      "contract_version": "2026-03-11.a1",
+      "summary": "Generates outbound accounting payloads without allowing inbound ledger mutation in the MVP.",
+      "required_capabilities": [
+        "validate_export_batch",
+        "build_export_payload",
+        "report_delivery_status"
+      ],
+      "governance_controls": [
+        "enabled",
+        "version",
+        "tenant_scope",
+        "rollout_stage",
+        "rollback_target"
+      ],
+      "inbound_data_policy": "No inbound writes to core transactions in MVP.",
+      "outbound_data_policy": "Export-only payload generation."
+    },
+    "payments": {
+      "plugin_type": "payments",
+      "display_name": "Payments Connector",
+      "contract_version": "2026-03-11.a1",
+      "summary": "Provides payment intent and settlement status boundaries while keeping vendor orchestration outside the MVP core.",
+      "required_capabilities": [
+        "create_payment_intent",
+        "cancel_payment_intent",
+        "fetch_payment_status"
+      ],
+      "governance_controls": [
+        "enabled",
+        "version",
+        "tenant_scope",
+        "rollout_stage",
+        "rollback_target"
+      ],
+      "inbound_data_policy": "Status sync only; no direct mutation of unrelated records.",
+      "outbound_data_policy": "Connector receives payment requests from approved workflows only."
+    },
+    "communications": {
+      "plugin_type": "communications",
+      "display_name": "Communications Connector",
+      "contract_version": "2026-03-11.a1",
+      "summary": "Wraps outbound and inbound customer communication adapters behind a governed message contract.",
+      "required_capabilities": [
+        "send_message",
+        "fetch_delivery_receipt",
+        "record_inbound_message"
+      ],
+      "governance_controls": [
+        "enabled",
+        "version",
+        "tenant_scope",
+        "rollout_stage",
+        "rollback_target"
+      ],
+      "inbound_data_policy": "Inbound payloads must be normalized before entering core models.",
+      "outbound_data_policy": "Only message-safe payloads leave the core."
+    },
+    "calendar": {
+      "plugin_type": "calendar",
+      "display_name": "Calendar Connector",
+      "contract_version": "2026-03-11.a1",
+      "summary": "Defines scheduling synchronization boundaries for external calendar providers.",
+      "required_capabilities": [
+        "upsert_calendar_event",
+        "cancel_calendar_event",
+        "list_event_changes"
+      ],
+      "governance_controls": [
+        "enabled",
+        "version",
+        "tenant_scope",
+        "rollout_stage",
+        "rollback_target"
+      ],
+      "inbound_data_policy": "Calendar deltas must be scoped to the owning tenant.",
+      "outbound_data_policy": "Connector emits scheduling changes only for permitted tenant_scope."
+    }
+  }
+}

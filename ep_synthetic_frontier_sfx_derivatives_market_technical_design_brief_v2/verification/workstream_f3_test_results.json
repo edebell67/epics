@@ -1,0 +1,1087 @@
+{
+  "library_id": "f3.shock.validation.v1",
+  "generated_at": "2026-03-18T17:45:00Z",
+  "overall_pass": true,
+  "passing_scenarios": [
+    "ngn_30_orderly_dislocation",
+    "kes_35_proxy_gap_recovery",
+    "ghs_50_liquidity_lockdown",
+    "zar_40_deep_book_stress"
+  ],
+  "failing_scenarios": [],
+  "results": [
+    {
+      "scenario_id": "ngn_30_orderly_dislocation",
+      "instrument_id": "NGN_VOL",
+      "shock_size": 0.3,
+      "liquidity_regime": "guarded",
+      "source_degradation_mode": "degraded",
+      "stress_event": {
+        "event_id": "ngn_30_orderly_dislocation_stress_event",
+        "instrument_id": "NGN_VOL",
+        "market_id": "NGN_VOL_PERP",
+        "event_timestamp": "2026-03-18T17:45:00Z",
+        "evaluation_window": {
+          "started_at": "2026-03-18T17:44:30Z",
+          "ended_at": "2026-03-18T17:45:00Z",
+          "evaluation_interval_seconds": 30
+        },
+        "stress_level": "emergency",
+        "stress_score": 6,
+        "metric_values": {
+          "volatility_acceleration": 0.58,
+          "imbalance_slope_change": 28.0,
+          "liquidation_cluster_density": 0.021,
+          "order_book_thinning_rate": 0.31
+        },
+        "metric_severities": {
+          "volatility_acceleration": "elevated",
+          "imbalance_slope_change": "elevated",
+          "liquidation_cluster_density": "warning",
+          "order_book_thinning_rate": "warning"
+        },
+        "triggered_thresholds": [
+          {
+            "metric": "volatility_acceleration",
+            "severity": "elevated",
+            "threshold": 0.45
+          },
+          {
+            "metric": "imbalance_slope_change",
+            "severity": "elevated",
+            "threshold": 25
+          },
+          {
+            "metric": "liquidation_cluster_density",
+            "severity": "warning",
+            "threshold": 0.015
+          },
+          {
+            "metric": "order_book_thinning_rate",
+            "severity": "warning",
+            "threshold": 0.18
+          }
+        ],
+        "dependency_snapshot": {
+          "oracle_health": {
+            "confidence_score": 0.78,
+            "source_health_score": 0.69,
+            "source_quorum_met": true,
+            "calculation_state": "degraded",
+            "halt_recommendation": false,
+            "instability_state": "soft_divergence"
+          },
+          "order_book": {
+            "published_index_value": 0.123,
+            "mark_price": 0.134,
+            "long_open_interest_usdc": 315000.0,
+            "short_open_interest_usdc": 180000.0,
+            "open_interest_velocity_per_hour": 0.34,
+            "depth_within_band_ratio": 0.74,
+            "book_imbalance": 0.28
+          },
+          "vault_state": {
+            "vault_capital": 900000.0,
+            "reserved_buffer": 135000.0,
+            "net_exposure": -65000.0,
+            "exposure_cap": 108000.0,
+            "projected_shock_loss_fraction_of_capital": 0.055
+          },
+          "leverage_state": {
+            "launch_mode": true
+          },
+          "spread_state": {
+            "liquidity_regime": "guarded"
+          }
+        },
+        "recommended_actions": [
+          "compress_leverage_band_50pct",
+          "spread_floor_plus_50pct",
+          "halt_new_risk_increasing_orders",
+          "arm_circuit_breaker_evaluation"
+        ],
+        "oracle_override": {
+          "halt_recommendation": false,
+          "instability_state": "soft_divergence"
+        },
+        "audit_context": {
+          "rule_version": "2026-03-16",
+          "producer": "workstream_f3_shock_validation_harness",
+          "sequence_id": 1
+        }
+      },
+      "control_reactions": {
+        "instrument_id": "NGN_VOL_PERP",
+        "stress_level": "emergency",
+        "target_stress_level": "emergency",
+        "trigger_summary": [
+          {
+            "signal": "oracle_health_degradation",
+            "severity": "emergency"
+          },
+          {
+            "signal": "volatility_acceleration",
+            "severity": "elevated"
+          },
+          {
+            "signal": "imbalance_slope_change",
+            "severity": "elevated"
+          },
+          {
+            "signal": "order_book_thinning_rate",
+            "severity": "warning"
+          },
+          {
+            "signal": "liquidation_cluster_density",
+            "severity": "warning"
+          }
+        ],
+        "cooldown_seconds": 1800,
+        "actions": {
+          "leverage_band": {
+            "value": 0.4,
+            "mode": "multiply"
+          },
+          "funding_multiplier": {
+            "value": 2.5,
+            "mode": "multiply"
+          },
+          "minimum_spread": {
+            "value": 2.25,
+            "mode": "multiply"
+          },
+          "position_size_cap": {
+            "value": 0.5,
+            "mode": "multiply"
+          },
+          "open_interest_cap": {
+            "value": 0.65,
+            "mode": "multiply"
+          }
+        },
+        "transparency_fields": [
+          "stress_level",
+          "target_stress_level",
+          "trigger_summary",
+          "cooldown_seconds",
+          "actions"
+        ]
+      },
+      "vault_outcome": {
+        "vault_capital_before_shock": 900000.0,
+        "vault_capital_after_shock": 863694.0,
+        "vault_capital_ratio_after_shock": 0.9597,
+        "reserved_buffer": 135000.0,
+        "post_shock_exposure_utilization": 0.9259,
+        "vault_outcome": "intact",
+        "vault_capital_intact": true
+      },
+      "funding_stabilization_result": {
+        "funding_rate_per_hour": 0.00054,
+        "funding_multiplier": 4.517629,
+        "crowded_side": "longs",
+        "stabilization_score": 0.000688,
+        "funding_stabilization_result": "stabilizing"
+      },
+      "market_status_timeline": [
+        {
+          "state": "ACTIVE",
+          "reason": "baseline",
+          "minute": 0
+        },
+        {
+          "state": "HALTED",
+          "reason": "compound_emergency",
+          "minute": 2
+        },
+        {
+          "state": "REOPEN_STAGE_1",
+          "reason": "cooldown_elapsed",
+          "minute": 20
+        },
+        {
+          "state": "REOPEN_STAGE_2",
+          "reason": "staged_matching_restored",
+          "minute": 35
+        },
+        {
+          "state": "ACTIVE_POST_RECOVERY",
+          "reason": "observation_window_started",
+          "minute": 50
+        }
+      ],
+      "control_reaction_attribution": {
+        "leverage_band": {
+          "scalar": 0.4,
+          "impact": "reduced risk expansion during shock"
+        },
+        "funding_multiplier": {
+          "scalar": 2.5,
+          "impact": "stabilizing"
+        },
+        "minimum_spread": {
+          "scalar": 2.25,
+          "impact": "spread income and adverse-selection defense supported vault capital preservation"
+        },
+        "position_size_cap": {
+          "scalar": 0.5,
+          "impact": "reduced incremental order risk during stress"
+        },
+        "open_interest_cap": {
+          "scalar": 0.65,
+          "impact": "post_shock_exposure_utilization=0.9259"
+        },
+        "market_status_timeline": [
+          {
+            "state": "ACTIVE",
+            "reason": "baseline",
+            "minute": 0
+          },
+          {
+            "state": "HALTED",
+            "reason": "compound_emergency",
+            "minute": 2
+          },
+          {
+            "state": "REOPEN_STAGE_1",
+            "reason": "cooldown_elapsed",
+            "minute": 20
+          },
+          {
+            "state": "REOPEN_STAGE_2",
+            "reason": "staged_matching_restored",
+            "minute": 35
+          },
+          {
+            "state": "ACTIVE_POST_RECOVERY",
+            "reason": "observation_window_started",
+            "minute": 50
+          }
+        ]
+      },
+      "scorecard": {
+        "dimension_results": {
+          "vault_capital_integrity": true,
+          "liquidity_continuity": true,
+          "funding_stabilization": true,
+          "transparency_outputs": true,
+          "governance_stability": true
+        },
+        "overall_pass": true,
+        "transparency_fields_present": {
+          "stress_event": true,
+          "actions": true,
+          "trigger_summary": true,
+          "market_status_timeline": true,
+          "vault_outcome": true
+        }
+      },
+      "scorecard_template_path": "C:\\Users\\edebe\\eds\\ep_synthetic_frontier_sfx_derivatives_market_technical_design_brief_v2\\solution\\workstreams\\workstream_f3_shock_scorecard_template.md"
+    },
+    {
+      "scenario_id": "kes_35_proxy_gap_recovery",
+      "instrument_id": "KES_VOL",
+      "shock_size": 0.35,
+      "liquidity_regime": "guarded_plus",
+      "source_degradation_mode": "hold_last_value",
+      "stress_event": {
+        "event_id": "kes_35_proxy_gap_recovery_stress_event",
+        "instrument_id": "KES_VOL",
+        "market_id": "KES_VOL_PERP",
+        "event_timestamp": "2026-03-18T17:45:00Z",
+        "evaluation_window": {
+          "started_at": "2026-03-18T17:44:30Z",
+          "ended_at": "2026-03-18T17:45:00Z",
+          "evaluation_interval_seconds": 30
+        },
+        "stress_level": "emergency",
+        "stress_score": 7,
+        "metric_values": {
+          "volatility_acceleration": 0.64,
+          "imbalance_slope_change": 32.0,
+          "liquidation_cluster_density": 0.028,
+          "order_book_thinning_rate": 0.36
+        },
+        "metric_severities": {
+          "volatility_acceleration": "elevated",
+          "imbalance_slope_change": "elevated",
+          "liquidation_cluster_density": "warning",
+          "order_book_thinning_rate": "elevated"
+        },
+        "triggered_thresholds": [
+          {
+            "metric": "volatility_acceleration",
+            "severity": "elevated",
+            "threshold": 0.45
+          },
+          {
+            "metric": "imbalance_slope_change",
+            "severity": "elevated",
+            "threshold": 25
+          },
+          {
+            "metric": "liquidation_cluster_density",
+            "severity": "warning",
+            "threshold": 0.015
+          },
+          {
+            "metric": "order_book_thinning_rate",
+            "severity": "elevated",
+            "threshold": 0.35
+          }
+        ],
+        "dependency_snapshot": {
+          "oracle_health": {
+            "confidence_score": 0.71,
+            "source_health_score": 0.61,
+            "source_quorum_met": true,
+            "calculation_state": "hold_last_value",
+            "halt_recommendation": false,
+            "instability_state": "proxy_weight_shift"
+          },
+          "order_book": {
+            "published_index_value": 0.116,
+            "mark_price": 0.129,
+            "long_open_interest_usdc": 290000.0,
+            "short_open_interest_usdc": 150000.0,
+            "open_interest_velocity_per_hour": 0.37,
+            "depth_within_band_ratio": 0.67,
+            "book_imbalance": 0.32
+          },
+          "vault_state": {
+            "vault_capital": 975000.0,
+            "reserved_buffer": 150000.0,
+            "net_exposure": -72000.0,
+            "exposure_cap": 146250.0,
+            "projected_shock_loss_fraction_of_capital": 0.064
+          },
+          "leverage_state": {
+            "launch_mode": true
+          },
+          "spread_state": {
+            "liquidity_regime": "guarded_plus"
+          }
+        },
+        "recommended_actions": [
+          "compress_leverage_band_50pct",
+          "spread_floor_plus_50pct",
+          "halt_new_risk_increasing_orders",
+          "arm_circuit_breaker_evaluation"
+        ],
+        "oracle_override": {
+          "halt_recommendation": false,
+          "instability_state": "proxy_weight_shift"
+        },
+        "audit_context": {
+          "rule_version": "2026-03-16",
+          "producer": "workstream_f3_shock_validation_harness",
+          "sequence_id": 1
+        }
+      },
+      "control_reactions": {
+        "instrument_id": "KES_VOL_PERP",
+        "stress_level": "emergency",
+        "target_stress_level": "emergency",
+        "trigger_summary": [
+          {
+            "signal": "oracle_health_degradation",
+            "severity": "emergency"
+          },
+          {
+            "signal": "order_book_thinning_rate",
+            "severity": "elevated"
+          },
+          {
+            "signal": "volatility_acceleration",
+            "severity": "elevated"
+          },
+          {
+            "signal": "imbalance_slope_change",
+            "severity": "elevated"
+          },
+          {
+            "signal": "liquidation_cluster_density",
+            "severity": "warning"
+          }
+        ],
+        "cooldown_seconds": 1800,
+        "actions": {
+          "leverage_band": {
+            "value": 0.4,
+            "mode": "multiply"
+          },
+          "funding_multiplier": {
+            "value": 2.5,
+            "mode": "multiply"
+          },
+          "minimum_spread": {
+            "value": 2.25,
+            "mode": "multiply"
+          },
+          "position_size_cap": {
+            "value": 0.5,
+            "mode": "multiply"
+          },
+          "open_interest_cap": {
+            "value": 0.65,
+            "mode": "multiply"
+          }
+        },
+        "transparency_fields": [
+          "stress_level",
+          "target_stress_level",
+          "trigger_summary",
+          "cooldown_seconds",
+          "actions"
+        ]
+      },
+      "vault_outcome": {
+        "vault_capital_before_shock": 975000.0,
+        "vault_capital_after_shock": 927162.6,
+        "vault_capital_ratio_after_shock": 0.9509,
+        "reserved_buffer": 150000.0,
+        "post_shock_exposure_utilization": 0.7574,
+        "vault_outcome": "intact",
+        "vault_capital_intact": true
+      },
+      "funding_stabilization_result": {
+        "funding_rate_per_hour": 0.000609,
+        "funding_multiplier": 5.091026,
+        "crowded_side": "longs",
+        "stabilization_score": 0.000803,
+        "funding_stabilization_result": "stabilizing"
+      },
+      "market_status_timeline": [
+        {
+          "state": "ACTIVE",
+          "reason": "baseline",
+          "minute": 0
+        },
+        {
+          "state": "HALTED",
+          "reason": "compound_emergency",
+          "minute": 2
+        },
+        {
+          "state": "REOPEN_STAGE_1",
+          "reason": "cooldown_elapsed",
+          "minute": 20
+        },
+        {
+          "state": "REOPEN_STAGE_2",
+          "reason": "staged_matching_restored",
+          "minute": 35
+        },
+        {
+          "state": "ACTIVE_POST_RECOVERY",
+          "reason": "observation_window_started",
+          "minute": 50
+        }
+      ],
+      "control_reaction_attribution": {
+        "leverage_band": {
+          "scalar": 0.4,
+          "impact": "reduced risk expansion during shock"
+        },
+        "funding_multiplier": {
+          "scalar": 2.5,
+          "impact": "stabilizing"
+        },
+        "minimum_spread": {
+          "scalar": 2.25,
+          "impact": "spread income and adverse-selection defense supported vault capital preservation"
+        },
+        "position_size_cap": {
+          "scalar": 0.5,
+          "impact": "reduced incremental order risk during stress"
+        },
+        "open_interest_cap": {
+          "scalar": 0.65,
+          "impact": "post_shock_exposure_utilization=0.7574"
+        },
+        "market_status_timeline": [
+          {
+            "state": "ACTIVE",
+            "reason": "baseline",
+            "minute": 0
+          },
+          {
+            "state": "HALTED",
+            "reason": "compound_emergency",
+            "minute": 2
+          },
+          {
+            "state": "REOPEN_STAGE_1",
+            "reason": "cooldown_elapsed",
+            "minute": 20
+          },
+          {
+            "state": "REOPEN_STAGE_2",
+            "reason": "staged_matching_restored",
+            "minute": 35
+          },
+          {
+            "state": "ACTIVE_POST_RECOVERY",
+            "reason": "observation_window_started",
+            "minute": 50
+          }
+        ]
+      },
+      "scorecard": {
+        "dimension_results": {
+          "vault_capital_integrity": true,
+          "liquidity_continuity": true,
+          "funding_stabilization": true,
+          "transparency_outputs": true,
+          "governance_stability": true
+        },
+        "overall_pass": true,
+        "transparency_fields_present": {
+          "stress_event": true,
+          "actions": true,
+          "trigger_summary": true,
+          "market_status_timeline": true,
+          "vault_outcome": true
+        }
+      },
+      "scorecard_template_path": "C:\\Users\\edebe\\eds\\ep_synthetic_frontier_sfx_derivatives_market_technical_design_brief_v2\\solution\\workstreams\\workstream_f3_shock_scorecard_template.md"
+    },
+    {
+      "scenario_id": "ghs_50_liquidity_lockdown",
+      "instrument_id": "GHS_VOL",
+      "shock_size": 0.5,
+      "liquidity_regime": "guarded",
+      "source_degradation_mode": "halt",
+      "stress_event": {
+        "event_id": "ghs_50_liquidity_lockdown_stress_event",
+        "instrument_id": "GHS_VOL",
+        "market_id": "GHS_VOL_PERP",
+        "event_timestamp": "2026-03-18T17:45:00Z",
+        "evaluation_window": {
+          "started_at": "2026-03-18T17:44:30Z",
+          "ended_at": "2026-03-18T17:45:00Z",
+          "evaluation_interval_seconds": 30
+        },
+        "stress_level": "emergency",
+        "stress_score": 12,
+        "metric_values": {
+          "volatility_acceleration": 0.91,
+          "imbalance_slope_change": 44.0,
+          "liquidation_cluster_density": 0.061,
+          "order_book_thinning_rate": 0.62
+        },
+        "metric_severities": {
+          "volatility_acceleration": "emergency",
+          "imbalance_slope_change": "emergency",
+          "liquidation_cluster_density": "emergency",
+          "order_book_thinning_rate": "emergency"
+        },
+        "triggered_thresholds": [
+          {
+            "metric": "volatility_acceleration",
+            "severity": "emergency",
+            "threshold": 0.75
+          },
+          {
+            "metric": "imbalance_slope_change",
+            "severity": "emergency",
+            "threshold": 40
+          },
+          {
+            "metric": "liquidation_cluster_density",
+            "severity": "emergency",
+            "threshold": 0.05
+          },
+          {
+            "metric": "order_book_thinning_rate",
+            "severity": "emergency",
+            "threshold": 0.55
+          },
+          {
+            "metric": "oracle_override",
+            "severity": "emergency",
+            "threshold": "halt_recommendation=true"
+          }
+        ],
+        "dependency_snapshot": {
+          "oracle_health": {
+            "confidence_score": 0.44,
+            "source_health_score": 0.36,
+            "source_quorum_met": false,
+            "calculation_state": "halt",
+            "halt_recommendation": true,
+            "instability_state": "quorum_loss"
+          },
+          "order_book": {
+            "published_index_value": 0.141,
+            "mark_price": 0.165,
+            "long_open_interest_usdc": 245000.0,
+            "short_open_interest_usdc": 92000.0,
+            "open_interest_velocity_per_hour": 0.52,
+            "depth_within_band_ratio": 0.29,
+            "book_imbalance": 0.46
+          },
+          "vault_state": {
+            "vault_capital": 850000.0,
+            "reserved_buffer": 170000.0,
+            "net_exposure": -36000.0,
+            "exposure_cap": 85000.0,
+            "projected_shock_loss_fraction_of_capital": 0.082
+          },
+          "leverage_state": {
+            "launch_mode": true
+          },
+          "spread_state": {
+            "liquidity_regime": "guarded"
+          }
+        },
+        "recommended_actions": [
+          "compress_leverage_band_50pct",
+          "spread_floor_plus_50pct",
+          "halt_new_risk_increasing_orders",
+          "arm_circuit_breaker_evaluation"
+        ],
+        "oracle_override": {
+          "halt_recommendation": true,
+          "instability_state": "quorum_loss"
+        },
+        "audit_context": {
+          "rule_version": "2026-03-16",
+          "producer": "workstream_f3_shock_validation_harness",
+          "sequence_id": 1
+        }
+      },
+      "control_reactions": {
+        "instrument_id": "GHS_VOL_PERP",
+        "stress_level": "emergency",
+        "target_stress_level": "emergency",
+        "trigger_summary": [
+          {
+            "signal": "order_book_thinning_rate",
+            "severity": "emergency"
+          },
+          {
+            "signal": "liquidation_cluster_density",
+            "severity": "emergency"
+          },
+          {
+            "signal": "volatility_acceleration",
+            "severity": "emergency"
+          },
+          {
+            "signal": "imbalance_slope_change",
+            "severity": "emergency"
+          },
+          {
+            "signal": "oracle_health_degradation",
+            "severity": "emergency"
+          }
+        ],
+        "cooldown_seconds": 1800,
+        "actions": {
+          "leverage_band": {
+            "value": 0.4,
+            "mode": "multiply"
+          },
+          "funding_multiplier": {
+            "value": 2.5,
+            "mode": "multiply"
+          },
+          "minimum_spread": {
+            "value": 2.25,
+            "mode": "multiply"
+          },
+          "position_size_cap": {
+            "value": 0.5,
+            "mode": "multiply"
+          },
+          "open_interest_cap": {
+            "value": 0.65,
+            "mode": "multiply"
+          }
+        },
+        "transparency_fields": [
+          "stress_level",
+          "target_stress_level",
+          "trigger_summary",
+          "cooldown_seconds",
+          "actions"
+        ]
+      },
+      "vault_outcome": {
+        "vault_capital_before_shock": 850000.0,
+        "vault_capital_after_shock": 790925.0,
+        "vault_capital_ratio_after_shock": 0.9305,
+        "reserved_buffer": 170000.0,
+        "post_shock_exposure_utilization": 0.6516,
+        "vault_outcome": "protected_recovery",
+        "vault_capital_intact": true
+      },
+      "funding_stabilization_result": {
+        "funding_rate_per_hour": 0.0,
+        "funding_multiplier": 0.0,
+        "crowded_side": "longs",
+        "stabilization_score": 0.0,
+        "funding_stabilization_result": "funding_frozen_due_to_halt"
+      },
+      "market_status_timeline": [
+        {
+          "state": "ACTIVE",
+          "reason": "baseline",
+          "minute": 0
+        },
+        {
+          "state": "HALTED_LOCKDOWN",
+          "reason": "oracle_quorum_loss",
+          "minute": 2
+        },
+        {
+          "state": "REOPEN_STAGE_1",
+          "reason": "cooldown_and_source_recovery",
+          "minute": 35
+        },
+        {
+          "state": "REOPEN_STAGE_2",
+          "reason": "depth_recovery_requirement_met",
+          "minute": 55
+        },
+        {
+          "state": "ACTIVE_POST_RECOVERY",
+          "reason": "stability_window_started",
+          "minute": 80
+        }
+      ],
+      "control_reaction_attribution": {
+        "leverage_band": {
+          "scalar": 0.4,
+          "impact": "reduced risk expansion during shock"
+        },
+        "funding_multiplier": {
+          "scalar": 2.5,
+          "impact": "funding_frozen_due_to_halt"
+        },
+        "minimum_spread": {
+          "scalar": 2.25,
+          "impact": "spread income and adverse-selection defense supported vault capital preservation"
+        },
+        "position_size_cap": {
+          "scalar": 0.5,
+          "impact": "reduced incremental order risk during stress"
+        },
+        "open_interest_cap": {
+          "scalar": 0.65,
+          "impact": "post_shock_exposure_utilization=0.6516"
+        },
+        "market_status_timeline": [
+          {
+            "state": "ACTIVE",
+            "reason": "baseline",
+            "minute": 0
+          },
+          {
+            "state": "HALTED_LOCKDOWN",
+            "reason": "oracle_quorum_loss",
+            "minute": 2
+          },
+          {
+            "state": "REOPEN_STAGE_1",
+            "reason": "cooldown_and_source_recovery",
+            "minute": 35
+          },
+          {
+            "state": "REOPEN_STAGE_2",
+            "reason": "depth_recovery_requirement_met",
+            "minute": 55
+          },
+          {
+            "state": "ACTIVE_POST_RECOVERY",
+            "reason": "stability_window_started",
+            "minute": 80
+          }
+        ]
+      },
+      "scorecard": {
+        "dimension_results": {
+          "vault_capital_integrity": true,
+          "liquidity_continuity": true,
+          "funding_stabilization": true,
+          "transparency_outputs": true,
+          "governance_stability": true
+        },
+        "overall_pass": true,
+        "transparency_fields_present": {
+          "stress_event": true,
+          "actions": true,
+          "trigger_summary": true,
+          "market_status_timeline": true,
+          "vault_outcome": true
+        }
+      },
+      "scorecard_template_path": "C:\\Users\\edebe\\eds\\ep_synthetic_frontier_sfx_derivatives_market_technical_design_brief_v2\\solution\\workstreams\\workstream_f3_shock_scorecard_template.md"
+    },
+    {
+      "scenario_id": "zar_40_deep_book_stress",
+      "instrument_id": "ZAR_VOL",
+      "shock_size": 0.4,
+      "liquidity_regime": "best_of_phase_1",
+      "source_degradation_mode": "normal",
+      "stress_event": {
+        "event_id": "zar_40_deep_book_stress_stress_event",
+        "instrument_id": "ZAR_VOL",
+        "market_id": "ZAR_VOL_PERP",
+        "event_timestamp": "2026-03-18T17:45:00Z",
+        "evaluation_window": {
+          "started_at": "2026-03-18T17:44:30Z",
+          "ended_at": "2026-03-18T17:45:00Z",
+          "evaluation_interval_seconds": 30
+        },
+        "stress_level": "emergency",
+        "stress_score": 8,
+        "metric_values": {
+          "volatility_acceleration": 0.72,
+          "imbalance_slope_change": 26.0,
+          "liquidation_cluster_density": 0.033,
+          "order_book_thinning_rate": 0.41
+        },
+        "metric_severities": {
+          "volatility_acceleration": "elevated",
+          "imbalance_slope_change": "elevated",
+          "liquidation_cluster_density": "elevated",
+          "order_book_thinning_rate": "elevated"
+        },
+        "triggered_thresholds": [
+          {
+            "metric": "volatility_acceleration",
+            "severity": "elevated",
+            "threshold": 0.45
+          },
+          {
+            "metric": "imbalance_slope_change",
+            "severity": "elevated",
+            "threshold": 25
+          },
+          {
+            "metric": "liquidation_cluster_density",
+            "severity": "elevated",
+            "threshold": 0.03
+          },
+          {
+            "metric": "order_book_thinning_rate",
+            "severity": "elevated",
+            "threshold": 0.35
+          }
+        ],
+        "dependency_snapshot": {
+          "oracle_health": {
+            "confidence_score": 0.88,
+            "source_health_score": 0.83,
+            "source_quorum_met": true,
+            "calculation_state": "normal",
+            "halt_recommendation": false,
+            "instability_state": "stable"
+          },
+          "order_book": {
+            "published_index_value": 0.098,
+            "mark_price": 0.108,
+            "long_open_interest_usdc": 410000.0,
+            "short_open_interest_usdc": 245000.0,
+            "open_interest_velocity_per_hour": 0.41,
+            "depth_within_band_ratio": 0.58,
+            "book_imbalance": 0.25
+          },
+          "vault_state": {
+            "vault_capital": 1125000.0,
+            "reserved_buffer": 185000.0,
+            "net_exposure": -94000.0,
+            "exposure_cap": 202500.0,
+            "projected_shock_loss_fraction_of_capital": 0.058
+          },
+          "leverage_state": {
+            "launch_mode": true
+          },
+          "spread_state": {
+            "liquidity_regime": "best_of_phase_1"
+          }
+        },
+        "recommended_actions": [
+          "compress_leverage_band_50pct",
+          "spread_floor_plus_50pct",
+          "halt_new_risk_increasing_orders",
+          "arm_circuit_breaker_evaluation"
+        ],
+        "oracle_override": {
+          "halt_recommendation": false,
+          "instability_state": "stable"
+        },
+        "audit_context": {
+          "rule_version": "2026-03-16",
+          "producer": "workstream_f3_shock_validation_harness",
+          "sequence_id": 1
+        }
+      },
+      "control_reactions": {
+        "instrument_id": "ZAR_VOL_PERP",
+        "stress_level": "elevated",
+        "target_stress_level": "elevated",
+        "trigger_summary": [
+          {
+            "signal": "order_book_thinning_rate",
+            "severity": "elevated"
+          },
+          {
+            "signal": "liquidation_cluster_density",
+            "severity": "elevated"
+          },
+          {
+            "signal": "volatility_acceleration",
+            "severity": "elevated"
+          },
+          {
+            "signal": "imbalance_slope_change",
+            "severity": "elevated"
+          }
+        ],
+        "cooldown_seconds": 900,
+        "actions": {
+          "leverage_band": {
+            "value": 0.65,
+            "mode": "multiply"
+          },
+          "funding_multiplier": {
+            "value": 1.75,
+            "mode": "multiply"
+          },
+          "minimum_spread": {
+            "value": 1.5,
+            "mode": "multiply"
+          },
+          "position_size_cap": {
+            "value": 0.7,
+            "mode": "multiply"
+          },
+          "open_interest_cap": {
+            "value": 0.85,
+            "mode": "multiply"
+          }
+        },
+        "transparency_fields": [
+          "stress_level",
+          "target_stress_level",
+          "trigger_summary",
+          "cooldown_seconds",
+          "actions"
+        ]
+      },
+      "vault_outcome": {
+        "vault_capital_before_shock": 1125000.0,
+        "vault_capital_after_shock": 1066590.0,
+        "vault_capital_ratio_after_shock": 0.9481,
+        "reserved_buffer": 185000.0,
+        "post_shock_exposure_utilization": 0.5461,
+        "vault_outcome": "tightened_but_intact",
+        "vault_capital_intact": true
+      },
+      "funding_stabilization_result": {
+        "funding_rate_per_hour": 0.00027,
+        "funding_multiplier": 2.941748,
+        "crowded_side": "longs",
+        "stabilization_score": 0.000338,
+        "funding_stabilization_result": "stabilizing"
+      },
+      "market_status_timeline": [
+        {
+          "state": "ACTIVE",
+          "reason": "baseline",
+          "minute": 0
+        },
+        {
+          "state": "HALTED",
+          "reason": "compound_emergency",
+          "minute": 2
+        },
+        {
+          "state": "REOPEN_STAGE_1",
+          "reason": "cooldown_elapsed",
+          "minute": 20
+        },
+        {
+          "state": "REOPEN_STAGE_2",
+          "reason": "staged_matching_restored",
+          "minute": 35
+        },
+        {
+          "state": "ACTIVE_POST_RECOVERY",
+          "reason": "observation_window_started",
+          "minute": 50
+        }
+      ],
+      "control_reaction_attribution": {
+        "leverage_band": {
+          "scalar": 0.65,
+          "impact": "reduced risk expansion during shock"
+        },
+        "funding_multiplier": {
+          "scalar": 1.75,
+          "impact": "stabilizing"
+        },
+        "minimum_spread": {
+          "scalar": 1.5,
+          "impact": "spread income and adverse-selection defense supported vault capital preservation"
+        },
+        "position_size_cap": {
+          "scalar": 0.7,
+          "impact": "reduced incremental order risk during stress"
+        },
+        "open_interest_cap": {
+          "scalar": 0.85,
+          "impact": "post_shock_exposure_utilization=0.5461"
+        },
+        "market_status_timeline": [
+          {
+            "state": "ACTIVE",
+            "reason": "baseline",
+            "minute": 0
+          },
+          {
+            "state": "HALTED",
+            "reason": "compound_emergency",
+            "minute": 2
+          },
+          {
+            "state": "REOPEN_STAGE_1",
+            "reason": "cooldown_elapsed",
+            "minute": 20
+          },
+          {
+            "state": "REOPEN_STAGE_2",
+            "reason": "staged_matching_restored",
+            "minute": 35
+          },
+          {
+            "state": "ACTIVE_POST_RECOVERY",
+            "reason": "observation_window_started",
+            "minute": 50
+          }
+        ]
+      },
+      "scorecard": {
+        "dimension_results": {
+          "vault_capital_integrity": true,
+          "liquidity_continuity": true,
+          "funding_stabilization": true,
+          "transparency_outputs": true,
+          "governance_stability": true
+        },
+        "overall_pass": true,
+        "transparency_fields_present": {
+          "stress_event": true,
+          "actions": true,
+          "trigger_summary": true,
+          "market_status_timeline": true,
+          "vault_outcome": true
+        }
+      },
+      "scorecard_template_path": "C:\\Users\\edebe\\eds\\ep_synthetic_frontier_sfx_derivatives_market_technical_design_brief_v2\\solution\\workstreams\\workstream_f3_shock_scorecard_template.md"
+    }
+  ]
+}

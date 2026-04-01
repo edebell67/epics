@@ -1,0 +1,15 @@
+fastapi==0.100.0
+uvicorn==0.23.1
+pydantic==2.1.1
+sqlalchemy==2.0.19
+psycopg2-binary==2.9.6
+redis==4.6.0
+python-dotenv==1.0.0
+jinja2==3.1.2
+requests==2.31.0
+tweepy==4.14.0
+python-telegram-bot==20.4
+stripe==6.2.0
+weasyprint==59.0
+praw==7.7.1
+pyyaml==6.0.1

@@ -1,0 +1,65 @@
+[
+  {
+    "scenario_state": "calm",
+    "instrument_id": "NGNUSD_VOL",
+    "governance_parameters": {
+      "base_min_spread_bps": 18.0,
+      "max_min_spread_bps": 85.0
+    },
+    "inputs": {
+      "volatility_acceleration": 0.12,
+      "order_flow_velocity": 0.18,
+      "vault_imbalance": 0.22,
+      "liquidity_thinning": 0.15
+    },
+    "expected_outputs": {
+      "composite_stress_score": 0.1729,
+      "effective_min_spread_bps": 21.11,
+      "control_state": "calm",
+      "quote_size_multiplier": 1.0,
+      "join_top_of_book_allowed": true
+    }
+  },
+  {
+    "scenario_state": "elevated",
+    "instrument_id": "KESUSD_VOL",
+    "governance_parameters": {
+      "base_min_spread_bps": 18.0,
+      "max_min_spread_bps": 85.0
+    },
+    "inputs": {
+      "volatility_acceleration": 0.52,
+      "order_flow_velocity": 0.61,
+      "vault_imbalance": 0.48,
+      "liquidity_thinning": 0.44
+    },
+    "expected_outputs": {
+      "composite_stress_score": 0.5852,
+      "effective_min_spread_bps": 28.53,
+      "control_state": "elevated",
+      "quote_size_multiplier": 0.7,
+      "join_top_of_book_allowed": true
+    }
+  },
+  {
+    "scenario_state": "shock",
+    "instrument_id": "GHSUSD_VOL",
+    "governance_parameters": {
+      "base_min_spread_bps": 18.0,
+      "max_min_spread_bps": 85.0
+    },
+    "inputs": {
+      "volatility_acceleration": 0.94,
+      "order_flow_velocity": 0.88,
+      "vault_imbalance": 0.91,
+      "liquidity_thinning": 0.93
+    },
+    "expected_outputs": {
+      "composite_stress_score": 1.13705,
+      "effective_min_spread_bps": 38.47,
+      "control_state": "shock",
+      "quote_size_multiplier": 0.35,
+      "join_top_of_book_allowed": false
+    }
+  }
+]

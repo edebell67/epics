@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>sFX snapshot</title>
+<style>
+body { margin:0; font-family: Georgia, serif; background: linear-gradient(180deg,#f4e6c2,#f5eedc); color:#183b4e; }
+.wrap { width: 1400px; margin: 0 auto; padding: 32px; }
+.hero, .banner, .card, .panel { border:1px solid rgba(24,59,78,.14); border-radius:24px; background: rgba(255,250,240,.92); box-shadow: 0 20px 50px rgba(24,59,78,.12); }
+.hero { padding: 28px; }
+.eyebrow { text-transform: uppercase; letter-spacing:.18em; font-size:12px; color:#42657a; }
+h1 { font-size:56px; margin:12px 0 10px; }
+.banner { margin-top:18px; padding:20px 24px; background: linear-gradient(135deg,#183b4e,#2d6a4f); color:#fff9ee; }
+.metrics { margin-top:22px; display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+.card { padding:20px; min-height:150px; }
+.card h3 { margin:10px 0; font-size:34px; }
+.card p { color:#42657a; line-height:1.5; }
+.grid { margin-top:18px; display:grid; grid-template-columns:1.3fr .7fr; gap:18px; }
+.panel { padding:20px; }
+.table { width:100%; border-collapse:collapse; }
+.table td { padding:10px 0; border-bottom:1px solid rgba(24,59,78,.14); }
+.code { font-family: 'Courier New', monospace; }
+</style>
+</head>
+<body>
+<div class='wrap'>
+  <div class='hero'>
+    <div class='eyebrow'>Synthetic Frontier / Transparency Layer</div>
+    <h1>Public market-state dashboard</h1>
+    <p>Verification snapshot generated from the live local market-state endpoint for BTC-PERP using data source <strong>mock</strong>.</p>
+    <p class='code'>Dashboard URL: http://localhost:3002</p>
+  </div>
+  <div class='banner'>
+    <div class='eyebrow' style='color:#fff9ee;'>Running in resilience mode</div>
+    <div>Live database input is unavailable, so the dashboard is using deterministic mock transparency data.</div>
+  </div>
+  <div class='metrics'>
+    <div class='card'><div class='kicker'>Vault capital</div><h3>£118,400,000</h3><p>Insurance £22,100,000 / Utilization 60.1%</p></div>
+<div class='card'><div class='kicker'>Imbalance</div><h3>52% long / 48% short</h3><p>Net skew £374,496</p></div>
+<div class='card'><div class='kicker'>Open interest</div><h3>£78,020,069</h3><p>Contracts 12,790</p></div>
+<div class='card'><div class='kicker'>Funding</div><h3>0.25 bps/hr</h3><p>Projected 8h 0.02%</p></div>
+<div class='card'><div class='kicker'>Risk band</div><h3>20x max leverage</h3><p>IM 5% / MM 2.6%</p></div>
+<div class='card'><div class='kicker'>Volatility</div><h3>64 MVI</h3><p>Oracle divergence 9.3 bps</p></div>
+  </div>
+  <div class='grid'>
+    <div class='panel'>
+      <div class='eyebrow'>Governance</div>
+      <h2>Parameter band controls</h2>
+      <table class='table'>
+        <tr><td>Band model</td><td>static fallback band</td></tr>
+        <tr><td>Review window</td><td>10 minutes</td></tr>
+        <tr><td>Emergency override</td><td>False</td></tr>
+        <tr><td>Generated</td><td>03/16/2026 21:53:27</td></tr>
+      </table>
+    </div>
+    <div class='panel'>
+      <div class='eyebrow'>Fallback status</div>
+      <h2>True</h2>
+      <p>Reason: database_fallback: Login failed for user 'EDS\edebe'.</p>
+      <p>Instrument: Bitcoin Macro Perp</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

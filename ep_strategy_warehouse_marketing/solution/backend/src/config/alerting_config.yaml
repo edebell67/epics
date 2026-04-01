@@ -1,0 +1,42 @@
+monitoring:
+  scheduler:
+    heartbeat_interval_seconds: 60
+    max_missed_heartbeats: 3
+
+  connectors:
+    enabled: true
+    check_interval_seconds: 300
+    platforms:
+      - twitter
+      - reddit
+      - linkedin
+      - tiktok
+      - discord
+
+  queue:
+    enabled: true
+    max_depth_warning: 100
+    max_depth_critical: 500
+    tracked_statuses:
+      - pending
+      - approval_pending
+      - in_progress
+      - failed
+
+alerting:
+  dedupe_cooldown_seconds: 1800
+  channels:
+    logging:
+      enabled: true
+    email:
+      enabled: false
+      host: localhost
+      port: 25
+      sender: marketing-engine@example.local
+      recipients: []
+      starttls: false
+      timeout_seconds: 10
+    webhook:
+      enabled: false
+      url: ""
+      timeout_seconds: 10

@@ -1,0 +1,37 @@
+2026-03-17 20:20:27,543 - linkedin_connector - INFO - Successfully retrieved profile for Test (ID: urn:li:person:123)
+2026-03-17 20:20:27,695 - linkedin_connector - INFO - Successfully uploaded media: urn:li:digitalmediaAsset:789
+2026-03-17 20:20:27,696 - linkedin_connector - INFO - Successfully posted to LinkedIn with media: urn:li:ugcPost:999
+2026-03-17 20:20:27,700 - linkedin_connector - INFO - Successfully posted to LinkedIn: urn:li:ugcPost:456
+2026-03-17 20:34:36,680 - linkedin_connector - INFO - Successfully retrieved profile for Test (ID: urn:li:person:123)
+2026-03-17 20:34:36,822 - linkedin_connector - INFO - Successfully posted article to LinkedIn: urn:li:ugcPost:000
+2026-03-17 20:34:36,873 - linkedin_connector - INFO - Successfully uploaded media: urn:li:digitalmediaAsset:789
+2026-03-17 20:34:36,874 - linkedin_connector - INFO - Successfully posted to LinkedIn with media: urn:li:ugcPost:999
+2026-03-17 20:34:36,883 - linkedin_connector - INFO - Successfully posted to LinkedIn: urn:li:ugcPost:456
+2026-03-20 21:36:09,180 - linkedin_connector - INFO - Successfully retrieved profile for Test (ID: urn:li:person:123)
+2026-03-20 21:36:09,196 - linkedin_connector - INFO - Successfully posted article to LinkedIn: urn:li:ugcPost:000
+2026-03-20 21:36:09,215 - linkedin_connector - INFO - Successfully uploaded media: urn:li:digitalmediaAsset:789
+2026-03-20 21:36:09,215 - linkedin_connector - INFO - Successfully posted to LinkedIn with media: urn:li:ugcPost:999
+2026-03-20 21:36:09,219 - linkedin_connector - INFO - Successfully posted to LinkedIn: urn:li:ugcPost:456
+2026-03-20 21:36:09,222 - linkedin_connector - INFO - Successfully posted to LinkedIn: urn:li:ugcPost:org_post
+2026-03-20 21:36:09,226 - linkedin_connector - WARNING - Rate limited. Retrying after 1 seconds... (Attempt 1/3)
+2026-03-20 21:37:24,640 - linkedin_connector - INFO - Successfully retrieved profile for Test (ID: urn:li:person:123)
+2026-03-20 21:37:24,651 - linkedin_connector - INFO - Successfully posted article to LinkedIn: urn:li:ugcPost:000
+2026-03-20 21:37:24,675 - linkedin_connector - INFO - Successfully uploaded media: urn:li:digitalmediaAsset:789
+2026-03-20 21:37:24,676 - linkedin_connector - INFO - Successfully posted to LinkedIn with media: urn:li:ugcPost:999
+2026-03-20 21:37:24,679 - linkedin_connector - INFO - Successfully posted to LinkedIn: urn:li:ugcPost:456
+2026-03-20 21:37:24,683 - linkedin_connector - INFO - Successfully posted to LinkedIn: urn:li:ugcPost:org_post
+2026-03-20 21:37:24,687 - linkedin_connector - WARNING - Rate limited. Retrying after 1 seconds... (Attempt 1/3)
+2026-03-22 20:59:56,344 - linkedin_connector - INFO - Successfully retrieved profile for Test (ID: urn:li:person:123)
+2026-03-22 20:59:56,354 - linkedin_connector - INFO - Successfully posted article to LinkedIn: urn:li:ugcPost:000
+2026-03-22 20:59:56,394 - linkedin_connector - INFO - Successfully uploaded media: urn:li:digitalmediaAsset:789
+2026-03-22 20:59:56,395 - linkedin_connector - INFO - Successfully posted to LinkedIn with media: urn:li:ugcPost:999
+2026-03-22 20:59:56,429 - linkedin_connector - INFO - Successfully posted to LinkedIn: urn:li:ugcPost:456
+2026-03-22 20:59:56,437 - linkedin_connector - INFO - Successfully posted to LinkedIn: urn:li:ugcPost:org_post
+2026-03-22 20:59:56,447 - linkedin_connector - WARNING - Rate limited. Retrying after 1 seconds... (Attempt 1/3)
+2026-03-22 21:13:34,413 - linkedin_connector - INFO - Successfully retrieved profile for Test (ID: urn:li:person:123)
+2026-03-22 21:13:34,422 - linkedin_connector - INFO - Successfully posted article to LinkedIn: urn:li:ugcPost:000
+2026-03-22 21:13:34,455 - linkedin_connector - INFO - Successfully uploaded media: urn:li:digitalmediaAsset:789
+2026-03-22 21:13:34,456 - linkedin_connector - INFO - Successfully posted to LinkedIn with media: urn:li:ugcPost:999
+2026-03-22 21:13:34,466 - linkedin_connector - INFO - Successfully posted to LinkedIn: urn:li:ugcPost:456
+2026-03-22 21:13:34,475 - linkedin_connector - INFO - Successfully posted to LinkedIn: urn:li:ugcPost:org_post
+2026-03-22 21:13:34,484 - linkedin_connector - WARNING - Rate limited. Retrying after 1 seconds... (Attempt 1/3)

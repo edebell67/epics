@@ -1,0 +1,215 @@
+{
+  "last_update": "2026-03-31T11:17:48.950589",
+  "last_change": "TP-U2PZGZ climbed from #12 to #1",
+  "leaders": [
+    {
+      "rank": 1,
+      "id": "TP-U2PZGZ",
+      "market": "Indices",
+      "output": 2900,
+      "status": "up",
+      "previousRank": 12,
+      "rankShift": 11,
+      "tradeCount": 20
+    },
+    {
+      "rank": 2,
+      "id": "TP-12FPV0",
+      "market": "Indices",
+      "output": 2800,
+      "status": "same",
+      "previousRank": 2,
+      "rankShift": 0,
+      "tradeCount": 40
+    },
+    {
+      "rank": 3,
+      "id": "TP-QCCOU9",
+      "market": "Indices",
+      "output": 2660,
+      "status": "new",
+      "previousRank": null,
+      "rankShift": 0,
+      "tradeCount": 38
+    },
+    {
+      "rank": 4,
+      "id": "TP-RC3NFD",
+      "market": "Energy",
+      "output": 2430,
+      "status": "up",
+      "previousRank": 5,
+      "rankShift": 1,
+      "tradeCount": 24
+    },
+    {
+      "rank": 5,
+      "id": "TP-8XUYG4",
+      "market": "Indices",
+      "output": 2300,
+      "status": "new",
+      "previousRank": null,
+      "rankShift": 0,
+      "tradeCount": 20
+    },
+    {
+      "rank": 6,
+      "id": "TP-ZANJTH",
+      "market": "Indices",
+      "output": 2045,
+      "status": "new",
+      "previousRank": null,
+      "rankShift": 0,
+      "tradeCount": 31
+    },
+    {
+      "rank": 7,
+      "id": "TP-V6WT8I",
+      "market": "Metals",
+      "output": 1755,
+      "status": "down",
+      "previousRank": 6,
+      "rankShift": 1,
+      "tradeCount": 63
+    },
+    {
+      "rank": 8,
+      "id": "TP-1U2UP0",
+      "market": "Energy",
+      "output": 1685,
+      "status": "new",
+      "previousRank": null,
+      "rankShift": 0,
+      "tradeCount": 23
+    },
+    {
+      "rank": 9,
+      "id": "TP-1P2CMM",
+      "market": "Energy",
+      "output": 1640,
+      "status": "up",
+      "previousRank": 20,
+      "rankShift": 11,
+      "tradeCount": 12
+    },
+    {
+      "rank": 10,
+      "id": "TP-1P2BCN",
+      "market": "Energy",
+      "output": 1425,
+      "status": "new",
+      "previousRank": null,
+      "rankShift": 0,
+      "tradeCount": 15
+    },
+    {
+      "rank": 11,
+      "id": "TP-DFCO86",
+      "market": "Energy",
+      "output": 1370,
+      "status": "down",
+      "previousRank": 1,
+      "rankShift": 10,
+      "tradeCount": 16
+    },
+    {
+      "rank": 12,
+      "id": "TP-EGX268",
+      "market": "Metals",
+      "output": 895,
+      "status": "new",
+      "previousRank": null,
+      "rankShift": 0,
+      "tradeCount": 27
+    },
+    {
+      "rank": 13,
+      "id": "TP-MTWXPD",
+      "market": "Metals",
+      "output": 785,
+      "status": "new",
+      "previousRank": null,
+      "rankShift": 0,
+      "tradeCount": 41
+    },
+    {
+      "rank": 14,
+      "id": "TP-N82VU3",
+      "market": "Metals",
+      "output": 715,
+      "status": "new",
+      "previousRank": null,
+      "rankShift": 0,
+      "tradeCount": 9
+    },
+    {
+      "rank": 15,
+      "id": "TP-P9XWCV",
+      "market": "Metals",
+      "output": 560,
+      "status": "down",
+      "previousRank": 3,
+      "rankShift": 12,
+      "tradeCount": 56
+    },
+    {
+      "rank": 16,
+      "id": "TP-1YZNR8",
+      "market": "Forex",
+      "output": 480,
+      "status": "new",
+      "previousRank": null,
+      "rankShift": 0,
+      "tradeCount": 6
+    },
+    {
+      "rank": 17,
+      "id": "TP-1YZOE7",
+      "market": "Forex",
+      "output": 480,
+      "status": "new",
+      "previousRank": null,
+      "rankShift": 0,
+      "tradeCount": 6
+    },
+    {
+      "rank": 18,
+      "id": "TP-P7BFB0",
+      "market": "Forex",
+      "output": 480,
+      "status": "new",
+      "previousRank": null,
+      "rankShift": 0,
+      "tradeCount": 6
+    },
+    {
+      "rank": 19,
+      "id": "TP-1YZPO6",
+      "market": "Forex",
+      "output": 480,
+      "status": "new",
+      "previousRank": null,
+      "rankShift": 0,
+      "tradeCount": 6
+    },
+    {
+      "rank": 20,
+      "id": "TP-MSPP6I",
+      "market": "Forex",
+      "output": 240,
+      "status": "new",
+      "previousRank": null,
+      "rankShift": 0,
+      "tradeCount": 8
+    }
+  ],
+  "twitter": {
+    "triggered": true,
+    "reasons": [
+      "top_3_change",
+      "rank_shift_gte_2",
+      "new_entry"
+    ],
+    "post_text": "Current leaders:\n1. TP-U2PZGZ (Indices) 2900.0\n2. TP-12FPV0 (Indices) 2800.0\n3. TP-QCCOU9 (Indices) 2660.0"
+  }
+}

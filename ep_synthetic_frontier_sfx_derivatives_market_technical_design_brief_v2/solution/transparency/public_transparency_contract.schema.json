@@ -1,0 +1,432 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "public_transparency_contract.schema.json",
+  "title": "PublicTransparencySnapshot",
+  "description": "Public snapshot contract for the sFX transparency layer. The contract exposes deterministic market-state and governance-control outputs without publishing proprietary implementation code.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "published_at",
+    "market_status",
+    "vault_capital",
+    "long_short_imbalance",
+    "open_interest",
+    "current_leverage_band",
+    "funding_rate",
+    "volatility_metric",
+    "risk_parameter_band"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Version of the public transparency snapshot contract."
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp when this transparency snapshot was published."
+    },
+    "market_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "reason_code",
+        "review_cadence_seconds",
+        "affected_instruments"
+      ],
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": [
+            "normal",
+            "degraded",
+            "halted",
+            "reopening_stage_1",
+            "reopening_stage_2",
+            "reopening_stage_3",
+            "emergency_read_only"
+          ],
+          "description": "Operator-visible market state derived from circuit-breaker and stress-control outputs."
+        },
+        "reason_code": {
+          "type": "string",
+          "description": "Machine-readable explanation for the current market state."
+        },
+        "review_cadence_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum interval before the market status must be re-evaluated and republished."
+        },
+        "affected_instruments": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Instrument identifiers affected by the current state."
+        },
+        "next_transition_check_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "UTC timestamp for the next deterministic transition check when the state is not normal."
+        }
+      }
+    },
+    "vault_capital": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "currency",
+        "total",
+        "committed_margin",
+        "available_backstop",
+        "utilization_ratio"
+      ],
+      "properties": {
+        "currency": {
+          "type": "string",
+          "const": "USDC"
+        },
+        "total": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total vault capital available to absorb imbalances and liquidations."
+        },
+        "committed_margin": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Capital already reserved for active backstop obligations."
+        },
+        "available_backstop": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Capital remaining for new imbalance absorption after current commitments."
+        },
+        "utilization_ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Committed margin divided by total vault capital."
+        }
+      }
+    },
+    "long_short_imbalance": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "instrument_id",
+          "net_bias",
+          "imbalance_ratio",
+          "long_notional",
+          "short_notional",
+          "update_cadence_seconds"
+        ],
+        "properties": {
+          "instrument_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "net_bias": {
+            "type": "string",
+            "enum": [
+              "long",
+              "short",
+              "balanced"
+            ]
+          },
+          "imbalance_ratio": {
+            "type": "number",
+            "minimum": -1,
+            "maximum": 1,
+            "description": "Signed ratio of net notional imbalance to gross notional. Positive means long-heavy."
+          },
+          "long_notional": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Aggregate long open interest notional in settlement currency."
+          },
+          "short_notional": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Aggregate short open interest notional in settlement currency."
+          },
+          "update_cadence_seconds": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "description": "Per-instrument directional imbalance snapshot used to explain funding and vault-pressure conditions."
+    },
+    "open_interest": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "instrument_id",
+          "contracts",
+          "notional",
+          "velocity_1h_pct",
+          "update_cadence_seconds"
+        ],
+        "properties": {
+          "instrument_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "contracts": {
+            "type": "number",
+            "minimum": 0
+          },
+          "notional": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Current gross open interest notional in settlement currency."
+          },
+          "velocity_1h_pct": {
+            "type": "number",
+            "description": "Percent change in notional open interest over the trailing hour."
+          },
+          "update_cadence_seconds": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "current_leverage_band": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "instrument_id",
+          "min_leverage",
+          "max_leverage",
+          "governance_max_leverage",
+          "update_cadence_seconds"
+        ],
+        "properties": {
+          "instrument_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "min_leverage": {
+            "type": "number",
+            "minimum": 1
+          },
+          "max_leverage": {
+            "type": "number",
+            "minimum": 1
+          },
+          "governance_max_leverage": {
+            "type": "number",
+            "minimum": 1,
+            "description": "Upper governance-approved ceiling before live stress adjustments are applied."
+          },
+          "drivers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "realized_volatility",
+                "vault_imbalance",
+                "depth_score",
+                "stress_velocity"
+              ]
+            },
+            "description": "Named drivers that currently constrain the live leverage band."
+          },
+          "update_cadence_seconds": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "funding_rate": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "instrument_id",
+          "current_hourly_rate_bps",
+          "projected_8h_rate_bps",
+          "settlement_interval_seconds",
+          "sign_convention",
+          "update_cadence_seconds"
+        ],
+        "properties": {
+          "instrument_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "current_hourly_rate_bps": {
+            "type": "number",
+            "description": "Current hourly funding rate in basis points."
+          },
+          "projected_8h_rate_bps": {
+            "type": "number",
+            "description": "Forward-looking equivalent funding rate for an eight-hour interval, computed from the current hourly state."
+          },
+          "settlement_interval_seconds": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "sign_convention": {
+            "type": "string",
+            "enum": [
+              "positive_long_pays_short",
+              "positive_short_pays_long"
+            ]
+          },
+          "update_cadence_seconds": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "volatility_metric": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "instrument_id",
+          "realized_volatility_1h_pct",
+          "realized_volatility_24h_pct",
+          "volatility_acceleration_pct_per_hour",
+          "update_cadence_seconds"
+        ],
+        "properties": {
+          "instrument_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "realized_volatility_1h_pct": {
+            "type": "number",
+            "minimum": 0
+          },
+          "realized_volatility_24h_pct": {
+            "type": "number",
+            "minimum": 0
+          },
+          "volatility_acceleration_pct_per_hour": {
+            "type": "number",
+            "description": "First derivative of the short-horizon volatility series, published to explain stress-state escalation."
+          },
+          "update_cadence_seconds": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "risk_parameter_band": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "instrument_id",
+          "stress_level",
+          "effective_min_spread_bps",
+          "position_cap_notional",
+          "open_interest_cap_notional",
+          "funding_multiplier_band",
+          "update_cadence_seconds"
+        ],
+        "properties": {
+          "instrument_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "stress_level": {
+            "type": "string",
+            "enum": [
+              "normal",
+              "warning",
+              "elevated",
+              "emergency"
+            ]
+          },
+          "effective_min_spread_bps": {
+            "type": "number",
+            "minimum": 0
+          },
+          "position_cap_notional": {
+            "type": "number",
+            "minimum": 0
+          },
+          "open_interest_cap_notional": {
+            "type": "number",
+            "minimum": 0
+          },
+          "funding_multiplier_band": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "min",
+              "max"
+            ],
+            "properties": {
+              "min": {
+                "type": "number",
+                "minimum": 0
+              },
+              "max": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          },
+          "update_cadence_seconds": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "description": "Per-instrument active risk-control band after governance ceilings and stress-orchestrator adjustments are applied."
+    }
+  },
+  "x-upstream-source-systems": {
+    "market_status": "D3 circuit-breaker state machine and D2 response orchestrator",
+    "vault_capital": "C1 vault ledger and exposure engine",
+    "long_short_imbalance": "B2 market-state aggregation consumed by B3 funding",
+    "open_interest": "B2 market-state aggregation",
+    "current_leverage_band": "C2 dynamic leverage band engine",
+    "funding_rate": "B3 funding engine",
+    "volatility_metric": "A3 index outputs and D1 stress metrics",
+    "risk_parameter_band": "C3 spread control, C1 exposure caps, and D2 stress responses"
+  },
+  "x-disclosure-boundaries": {
+    "publish": [
+      "formula shape",
+      "active parameter bands",
+      "sign conventions",
+      "state enums",
+      "update cadences",
+      "ownership"
+    ],
+    "redact": [
+      "proprietary coefficient calibration inputs",
+      "internal source-weight tuning",
+      "private anti-gaming thresholds",
+      "market-maker specific routing and quoting logic"
+    ]
+  }
+}

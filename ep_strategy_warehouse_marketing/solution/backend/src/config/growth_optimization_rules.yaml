@@ -1,0 +1,44 @@
+global:
+  max_adjustments_per_cycle: 3
+  min_impressions: 500
+  min_clicks: 25
+  min_visitors: 80
+
+thresholds:
+  engagement_rate_floor: 0.020
+  engagement_rate_win: 0.045
+  click_through_rate_floor: 0.012
+  click_through_rate_win: 0.030
+  conversion_rate_floor: 0.120
+  conversion_rate_win: 0.220
+  unsubscribe_rate_ceiling: 0.020
+  cadence_fatigue_ceiling: 0.140
+
+actions:
+  underperforming_content:
+    action: rotate_content_theme
+    reason: "Low engagement and click-through indicate the current content angle is not resonating."
+  underperforming_channel:
+    action: reduce_channel_allocation
+    reason: "Channel traffic quality is below baseline and should be deprioritized until the next review."
+  winning_channel:
+    action: increase_channel_allocation
+    reason: "Channel is outperforming on engagement and conversion and can absorb more distribution."
+  weak_funnel:
+    action: refresh_conversion_path
+    reason: "Visitors are not converting into subscribers at the expected rate."
+  audience_fatigue:
+    action: reduce_posting_cadence
+    reason: "Unsubscribe pressure or fatigue signals indicate the current cadence is too aggressive."
+
+channel_preferences:
+  linkedin:
+    priority_weight: 1.25
+  twitter:
+    priority_weight: 1.0
+  reddit:
+    priority_weight: 0.95
+  discord:
+    priority_weight: 0.85
+  tiktok:
+    priority_weight: 1.1

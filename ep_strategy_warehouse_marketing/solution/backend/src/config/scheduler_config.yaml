@@ -1,0 +1,29 @@
+﻿# Autonomous Scheduler Configuration
+# Version: V20260321_1500 - D1 - TEST
+
+scheduler:
+  # General settings
+  heartbeat_interval_seconds: 5
+  main_loop_interval_seconds: 2
+  
+jobs:
+  # Content Generation: Check for new Strategy Warehouse data and generate posts
+  content_generation:
+    interval_minutes: 1
+    enabled: true
+    data_source_path: "C:/Users/edebe/eds/TradeApps/breakout/fs/json/live/forex"
+
+  # Queue Processing: Check the content queue and publish due items
+  queue_processing:
+    interval_seconds: 5
+    enabled: true
+    
+  # Metrics Collection: Collect engagement and account growth data
+  metrics_collection:
+    interval_hours: 6
+    enabled: true
+
+  # Health Monitoring: Check status of all connectors and services
+  health_monitoring:
+    interval_minutes: 15
+    enabled: true

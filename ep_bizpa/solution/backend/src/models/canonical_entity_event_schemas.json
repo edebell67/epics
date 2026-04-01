@@ -1,0 +1,775 @@
+{
+  "schema_version": "2026-03-11.a1",
+  "source_epic": "workstream/epic/bizPA.md",
+  "quarter_reference": {
+    "label_format": "Q{1-4}-{yyyy}",
+    "pattern": "^Q[1-4]-\\d{4}$",
+    "timezone_basis": "tenant_local_date",
+    "derivation_rule": "Use transaction_date for entity assignment. Calculate quarter from the local calendar month and keep the label immutable once committed.",
+    "example_labels": [
+      "Q1-2026",
+      "Q2-2026",
+      "Q3-2026",
+      "Q4-2026"
+    ]
+  },
+  "shared_fields": {
+    "unique_id": {
+      "type": "uuid",
+      "required_for": [
+        "all_entities",
+        "all_events"
+      ],
+      "description": "Stable immutable primary identifier."
+    },
+    "entity_type": {
+      "type": "enum",
+      "required_for": [
+        "all_entities",
+        "entity_linked_events"
+      ],
+      "description": "Canonical business entity type."
+    },
+    "transaction_date": {
+      "type": "date",
+      "required_for": [
+        "monetary_entities",
+        "snapshot"
+      ],
+      "description": "Economic or business-effective date used for quarter assignment."
+    },
+    "created_at": {
+      "type": "datetime",
+      "required_for": [
+        "all_entities",
+        "all_events"
+      ],
+      "description": "Creation timestamp in ISO-8601 format."
+    },
+    "created_by": {
+      "type": "string",
+      "required_for": [
+        "all_entities",
+        "all_events"
+      ],
+      "description": "Actor identifier, service principal, or device-linked user handle."
+    },
+    "quarter_reference": {
+      "type": "quarter_label",
+      "required_for": [
+        "monetary_entities",
+        "snapshot",
+        "quarter_scoped_events"
+      ],
+      "description": "Immutable quarter label derived from transaction_date."
+    },
+    "counterparty_reference": {
+      "type": "string",
+      "required_for": [
+        "monetary_entities",
+        "booking",
+        "client",
+        "supplier",
+        "reminder"
+      ],
+      "description": "Linked counterparty ID or canonical name when a linked record is not yet available."
+    },
+    "description": {
+      "type": "string",
+      "required_for": [
+        "monetary_entities",
+        "note",
+        "attachment",
+        "booking",
+        "reminder",
+        "snapshot",
+        "all_events"
+      ],
+      "description": "Human-readable explanation of the record or event."
+    },
+    "category": {
+      "type": "string",
+      "required_for": [
+        "monetary_entities"
+      ],
+      "description": "Export-facing business category label."
+    },
+    "net_amount": {
+      "type": "decimal(18,2)",
+      "required_for": [
+        "monetary_entities"
+      ],
+      "description": "Net value excluding VAT."
+    },
+    "vat_amount": {
+      "type": "decimal(18,2)",
+      "required_for": [
+        "monetary_entities"
+      ],
+      "description": "VAT value associated with the net amount."
+    },
+    "gross_amount": {
+      "type": "decimal(18,2)",
+      "required_for": [
+        "monetary_entities"
+      ],
+      "description": "Gross value including VAT."
+    },
+    "vat_rate": {
+      "type": "decimal(5,2)",
+      "required_for": [
+        "monetary_entities"
+      ],
+      "description": "VAT percentage rate applied to the monetary record."
+    },
+    "vat_type": {
+      "type": "enum",
+      "required_for": [
+        "monetary_entities"
+      ],
+      "allowed_values": [
+        "input",
+        "output",
+        "outside_scope",
+        "exempt"
+      ],
+      "description": "Canonical VAT treatment."
+    },
+    "status": {
+      "type": "enum",
+      "required_for": [
+        "all_entities"
+      ],
+      "description": "Lifecycle status governed by entity-specific state sets."
+    },
+    "commit_mode": {
+      "type": "enum",
+      "required_for": [
+        "all_entities"
+      ],
+      "allowed_values": [
+        "manual",
+        "auto"
+      ],
+      "description": "Whether commit required explicit confirmation or was performed under controlled auto-commit."
+    },
+    "source_type": {
+      "type": "enum",
+      "required_for": [
+        "all_entities",
+        "all_events"
+      ],
+      "allowed_values": [
+        "voice",
+        "manual",
+        "attachment",
+        "import",
+        "system"
+      ],
+      "description": "How the record entered the system."
+    }
+  },
+  "entity_types": {
+    "invoice": {
+      "class": "monetary",
+      "required_fields": [
+        "unique_id",
+        "entity_type",
+        "transaction_date",
+        "created_at",
+        "created_by",
+        "quarter_reference",
+        "counterparty_reference",
+        "description",
+        "category",
+        "net_amount",
+        "vat_amount",
+        "gross_amount",
+        "vat_rate",
+        "vat_type",
+        "status",
+        "commit_mode",
+        "source_type"
+      ],
+      "optional_fields": [
+        "invoice_number",
+        "due_date",
+        "attachment_reference",
+        "notes",
+        "external_reference",
+        "confidence_score",
+        "superseded_by",
+        "void_reason"
+      ],
+      "allowed_statuses": [
+        "composition",
+        "committed",
+        "sent",
+        "overdue",
+        "paid",
+        "partially_paid",
+        "voided",
+        "superseded"
+      ],
+      "snapshot_inclusion": true,
+      "export_inclusion": true
+    },
+    "receipt_expense": {
+      "class": "monetary",
+      "required_fields": [
+        "unique_id",
+        "entity_type",
+        "transaction_date",
+        "created_at",
+        "created_by",
+        "quarter_reference",
+        "counterparty_reference",
+        "description",
+        "category",
+        "net_amount",
+        "vat_amount",
+        "gross_amount",
+        "vat_rate",
+        "vat_type",
+        "status",
+        "commit_mode",
+        "source_type"
+      ],
+      "optional_fields": [
+        "attachment_reference",
+        "notes",
+        "external_reference",
+        "confidence_score",
+        "superseded_by",
+        "void_reason"
+      ],
+      "allowed_statuses": [
+        "composition",
+        "committed",
+        "review_required",
+        "voided",
+        "superseded"
+      ],
+      "snapshot_inclusion": true,
+      "export_inclusion": true
+    },
+    "payment": {
+      "class": "monetary",
+      "required_fields": [
+        "unique_id",
+        "entity_type",
+        "transaction_date",
+        "created_at",
+        "created_by",
+        "quarter_reference",
+        "counterparty_reference",
+        "description",
+        "category",
+        "net_amount",
+        "vat_amount",
+        "gross_amount",
+        "vat_rate",
+        "vat_type",
+        "status",
+        "commit_mode",
+        "source_type"
+      ],
+      "optional_fields": [
+        "external_reference",
+        "linked_invoice_id",
+        "notes",
+        "confidence_score"
+      ],
+      "allowed_statuses": [
+        "composition",
+        "committed",
+        "allocated",
+        "unallocated",
+        "reversed",
+        "superseded"
+      ],
+      "snapshot_inclusion": true,
+      "export_inclusion": true
+    },
+    "quote": {
+      "class": "monetary",
+      "required_fields": [
+        "unique_id",
+        "entity_type",
+        "transaction_date",
+        "created_at",
+        "created_by",
+        "quarter_reference",
+        "counterparty_reference",
+        "description",
+        "category",
+        "net_amount",
+        "vat_amount",
+        "gross_amount",
+        "vat_rate",
+        "vat_type",
+        "status",
+        "commit_mode",
+        "source_type"
+      ],
+      "optional_fields": [
+        "quote_number",
+        "expiry_date",
+        "converted_to_invoice_id",
+        "notes",
+        "confidence_score"
+      ],
+      "allowed_statuses": [
+        "composition",
+        "committed",
+        "sent",
+        "accepted",
+        "expired",
+        "converted",
+        "voided"
+      ],
+      "snapshot_inclusion": true,
+      "export_inclusion": true
+    },
+    "monetary_booking": {
+      "class": "monetary",
+      "required_fields": [
+        "unique_id",
+        "entity_type",
+        "transaction_date",
+        "created_at",
+        "created_by",
+        "quarter_reference",
+        "counterparty_reference",
+        "description",
+        "category",
+        "net_amount",
+        "vat_amount",
+        "gross_amount",
+        "vat_rate",
+        "vat_type",
+        "status",
+        "commit_mode",
+        "source_type"
+      ],
+      "optional_fields": [
+        "booking_date",
+        "notes",
+        "attachment_reference",
+        "confidence_score"
+      ],
+      "allowed_statuses": [
+        "composition",
+        "committed",
+        "scheduled",
+        "completed",
+        "cancelled",
+        "superseded"
+      ],
+      "snapshot_inclusion": true,
+      "export_inclusion": true
+    },
+    "note": {
+      "class": "non_monetary",
+      "required_fields": [
+        "unique_id",
+        "entity_type",
+        "created_at",
+        "created_by",
+        "description",
+        "status",
+        "commit_mode",
+        "source_type"
+      ],
+      "optional_fields": [
+        "counterparty_reference",
+        "transaction_date",
+        "quarter_reference",
+        "notes"
+      ],
+      "allowed_statuses": [
+        "committed",
+        "archived"
+      ],
+      "snapshot_inclusion": false,
+      "export_inclusion": false
+    },
+    "attachment": {
+      "class": "non_monetary",
+      "required_fields": [
+        "unique_id",
+        "entity_type",
+        "created_at",
+        "created_by",
+        "description",
+        "status",
+        "commit_mode",
+        "source_type"
+      ],
+      "optional_fields": [
+        "counterparty_reference",
+        "transaction_date",
+        "quarter_reference",
+        "attachment_reference",
+        "notes"
+      ],
+      "allowed_statuses": [
+        "committed",
+        "linked",
+        "archived"
+      ],
+      "snapshot_inclusion": false,
+      "export_inclusion": false
+    },
+    "booking": {
+      "class": "non_monetary",
+      "required_fields": [
+        "unique_id",
+        "entity_type",
+        "created_at",
+        "created_by",
+        "counterparty_reference",
+        "description",
+        "status",
+        "commit_mode",
+        "source_type"
+      ],
+      "optional_fields": [
+        "transaction_date",
+        "quarter_reference",
+        "notes"
+      ],
+      "allowed_statuses": [
+        "committed",
+        "scheduled",
+        "completed",
+        "cancelled",
+        "archived"
+      ],
+      "snapshot_inclusion": false,
+      "export_inclusion": false
+    },
+    "client": {
+      "class": "non_monetary",
+      "required_fields": [
+        "unique_id",
+        "entity_type",
+        "created_at",
+        "created_by",
+        "counterparty_reference",
+        "description",
+        "status",
+        "commit_mode",
+        "source_type"
+      ],
+      "optional_fields": [
+        "notes",
+        "external_reference"
+      ],
+      "allowed_statuses": [
+        "active",
+        "inactive",
+        "archived"
+      ],
+      "snapshot_inclusion": true,
+      "export_inclusion": false
+    },
+    "supplier": {
+      "class": "non_monetary",
+      "required_fields": [
+        "unique_id",
+        "entity_type",
+        "created_at",
+        "created_by",
+        "counterparty_reference",
+        "description",
+        "status",
+        "commit_mode",
+        "source_type"
+      ],
+      "optional_fields": [
+        "notes",
+        "external_reference"
+      ],
+      "allowed_statuses": [
+        "active",
+        "inactive",
+        "archived"
+      ],
+      "snapshot_inclusion": true,
+      "export_inclusion": false
+    },
+    "reminder": {
+      "class": "non_monetary",
+      "required_fields": [
+        "unique_id",
+        "entity_type",
+        "created_at",
+        "created_by",
+        "counterparty_reference",
+        "description",
+        "status",
+        "commit_mode",
+        "source_type"
+      ],
+      "optional_fields": [
+        "transaction_date",
+        "quarter_reference",
+        "notes"
+      ],
+      "allowed_statuses": [
+        "committed",
+        "scheduled",
+        "completed",
+        "dismissed",
+        "archived"
+      ],
+      "snapshot_inclusion": false,
+      "export_inclusion": false
+    },
+    "snapshot": {
+      "class": "non_monetary",
+      "required_fields": [
+        "unique_id",
+        "entity_type",
+        "transaction_date",
+        "created_at",
+        "created_by",
+        "quarter_reference",
+        "description",
+        "status",
+        "commit_mode",
+        "source_type",
+        "version_number",
+        "included_transaction_ids",
+        "totals",
+        "vat_totals",
+        "readiness_score",
+        "integrity_warning_summary",
+        "generated_files"
+      ],
+      "optional_fields": [
+        "checksum",
+        "diff_summary",
+        "notes"
+      ],
+      "allowed_statuses": [
+        "generated",
+        "archived"
+      ],
+      "snapshot_inclusion": true,
+      "export_inclusion": true
+    }
+  },
+  "event_schema": {
+    "required_fields": [
+      "unique_id",
+      "event_type",
+      "created_at",
+      "created_by",
+      "source_type",
+      "description"
+    ],
+    "optional_fields": [
+      "linked_entity_id",
+      "linked_entity_type",
+      "quarter_reference",
+      "status_from",
+      "status_to",
+      "metadata",
+      "reason"
+    ],
+    "allowed_event_types": [
+      "entity_created",
+      "entity_committed",
+      "entity_status_changed",
+      "entity_updated",
+      "entity_voided",
+      "entity_superseded",
+      "payment_recorded",
+      "quote_converted",
+      "snapshot_created",
+      "quarter_closed",
+      "quarter_reopened",
+      "auto_commit_enabled",
+      "auto_commit_disabled",
+      "auto_commit_expired",
+      "governance_policy_changed",
+      "readiness_recalculated",
+      "export_generated"
+    ]
+  },
+  "field_dictionary": {
+    "unique_id": {
+      "data_type": "uuid",
+      "used_by": [
+        "entities",
+        "events",
+        "snapshots",
+        "exports"
+      ],
+      "export_column": "record_id",
+      "snapshot_field": "included_transaction_ids[]"
+    },
+    "entity_type": {
+      "data_type": "string",
+      "used_by": [
+        "entities",
+        "events",
+        "exports"
+      ],
+      "export_column": "entity_type",
+      "snapshot_field": "totals_by_entity_type"
+    },
+    "transaction_date": {
+      "data_type": "date",
+      "used_by": [
+        "entities",
+        "snapshots",
+        "exports"
+      ],
+      "export_column": "transaction_date",
+      "snapshot_field": "included_period"
+    },
+    "created_at": {
+      "data_type": "datetime",
+      "used_by": [
+        "entities",
+        "events",
+        "snapshots"
+      ],
+      "export_column": "created_at",
+      "snapshot_field": "created_at"
+    },
+    "created_by": {
+      "data_type": "string",
+      "used_by": [
+        "entities",
+        "events",
+        "snapshots"
+      ],
+      "export_column": "created_by",
+      "snapshot_field": "created_by"
+    },
+    "quarter_reference": {
+      "data_type": "quarter_label",
+      "used_by": [
+        "entities",
+        "events",
+        "snapshots",
+        "exports"
+      ],
+      "export_column": "quarter_label",
+      "snapshot_field": "quarter_label"
+    },
+    "counterparty_reference": {
+      "data_type": "string",
+      "used_by": [
+        "entities",
+        "exports"
+      ],
+      "export_column": "counterparty_reference",
+      "snapshot_field": "counterparties[]"
+    },
+    "description": {
+      "data_type": "string",
+      "used_by": [
+        "entities",
+        "events",
+        "exports",
+        "snapshots"
+      ],
+      "export_column": "description",
+      "snapshot_field": "integrity_warning_summary"
+    },
+    "category": {
+      "data_type": "string",
+      "used_by": [
+        "monetary_entities",
+        "exports"
+      ],
+      "export_column": "category",
+      "snapshot_field": "totals_by_category"
+    },
+    "net_amount": {
+      "data_type": "decimal(18,2)",
+      "used_by": [
+        "monetary_entities",
+        "exports",
+        "snapshots"
+      ],
+      "export_column": "net_amount",
+      "snapshot_field": "totals.net_amount"
+    },
+    "vat_amount": {
+      "data_type": "decimal(18,2)",
+      "used_by": [
+        "monetary_entities",
+        "exports",
+        "snapshots"
+      ],
+      "export_column": "vat_amount",
+      "snapshot_field": "vat_totals.total_vat"
+    },
+    "gross_amount": {
+      "data_type": "decimal(18,2)",
+      "used_by": [
+        "monetary_entities",
+        "exports",
+        "snapshots"
+      ],
+      "export_column": "gross_amount",
+      "snapshot_field": "totals.gross_amount"
+    },
+    "vat_rate": {
+      "data_type": "decimal(5,2)",
+      "used_by": [
+        "monetary_entities",
+        "exports"
+      ],
+      "export_column": "vat_rate",
+      "snapshot_field": "vat_totals.by_rate"
+    },
+    "vat_type": {
+      "data_type": "string",
+      "used_by": [
+        "monetary_entities",
+        "exports",
+        "snapshots"
+      ],
+      "export_column": "vat_type",
+      "snapshot_field": "vat_totals.by_type"
+    },
+    "status": {
+      "data_type": "string",
+      "used_by": [
+        "entities",
+        "events",
+        "exports",
+        "snapshots"
+      ],
+      "export_column": "status",
+      "snapshot_field": "entity_status_summary"
+    },
+    "commit_mode": {
+      "data_type": "string",
+      "used_by": [
+        "entities",
+        "events",
+        "exports"
+      ],
+      "export_column": "commit_mode",
+      "snapshot_field": "governance.commit_mode"
+    },
+    "source_type": {
+      "data_type": "string",
+      "used_by": [
+        "entities",
+        "events",
+        "exports"
+      ],
+      "export_column": "source_type",
+      "snapshot_field": "capture_sources"
+    }
+  }
+}

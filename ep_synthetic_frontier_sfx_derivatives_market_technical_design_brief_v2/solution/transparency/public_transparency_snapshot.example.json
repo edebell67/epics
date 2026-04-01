@@ -1,0 +1,138 @@
+{
+  "schema_version": "1.0.0",
+  "published_at": "2026-03-16T21:45:00Z",
+  "market_status": {
+    "state": "degraded",
+    "reason_code": "depth_thinning_warning",
+    "review_cadence_seconds": 60,
+    "affected_instruments": [
+      "sfx_ngn_perp",
+      "sfx_kes_perp"
+    ],
+    "next_transition_check_at": "2026-03-16T21:46:00Z"
+  },
+  "vault_capital": {
+    "currency": "USDC",
+    "total": 5000000,
+    "committed_margin": 1400000,
+    "available_backstop": 3600000,
+    "utilization_ratio": 0.28
+  },
+  "long_short_imbalance": [
+    {
+      "instrument_id": "sfx_ngn_perp",
+      "net_bias": "long",
+      "imbalance_ratio": 0.18,
+      "long_notional": 1840000,
+      "short_notional": 1280000,
+      "update_cadence_seconds": 30
+    },
+    {
+      "instrument_id": "sfx_kes_perp",
+      "net_bias": "short",
+      "imbalance_ratio": -0.07,
+      "long_notional": 910000,
+      "short_notional": 1047000,
+      "update_cadence_seconds": 30
+    }
+  ],
+  "open_interest": [
+    {
+      "instrument_id": "sfx_ngn_perp",
+      "contracts": 6400,
+      "notional": 3120000,
+      "velocity_1h_pct": 14.2,
+      "update_cadence_seconds": 30
+    },
+    {
+      "instrument_id": "sfx_kes_perp",
+      "contracts": 4100,
+      "notional": 1957000,
+      "velocity_1h_pct": -2.5,
+      "update_cadence_seconds": 30
+    }
+  ],
+  "current_leverage_band": [
+    {
+      "instrument_id": "sfx_ngn_perp",
+      "min_leverage": 1,
+      "max_leverage": 2.4,
+      "governance_max_leverage": 5,
+      "drivers": [
+        "realized_volatility",
+        "depth_score"
+      ],
+      "update_cadence_seconds": 60
+    },
+    {
+      "instrument_id": "sfx_kes_perp",
+      "min_leverage": 1,
+      "max_leverage": 2.8,
+      "governance_max_leverage": 5,
+      "drivers": [
+        "vault_imbalance"
+      ],
+      "update_cadence_seconds": 60
+    }
+  ],
+  "funding_rate": [
+    {
+      "instrument_id": "sfx_ngn_perp",
+      "current_hourly_rate_bps": 3.6,
+      "projected_8h_rate_bps": 28.8,
+      "settlement_interval_seconds": 3600,
+      "sign_convention": "positive_long_pays_short",
+      "update_cadence_seconds": 60
+    },
+    {
+      "instrument_id": "sfx_kes_perp",
+      "current_hourly_rate_bps": -1.4,
+      "projected_8h_rate_bps": -11.2,
+      "settlement_interval_seconds": 3600,
+      "sign_convention": "positive_long_pays_short",
+      "update_cadence_seconds": 60
+    }
+  ],
+  "volatility_metric": [
+    {
+      "instrument_id": "sfx_ngn_perp",
+      "realized_volatility_1h_pct": 11.8,
+      "realized_volatility_24h_pct": 27.4,
+      "volatility_acceleration_pct_per_hour": 4.9,
+      "update_cadence_seconds": 60
+    },
+    {
+      "instrument_id": "sfx_kes_perp",
+      "realized_volatility_1h_pct": 8.1,
+      "realized_volatility_24h_pct": 22.3,
+      "volatility_acceleration_pct_per_hour": 1.2,
+      "update_cadence_seconds": 60
+    }
+  ],
+  "risk_parameter_band": [
+    {
+      "instrument_id": "sfx_ngn_perp",
+      "stress_level": "warning",
+      "effective_min_spread_bps": 38,
+      "position_cap_notional": 175000,
+      "open_interest_cap_notional": 3500000,
+      "funding_multiplier_band": {
+        "min": 1.15,
+        "max": 1.35
+      },
+      "update_cadence_seconds": 60
+    },
+    {
+      "instrument_id": "sfx_kes_perp",
+      "stress_level": "normal",
+      "effective_min_spread_bps": 24,
+      "position_cap_notional": 150000,
+      "open_interest_cap_notional": 2500000,
+      "funding_multiplier_band": {
+        "min": 1,
+        "max": 1.1
+      },
+      "update_cadence_seconds": 60
+    }
+  ]
+}

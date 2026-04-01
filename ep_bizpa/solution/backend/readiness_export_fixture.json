@@ -1,0 +1,445 @@
+{
+  "readiness": {
+    "period_start": "2026-01-01",
+    "period_end": "2026-03-31",
+    "transactions": [
+      {
+        "id": "txn-100",
+        "txn_date": "2026-01-05",
+        "merchant": "Builders Yard",
+        "amount": 120.5,
+        "category_code": "materials",
+        "business_personal": "business",
+        "is_split": false,
+        "split_business_pct": null,
+        "duplicate_flag": false,
+        "duplicate_resolution": null
+      },
+      {
+        "id": "txn-101",
+        "txn_date": "2026-01-07",
+        "merchant": "Fuel Stop",
+        "amount": 60.12,
+        "category_code": null,
+        "business_personal": "business",
+        "is_split": false,
+        "split_business_pct": null,
+        "duplicate_flag": false,
+        "duplicate_resolution": null
+      },
+      {
+        "id": "txn-102",
+        "txn_date": "2026-01-09",
+        "merchant": "Stationery Hub",
+        "amount": 15.3,
+        "category_code": "office",
+        "business_personal": "business",
+        "is_split": true,
+        "split_business_pct": null,
+        "duplicate_flag": false,
+        "duplicate_resolution": null
+      },
+      {
+        "id": "txn-103",
+        "txn_date": "2026-01-10",
+        "merchant": "Client Payment",
+        "amount": 420,
+        "category_code": "sales",
+        "business_personal": "business",
+        "is_split": false,
+        "split_business_pct": null,
+        "duplicate_flag": true,
+        "duplicate_resolution": null
+      },
+      {
+        "id": "txn-104",
+        "txn_date": "2026-01-12",
+        "merchant": "Tool Depot",
+        "amount": 89.99,
+        "category_code": "equipment",
+        "business_personal": "business",
+        "is_split": false,
+        "split_business_pct": null,
+        "duplicate_flag": false,
+        "duplicate_resolution": null
+      }
+    ],
+    "expected_readiness_report": {
+      "as_of_date": "2026-01-01",
+      "quarter_reference": "Q1-2026",
+      "period_start": "2026-01-01",
+      "period_end": "2026-03-31",
+      "active_period_enforced": true,
+      "requested_period_start": "2026-01-01",
+      "requested_period_end": "2026-03-31",
+      "total_txns_in_period": 5,
+      "blocking_txns_count": 3,
+      "issue_count": 3,
+      "readiness_pct": 84,
+      "score": 84,
+      "severity": "high",
+      "can_export": false,
+      "blockers_by_reason": [
+        {
+          "reason": "unresolved_duplicate",
+          "label": "Duplicate unresolved",
+          "tier": "tier_1",
+          "severity": "high",
+          "count": 1
+        },
+        {
+          "reason": "missing_category",
+          "label": "Category missing",
+          "tier": "tier_2",
+          "severity": "medium",
+          "count": 1
+        },
+        {
+          "reason": "missing_split_pct",
+          "label": "Split percentage missing",
+          "tier": "tier_2",
+          "severity": "medium",
+          "count": 1
+        }
+      ],
+      "blocking_transactions": [
+        {
+          "id": "txn-103",
+          "txn_date": "2026-01-10",
+          "merchant": "Client Payment",
+          "amount": 420,
+          "direction": null,
+          "blocker_reason": "unresolved_duplicate",
+          "tier": "tier_1",
+          "severity": "high",
+          "weight": 35,
+          "explanation": "This transaction is flagged as a duplicate but has not been dismissed or merged yet. Merchant: Client Payment.",
+          "resolution_target": {
+            "kind": "duplicate_resolution",
+            "route": "/api/v1/inbox/txn-103/duplicate-resolution",
+            "method": "POST",
+            "label": "Resolve duplicate",
+            "entity_id": "txn-103",
+            "workflow": "/inbox/finish-now"
+          }
+        },
+        {
+          "id": "txn-101",
+          "txn_date": "2026-01-07",
+          "merchant": "Fuel Stop",
+          "amount": 60.12,
+          "direction": null,
+          "blocker_reason": "missing_category",
+          "tier": "tier_2",
+          "severity": "medium",
+          "weight": 25,
+          "explanation": "This transaction has no tax category yet, so it cannot be included safely in the quarter calculation. Merchant: Fuel Stop.",
+          "resolution_target": {
+            "kind": "transaction_classification",
+            "route": "/api/v1/inbox/txn-101/classification",
+            "method": "PATCH",
+            "label": "Classify transaction",
+            "entity_id": "txn-101",
+            "workflow": "/inbox/finish-now"
+          }
+        },
+        {
+          "id": "txn-102",
+          "txn_date": "2026-01-09",
+          "merchant": "Stationery Hub",
+          "amount": 15.3,
+          "direction": null,
+          "blocker_reason": "missing_split_pct",
+          "tier": "tier_2",
+          "severity": "medium",
+          "weight": 20,
+          "explanation": "A split transaction is missing the business percentage, so the deductible amount is still ambiguous. Merchant: Stationery Hub.",
+          "resolution_target": {
+            "kind": "transaction_classification",
+            "route": "/api/v1/inbox/txn-102/classification",
+            "method": "PATCH",
+            "label": "Complete split percentage",
+            "entity_id": "txn-102",
+            "workflow": "/inbox/finish-now"
+          }
+        }
+      ],
+      "issue_summary": [
+        {
+          "issue_type": "unresolved_duplicate",
+          "label": "Duplicate unresolved",
+          "tier": "tier_1",
+          "tier_label": "Tier 1 - Critical Monetary Integrity",
+          "severity": "high",
+          "weight": 35,
+          "blocking": true,
+          "count": 1,
+          "percentage_of_issues": 33,
+          "percentage_of_period_transactions": 20,
+          "total_weight": 35,
+          "explanation": "This transaction is flagged as a duplicate but has not been dismissed or merged yet."
+        },
+        {
+          "issue_type": "missing_category",
+          "label": "Category missing",
+          "tier": "tier_2",
+          "tier_label": "Tier 2 - Structural Completeness",
+          "severity": "medium",
+          "weight": 25,
+          "blocking": true,
+          "count": 1,
+          "percentage_of_issues": 33,
+          "percentage_of_period_transactions": 20,
+          "total_weight": 25,
+          "explanation": "This transaction has no tax category yet, so it cannot be included safely in the quarter calculation."
+        },
+        {
+          "issue_type": "missing_split_pct",
+          "label": "Split percentage missing",
+          "tier": "tier_2",
+          "tier_label": "Tier 2 - Structural Completeness",
+          "severity": "medium",
+          "weight": 20,
+          "blocking": true,
+          "count": 1,
+          "percentage_of_issues": 33,
+          "percentage_of_period_transactions": 20,
+          "total_weight": 20,
+          "explanation": "A split transaction is missing the business percentage, so the deductible amount is still ambiguous."
+        }
+      ],
+      "issue_list": [
+        {
+          "issue_type": "unresolved_duplicate",
+          "label": "Duplicate unresolved",
+          "tier": "tier_1",
+          "tier_label": "Tier 1 - Critical Monetary Integrity",
+          "affected_entity_id": "txn-103",
+          "affected_entity_type": "bank_transaction",
+          "severity": "high",
+          "weight": 35,
+          "blocking": true,
+          "resolution_target": {
+            "kind": "duplicate_resolution",
+            "route": "/api/v1/inbox/txn-103/duplicate-resolution",
+            "method": "POST",
+            "label": "Resolve duplicate",
+            "entity_id": "txn-103",
+            "workflow": "/inbox/finish-now"
+          },
+          "explanation": "This transaction is flagged as a duplicate but has not been dismissed or merged yet. Merchant: Client Payment.",
+          "txn_date": "2026-01-10",
+          "merchant": "Client Payment",
+          "amount": 420,
+          "direction": null
+        },
+        {
+          "issue_type": "missing_category",
+          "label": "Category missing",
+          "tier": "tier_2",
+          "tier_label": "Tier 2 - Structural Completeness",
+          "affected_entity_id": "txn-101",
+          "affected_entity_type": "bank_transaction",
+          "severity": "medium",
+          "weight": 25,
+          "blocking": true,
+          "resolution_target": {
+            "kind": "transaction_classification",
+            "route": "/api/v1/inbox/txn-101/classification",
+            "method": "PATCH",
+            "label": "Classify transaction",
+            "entity_id": "txn-101",
+            "workflow": "/inbox/finish-now"
+          },
+          "explanation": "This transaction has no tax category yet, so it cannot be included safely in the quarter calculation. Merchant: Fuel Stop.",
+          "txn_date": "2026-01-07",
+          "merchant": "Fuel Stop",
+          "amount": 60.12,
+          "direction": null
+        },
+        {
+          "issue_type": "missing_split_pct",
+          "label": "Split percentage missing",
+          "tier": "tier_2",
+          "tier_label": "Tier 2 - Structural Completeness",
+          "affected_entity_id": "txn-102",
+          "affected_entity_type": "bank_transaction",
+          "severity": "medium",
+          "weight": 20,
+          "blocking": true,
+          "resolution_target": {
+            "kind": "transaction_classification",
+            "route": "/api/v1/inbox/txn-102/classification",
+            "method": "PATCH",
+            "label": "Complete split percentage",
+            "entity_id": "txn-102",
+            "workflow": "/inbox/finish-now"
+          },
+          "explanation": "A split transaction is missing the business percentage, so the deductible amount is still ambiguous. Merchant: Stationery Hub.",
+          "txn_date": "2026-01-09",
+          "merchant": "Stationery Hub",
+          "amount": 15.3,
+          "direction": null
+        }
+      ],
+      "explanation_lines": [
+        "Readiness is 84% for 2026-01-01 to 2026-03-31.",
+        "3 transactions have blocking issues and 3 weighted issues are open.",
+        "Weighted reasons: Duplicate unresolved (1, Tier 1 - Critical Monetary Integrity); Category missing (1, Tier 2 - Structural Completeness); Split percentage missing (1, Tier 2 - Structural Completeness)."
+      ],
+      "explanation_summary": "Readiness is 84% for 2026-01-01 to 2026-03-31. 3 transactions have blocking issues and 3 weighted issues are open. Weighted reasons: Duplicate unresolved (1, Tier 1 - Critical Monetary Integrity); Category missing (1, Tier 2 - Structural Completeness); Split percentage missing (1, Tier 2 - Structural Completeness)."
+    }
+  },
+  "snapshot_diff": {
+    "previous_snapshot_transactions": [
+      {
+        "txn_id": "txn-200",
+        "date": "2026-01-05",
+        "merchant": "Builders Yard",
+        "amount": 120.5,
+        "direction": "out",
+        "category_code": "materials",
+        "business_personal": "business",
+        "is_split": false,
+        "split_business_pct": null
+      },
+      {
+        "txn_id": "txn-201",
+        "date": "2026-01-06",
+        "merchant": "Client Payment",
+        "amount": 320,
+        "direction": "in",
+        "category_code": "sales",
+        "business_personal": "business",
+        "is_split": false,
+        "split_business_pct": null
+      }
+    ],
+    "next_snapshot_transactions": [
+      {
+        "txn_id": "txn-200",
+        "date": "2026-01-05",
+        "merchant": "Builders Yard",
+        "amount": 140.5,
+        "direction": "out",
+        "category_code": "equipment",
+        "business_personal": "business",
+        "is_split": false,
+        "split_business_pct": null
+      },
+      {
+        "txn_id": "txn-201",
+        "date": "2026-01-06",
+        "merchant": "Client Payment",
+        "amount": 320,
+        "direction": "in",
+        "category_code": "sales",
+        "business_personal": "business",
+        "is_split": false,
+        "split_business_pct": null
+      },
+      {
+        "txn_id": "txn-202",
+        "date": "2026-01-08",
+        "merchant": "Insurance",
+        "amount": 45,
+        "direction": "out",
+        "category_code": "insurance",
+        "business_personal": "business",
+        "is_split": false,
+        "split_business_pct": null
+      }
+    ],
+    "expected_diff": {
+      "added": [
+        "txn-202"
+      ],
+      "removed": [],
+      "changed": [
+        {
+          "txn_id": "txn-200",
+          "changed_fields": [
+            "amount",
+            "category_code"
+          ]
+        }
+      ],
+      "unchanged_count": 1
+    }
+  },
+  "export": {
+    "period_start": "2026-01-01",
+    "period_end": "2026-03-31",
+    "transactions": [
+      {
+        "txn_id": "txn-300",
+        "date": "2026-01-03",
+        "merchant": "Builders Yard",
+        "amount": 140.5,
+        "direction": "out",
+        "category_code": "materials",
+        "category_name": "Materials",
+        "confidence": 0.991,
+        "business_personal": "business",
+        "is_split": false,
+        "split_business_pct": null,
+        "matched_evidence_ids": "ev-1",
+        "bank_account_id": "acct-1",
+        "bank_txn_ref": "bank-001"
+      },
+      {
+        "txn_id": "txn-301",
+        "date": "2026-01-04",
+        "merchant": "Client Payment",
+        "amount": 520,
+        "direction": "in",
+        "category_code": "sales",
+        "category_name": "Sales",
+        "confidence": 0.875,
+        "business_personal": "business",
+        "is_split": false,
+        "split_business_pct": null,
+        "matched_evidence_ids": "",
+        "bank_account_id": "acct-1",
+        "bank_txn_ref": "bank-002"
+      }
+    ],
+    "evidence_rows": [
+      {
+        "evidence_id": "ev-1",
+        "type": "receipt",
+        "captured_at": "2026-01-03T09:10:11.000Z",
+        "doc_date": "2026-01-03",
+        "merchant": "Builders Yard",
+        "amount": 140.5,
+        "storage_link": "uploads/receipt-1.jpg",
+        "extraction_confidence": 0.988,
+        "matched_bank_txn_id": "txn-300",
+        "user_confirmed": true
+      }
+    ],
+    "summary_rows": [
+      {
+        "period_start": "2026-01-01",
+        "period_end": "2026-03-31",
+        "category_code": "materials",
+        "category_name": "Materials",
+        "total_in": 0,
+        "total_out": 140.5,
+        "count": 1,
+        "unresolved_count": 0
+      },
+      {
+        "period_start": "2026-01-01",
+        "period_end": "2026-03-31",
+        "category_code": "sales",
+        "category_name": "Sales",
+        "total_in": 520,
+        "total_out": 0,
+        "count": 1,
+        "unresolved_count": 0
+      }
+    ],
+    "expected_export_checksum": "97b55e989846e491cefc780789ea1ddf4383eeb121c5bd6028774168af0c940f"
+  }
+}

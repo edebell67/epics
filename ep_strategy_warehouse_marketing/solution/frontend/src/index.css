@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Lora:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Editorial Palette - High Contrast & Sophisticated */
+  --bg: #050a12;
+  --bg-offset: #0a1421;
+  --bg-panel: rgba(13, 25, 38, 0.7);
+  
+  --ink-strong: #f8fbff;
+  --ink-mid: #cbd5e1;
+  --ink-muted: #94a3b8;
+  
+  --accent: #f08a5d;
+  --accent-light: #f4a27e;
+  --accent-dark: #d95e43;
+  --accent-glow: rgba(240, 138, 93, 0.15);
+  
+  --brand-blue: #6a9bcc;
+  --brand-green: #788c5d;
+  
+  --border: rgba(148, 163, 184, 0.12);
+  --border-strong: rgba(148, 163, 184, 0.24);
+  
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 12px 24px -8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 28px 60px -12px rgba(0, 0, 0, 0.5);
+
+  /* Typography System */
+  --font-display: 'Poppins', 'Inter', system-ui, sans-serif;
+  --font-body: 'Lora', 'Georgia', serif;
+  --font-mono: 'Cascadia Code', 'Consolas', monospace;
+
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.6;
+  font-weight: 400;
+  
+  color: var(--ink-mid);
+  background-color: var(--bg);
+  
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-synthesis: none;
+}
+
+@media (max-width: 1024px) {
+  :root {
+    font-size: 16px;
+  }
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Typography Hierarchy */
+h1, h2, h3, h4, .display-text {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink-strong);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  margin: 0 0 1.5rem;
+}
+
+h2 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin: 0 0 1.25rem;
+}
+
+h3 {
+  font-size: 1.75rem;
+  margin: 0 0 1rem;
+}
+
+p {
+  margin: 0 0 1.5rem;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+.container {
+  width: min(1200px, calc(100% - 4rem));
+  margin-inline: auto;
+}
+
+@media (max-width: 768px) {
+  .container {
+    width: calc(100% - 2rem);
+  }
+}
+
+/* Utility Classes */
+.text-accent { color: var(--accent); }
+.text-muted { color: var(--ink-muted); }
+.bg-offset { background-color: var(--bg-offset); }

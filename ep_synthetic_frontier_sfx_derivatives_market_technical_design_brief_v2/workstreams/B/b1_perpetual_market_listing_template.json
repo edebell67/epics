@@ -1,0 +1,307 @@
+{
+  "schema_version": "1.0.0",
+  "epic": "Synthetic Frontier sFX Derivatives Market -- Technical Design Brief (v2)",
+  "workstream_task": "B1",
+  "markets": [
+    {
+      "instrument_id": "SFX_NGN_PERP",
+      "display_name": "Synthetic NGN Macro Volatility Perpetual",
+      "underlier_code": "NGN",
+      "contract_type": "perpetual",
+      "status": "prelaunch",
+      "launch_phase": "phase_1",
+      "quote_collateral": "USDC",
+      "settlement_currency": "USDC",
+      "isolated_margin": true,
+      "cross_margin_enabled": false,
+      "initial_leverage_min": 1.0,
+      "initial_leverage_max": 2.0,
+      "governance_leverage_ceiling": 5.0,
+      "maintenance_margin_ratio": 0.08,
+      "margin_call_buffer_ratio": 0.03,
+      "index_reference": {
+        "index_id": "MVI_NGN",
+        "publication_interval_seconds": 60,
+        "max_staleness_seconds": 180,
+        "confidence_floor": 0.75
+      },
+      "pricing_rules": {
+        "trade_price_source": "order_book",
+        "mark_price_source": "order_book_mid_with_guardrails",
+        "liquidation_reference_source": "index_reference",
+        "circuit_breaker_anchor": "index_reference"
+      },
+      "tick_size": 0.0001,
+      "lot_size": 1,
+      "min_order_notional_usdc": 25,
+      "max_order_notional_usdc": 25000,
+      "position_size_cap": 100000,
+      "open_interest_cap_usdc": 250000,
+      "reduce_only_on_halt": true,
+      "vault_id": "VAULT_NGN_ISO",
+      "vault": {
+        "exposure_cap_usdc": 150000,
+        "fee_share_ratio": 0.6,
+        "loss_containment_boundary": "instrument_only"
+      },
+      "shared_dependencies": [
+        "oracle_publication_service",
+        "matching_engine_cluster",
+        "transparency_feed"
+      ],
+      "funding": {
+        "enabled": true,
+        "settlement_interval_seconds": 28800,
+        "base_multiplier": 1.0,
+        "max_abs_rate_per_interval": 0.0075,
+        "inputs": [
+          "imbalance_pct",
+          "volatility_metric",
+          "open_interest_velocity"
+        ]
+      },
+      "transparency_fields": [
+        "market_status",
+        "vault_capital",
+        "long_short_imbalance",
+        "open_interest",
+        "current_leverage_band",
+        "funding_rate",
+        "volatility_metric",
+        "risk_parameter_band"
+      ],
+      "governance_parameters": [
+        "initial_leverage_max",
+        "open_interest_cap_usdc",
+        "vault.exposure_cap_usdc",
+        "funding.base_multiplier"
+      ],
+      "operator_notes": "Initial phase 1 launch parameters."
+    },
+    {
+      "instrument_id": "SFX_KES_PERP",
+      "display_name": "Synthetic KES Macro Volatility Perpetual",
+      "underlier_code": "KES",
+      "contract_type": "perpetual",
+      "status": "prelaunch",
+      "launch_phase": "phase_1",
+      "quote_collateral": "USDC",
+      "settlement_currency": "USDC",
+      "isolated_margin": true,
+      "cross_margin_enabled": false,
+      "initial_leverage_min": 1.0,
+      "initial_leverage_max": 2.0,
+      "governance_leverage_ceiling": 5.0,
+      "maintenance_margin_ratio": 0.08,
+      "margin_call_buffer_ratio": 0.03,
+      "index_reference": {
+        "index_id": "MVI_KES",
+        "publication_interval_seconds": 60,
+        "max_staleness_seconds": 180,
+        "confidence_floor": 0.75
+      },
+      "pricing_rules": {
+        "trade_price_source": "order_book",
+        "mark_price_source": "order_book_mid_with_guardrails",
+        "liquidation_reference_source": "index_reference",
+        "circuit_breaker_anchor": "index_reference"
+      },
+      "tick_size": 0.0001,
+      "lot_size": 1,
+      "min_order_notional_usdc": 25,
+      "max_order_notional_usdc": 25000,
+      "position_size_cap": 100000,
+      "open_interest_cap_usdc": 250000,
+      "reduce_only_on_halt": true,
+      "vault_id": "VAULT_KES_ISO",
+      "vault": {
+        "exposure_cap_usdc": 150000,
+        "fee_share_ratio": 0.6,
+        "loss_containment_boundary": "instrument_only"
+      },
+      "shared_dependencies": [
+        "oracle_publication_service",
+        "matching_engine_cluster",
+        "transparency_feed"
+      ],
+      "funding": {
+        "enabled": true,
+        "settlement_interval_seconds": 28800,
+        "base_multiplier": 1.0,
+        "max_abs_rate_per_interval": 0.0075,
+        "inputs": [
+          "imbalance_pct",
+          "volatility_metric",
+          "open_interest_velocity"
+        ]
+      },
+      "transparency_fields": [
+        "market_status",
+        "vault_capital",
+        "long_short_imbalance",
+        "open_interest",
+        "current_leverage_band",
+        "funding_rate",
+        "volatility_metric",
+        "risk_parameter_band"
+      ],
+      "governance_parameters": [
+        "initial_leverage_max",
+        "open_interest_cap_usdc",
+        "vault.exposure_cap_usdc",
+        "funding.base_multiplier"
+      ],
+      "operator_notes": "Initial phase 1 launch parameters."
+    },
+    {
+      "instrument_id": "SFX_GHS_PERP",
+      "display_name": "Synthetic GHS Macro Volatility Perpetual",
+      "underlier_code": "GHS",
+      "contract_type": "perpetual",
+      "status": "prelaunch",
+      "launch_phase": "phase_1",
+      "quote_collateral": "USDC",
+      "settlement_currency": "USDC",
+      "isolated_margin": true,
+      "cross_margin_enabled": false,
+      "initial_leverage_min": 1.0,
+      "initial_leverage_max": 2.0,
+      "governance_leverage_ceiling": 5.0,
+      "maintenance_margin_ratio": 0.08,
+      "margin_call_buffer_ratio": 0.03,
+      "index_reference": {
+        "index_id": "MVI_GHS",
+        "publication_interval_seconds": 60,
+        "max_staleness_seconds": 180,
+        "confidence_floor": 0.75
+      },
+      "pricing_rules": {
+        "trade_price_source": "order_book",
+        "mark_price_source": "order_book_mid_with_guardrails",
+        "liquidation_reference_source": "index_reference",
+        "circuit_breaker_anchor": "index_reference"
+      },
+      "tick_size": 0.0001,
+      "lot_size": 1,
+      "min_order_notional_usdc": 25,
+      "max_order_notional_usdc": 25000,
+      "position_size_cap": 100000,
+      "open_interest_cap_usdc": 250000,
+      "reduce_only_on_halt": true,
+      "vault_id": "VAULT_GHS_ISO",
+      "vault": {
+        "exposure_cap_usdc": 150000,
+        "fee_share_ratio": 0.6,
+        "loss_containment_boundary": "instrument_only"
+      },
+      "shared_dependencies": [
+        "oracle_publication_service",
+        "matching_engine_cluster",
+        "transparency_feed"
+      ],
+      "funding": {
+        "enabled": true,
+        "settlement_interval_seconds": 28800,
+        "base_multiplier": 1.0,
+        "max_abs_rate_per_interval": 0.0075,
+        "inputs": [
+          "imbalance_pct",
+          "volatility_metric",
+          "open_interest_velocity"
+        ]
+      },
+      "transparency_fields": [
+        "market_status",
+        "vault_capital",
+        "long_short_imbalance",
+        "open_interest",
+        "current_leverage_band",
+        "funding_rate",
+        "volatility_metric",
+        "risk_parameter_band"
+      ],
+      "governance_parameters": [
+        "initial_leverage_max",
+        "open_interest_cap_usdc",
+        "vault.exposure_cap_usdc",
+        "funding.base_multiplier"
+      ],
+      "operator_notes": "Initial phase 1 launch parameters."
+    },
+    {
+      "instrument_id": "SFX_ZAR_PERP",
+      "display_name": "Synthetic ZAR Macro Volatility Perpetual",
+      "underlier_code": "ZAR",
+      "contract_type": "perpetual",
+      "status": "prelaunch",
+      "launch_phase": "phase_1",
+      "quote_collateral": "USDC",
+      "settlement_currency": "USDC",
+      "isolated_margin": true,
+      "cross_margin_enabled": false,
+      "initial_leverage_min": 1.0,
+      "initial_leverage_max": 2.0,
+      "governance_leverage_ceiling": 5.0,
+      "maintenance_margin_ratio": 0.08,
+      "margin_call_buffer_ratio": 0.03,
+      "index_reference": {
+        "index_id": "MVI_ZAR",
+        "publication_interval_seconds": 60,
+        "max_staleness_seconds": 180,
+        "confidence_floor": 0.75
+      },
+      "pricing_rules": {
+        "trade_price_source": "order_book",
+        "mark_price_source": "order_book_mid_with_guardrails",
+        "liquidation_reference_source": "index_reference",
+        "circuit_breaker_anchor": "index_reference"
+      },
+      "tick_size": 0.0001,
+      "lot_size": 1,
+      "min_order_notional_usdc": 25,
+      "max_order_notional_usdc": 25000,
+      "position_size_cap": 100000,
+      "open_interest_cap_usdc": 250000,
+      "reduce_only_on_halt": true,
+      "vault_id": "VAULT_ZAR_ISO",
+      "vault": {
+        "exposure_cap_usdc": 150000,
+        "fee_share_ratio": 0.6,
+        "loss_containment_boundary": "instrument_only"
+      },
+      "shared_dependencies": [
+        "oracle_publication_service",
+        "matching_engine_cluster",
+        "transparency_feed"
+      ],
+      "funding": {
+        "enabled": true,
+        "settlement_interval_seconds": 28800,
+        "base_multiplier": 1.0,
+        "max_abs_rate_per_interval": 0.0075,
+        "inputs": [
+          "imbalance_pct",
+          "volatility_metric",
+          "open_interest_velocity"
+        ]
+      },
+      "transparency_fields": [
+        "market_status",
+        "vault_capital",
+        "long_short_imbalance",
+        "open_interest",
+        "current_leverage_band",
+        "funding_rate",
+        "volatility_metric",
+        "risk_parameter_band"
+      ],
+      "governance_parameters": [
+        "initial_leverage_max",
+        "open_interest_cap_usdc",
+        "vault.exposure_cap_usdc",
+        "funding.base_multiplier"
+      ],
+      "operator_notes": "Initial phase 1 launch parameters."
+    }
+  ]
+}

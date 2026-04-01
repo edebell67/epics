@@ -1,0 +1,162 @@
+{
+  "version": 1,
+  "description": "Deterministic response matrix for D2 automated stress controls.",
+  "severity_order": [
+    "normal",
+    "warning",
+    "elevated",
+    "emergency"
+  ],
+  "signal_priority": [
+    "order_book_thinning_rate",
+    "liquidation_cluster_density",
+    "volatility_acceleration",
+    "imbalance_slope_change",
+    "oracle_health_degradation"
+  ],
+  "action_order": [
+    "leverage_band",
+    "funding_multiplier",
+    "minimum_spread",
+    "position_size_cap",
+    "open_interest_cap"
+  ],
+  "levels": {
+    "normal": {
+      "severity_rank": 0,
+      "trigger_condition": "No D1 metric breaches warning thresholds and oracle health remains stable.",
+      "cooldown_seconds": 0,
+      "actions": {
+        "leverage_band": {
+          "mode": "multiply",
+          "value": 1.0,
+          "publish_as": "effective_leverage_scalar"
+        },
+        "funding_multiplier": {
+          "mode": "multiply",
+          "value": 1.0,
+          "publish_as": "effective_funding_scalar"
+        },
+        "minimum_spread": {
+          "mode": "multiply",
+          "value": 1.0,
+          "publish_as": "effective_spread_scalar"
+        },
+        "position_size_cap": {
+          "mode": "multiply",
+          "value": 1.0,
+          "publish_as": "effective_position_cap_scalar"
+        },
+        "open_interest_cap": {
+          "mode": "multiply",
+          "value": 1.0,
+          "publish_as": "effective_open_interest_cap_scalar"
+        }
+      }
+    },
+    "warning": {
+      "severity_rank": 1,
+      "trigger_condition": "Any single D1 metric reaches warning state, or oracle health degrades without divergence or depth-collapse hard-stop conditions.",
+      "cooldown_seconds": 300,
+      "actions": {
+        "leverage_band": {
+          "mode": "multiply",
+          "value": 0.85,
+          "rationale": "Apply initial leverage compression."
+        },
+        "funding_multiplier": {
+          "mode": "multiply",
+          "value": 1.25,
+          "rationale": "Increase funding pressure against imbalance."
+        },
+        "minimum_spread": {
+          "mode": "multiply",
+          "value": 1.15,
+          "rationale": "Widen spreads before liquidity becomes toxic."
+        },
+        "position_size_cap": {
+          "mode": "multiply",
+          "value": 0.9,
+          "rationale": "Tighten per-order risk footprint."
+        },
+        "open_interest_cap": {
+          "mode": "multiply",
+          "value": 0.95,
+          "rationale": "Begin constraining new gross exposure."
+        }
+      }
+    },
+    "elevated": {
+      "severity_rank": 2,
+      "trigger_condition": "Two or more D1 metrics remain active, or any one metric reaches elevated severity while depth and vault conditions remain functional.",
+      "cooldown_seconds": 900,
+      "actions": {
+        "leverage_band": {
+          "mode": "multiply",
+          "value": 0.65,
+          "rationale": "Compress leverage materially."
+        },
+        "funding_multiplier": {
+          "mode": "multiply",
+          "value": 1.75,
+          "rationale": "Accelerate imbalance correction."
+        },
+        "minimum_spread": {
+          "mode": "multiply",
+          "value": 1.5,
+          "rationale": "Protect against adverse selection."
+        },
+        "position_size_cap": {
+          "mode": "multiply",
+          "value": 0.7,
+          "rationale": "Restrict fresh size aggressively."
+        },
+        "open_interest_cap": {
+          "mode": "multiply",
+          "value": 0.85,
+          "rationale": "Freeze cap growth close to current outstanding exposure."
+        }
+      }
+    },
+    "emergency": {
+      "severity_rank": 3,
+      "trigger_condition": "Any D1 metric reaches emergency severity, or warning/elevated signals combine with order-book thinning or liquidation clustering to imply imminent circuit-breaker risk.",
+      "cooldown_seconds": 1800,
+      "actions": {
+        "leverage_band": {
+          "mode": "multiply",
+          "value": 0.4,
+          "rationale": "Force maximum leverage compression before halt logic."
+        },
+        "funding_multiplier": {
+          "mode": "multiply",
+          "value": 2.5,
+          "rationale": "Make adverse imbalance materially expensive."
+        },
+        "minimum_spread": {
+          "mode": "multiply",
+          "value": 2.25,
+          "rationale": "Defend liquidity providers and the vault."
+        },
+        "position_size_cap": {
+          "mode": "multiply",
+          "value": 0.5,
+          "rationale": "Allow only reduced incremental risk."
+        },
+        "open_interest_cap": {
+          "mode": "multiply",
+          "value": 0.65,
+          "rationale": "Enforce hard cap discipline before circuit-breaker escalation."
+        }
+      }
+    }
+  },
+  "merge_rules": {
+    "stress_level_resolution": "Use the highest active severity across all signals as the target level.",
+    "leverage_band": "Use the minimum scalar among active levels.",
+    "funding_multiplier": "Use the maximum scalar among active levels.",
+    "minimum_spread": "Use the maximum scalar among active levels.",
+    "position_size_cap": "Use the minimum scalar among active levels.",
+    "open_interest_cap": "Use the minimum scalar among active levels."
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "epic_slug": "validation_epic",
+  "epic_name": "Validation Epic",
+  "source_epic_path": "workstream/000_epic/general/20260224_124302_general_Breakout_Market_Narrative_Distribution.md",
+  "decomposed_at": "2026-03-19T17:11:28.470870",
+  "total_tasks": 1,
+  "workstreams": [
+    "A"
+  ],
+  "tasks": [
+    {
+      "task_id": "A1",
+      "filename": "20260319_171128_validation_epic_workstreamA_create_first_validation_task.md",
+      "workstream": "A",
+      "suggested_agent": "general",
+      "title": "Create first validation task"
+    }
+  ]
+}

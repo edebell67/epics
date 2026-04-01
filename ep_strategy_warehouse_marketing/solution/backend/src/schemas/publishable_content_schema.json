@@ -1,0 +1,225 @@
+{
+  "$defs": {
+    "CampaignAngle": {
+      "enum": [
+        "momentum",
+        "risk_discipline",
+        "leaderboard",
+        "education"
+      ],
+      "title": "CampaignAngle",
+      "type": "string"
+    },
+    "CampaignAsset": {
+      "properties": {
+        "asset_type": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Asset Type",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 140,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "visual_brief": {
+          "maxLength": 280,
+          "minLength": 1,
+          "title": "Visual Brief",
+          "type": "string"
+        },
+        "callout": {
+          "maxLength": 180,
+          "minLength": 1,
+          "title": "Callout",
+          "type": "string"
+        }
+      },
+      "required": [
+        "asset_type",
+        "title",
+        "visual_brief",
+        "callout"
+      ],
+      "title": "CampaignAsset",
+      "type": "object"
+    },
+    "ContentType": {
+      "enum": [
+        "signal_alert",
+        "performance_summary",
+        "strategy_ranking",
+        "educational"
+      ],
+      "title": "ContentType",
+      "type": "string"
+    },
+    "Platform": {
+      "enum": [
+        "twitter",
+        "linkedin",
+        "reddit",
+        "discord",
+        "telegram",
+        "tiktok"
+      ],
+      "title": "Platform",
+      "type": "string"
+    },
+    "VariantContent": {
+      "properties": {
+        "platform": {
+          "$ref": "#/$defs/Platform"
+        },
+        "headline": {
+          "minLength": 1,
+          "title": "Headline",
+          "type": "string"
+        },
+        "body": {
+          "minLength": 1,
+          "title": "Body",
+          "type": "string"
+        },
+        "hashtags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Hashtags",
+          "type": "array"
+        },
+        "call_to_action": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Call To Action",
+          "type": "string"
+        }
+      },
+      "required": [
+        "platform",
+        "headline",
+        "body",
+        "call_to_action"
+      ],
+      "title": "VariantContent",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "content_id": {
+      "format": "uuid",
+      "title": "Content Id",
+      "type": "string"
+    },
+    "content_type": {
+      "$ref": "#/$defs/ContentType"
+    },
+    "campaign_angle": {
+      "$ref": "#/$defs/CampaignAngle"
+    },
+    "pillar": {
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Pillar",
+      "type": "string"
+    },
+    "format_name": {
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Format Name",
+      "type": "string"
+    },
+    "headline": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Headline",
+      "type": "string"
+    },
+    "body": {
+      "maxLength": 280,
+      "minLength": 1,
+      "title": "Body",
+      "type": "string"
+    },
+    "media_urls": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Media Urls",
+      "type": "array"
+    },
+    "hashtags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Hashtags",
+      "type": "array"
+    },
+    "call_to_action": {
+      "maxLength": 160,
+      "minLength": 1,
+      "title": "Call To Action",
+      "type": "string"
+    },
+    "landing_page_url": {
+      "maxLength": 255,
+      "minLength": 1,
+      "title": "Landing Page Url",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "scheduled_for": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scheduled For"
+    },
+    "platform_variants": {
+      "additionalProperties": {
+        "$ref": "#/$defs/VariantContent"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/Platform"
+      },
+      "title": "Platform Variants",
+      "type": "object"
+    },
+    "source_data": {
+      "additionalProperties": true,
+      "title": "Source Data",
+      "type": "object"
+    },
+    "campaign_assets": {
+      "items": {
+        "$ref": "#/$defs/CampaignAsset"
+      },
+      "title": "Campaign Assets",
+      "type": "array"
+    }
+  },
+  "required": [
+    "content_type",
+    "campaign_angle",
+    "pillar",
+    "format_name",
+    "headline",
+    "body",
+    "call_to_action",
+    "landing_page_url"
+  ],
+  "title": "PublishableContent",
+  "type": "object"
+}

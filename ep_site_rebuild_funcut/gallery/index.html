@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery | Fun Cuts Hairdressers</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/font.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .gallery-card {
+            border-radius: 1.5rem;
+            overflow: hidden;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            aspect-ratio: 1;
+            transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        .gallery-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .gallery-card:hover img {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+    <nav id="main-nav" class="fixed top-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-fit px-4"></nav>
+
+    <main class="max-w-[1400px] mx-auto px-6 pt-32 pb-24">
+        <header class="mb-24">
+            <span class="section-tag">Showcase</span>
+            <h1 class="hero-title text-5xl md:text-7xl mb-8">The Gallery</h1>
+            <p class="text-xl text-zinc-500 max-w-2xl">
+                A selection of our latest styles and creative work. Precision in every cut, vibrancy in every color.
+            </p>
+        </header>
+
+        <div class="gallery-grid">
+            <!-- Representing the large gallery with a set of placeholders/links -->
+            <div class="gallery-card"><img src="https://www.funcuts.co.uk/s/cc_images/cache_15282515.jpeg" alt="Styling 1"></div>
+            <div class="gallery-card"><img src="https://www.funcuts.co.uk/s/cc_images/cache_15282516.jpeg" alt="Styling 2"></div>
+            <div class="gallery-card"><img src="https://www.funcuts.co.uk/s/cc_images/cache_15282517.jpg" alt="Styling 3"></div>
+            <div class="gallery-card"><img src="https://www.funcuts.co.uk/s/cc_images/cache_15282518.jpg" alt="Styling 4"></div>
+            <div class="gallery-card"><img src="https://www.funcuts.co.uk/s/cc_images/cache_15282519.jpg" alt="Styling 5"></div>
+            <div class="gallery-card"><img src="https://www.funcuts.co.uk/s/cc_images/cache_15282520.jpg" alt="Styling 6"></div>
+            <div class="gallery-card"><img src="https://www.funcuts.co.uk/s/cc_images/cache_15282521.jpg" alt="Styling 7"></div>
+            <div class="gallery-card"><img src="https://www.funcuts.co.uk/s/cc_images/cache_15282522.jpeg" alt="Styling 8"></div>
+            <div class="gallery-card"><img src="https://www.funcuts.co.uk/s/cc_images/cache_15282523.jpeg" alt="Styling 9"></div>
+            <div class="gallery-card"><img src="https://www.funcuts.co.uk/s/cc_images/cache_15282524.jpg" alt="Styling 10"></div>
+            <div class="gallery-card"><img src="https://www.funcuts.co.uk/s/cc_images/cache_15282525.jpeg" alt="Styling 11"></div>
+            <div class="gallery-card"><img src="https://www.funcuts.co.uk/s/cc_images/cache_15282526.jpg" alt="Styling 12"></div>
+        </div>
+
+        <footer class="mt-40 pt-24 border-t border-white/10">
+            <div class="flex justify-between items-center">
+                <p class="text-[10px] text-zinc-600 uppercase tracking-widest">&copy; 2026 Fun Cuts. All Rights Reserved.</p>
+                <p class="text-[10px] text-zinc-600 uppercase tracking-widest">Built by Strategy Warehouse</p>
+            </div>
+        </footer>
+    </main>
+
+    <script src="../js/layout.js"></script>
+</body>
+</html>

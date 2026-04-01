@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "strategy_schema.json",
+  "title": "StrategySummary",
+  "description": "Publishable strategy performance summary payload derived from local strategy metadata and aggregated trade performance records.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "strategy_id",
+    "strategy_name",
+    "asset",
+    "timeframe",
+    "win_rate",
+    "profit_factor",
+    "drawdown",
+    "trade_count"
+  ],
+  "properties": {
+    "strategy_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable public identifier for the strategy summary record. Typically composed from the internal model and asset or another normalized unique strategy key."
+    },
+    "strategy_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable strategy name exposed publicly."
+    },
+    "asset": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Tradable instrument or asset code associated with the strategy summary."
+    },
+    "timeframe": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Aggregation window or operating timeframe label for the strategy summary, such as `1h`, `4h`, `1d`, or a sync-defined period identifier."
+    },
+    "win_rate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Percentage of trades in the reporting window that closed profitably."
+    },
+    "profit_factor": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Gross profit divided by gross loss over the reporting window."
+    },
+    "drawdown": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Maximum drawdown for the strategy over the reporting window, expressed in the normalized public performance unit chosen by the sync layer."
+    },
+    "trade_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of trades included in the reported strategy summary window."
+    }
+  },
+  "x-source-field-mapping": {
+    "strategy_id": [
+      "model",
+      "product",
+      "strategy_id"
+    ],
+    "strategy_name": [
+      "product_forex.strategy_name",
+      "strategy_name"
+    ],
+    "asset": [
+      "product",
+      "pair"
+    ],
+    "timeframe": [],
+    "win_rate": [
+      "profitable_percent",
+      "win_rate",
+      "wr"
+    ],
+    "profit_factor": [],
+    "drawdown": [
+      "drawdown",
+      "dd"
+    ],
+    "trade_count": [
+      "total_trade_count",
+      "trade_count"
+    ]
+  },
+  "examples": [
+    {
+      "strategy_id": "breakout_r_rev_3_tp20.0_sl20.0:gbpusd",
+      "strategy_name": "breakout_R_Rev_3_tp20.0_sl20.0",
+      "asset": "GBPUSD",
+      "timeframe": "1d",
+      "win_rate": 63.4,
+      "profit_factor": 1.82,
+      "drawdown": 0.047,
+      "trade_count": 142
+    }
+  ]
+}

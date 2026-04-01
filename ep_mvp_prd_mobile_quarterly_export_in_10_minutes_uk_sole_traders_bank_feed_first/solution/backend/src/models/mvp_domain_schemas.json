@@ -1,0 +1,483 @@
+{
+  "schema_version": "2026-03-16.a1",
+  "source_epic": "workstream/000_epic/20260305_185316_mvp_prd_quarterly_export_10min.md",
+  "source_task": "workstream/300_complete/gemini/20260314_034027_mvp_prd_mobile_quarterly_export_in_10_minutes_uk_sole_traders_bank_feed_first_workstreamA_define_mvp_domain_schemas_and_category_taxonomy.md",
+  "product_scope": "Mobile quarterly export in 10 minutes for UK sole traders, bank-feed first MVP.",
+  "shared_conventions": {
+    "currency": "GBP",
+    "date_format": "YYYY-MM-DD",
+    "timestamp_format": "ISO-8601 UTC",
+    "quarter_label_format": "YYYY-Q{1..4}",
+    "quarter_assignment_rule": "Assign a transaction to a quarter using bank transaction booking date in tenant-local calendar time.",
+    "export_rule": "Quarterly Pack export is allowed only when quarter metrics report zero blocking transactions.",
+    "taxonomy_rule": "Categories are stable export codes. Tags are stored separately and must never be substituted for category codes."
+  },
+  "enums": {
+    "business_personal": [
+      "BUSINESS",
+      "PERSONAL"
+    ],
+    "transaction_direction": [
+      "in",
+      "out"
+    ],
+    "bank_account_status": [
+      "pending_consent",
+      "connected",
+      "reauth_required",
+      "disconnected"
+    ],
+    "evidence_type": [
+      "RECEIPT",
+      "INVOICE",
+      "OTHER"
+    ],
+    "evidence_link_method": [
+      "candidate_match",
+      "user_confirmed",
+      "voice_confirmed",
+      "manual_no_match",
+      "deferred"
+    ],
+    "duplicate_resolution": [
+      "dismissed",
+      "merged"
+    ],
+    "rule_status": [
+      "active",
+      "inactive"
+    ],
+    "rule_scope": [
+      "merchant_pattern"
+    ],
+    "readiness_blocker_type": [
+      "missing_category",
+      "missing_business_personal",
+      "missing_split_pct",
+      "duplicate_unresolved"
+    ]
+  },
+  "category_taxonomy": {
+    "categories": [
+      {
+        "code": "INCOME_SALES",
+        "name": "Sales / Fees",
+        "group": "Income",
+        "description": "Main trading income."
+      },
+      {
+        "code": "INCOME_OTHER",
+        "name": "Other income",
+        "group": "Income",
+        "description": "Refunds and miscellaneous income."
+      },
+      {
+        "code": "EXP_COGS",
+        "name": "Cost of goods / stock",
+        "group": "Expenses",
+        "description": "Optional category that can be hidden where irrelevant."
+      },
+      {
+        "code": "EXP_SUBCONTRACTORS",
+        "name": "Subcontractors / freelancers",
+        "group": "Expenses",
+        "description": "External labor and contractor spend."
+      },
+      {
+        "code": "EXP_TRAVEL",
+        "name": "Travel",
+        "group": "Expenses",
+        "description": "Public transport, taxi, and claimable fuel."
+      },
+      {
+        "code": "EXP_VEHICLE",
+        "name": "Vehicle costs",
+        "group": "Expenses",
+        "description": "Repairs, insurance, and parking."
+      },
+      {
+        "code": "EXP_MEALS",
+        "name": "Meals",
+        "group": "Expenses",
+        "description": "Business-related meal spend."
+      },
+      {
+        "code": "EXP_ACCOM",
+        "name": "Accommodation",
+        "group": "Expenses",
+        "description": "Hotel and lodging costs."
+      },
+      {
+        "code": "EXP_RENT_UTIL",
+        "name": "Rent & utilities",
+        "group": "Expenses",
+        "description": "Premises rent and utility bills."
+      },
+      {
+        "code": "EXP_COMMS",
+        "name": "Phone & internet",
+        "group": "Expenses",
+        "description": "Communications costs."
+      },
+      {
+        "code": "EXP_SOFTWARE",
+        "name": "Software / subscriptions",
+        "group": "Expenses",
+        "description": "Software licenses and recurring subscriptions."
+      },
+      {
+        "code": "EXP_MARKETING",
+        "name": "Marketing / advertising",
+        "group": "Expenses",
+        "description": "Promotion and advertising costs."
+      },
+      {
+        "code": "EXP_INSURANCE",
+        "name": "Business insurance",
+        "group": "Expenses",
+        "description": "Business policy premiums."
+      },
+      {
+        "code": "EXP_BANK_FEES",
+        "name": "Bank/merchant fees",
+        "group": "Expenses",
+        "description": "Stripe, PayPal, and bank charges."
+      },
+      {
+        "code": "EXP_PROFESSIONAL",
+        "name": "Accountancy/legal/professional fees",
+        "group": "Expenses",
+        "description": "Professional advisory costs."
+      },
+      {
+        "code": "EXP_OFFICE",
+        "name": "Office supplies & small equipment",
+        "group": "Expenses",
+        "description": "Office consumables and minor equipment."
+      },
+      {
+        "code": "EXP_TRAINING",
+        "name": "Training / education",
+        "group": "Expenses",
+        "description": "Business-related training costs."
+      },
+      {
+        "code": "EXP_MISC",
+        "name": "Misc",
+        "group": "Expenses",
+        "description": "Catch-all category that should trend down over time."
+      }
+    ],
+    "tags": [
+      {
+        "code": "PERSONAL",
+        "type": "boolean",
+        "description": "Tag indicating the transaction should be treated as personal."
+      },
+      {
+        "code": "REVIEW_REQUIRED",
+        "type": "boolean",
+        "description": "Tag used to drive inbox and blocking review flows."
+      }
+    ]
+  },
+  "audit_change_entry": {
+    "description": "Audit payload required for every user-editable classification mutation.",
+    "fields": {
+      "field_name": {
+        "type": "string",
+        "required": true
+      },
+      "changed_at": {
+        "type": "datetime",
+        "required": true
+      },
+      "changed_by": {
+        "type": "string",
+        "required": true
+      },
+      "previous_value": {
+        "type": "json",
+        "required": true,
+        "nullable": true
+      },
+      "new_value": {
+        "type": "json",
+        "required": true,
+        "nullable": true
+      }
+    }
+  },
+  "entities": {
+    "User": {
+      "primary_key": "user_id",
+      "description": "Authenticated product user.",
+      "fields": {
+        "user_id": { "type": "uuid", "required": true },
+        "email": { "type": "string", "required": true },
+        "mobile_number": { "type": "string", "required": false, "nullable": true },
+        "auth_provider": { "type": "string", "required": true },
+        "created_at": { "type": "datetime", "required": true },
+        "updated_at": { "type": "datetime", "required": true }
+      }
+    },
+    "BusinessProfile": {
+      "primary_key": "business_profile_id",
+      "description": "Single sole-trader business profile for the MVP.",
+      "fields": {
+        "business_profile_id": { "type": "uuid", "required": true },
+        "user_id": { "type": "uuid", "required": true },
+        "business_type": { "type": "string", "required": true, "allowed_values": ["SOLE_TRADER"] },
+        "trading_name": { "type": "string", "required": true },
+        "legal_name": { "type": "string", "required": false, "nullable": true },
+        "tax_country": { "type": "string", "required": true, "allowed_values": ["GB"] },
+        "base_currency": { "type": "string", "required": true, "allowed_values": ["GBP"] },
+        "created_at": { "type": "datetime", "required": true },
+        "updated_at": { "type": "datetime", "required": true }
+      }
+    },
+    "BankAccount": {
+      "primary_key": "bank_account_id",
+      "description": "Connected read-only bank or card account.",
+      "fields": {
+        "bank_account_id": { "type": "uuid", "required": true },
+        "user_id": { "type": "uuid", "required": true },
+        "business_profile_id": { "type": "uuid", "required": true },
+        "provider_account_id": { "type": "string", "required": true },
+        "provider_name": { "type": "string", "required": true },
+        "display_name": { "type": "string", "required": true },
+        "account_mask": { "type": "string", "required": false, "nullable": true },
+        "status": { "type": "enum", "required": true, "enum_ref": "bank_account_status" },
+        "last_synced_at": { "type": "datetime", "required": false, "nullable": true },
+        "created_at": { "type": "datetime", "required": true },
+        "updated_at": { "type": "datetime", "required": true }
+      }
+    },
+    "BankTransaction": {
+      "primary_key": "txn_id",
+      "description": "Canonical imported bank-feed transaction record.",
+      "fields": {
+        "txn_id": { "type": "uuid", "required": true },
+        "user_id": { "type": "uuid", "required": true },
+        "bank_account_id": { "type": "uuid", "required": true },
+        "bank_txn_ref": { "type": "string", "required": true },
+        "provider_txn_id": { "type": "string", "required": false, "nullable": true },
+        "date": { "type": "date", "required": true },
+        "merchant": { "type": "string", "required": true },
+        "amount": { "type": "decimal(18,2)", "required": true },
+        "direction": { "type": "enum", "required": true, "enum_ref": "transaction_direction" },
+        "currency": { "type": "string", "required": true, "allowed_values": ["GBP"] },
+        "booking_status": { "type": "string", "required": false, "nullable": true },
+        "duplicate_flag": { "type": "boolean", "required": true, "description": "System or user flag indicating the transaction may duplicate another import." },
+        "duplicate_group_id": { "type": "uuid", "required": false, "nullable": true },
+        "imported_at": { "type": "datetime", "required": true },
+        "source_hash": { "type": "string", "required": true, "description": "Idempotency key used to avoid duplicate imports." }
+      }
+    },
+    "TransactionClassification": {
+      "primary_key": "classification_id",
+      "description": "User-editable and rule-assisted classification record attached 1:1 to a bank transaction.",
+      "fields": {
+        "classification_id": { "type": "uuid", "required": true },
+        "txn_id": { "type": "uuid", "required": true },
+        "category_code": { "type": "string", "required": true, "nullable": true, "allowed_values_ref": "category_taxonomy.categories.code", "description": "Nullable until the transaction is categorised." },
+        "category_name": { "type": "string", "required": false, "nullable": true, "description": "Denormalized display name derived from category_code." },
+        "business_personal": { "type": "enum", "required": true, "nullable": true, "enum_ref": "business_personal", "description": "Nullable until the user or a rule resolves business vs personal." },
+        "is_split": { "type": "boolean", "required": true, "description": "When true, split_business_pct becomes mandatory." },
+        "split_business_pct": { "type": "integer", "required": true, "nullable": true, "range": [0, 100], "description": "Nullable unless is_split is true." },
+        "confidence": { "type": "decimal(3,2)", "required": true, "range": [0, 1] },
+        "applied_by": { "type": "string", "required": true, "description": "user, rule, import, or voice." },
+        "duplicate_resolution": { "type": "enum", "required": true, "nullable": true, "enum_ref": "duplicate_resolution", "description": "Nullable unless the linked bank transaction is duplicate_flag = true." },
+        "duplicate_target_txn_id": { "type": "uuid", "required": false, "nullable": true, "description": "Required when duplicate_resolution is merged." },
+        "review_required": { "type": "boolean", "required": true },
+        "created_at": { "type": "datetime", "required": true },
+        "updated_at": { "type": "datetime", "required": true },
+        "audit_trail": { "type": "array", "required": true, "item_ref": "audit_change_entry" }
+      },
+      "user_editable_fields": [
+        "category_code",
+        "business_personal",
+        "is_split",
+        "split_business_pct",
+        "duplicate_resolution",
+        "duplicate_target_txn_id",
+        "review_required"
+      ]
+    },
+    "Evidence": {
+      "primary_key": "evidence_id",
+      "description": "Uploaded or captured evidence asset associated with the quarter workflow.",
+      "fields": {
+        "evidence_id": { "type": "uuid", "required": true },
+        "user_id": { "type": "uuid", "required": true },
+        "type": { "type": "enum", "required": true, "enum_ref": "evidence_type" },
+        "captured_at": { "type": "datetime", "required": true },
+        "doc_date": { "type": "date", "required": false, "nullable": true },
+        "merchant": { "type": "string", "required": false, "nullable": true },
+        "amount": { "type": "decimal(18,2)", "required": false, "nullable": true },
+        "storage_link": { "type": "string", "required": true },
+        "extraction_confidence": { "type": "decimal(3,2)", "required": true, "range": [0, 1] },
+        "ocr_status": { "type": "string", "required": true }
+      }
+    },
+    "EvidenceLink": {
+      "primary_key": "evidence_link_id",
+      "description": "User-confirmed or deferred link between evidence and a bank transaction.",
+      "fields": {
+        "evidence_link_id": { "type": "uuid", "required": true },
+        "evidence_id": { "type": "uuid", "required": true },
+        "bank_txn_id": { "type": "uuid", "required": true, "nullable": true, "description": "Nullable only when the user explicitly records no match / later." },
+        "link_confidence": { "type": "decimal(3,2)", "required": true, "range": [0, 1] },
+        "user_confirmed": { "type": "boolean", "required": true },
+        "confirmed_at": { "type": "datetime", "required": false, "nullable": true },
+        "method": { "type": "enum", "required": true, "enum_ref": "evidence_link_method" }
+      }
+    },
+    "Quarter": {
+      "primary_key": "quarter_id",
+      "description": "Quarter period record used to scope readiness and export generation.",
+      "fields": {
+        "quarter_id": { "type": "uuid", "required": true },
+        "user_id": { "type": "uuid", "required": true },
+        "period_start": { "type": "date", "required": true },
+        "period_end": { "type": "date", "required": true },
+        "quarter_label": { "type": "string", "required": true },
+        "status": { "type": "string", "required": true, "allowed_values": ["open", "ready", "exported"] },
+        "last_exported_at": { "type": "datetime", "required": false, "nullable": true }
+      }
+    },
+    "QuarterMetrics": {
+      "primary_key": "quarter_metrics_id",
+      "description": "Calculated readiness metrics and ordered blocker queue for a quarter.",
+      "fields": {
+        "quarter_metrics_id": { "type": "uuid", "required": true },
+        "quarter_id": { "type": "uuid", "required": true },
+        "total_txns_in_period": { "type": "integer", "required": true },
+        "blocking_txns_count": { "type": "integer", "required": true },
+        "readiness_pct": { "type": "integer", "required": true, "range": [0, 100] },
+        "blocking_queue": {
+          "type": "array",
+          "required": true,
+          "item_fields": {
+            "txn_id": { "type": "uuid", "required": true },
+            "blocker_type": { "type": "enum", "required": true, "enum_ref": "readiness_blocker_type" },
+            "queue_rank": { "type": "integer", "required": true }
+          }
+        },
+        "computed_at": { "type": "datetime", "required": true }
+      }
+    },
+    "Rule": {
+      "primary_key": "rule_id",
+      "description": "Simple merchant categorisation default for recurring decisions.",
+      "fields": {
+        "rule_id": { "type": "uuid", "required": true },
+        "user_id": { "type": "uuid", "required": true },
+        "scope": { "type": "enum", "required": true, "enum_ref": "rule_scope" },
+        "merchant_pattern": { "type": "string", "required": true },
+        "category_code": { "type": "string", "required": true, "allowed_values_ref": "category_taxonomy.categories.code" },
+        "default_business_personal": { "type": "enum", "required": false, "nullable": true, "enum_ref": "business_personal" },
+        "default_split_business_pct": { "type": "integer", "required": false, "nullable": true, "range": [0, 100] },
+        "status": { "type": "enum", "required": true, "enum_ref": "rule_status" },
+        "created_at": { "type": "datetime", "required": true },
+        "updated_at": { "type": "datetime", "required": true }
+      }
+    }
+  },
+  "relationship_notes": [
+    { "from": "User", "to": "BusinessProfile", "cardinality": "1:1", "note": "The MVP allows one sole-trader business profile per user." },
+    { "from": "BusinessProfile", "to": "BankAccount", "cardinality": "1:N", "note": "A sole trader can connect multiple read-only bank accounts." },
+    { "from": "BankAccount", "to": "BankTransaction", "cardinality": "1:N", "note": "Imported transactions retain the source bank account and provider reference." },
+    { "from": "BankTransaction", "to": "TransactionClassification", "cardinality": "1:1", "note": "Each bank transaction has one current classification record that carries blocker and audit fields." },
+    { "from": "Evidence", "to": "EvidenceLink", "cardinality": "1:N", "note": "One evidence item may produce several candidate or deferred link decisions over time." },
+    { "from": "BankTransaction", "to": "EvidenceLink", "cardinality": "1:N", "note": "A bank transaction can be matched to multiple evidence records." },
+    { "from": "Quarter", "to": "QuarterMetrics", "cardinality": "1:1", "note": "Metrics are recalculated snapshots of a quarter's current readiness state." },
+    { "from": "Rule", "to": "TransactionClassification", "cardinality": "1:N", "note": "Rules suggest defaults but the resulting classification still records confidence and audit history." }
+  ],
+  "nullable_rules": [
+    { "field": "TransactionClassification.category_code", "allowed_when": "Transaction has not yet been categorised.", "blocks_export": true },
+    { "field": "TransactionClassification.business_personal", "allowed_when": "Business/personal resolution has not yet been set.", "blocks_export": true },
+    { "field": "TransactionClassification.split_business_pct", "allowed_when": "is_split is false.", "blocks_export": false },
+    { "field": "TransactionClassification.duplicate_resolution", "allowed_when": "The linked bank transaction is not flagged as a duplicate.", "blocks_export": false },
+    { "field": "EvidenceLink.bank_txn_id", "allowed_when": "The user selected no match or later.", "blocks_export": false }
+  ],
+  "blocking_rules": {
+    "resolved_transaction_definition": [
+      "category_code is not null",
+      "business_personal is not null",
+      "if is_split = true then split_business_pct is not null",
+      "if BankTransaction.duplicate_flag = true then duplicate_resolution is not null"
+    ],
+    "blocking_export_when": [
+      "missing category",
+      "missing business/personal",
+      "split flagged but percentage missing",
+      "duplicate flagged but unresolved"
+    ],
+    "non_blocking_conditions": [
+      "evidence missing",
+      "evidence unmatched"
+    ],
+    "blocking_queue_order": [
+      "missing_category",
+      "missing_business_personal",
+      "missing_split_pct",
+      "duplicate_unresolved"
+    ]
+  },
+  "quarterly_pack_contracts": {
+    "Transactions.csv": {
+      "fields": [
+        { "name": "txn_id", "source_entity": "BankTransaction", "source_field": "txn_id" },
+        { "name": "date", "source_entity": "BankTransaction", "source_field": "date" },
+        { "name": "merchant", "source_entity": "BankTransaction", "source_field": "merchant" },
+        { "name": "amount", "source_entity": "BankTransaction", "source_field": "amount" },
+        { "name": "direction", "source_entity": "BankTransaction", "source_field": "direction" },
+        { "name": "category_code", "source_entity": "TransactionClassification", "source_field": "category_code" },
+        { "name": "category_name", "source_entity": "TransactionClassification", "source_field": "category_name" },
+        { "name": "confidence", "source_entity": "TransactionClassification", "source_field": "confidence" },
+        { "name": "business_personal", "source_entity": "TransactionClassification", "source_field": "business_personal" },
+        { "name": "is_split", "source_entity": "TransactionClassification", "source_field": "is_split" },
+        { "name": "split_business_pct", "source_entity": "TransactionClassification", "source_field": "split_business_pct" },
+        { "name": "matched_evidence_ids", "source_entity": "EvidenceLink", "source_field": "evidence_id", "transform": "comma_join_confirmed_matches_for_txn" },
+        { "name": "bank_account_id", "source_entity": "BankTransaction", "source_field": "bank_account_id" },
+        { "name": "bank_txn_ref", "source_entity": "BankTransaction", "source_field": "bank_txn_ref" }
+      ]
+    },
+    "EvidenceIndex.csv": {
+      "fields": [
+        { "name": "evidence_id", "source_entity": "Evidence", "source_field": "evidence_id" },
+        { "name": "type", "source_entity": "Evidence", "source_field": "type" },
+        { "name": "captured_at", "source_entity": "Evidence", "source_field": "captured_at" },
+        { "name": "doc_date", "source_entity": "Evidence", "source_field": "doc_date" },
+        { "name": "merchant", "source_entity": "Evidence", "source_field": "merchant" },
+        { "name": "amount", "source_entity": "Evidence", "source_field": "amount" },
+        { "name": "storage_link", "source_entity": "Evidence", "source_field": "storage_link" },
+        { "name": "extraction_confidence", "source_entity": "Evidence", "source_field": "extraction_confidence" },
+        { "name": "matched_bank_txn_id", "source_entity": "EvidenceLink", "source_field": "bank_txn_id", "transform": "first_confirmed_match_or_null" },
+        { "name": "user_confirmed", "source_entity": "EvidenceLink", "source_field": "user_confirmed", "transform": "first_confirmed_match_or_false" }
+      ]
+    },
+    "QuarterlySummary.csv": {
+      "fields": [
+        { "name": "period_start", "source_entity": "Quarter", "source_field": "period_start" },
+        { "name": "period_end", "source_entity": "Quarter", "source_field": "period_end" },
+        { "name": "category_code", "source_entity": "TransactionClassification", "source_field": "category_code" },
+        { "name": "category_name", "source_entity": "TransactionClassification", "source_field": "category_name" },
+        { "name": "total_in", "source_entity": "BankTransaction", "source_field": "amount", "transform": "sum_amount_where_direction_in" },
+        { "name": "total_out", "source_entity": "BankTransaction", "source_field": "amount", "transform": "sum_amount_where_direction_out" },
+        { "name": "count", "source_entity": "BankTransaction", "source_field": "txn_id", "transform": "count_transactions" },
+        { "name": "unresolved_count", "source_entity": "QuarterMetrics", "source_field": "blocking_queue", "transform": "count_blockers_for_category" }
+      ]
+    },
+    "QuarterlyPack.pdf": {
+      "sections": [
+        "period + totals",
+        "readiness at export time",
+        "category totals highlights",
+        "audit counts for auto-categorised vs manual overrides",
+        "evidence coverage for matched vs bank-only"
+      ]
+    }
+  }
+}

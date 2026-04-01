@@ -1,0 +1,114 @@
+[
+  {
+    "scenario_id": "normal",
+    "instrument_id": "NGNUSD_VOL",
+    "previous_published_index": 0.074000,
+    "inputs": [
+      {
+        "source_id": "official_cbn",
+        "source_type": "official",
+        "normalized_volatility_value": 0.080000,
+        "staleness_seconds": 45,
+        "quality_score": 0.980,
+        "anomaly_flag": false
+      },
+      {
+        "source_id": "offshore_ndf",
+        "source_type": "offshore",
+        "normalized_volatility_value": 0.085000,
+        "staleness_seconds": 30,
+        "quality_score": 0.950,
+        "anomaly_flag": false
+      },
+      {
+        "source_id": "parallel_desk",
+        "source_type": "parallel_proxy",
+        "normalized_volatility_value": 0.078000,
+        "staleness_seconds": 60,
+        "quality_score": 0.900,
+        "anomaly_flag": false
+      }
+    ],
+    "expected_output": {
+      "weighted_median_value": 0.080000,
+      "published_index_value": 0.076100,
+      "calculation_state": "normal",
+      "confidence_score": 0.917000
+    }
+  },
+  {
+    "scenario_id": "source_conflict",
+    "instrument_id": "KESUSD_VOL",
+    "previous_published_index": 0.091000,
+    "inputs": [
+      {
+        "source_id": "official_cbk",
+        "source_type": "official",
+        "normalized_volatility_value": 0.094000,
+        "staleness_seconds": 40,
+        "quality_score": 0.970,
+        "anomaly_flag": false
+      },
+      {
+        "source_id": "offshore_ndf",
+        "source_type": "offshore",
+        "normalized_volatility_value": 0.096000,
+        "staleness_seconds": 50,
+        "quality_score": 0.930,
+        "anomaly_flag": false
+      },
+      {
+        "source_id": "parallel_proxy_extreme",
+        "source_type": "parallel_proxy",
+        "normalized_volatility_value": 0.125000,
+        "staleness_seconds": 25,
+        "quality_score": 0.860,
+        "anomaly_flag": false
+      }
+    ],
+    "expected_output": {
+      "weighted_median_value": 0.096000,
+      "published_index_value": 0.092750,
+      "calculation_state": "normal",
+      "confidence_score": 0.900000
+    }
+  },
+  {
+    "scenario_id": "degraded_data",
+    "instrument_id": "GHSUSD_VOL",
+    "previous_published_index": 0.067000,
+    "previous_publish_age_seconds": 180,
+    "inputs": [
+      {
+        "source_id": "official_bog",
+        "source_type": "official",
+        "normalized_volatility_value": 0.070000,
+        "staleness_seconds": 340,
+        "quality_score": 0.940,
+        "anomaly_flag": false
+      },
+      {
+        "source_id": "parallel_cash_proxy",
+        "source_type": "parallel_proxy",
+        "normalized_volatility_value": 0.073000,
+        "staleness_seconds": 110,
+        "quality_score": 0.720,
+        "anomaly_flag": false
+      },
+      {
+        "source_id": "offshore_broker",
+        "source_type": "offshore",
+        "normalized_volatility_value": 0.071000,
+        "staleness_seconds": 95,
+        "quality_score": 0.000,
+        "anomaly_flag": true
+      }
+    ],
+    "expected_output": {
+      "weighted_median_value": null,
+      "published_index_value": 0.067000,
+      "calculation_state": "hold_last_value",
+      "confidence_score": 0.490000
+    }
+  }
+]

@@ -1,0 +1,137 @@
+{
+  "epic_slug": "strategy_warehouse_autonomous_marketing_engine",
+  "output_folder_slug": "strategy_warehouse_marketing",
+  "epic_name": "Strategy Warehouse Autonomous Marketing Engine",
+  "source_epic_path": "workstream/000_epic/20260316_135233_strategy_warehouse_autonomous_marketing_engine_processed.md",
+  "decomposed_at": "2026-03-22T02:16:00",
+  "manifest_backfilled": true,
+  "backfilled_at": "2026-03-22T02:16:00",
+  "total_tasks": 15,
+  "workstreams": [
+    "A",
+    "B",
+    "Z"
+  ],
+  "tasks": [
+    {
+      "task_id": "A1",
+      "filename": "20260316_232310_strategy_warehouse_marketing_engine_workstreamA_define_publishable_content_schema.md",
+      "workstream": "A - CONTENT PIPELINE",
+      "suggested_agent": "codex",
+      "title": "TASK A1: Define Publishable Content Schema",
+      "archived": false
+    },
+    {
+      "task_id": "A2",
+      "filename": "20260316_232311_strategy_warehouse_marketing_engine_workstreamA_build_content_generation_service.md",
+      "workstream": "A - CONTENT PIPELINE",
+      "suggested_agent": "gemini",
+      "title": "TASK A2: Build Content Generation Service",
+      "archived": false
+    },
+    {
+      "task_id": "A3",
+      "filename": "20260316_232312_strategy_warehouse_marketing_engine_workstreamA_create_content_queue_and_scheduling_engine.md",
+      "workstream": "A - CONTENT PIPELINE",
+      "suggested_agent": "gemini",
+      "title": "TASK A3: Create Content Queue and Scheduling Engine",
+      "archived": false
+    },
+    {
+      "task_id": "A4",
+      "filename": "20260316_232313_strategy_warehouse_marketing_engine_workstreamA_implement_content_variation_ab_testing.md",
+      "workstream": "A - CONTENT PIPELINE",
+      "suggested_agent": "gemini",
+      "title": "TASK A4: Implement Content Variation / A-B Testing",
+      "archived": false
+    },
+    {
+      "task_id": "B1",
+      "filename": "20260316_232320_strategy_warehouse_marketing_engine_workstreamB_implement_twitter_connector.md",
+      "workstream": "B - SOCIAL DISTRIBUTION",
+      "suggested_agent": "gemini",
+      "title": "TASK B1: Implement Twitter/X Connector",
+      "archived": false
+    },
+    {
+      "task_id": "B2",
+      "filename": "20260316_232321_strategy_warehouse_marketing_engine_workstreamB_implement_discord_connector.md",
+      "workstream": "B - SOCIAL DISTRIBUTION",
+      "suggested_agent": "gemini",
+      "title": "TASK B2: Implement Discord Connector",
+      "archived": false
+    },
+    {
+      "task_id": "B3",
+      "filename": "20260316_232322_strategy_warehouse_marketing_engine_workstreamB_implement_telegram_connector.md",
+      "workstream": "B - SOCIAL DISTRIBUTION",
+      "suggested_agent": "gemini",
+      "title": "TASK B3: Implement Telegram Connector",
+      "archived": false
+    },
+    {
+      "task_id": "B5",
+      "filename": "20260316_232324_strategy_warehouse_marketing_engine_workstreamB_implement_reddit_connector.md",
+      "workstream": "B - SOCIAL DISTRIBUTION",
+      "suggested_agent": "gemini",
+      "title": "TASK B5: Implement Reddit Connector",
+      "archived": false
+    },
+    {
+      "task_id": "B6",
+      "filename": "20260316_232325_strategy_warehouse_marketing_engine_workstreamB_implement_tiktok_connector.md",
+      "workstream": "B - SOCIAL DISTRIBUTION",
+      "suggested_agent": "gemini",
+      "title": "TASK B6: Implement TikTok Connector",
+      "archived": false
+    },
+    {
+      "task_id": "B7",
+      "filename": "20260316_232326_strategy_warehouse_marketing_engine_workstreamB_build_posting_rules_engine.md",
+      "workstream": "B - SOCIAL DISTRIBUTION",
+      "suggested_agent": "gemini",
+      "title": "TASK B7: Build Posting Rules Engine",
+      "archived": false
+    },
+    {
+      "task_id": "B6",
+      "filename": "20260317_205500_strategy_warehouse_marketing_engine_workstreamB_implement_tiktok_connector.md",
+      "workstream": "B - SOCIAL DISTRIBUTION",
+      "suggested_agent": "general",
+      "title": "TASK B6: Refine and Verify TikTok Connector",
+      "archived": false
+    },
+    {
+      "task_id": "Z1",
+      "filename": "20260316_232300_strategy_warehouse_marketing_engine_workstreamZ_create_automated_setup_script.md",
+      "workstream": "Z - INFRASTRUCTURE",
+      "suggested_agent": "gemini",
+      "title": "TASK Z1: Create Automated Setup Script",
+      "archived": false
+    },
+    {
+      "task_id": "Z2",
+      "filename": "20260316_232301_strategy_warehouse_marketing_engine_workstreamZ_create_docker_compose_configuration.md",
+      "workstream": "Z - INFRASTRUCTURE",
+      "suggested_agent": "gemini",
+      "title": "TASK Z2: Create Docker Compose Configuration",
+      "archived": false
+    },
+    {
+      "task_id": "Z3",
+      "filename": "20260316_232302_strategy_warehouse_marketing_engine_workstreamZ_create_environment_template_and_readme.md",
+      "workstream": "Z - INFRASTRUCTURE",
+      "suggested_agent": "gemini",
+      "title": "TASK Z3: Create Environment Template and README",
+      "archived": false
+    },
+    {
+      "task_id": "Z4",
+      "filename": "20260316_232303_strategy_warehouse_marketing_engine_workstreamZ_create_health_check_endpoint.md",
+      "workstream": "Z - INFRASTRUCTURE",
+      "suggested_agent": "gemini",
+      "title": "TASK Z4: Create Health Check Endpoint",
+      "archived": false
+    }
+  ]
+}

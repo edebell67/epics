@@ -1,0 +1,581 @@
+openapi: 3.1.0
+info:
+  title: MVP Quarterly Export API
+  version: 0.1.0-contract
+  summary: Contract-first API for UK sole-trader bank-feed ingestion and quarterly export.
+  description: |
+    This document defines the initial implementation contract for the mobile quarterly
+    export MVP. Runtime services will be implemented later under `solution/backend/`,
+    while intended consumers include mobile and web clients under `solution/frontend/`.
+servers:
+  - url: https://api.example.com
+    description: Placeholder production host for future deployment wiring.
+tags:
+  - name: Bank Feeds
+  - name: Imports
+  - name: Exports
+security:
+  - bearerAuth: []
+paths:
+  /api/v1/bank-feeds/connect:
+    post:
+      tags: [Bank Feeds]
+      operationId: connectBankFeed
+      summary: Start or refresh a bank feed connection session.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BankFeedConnectRequest'
+            examples:
+              monzoPrimaryAccount:
+                value:
+                  provider:
+                    provider_name: monzo
+                    institution_id: monzo-uk-retail
+                  business_profile_id: bpf_8fe52c9d
+                  redirect_uri: https://mobile.example.com/open-banking/callback
+                  account_holders:
+                    - role: owner
+                      full_name: Alex Carter
+                  consent:
+                    access_scope: [accounts, transactions]
+                    valid_for_days: 90
+                  metadata:
+                    initiated_by: mobile_app
+                    quarter_hint: 2026-Q1
+      responses:
+        '201':
+          description: Connection session created and ready for client redirect.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankFeedConnectResponse'
+              examples:
+                created:
+                  value:
+                    connection_id: bfc_7d9fe4dd
+                    status: pending_consent
+                    provider_name: monzo
+                    institution_id: monzo-uk-retail
+                    authorization_url: https://bank.example/consent/session/abc123
+                    expires_at: 2026-03-19T16:15:00Z
+                    bank_account:
+                      bank_account_id: ba_71a79f54
+                      display_name: Monzo Business
+                      account_mask: '1234'
+                      status: pending_consent
+                    next_action:
+                      type: redirect
+                      method: GET
+                      url: https://bank.example/consent/session/abc123
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /api/v1/imports:
+    post:
+      tags: [Imports]
+      operationId: createImport
+      summary: Import transactions for a connected bank account.
+      description: |
+        Starts an idempotent transaction import run and normalizes provider payloads
+        into the `BankTransaction` contract defined under
+        `solution/backend/src/models/mvp_domain_schemas.json`.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportRequest'
+            examples:
+              initialBackfill:
+                value:
+                  bank_account_id: ba_71a79f54
+                  import_triggered_by: first_connect
+                  requested_window_days: 90
+                  from_date: 2025-12-19
+                  quarter_hint: 2026-Q1
+      responses:
+        '202':
+          description: Import accepted as an asynchronous job.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportResponse'
+              examples:
+                accepted:
+                  value:
+                    import_run_id: imp_1ecf6ba4
+                    status: accepted
+                    bank_account_id: ba_71a79f54
+                    import_triggered_by: first_connect
+                    requested_window_days: 90
+                    from_date: 2025-12-19
+                    created_at: 2026-03-19T15:32:19Z
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /api/v1/exports/quarterly:
+    post:
+      tags: [Exports]
+      operationId: createQuarterlyExport
+      summary: Create a quarterly export pack when the selected quarter is ready.
+      description: |
+        Requests generation of the Quarterly Pack bundle described in the domain contract:
+        `Transactions.csv`, `EvidenceIndex.csv`, `QuarterlySummary.csv`, and `QuarterlyPack.pdf`.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuarterlyExportRequest'
+            examples:
+              q1Export:
+                value:
+                  quarter_id: qtr_2026_q1
+                  export_format: quarterly_pack
+                  include_files:
+                    - Transactions.csv
+                    - EvidenceIndex.csv
+                    - QuarterlySummary.csv
+                    - QuarterlyPack.pdf
+                  requested_by:
+                    channel: mobile_app
+                    actor_id: usr_54cf9c9f
+                  delivery:
+                    mode: download_url
+                    expires_in_minutes: 30
+      responses:
+        '202':
+          description: Export job accepted for asynchronous generation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuarterlyExportResponse'
+              examples:
+                queued:
+                  value:
+                    export_id: exp_8b91e9a2
+                    quarter_id: qtr_2026_q1
+                    status: queued
+                    readiness:
+                      blocking_txns_count: 0
+                      readiness_pct: 100
+                    created_at: 2026-03-19T15:41:12Z
+                    links:
+                      self: /api/v1/exports/exp_8b91e9a2
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /api/v1/exports/{exportId}:
+    get:
+      tags: [Exports]
+      operationId: getQuarterlyExportStatus
+      summary: Retrieve export status and download details.
+      parameters:
+        - name: exportId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Export job status retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportStatusResponse'
+              examples:
+                completed:
+                  value:
+                    export_id: exp_8b91e9a2
+                    quarter_id: qtr_2026_q1
+                    status: completed
+                    created_at: 2026-03-19T15:41:12Z
+                    completed_at: 2026-03-19T15:41:40Z
+                    file_bundle:
+                      content_type: application/zip
+                      file_name: quarterly-pack-2026-q1.zip
+                      size_bytes: 184220
+                      download_url: https://cdn.example.com/exports/exp_8b91e9a2.zip?sig=abc
+                      expires_at: 2026-03-19T16:11:40Z
+                    files:
+                      - name: Transactions.csv
+                        rows: 128
+                      - name: EvidenceIndex.csv
+                        rows: 71
+                      - name: QuarterlySummary.csv
+                        rows: 19
+                      - name: QuarterlyPack.pdf
+                        pages: 6
+                failed:
+                  value:
+                    export_id: exp_fail_204
+                    quarter_id: qtr_2026_q1
+                    status: failed
+                    created_at: 2026-03-19T15:41:12Z
+                    failed_at: 2026-03-19T15:41:22Z
+                    error:
+                      code: export_generation_failed
+                      message: PDF render timed out while assembling the quarterly pack.
+                      retryable: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: All endpoints require an authenticated bearer token for the sole-trader user.
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: |
+        Required for safe client retries on all POST endpoints. The backend should store
+        the key with the authenticated user and request fingerprint to prevent duplicate requests.
+      schema:
+        type: string
+        minLength: 8
+        maxLength: 128
+  responses:
+    Unauthorized:
+      description: Missing or invalid bearer token.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Requested resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: Request conflicts with current state or a duplicate in-flight job.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ValidationError:
+      description: Request payload failed validation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ServiceUnavailable:
+      description: Upstream bank provider or export infrastructure unavailable.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  schemas:
+    BankFeedConnectRequest:
+      type: object
+      required: [provider, business_profile_id, redirect_uri, consent]
+      properties:
+        provider:
+          type: object
+          required: [provider_name, institution_id]
+          properties:
+            provider_name:
+              type: string
+            institution_id:
+              type: string
+        business_profile_id:
+          type: string
+        redirect_uri:
+          type: string
+          format: uri
+        account_holders:
+          type: array
+          items:
+            type: object
+            required: [role, full_name]
+            properties:
+              role:
+                type: string
+              full_name:
+                type: string
+        consent:
+          type: object
+          required: [access_scope, valid_for_days]
+          properties:
+            access_scope:
+              type: array
+              items:
+                type: string
+                enum: [accounts, transactions]
+            valid_for_days:
+              type: integer
+              minimum: 1
+              maximum: 90
+        metadata:
+          type: object
+          additionalProperties: true
+    BankFeedConnectResponse:
+      type: object
+      required:
+        - connection_id
+        - status
+        - provider_name
+        - institution_id
+        - authorization_url
+        - expires_at
+        - bank_account
+        - next_action
+      properties:
+        connection_id:
+          type: string
+        status:
+          type: string
+          enum: [pending_consent, connected, reauth_required]
+        provider_name:
+          type: string
+        institution_id:
+          type: string
+        authorization_url:
+          type: string
+          format: uri
+        expires_at:
+          type: string
+          format: date-time
+        bank_account:
+          $ref: '#/components/schemas/BankAccountSummary'
+        next_action:
+          $ref: '#/components/schemas/NextAction'
+    ImportRequest:
+      type: object
+      required: [bank_account_id, import_triggered_by]
+      properties:
+        bank_account_id:
+          type: string
+        import_triggered_by:
+          type: string
+          enum: [first_connect, manual_refresh, scheduled_sync]
+        requested_window_days:
+          type: integer
+          minimum: 1
+          maximum: 365
+          default: 90
+        from_date:
+          type: string
+          format: date
+        quarter_hint:
+          type: string
+          pattern: '^\d{4}-Q[1-4]$'
+    ImportResponse:
+      type: object
+      required:
+        - import_run_id
+        - status
+        - bank_account_id
+        - import_triggered_by
+        - created_at
+      properties:
+        import_run_id:
+          type: string
+        status:
+          type: string
+          enum: [accepted, started]
+        bank_account_id:
+          type: string
+        import_triggered_by:
+          type: string
+        requested_window_days:
+          type: integer
+        from_date:
+          type: string
+          format: date
+        created_at:
+          type: string
+          format: date-time
+    QuarterlyExportRequest:
+      type: object
+      required: [quarter_id, export_format, include_files, requested_by, delivery]
+      properties:
+        quarter_id:
+          type: string
+        export_format:
+          type: string
+          enum: [quarterly_pack]
+        include_files:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            enum: [Transactions.csv, EvidenceIndex.csv, QuarterlySummary.csv, QuarterlyPack.pdf]
+        requested_by:
+          type: object
+          required: [channel, actor_id]
+          properties:
+            channel:
+              type: string
+              enum: [mobile_app, web_app, support_operator]
+            actor_id:
+              type: string
+        delivery:
+          type: object
+          required: [mode]
+          properties:
+            mode:
+              type: string
+              enum: [download_url]
+            expires_in_minutes:
+              type: integer
+              minimum: 1
+              maximum: 1440
+    QuarterlyExportResponse:
+      type: object
+      required: [export_id, quarter_id, status, readiness, created_at, links]
+      properties:
+        export_id:
+          type: string
+        quarter_id:
+          type: string
+        status:
+          type: string
+          enum: [queued, processing]
+        readiness:
+          type: object
+          required: [blocking_txns_count, readiness_pct]
+          properties:
+            blocking_txns_count:
+              type: integer
+              minimum: 0
+            readiness_pct:
+              type: integer
+              minimum: 0
+              maximum: 100
+        created_at:
+          type: string
+          format: date-time
+        links:
+          type: object
+          required: [self]
+          properties:
+            self:
+              type: string
+    ExportStatusResponse:
+      type: object
+      required: [export_id, quarter_id, status, created_at]
+      properties:
+        export_id:
+          type: string
+        quarter_id:
+          type: string
+        status:
+          type: string
+          enum: [queued, processing, completed, failed]
+        created_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+        failed_at:
+          type: string
+          format: date-time
+        file_bundle:
+          type: object
+          properties:
+            content_type:
+              type: string
+            file_name:
+              type: string
+            size_bytes:
+              type: integer
+            download_url:
+              type: string
+              format: uri
+            expires_at:
+              type: string
+              format: date-time
+        files:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              rows:
+                type: integer
+              pages:
+                type: integer
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+    BankAccountSummary:
+      type: object
+      required: [bank_account_id, display_name, status]
+      properties:
+        bank_account_id:
+          type: string
+        display_name:
+          type: string
+        account_mask:
+          type: string
+        status:
+          type: string
+          enum: [pending_consent, connected, reauth_required, disconnected]
+    NextAction:
+      type: object
+      required: [type, method]
+      properties:
+        type:
+          type: string
+        method:
+          type: string
+        url:
+          type: string
+          format: uri
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+    ErrorDetail:
+      type: object
+      required: [code, message, retryable]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        retryable:
+          type: boolean
+        details:
+          type: object
+          additionalProperties: true

@@ -1,0 +1,39 @@
+{
+  "schema_version": "a1.v1",
+  "input_observation": {
+    "schema_version": "a1.v1",
+    "instrument_id": "NGN_VOL",
+    "source_id": "ngn_official_fix",
+    "source_type": "official_reference_rate",
+    "source_class_rank": 1,
+    "observation_timestamp": "2026-03-13T12:00:00Z",
+    "ingestion_timestamp": "2026-03-13T12:00:04Z",
+    "quote_value": 1585.25,
+    "quote_currency": "NGN",
+    "usd_notional_basis": null,
+    "source_weight": 0.4,
+    "freshness_seconds": 60,
+    "source_quality_flag": "ok",
+    "collection_method": "file_drop",
+    "quality_notes": "Official daily anchor"
+  },
+  "published_index_output": {
+    "schema_version": "a1.v1",
+    "instrument_id": "NGN_VOL",
+    "publication_timestamp": "2026-03-13T12:01:00Z",
+    "effective_observation_timestamp": "2026-03-13T12:00:20Z",
+    "official_reference_rate": 1585.25,
+    "offshore_price": 1598.1,
+    "parallel_market_proxy": 1606.4,
+    "smoothing_window": 900,
+    "weighted_median_input_value": 1598.1,
+    "medianized_index_value": 1594.56666667,
+    "index_return_1h": 0.0184,
+    "index_return_24h": 0.0642,
+    "usable_source_count": 3,
+    "source_weight_sum": 1.0,
+    "market_state_flag": "normal",
+    "source_quality_flag": "degraded",
+    "degraded_reason": "parallel_market_proxy accepted with reduced confidence weight"
+  }
+}

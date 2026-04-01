@@ -1,0 +1,10 @@
+{
+  "name": "evidence-match-ui-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "verify:voice-ui": "node verify_voice_ui_flow.js"
+  }
+}

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>bizPA Business Activity Inbox</title>
+  <style>
+    :root {
+      --bg: #f4f7f2;
+      --panel: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #0f766e;
+      --hero: #0f172a;
+      --hero-text: #f8fafc;
+      --border: #dbe3dc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+      background: radial-gradient(circle at top, #e6f4ef 0%, var(--bg) 45%, #edf2eb 100%);
+      color: var(--text);
+    }
+    .app { max-width: 1180px; margin: 0 auto; padding: 28px 20px 40px; }
+    .header, .filters, .summary, .shell { display: flex; gap: 16px; }
+    .header, .summary { justify-content: space-between; align-items: center; }
+    .title { font-size: 2rem; font-weight: 800; color: var(--accent); }
+    .subtle { color: var(--muted); font-size: 0.95rem; }
+    .banner, .hero, .panel, .detail { border-radius: 24px; background: var(--panel); }
+    .banner { padding: 10px 14px; border: 1px solid #f3dfa1; background: #fff7d6; color: #7c5f12; margin: 16px 0; }
+    .hero { background: var(--hero); color: var(--hero-text); padding: 24px; margin-bottom: 20px; }
+    .hero h1 { margin: 8px 0 10px; font-size: 3rem; }
+    .hero-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
+    .hero-stat span { display: block; color: #93c5fd; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    .hero-stat strong { font-size: 1.6rem; }
+    .filters { overflow-x: auto; padding-bottom: 6px; margin-bottom: 18px; }
+    .chip {
+      border: 0; border-radius: 999px; padding: 12px 16px; background: #ffffff; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 10px; font-weight: 700; color: var(--text);
+      box-shadow: 0 1px 0 rgba(15, 23, 42, 0.08);
+    }
+    .chip.active { background: var(--accent); color: #ffffff; }
+    .chip-count { background: #e2e8f0; border-radius: 999px; padding: 2px 8px; font-size: 0.8rem; }
+    .chip.active .chip-count { background: rgba(255, 255, 255, 0.22); }
+    .shell { align-items: flex-start; }
+    .panel, .detail { padding: 20px; border: 1px solid rgba(15, 23, 42, 0.05); }
+    .panel { flex: 1.4; }
+    .detail { flex: 1; position: sticky; top: 24px; }
+    .list { display: grid; gap: 14px; }
+    .card {
+      border-radius: 20px; background: #fdfefe; padding: 18px; border: 1px solid rgba(15, 23, 42, 0.06);
+      cursor: pointer; transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08); }
+    .card.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.12); }
+    .card-head, .meta-grid, .detail-top { display: flex; gap: 12px; }
+    .card-head { align-items: center; justify-content: space-between; }
+    .meta-grid { flex-wrap: wrap; margin-top: 10px; color: var(--muted); font-size: 0.92rem; }
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .badge { border-radius: 999px; padding: 5px 10px; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; }
+    .tone-warning { background: #fff1c2; color: #8a5a00; }
+    .tone-success { background: #d9f7e8; color: #0f6b46; }
+    .tone-info { background: #dbeafe; color: #155e75; }
+    .tone-danger { background: #ffe0e0; color: #a61b1b; }
+    .detail-top { justify-content: space-between; align-items: flex-start; }
+    .detail h2 { margin: 8px 0 4px; font-size: 1.8rem; }
+    .detail-list { margin-top: 18px; display: grid; gap: 12px; }
+    .detail-row { padding-top: 12px; border-top: 1px solid var(--border); }
+    .detail-row span { display: block; color: var(--muted); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    .summary-card { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); line-height: 1.6; }
+    @media (max-width: 900px) {
+      .shell { flex-direction: column; }
+      .detail { position: static; width: 100%; }
+      .hero-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div>
+        <div class="title">bizPA Inbox</div>
+        <div class="subtle">Business activity inbox preview with linked entity drill-down.</div>
+      </div>
+      <div class="subtle">Local URL: <strong>/business_activity_inbox_preview.html</strong></div>
+    </div>
+
+    <div class="banner">No HMRC submission. Not tax advice.</div>
+
+    <div class="hero">
+      <div class="subtle" style="color:#93c5fd;">Business Activity Inbox</div>
+      <h1 id="heroTotal">0</h1>
+      <div>Immutable event history across quotes, payments, alerts, and operator review workflows.</div>
+      <div class="hero-grid">
+        <div class="hero-stat"><span>Needs Review</span><strong id="statReview">0</strong></div>
+        <div class="hero-stat"><span>Payments</span><strong id="statPayments">0</strong></div>
+        <div class="hero-stat"><span>Alerts</span><strong id="statAlerts">0</strong></div>
+      </div>
+    </div>
+
+    <div class="filters" id="filters"></div>
+
+    <div class="shell">
+      <div class="panel">
+        <div class="summary">
+          <div>
+            <div style="font-size:1.5rem;font-weight:800;">Business Activity Inbox</div>
+            <div class="subtle">Tap an event card to navigate to its linked entity view.</div>
+          </div>
+        </div>
+        <div class="list" id="list"></div>
+      </div>
+
+      <div class="detail" id="detail"></div>
+    </div>
+  </div>
+
+  <script>
+    const events = [
+      { event_id: 'e1', event_title: 'invoice overdue', timestamp: '2026-03-11T10:15:00Z', linked_entity_type: 'invoice', linked_entity: { reference_number: 'INV-24031', counterparty_name: 'Acorn Joinery' }, amount: 'GBP 1480.00', description: 'Invoice is overdue and needs operator follow-up.', badges: [['Needs Review', 'warning'], ['Overdue', 'warning']], filter_tags: ['all', 'needs_review', 'financial'] },
+      { event_id: 'e2', event_title: 'payment recorded from Camden Kitchen Studio', timestamp: '2026-03-11T08:40:00Z', linked_entity_type: 'payment', linked_entity: { reference_number: 'PAY-9914', counterparty_name: 'Camden Kitchen Studio' }, amount: 'GBP 900.00', description: 'Matched payment confirmed against the outstanding invoice.', badges: [['Paid', 'success']], filter_tags: ['all', 'financial', 'payments'] },
+      { event_id: 'e3', event_title: 'quote converted to invoice', timestamp: '2026-03-11T07:15:00Z', linked_entity_type: 'quote', linked_entity: { reference_number: 'QT-7710', counterparty_name: 'Elm Court Management' }, amount: 'GBP 2250.00', description: 'Operator-approved quote conversion completed successfully.', badges: [['Converted', 'info'], ['Auto-Commit', 'warning']], filter_tags: ['all', 'financial', 'quotes'] },
+      { event_id: 'e4', event_title: 'quarter reopened', timestamp: '2026-03-10T18:05:00Z', linked_entity_type: 'quarter', linked_entity: { reference_number: '2026-Q1', counterparty_name: 'Quarter Governance' }, amount: 'N/A', description: 'Quarter reopened after a late receipt correction.', badges: [['Needs Review', 'warning'], ['Alert', 'danger']], filter_tags: ['all', 'needs_review', 'alerts'] }
+    ];
+
+    const filters = [
+      ['all', 'All'],
+      ['needs_review', 'Needs Review'],
+      ['financial', 'Financial'],
+      ['quotes', 'Quotes'],
+      ['payments', 'Payments'],
+      ['alerts', 'Alerts']
+    ];
+
+    let activeFilter = 'all';
+    let activeEventId = events[0].event_id;
+
+    const counts = Object.fromEntries(filters.map(([key]) => [key, events.filter((entry) => entry.filter_tags.includes(key)).length]));
+    document.getElementById('heroTotal').textContent = counts.all;
+    document.getElementById('statReview').textContent = counts.needs_review;
+    document.getElementById('statPayments').textContent = counts.payments;
+    document.getElementById('statAlerts').textContent = counts.alerts;
+
+    function renderFilters() {
+      const root = document.getElementById('filters');
+      root.innerHTML = '';
+      filters.forEach(([key, label]) => {
+        const button = document.createElement('button');
+        button.className = 'chip' + (key === activeFilter ? ' active' : '');
+        button.innerHTML = `<span>${label}</span><span class="chip-count">${counts[key]}</span>`;
+        button.onclick = () => {
+          activeFilter = key;
+          renderFilters();
+          renderList();
+        };
+        root.appendChild(button);
+      });
+    }
+
+    function renderList() {
+      const root = document.getElementById('list');
+      root.innerHTML = '';
+      events.filter((entry) => entry.filter_tags.includes(activeFilter)).forEach((entry) => {
+        const card = document.createElement('div');
+        card.className = 'card' + (entry.event_id === activeEventId ? ' active' : '');
+        const badgeHtml = entry.badges.map(([label, tone]) => `<span class="badge tone-${tone}">${label}</span>`).join('');
+        card.innerHTML = `
+          <div class="card-head">
+            <div>
+              <div style="font-weight:800;font-size:1.05rem;">${titleCase(entry.event_title)}</div>
+              <div class="subtle">${new Date(entry.timestamp).toLocaleString()}</div>
+            </div>
+            <div class="subtle">Open</div>
+          </div>
+          <div class="badges">${badgeHtml}</div>
+          <div class="meta-grid">
+            <div><strong>Entity:</strong> ${titleCase(entry.linked_entity_type)}</div>
+            <div><strong>Reference:</strong> ${entry.linked_entity.reference_number}</div>
+            <div><strong>Counterparty:</strong> ${entry.linked_entity.counterparty_name}</div>
+            <div><strong>Amount:</strong> ${entry.amount}</div>
+          </div>
+          <div class="summary-card">${entry.description}</div>
+        `;
+        card.onclick = () => {
+          activeEventId = entry.event_id;
+          renderList();
+          renderDetail();
+        };
+        root.appendChild(card);
+      });
+    }
+
+    function renderDetail() {
+      const selected = events.find((entry) => entry.event_id === activeEventId) || events[0];
+      const badges = selected.badges.map(([label, tone]) => `<span class="badge tone-${tone}">${label}</span>`).join('');
+      document.getElementById('detail').innerHTML = `
+        <div class="detail-top">
+          <div>
+            <div class="subtle">${titleCase(selected.linked_entity_type)}</div>
+            <h2>${selected.linked_entity.reference_number}</h2>
+            <div class="subtle">${selected.linked_entity.counterparty_name}</div>
+          </div>
+        </div>
+        <div class="badges">${badges}<span class="badge tone-success">${selected.amount}</span></div>
+        <div class="summary-card">${selected.description}</div>
+        <div class="detail-list">
+          <div class="detail-row"><span>Latest Event</span>${titleCase(selected.event_title)}</div>
+          <div class="detail-row"><span>Event Timestamp</span>${new Date(selected.timestamp).toLocaleString()}</div>
+          <div class="detail-row"><span>Entity Type</span>${titleCase(selected.linked_entity_type)}</div>
+          <div class="detail-row"><span>Reference</span>${selected.linked_entity.reference_number}</div>
+          <div class="detail-row"><span>Counterparty</span>${selected.linked_entity.counterparty_name}</div>
+          <div class="detail-row"><span>Navigation Proof</span>Selected inbox item updates this linked entity panel.</div>
+        </div>
+      `;
+    }
+
+    function titleCase(value) {
+      return value.replace(/_/g, ' ').replace(/\b\w/g, (character) => character.toUpperCase());
+    }
+
+    renderFilters();
+    renderList();
+    renderDetail();
+  </script>
+</body>
+</html>

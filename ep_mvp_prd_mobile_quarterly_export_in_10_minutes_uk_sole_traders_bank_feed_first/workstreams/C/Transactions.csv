@@ -1,0 +1,4 @@
+txn_id,date,merchant,amount,direction,category_code,category_name,confidence,business_personal,is_split,split_business_pct,matched_evidence_ids,bank_account_id,bank_txn_ref
+t1,2026-01-10,Tesco,45.50,out,EXPENSE,Expense,1,business,false,,e1,ba1,REF1
+t2,2026-02-15,Client A,1200.00,in,INCOME,Income,1,business,false,,,ba1,REF2
+t3,2026-03-05,Shell,60.00,out,EXPENSE,Expense,1,business,false,,,ba1,REF3

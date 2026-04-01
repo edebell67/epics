@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "publishable_trade_schema.json",
+  "title": "PublishableTradeResult",
+  "description": "Public-facing closed trade result payload derived from local trading system trade records. Only publishable summary fields are exposed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "trade_id",
+    "signal_id",
+    "open_time",
+    "close_time",
+    "entry_price",
+    "exit_price",
+    "profit_loss"
+  ],
+  "properties": {
+    "trade_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable public identifier for the published trade result. Typically sourced from the internal trade GUID."
+    },
+    "signal_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Public identifier of the originating signal. This must be carried forward from upstream signal linkage during publication."
+    },
+    "open_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp for when the trade was opened."
+    },
+    "close_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp for when the trade was closed."
+    },
+    "entry_price": {
+      "type": "number",
+      "description": "Executed or normalized entry price for the published trade result."
+    },
+    "exit_price": {
+      "type": "number",
+      "description": "Executed or normalized exit price for the published trade result."
+    },
+    "profit_loss": {
+      "type": "number",
+      "description": "Net realized profit or loss for the trade, expressed in the normalized public unit chosen by the sync layer."
+    }
+  },
+  "x-source-field-mapping": {
+    "trade_id": [
+      "guid"
+    ],
+    "signal_id": [],
+    "open_time": [
+      "created"
+    ],
+    "close_time": [
+      "last_update",
+      "int_profit_time",
+      "max_net_return_time",
+      "min_net_return_time"
+    ],
+    "entry_price": [
+      "entry_price"
+    ],
+    "exit_price": [
+      "latest_price"
+    ],
+    "profit_loss": [
+      "net_return",
+      "alt_net_return"
+    ]
+  },
+  "examples": [
+    {
+      "trade_id": "343163e2",
+      "signal_id": "343163e2",
+      "open_time": "2026-03-08T18:49:52Z",
+      "close_time": "2026-03-08T19:19:12Z",
+      "entry_price": 2.455702,
+      "exit_price": 2.45879,
+      "profit_loss": 0.003088
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: bizpa-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bizpa
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./solution/backend/src/models/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./solution/backend/src/models/sync_migration.sql:/docker-entrypoint-initdb.d/02-sync-migration.sql:ro
+      - ./solution/backend/src/models/business_event_log_migration.sql:/docker-entrypoint-initdb.d/03-business-event-migration.sql:ro
+      - ./solution/backend/src/models/mvp_quarterly_export_migration.sql:/docker-entrypoint-initdb.d/04-quarterly-export-migration.sql:ro
+      - ./solution/backend/src/models/notification_engine_migration.sql:/docker-entrypoint-initdb.d/05-notification-migration.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d bizpa"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bizpa-network
+
+  # BizPA Backend API
+  backend:
+    build:
+      context: ./solution/backend
+      dockerfile: Dockerfile
+    container_name: bizpa-backend
+    environment:
+      PORT: 5055
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: bizpa
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      SUPABASE_URL: ${SUPABASE_URL:-http://localhost:54321}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:-your-anon-key}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY:-your-service-key}
+      JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret}
+    ports:
+      - "5055:5055"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5055/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - bizpa-network
+
+  # Optional: Supabase local development (comment out if using cloud Supabase)
+  # supabase-studio:
+  #   image: supabase/studio:latest
+  #   container_name: bizpa-supabase-studio
+  #   ports:
+  #     - "54323:3000"
+  #   environment:
+  #     SUPABASE_URL: http://supabase-kong:8000
+  #     STUDIO_PG_META_URL: http://supabase-pg-meta:8080
+  #   networks:
+  #     - bizpa-network
+
+volumes:
+  postgres_data:
+
+networks:
+  bizpa-network:
+    driver: bridge

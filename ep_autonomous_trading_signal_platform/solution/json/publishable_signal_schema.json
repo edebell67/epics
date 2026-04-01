@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "publishable_signal_schema.json",
+  "title": "PublishableSignal",
+  "description": "Public-facing signal payload derived from local trading system signal records. Only publishable summary fields are exposed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "signal_id",
+    "timestamp",
+    "asset",
+    "direction",
+    "entry",
+    "tp",
+    "sl",
+    "strategy",
+    "confidence"
+  ],
+  "properties": {
+    "signal_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable public identifier for the signal. Typically sourced from the internal trade GUID."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp for when the signal was created or published."
+    },
+    "asset": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Tradable instrument code exposed publicly. Typically sourced from the internal product field."
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "buy",
+        "sell"
+      ],
+      "description": "Public direction derived from the internal signal field."
+    },
+    "entry": {
+      "type": "number",
+      "description": "Entry price for the signal. Typically sourced from entry_price."
+    },
+    "tp": {
+      "type": "number",
+      "description": "Take-profit level exposed publicly. Typically mapped from target_profit or an equivalent normalized target price."
+    },
+    "sl": {
+      "type": "number",
+      "description": "Stop-loss level exposed publicly. Typically mapped from target_loss or an equivalent normalized stop price."
+    },
+    "strategy": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Public strategy label. Typically sourced from strategy_name, model, or another sanitized strategy identifier."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Normalized confidence score between 0 and 1."
+    }
+  },
+  "x-source-field-mapping": {
+    "signal_id": [
+      "guid"
+    ],
+    "timestamp": [
+      "created",
+      "last_update"
+    ],
+    "asset": [
+      "product"
+    ],
+    "direction": [
+      "signal"
+    ],
+    "entry": [
+      "entry_price"
+    ],
+    "tp": [
+      "target_profit"
+    ],
+    "sl": [
+      "target_loss"
+    ],
+    "strategy": [
+      "strategy_name",
+      "model"
+    ],
+    "confidence": []
+  },
+  "examples": [
+    {
+      "signal_id": "2f2c8e36-4de8-4a67-8ce7-1212f54b22f8",
+      "timestamp": "2026-03-09T16:00:00Z",
+      "asset": "GBPUSD",
+      "direction": "buy",
+      "entry": 1.2745,
+      "tp": 1.2795,
+      "sl": 1.271,
+      "strategy": "breakout_r1",
+      "confidence": 0.82
+    }
+  ]
+}

@@ -1,0 +1,200 @@
+{
+  "pack_id": "f2.phase_1.v1",
+  "generated_on": "2026-03-16",
+  "objective": "Conservative MVP launch configuration for phase-1 sFX macro volatility instruments.",
+  "launch_assumptions": {
+    "launch_mode": "conservative_mvp",
+    "liquidity_priority": "quality_over_volume",
+    "cross_margin_enabled": false,
+    "per_instrument_vault_isolation": true,
+    "governance_hard_max_leverage": 5.0,
+    "phase_1_operational_max_leverage": 2.0,
+    "aggregate_phase_1_exposure_cap_fraction": 0.55,
+    "reserve_buffer_fraction": 0.45,
+    "stress_response_order": [
+      "leverage_compression",
+      "funding_multiplier_increase",
+      "spread_widening",
+      "position_size_cap_tightening",
+      "open_interest_cap_enforcement"
+    ]
+  },
+  "upstream_references": [
+    {
+      "reference_id": "a1_schema_doc",
+      "artifact_path": "C:\\Users\\edebe\\eds\\ep_synthetic_frontier_sfx_derivatives_market_technical_design_brief_v2\\solution\\workstreams\\workstream_a1_macro_volatility_index_schema_and_source_contract.md",
+      "reference_type": "index_artifact",
+      "coverage": "Phase-1 instrument matrix, smoothing windows, source quorum, and per-instrument market assumptions."
+    },
+    {
+      "reference_id": "a1_schema_json",
+      "artifact_path": "C:\\Users\\edebe\\eds\\ep_synthetic_frontier_sfx_derivatives_market_technical_design_brief_v2\\solution\\workstreams\\workstream_a1_macro_volatility_index_schema.json",
+      "reference_type": "index_artifact",
+      "coverage": "Canonical instrument identifiers and published index field contract."
+    },
+    {
+      "reference_id": "a1_ngn_example",
+      "artifact_path": "C:\\Users\\edebe\\eds\\ep_synthetic_frontier_sfx_derivatives_market_technical_design_brief_v2\\verification\\workstream_a1_ngn_vol_example.json",
+      "reference_type": "index_artifact",
+      "coverage": "Worked example for NGN_VOL publication semantics and field meanings."
+    },
+    {
+      "reference_id": "epic_risk_controls",
+      "artifact_path": "C:\\Users\\edebe\\eds\\workstream\\000_epic\\20260227_022357_sFX_Technical_Design_Brief_v2_processed.md",
+      "reference_type": "risk_control_artifact",
+      "coverage": "Sections 4-5 define the leverage model, funding inputs, spread elasticity, and automatic stress responses."
+    },
+    {
+      "reference_id": "epic_governance_launch_scope",
+      "artifact_path": "C:\\Users\\edebe\\eds\\workstream\\000_epic\\20260227_022357_sFX_Technical_Design_Brief_v2_processed.md",
+      "reference_type": "risk_control_artifact",
+      "coverage": "Sections 7-9 define parameter bands, vault allocation caps, instrument isolation, and conservative phase-1 launch scope."
+    }
+  ],
+  "instruments": [
+    {
+      "instrument_id": "NGN_VOL",
+      "launch_enabled": true,
+      "status": "launch_ready",
+      "liquidity_tier": "guarded",
+      "initial_leverage_band": {
+        "min": 1.0,
+        "max": 1.25
+      },
+      "exposure_cap": {
+        "vault_fraction": 0.12,
+        "open_interest_usd": 250000,
+        "tighten_on_stress_to_vault_fraction": 0.08
+      },
+      "funding_base_params": {
+        "base_hourly_rate": 0.00015,
+        "imbalance_sensitivity": 1.35,
+        "volatility_sensitivity": 1.2,
+        "open_interest_velocity_sensitivity": 0.85,
+        "stress_multiplier_cap": 2.5
+      },
+      "spread_floor": {
+        "normal_bps": 90,
+        "stress_bps": 160
+      },
+      "index_requirements": {
+        "min_usable_sources": 2,
+        "default_smoothing_window_seconds": 900,
+        "primary_anchor": "official_reference_rate",
+        "fallback_anchor": "parallel_market_proxy"
+      },
+      "launch_assumptions": [
+        "Parallel market proxy may carry materially more weight during official and offshore dislocations.",
+        "NGN launches with the tightest notional cap outside GHS because fragmented liquidity raises gap risk."
+      ]
+    },
+    {
+      "instrument_id": "KES_VOL",
+      "launch_enabled": true,
+      "status": "launch_ready",
+      "liquidity_tier": "guarded_plus",
+      "initial_leverage_band": {
+        "min": 1.0,
+        "max": 1.5
+      },
+      "exposure_cap": {
+        "vault_fraction": 0.15,
+        "open_interest_usd": 325000,
+        "tighten_on_stress_to_vault_fraction": 0.1
+      },
+      "funding_base_params": {
+        "base_hourly_rate": 0.00014,
+        "imbalance_sensitivity": 1.25,
+        "volatility_sensitivity": 1.1,
+        "open_interest_velocity_sensitivity": 0.8,
+        "stress_multiplier_cap": 2.35
+      },
+      "spread_floor": {
+        "normal_bps": 70,
+        "stress_bps": 130
+      },
+      "index_requirements": {
+        "min_usable_sources": 2,
+        "default_smoothing_window_seconds": 600,
+        "primary_anchor": "official_reference_rate",
+        "fallback_anchor": "parallel_market_proxy"
+      },
+      "launch_assumptions": [
+        "Offshore input is optional; launch rules rely on official plus proxy continuity when offshore quotes are absent.",
+        "KES receives a moderate cap because continuity is better than NGN but still dependent on proxy support."
+      ]
+    },
+    {
+      "instrument_id": "GHS_VOL",
+      "launch_enabled": true,
+      "status": "launch_ready",
+      "liquidity_tier": "guarded",
+      "initial_leverage_band": {
+        "min": 1.0,
+        "max": 1.25
+      },
+      "exposure_cap": {
+        "vault_fraction": 0.1,
+        "open_interest_usd": 200000,
+        "tighten_on_stress_to_vault_fraction": 0.06
+      },
+      "funding_base_params": {
+        "base_hourly_rate": 0.00016,
+        "imbalance_sensitivity": 1.4,
+        "volatility_sensitivity": 1.25,
+        "open_interest_velocity_sensitivity": 0.9,
+        "stress_multiplier_cap": 2.6
+      },
+      "spread_floor": {
+        "normal_bps": 100,
+        "stress_bps": 180
+      },
+      "index_requirements": {
+        "min_usable_sources": 2,
+        "default_smoothing_window_seconds": 900,
+        "primary_anchor": "official_reference_rate",
+        "fallback_anchor": "parallel_market_proxy"
+      },
+      "launch_assumptions": [
+        "High smoothing bias and lagging official prints require the lowest launch cap in the pack.",
+        "GHS starts with the widest spread floor to absorb stale-anchor and liquidity-thinning risk."
+      ]
+    },
+    {
+      "instrument_id": "ZAR_VOL",
+      "launch_enabled": true,
+      "status": "launch_ready",
+      "liquidity_tier": "best_of_phase_1",
+      "initial_leverage_band": {
+        "min": 1.0,
+        "max": 2.0
+      },
+      "exposure_cap": {
+        "vault_fraction": 0.18,
+        "open_interest_usd": 450000,
+        "tighten_on_stress_to_vault_fraction": 0.12
+      },
+      "funding_base_params": {
+        "base_hourly_rate": 0.00012,
+        "imbalance_sensitivity": 1.15,
+        "volatility_sensitivity": 1.0,
+        "open_interest_velocity_sensitivity": 0.75,
+        "stress_multiplier_cap": 2.2
+      },
+      "spread_floor": {
+        "normal_bps": 35,
+        "stress_bps": 75
+      },
+      "index_requirements": {
+        "min_usable_sources": 2,
+        "default_smoothing_window_seconds": 300,
+        "primary_anchor": "offshore_price",
+        "fallback_anchor": "official_reference_rate"
+      },
+      "launch_assumptions": [
+        "Deeper offshore observability allows the highest phase-1 leverage and exposure allocation while remaining inside the epic's conservative launch posture.",
+        "ZAR still retains spread widening and cap tightening triggers before any leverage increase beyond 2x is considered."
+      ]
+    }
+  ]
+}

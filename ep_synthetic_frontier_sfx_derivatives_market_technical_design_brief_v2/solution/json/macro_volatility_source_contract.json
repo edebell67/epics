@@ -1,0 +1,152 @@
+{
+  "contract_version": "1.0.0",
+  "contract_name": "macro_volatility_source_contract",
+  "purpose": "Canonical quote envelope for official, offshore, and proxy inputs consumed by the Synthetic Frontier index data layer.",
+  "canonical_fields": [
+    {
+      "name": "source_id",
+      "type": "string",
+      "required": true,
+      "description": "Stable source identifier used for routing, weighting, and observability."
+    },
+    {
+      "name": "source_type",
+      "type": "string",
+      "required": true,
+      "allowed_values": [
+        "official_reference_rate",
+        "offshore_spot",
+        "parallel_market_proxy",
+        "derived_proxy"
+      ],
+      "description": "Source category used by normalization and fallback policy."
+    },
+    {
+      "name": "instrument_code",
+      "type": "string",
+      "required": true,
+      "description": "Macro volatility index instrument, for example NGN_VOL or KES_VOL."
+    },
+    {
+      "name": "quote_ccy_pair",
+      "type": "string",
+      "required": true,
+      "description": "Normalized FX pair represented as BASE/QUOTE."
+    },
+    {
+      "name": "observed_at_utc",
+      "type": "string",
+      "required": true,
+      "format": "date-time",
+      "description": "Timestamp attached to the upstream observation."
+    },
+    {
+      "name": "received_at_utc",
+      "type": "string",
+      "required": true,
+      "format": "date-time",
+      "description": "Timestamp when the adapter captured the payload."
+    },
+    {
+      "name": "poll_interval",
+      "type": "integer",
+      "required": true,
+      "description": "Configured poll interval in seconds."
+    },
+    {
+      "name": "raw_value",
+      "type": "number",
+      "required": true,
+      "description": "Upstream quoted value before normalization."
+    },
+    {
+      "name": "normalized_value",
+      "type": "number",
+      "required": true,
+      "description": "Canonical value after orientation, unit, and precision normalization."
+    },
+    {
+      "name": "normalization_rule",
+      "type": "string",
+      "required": true,
+      "description": "Deterministic transformation recipe used by the adapter."
+    },
+    {
+      "name": "staleness_threshold",
+      "type": "integer",
+      "required": true,
+      "description": "Maximum tolerated age in seconds before the quote is considered stale."
+    },
+    {
+      "name": "fallback_priority",
+      "type": "integer",
+      "required": true,
+      "description": "Lower numbers are preferred during source selection."
+    },
+    {
+      "name": "anomaly_flag",
+      "type": "string",
+      "required": true,
+      "allowed_values": [
+        "none",
+        "stale",
+        "late_publish",
+        "outlier",
+        "gap_fill",
+        "schema_error",
+        "transport_error",
+        "manual_hold"
+      ],
+      "description": "Most severe anomaly classification assigned by the pipeline."
+    }
+  ],
+  "source_profiles": [
+    {
+      "source_id": "cbn_reference",
+      "source_type": "official_reference_rate",
+      "poll_interval": 3600,
+      "staleness_threshold": 14400,
+      "fallback_priority": 1,
+      "normalization_rule": "daily_fix_to_mid_quote_6dp"
+    },
+    {
+      "source_id": "offshore_broker_primary",
+      "source_type": "offshore_spot",
+      "poll_interval": 60,
+      "staleness_threshold": 300,
+      "fallback_priority": 2,
+      "normalization_rule": "bid_ask_mid_to_usd_base_6dp"
+    },
+    {
+      "source_id": "parallel_desk_proxy",
+      "source_type": "parallel_market_proxy",
+      "poll_interval": 300,
+      "staleness_threshold": 1800,
+      "fallback_priority": 3,
+      "normalization_rule": "proxy_spread_adjusted_mid_6dp"
+    },
+    {
+      "source_id": "regional_basket_proxy",
+      "source_type": "derived_proxy",
+      "poll_interval": 300,
+      "staleness_threshold": 1800,
+      "fallback_priority": 4,
+      "normalization_rule": "basket_implied_fx_mid_6dp"
+    }
+  ],
+  "selection_policy": {
+    "freshness_precedes_priority": true,
+    "anomaly_blocks_publication": [
+      "schema_error",
+      "transport_error",
+      "manual_hold"
+    ],
+    "soft_degradation_flags": [
+      "stale",
+      "late_publish",
+      "gap_fill",
+      "outlier"
+    ],
+    "minimum_live_sources_for_medianization": 2
+  }
+}

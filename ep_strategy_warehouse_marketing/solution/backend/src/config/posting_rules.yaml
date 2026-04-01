@@ -1,0 +1,46 @@
+platforms:
+  twitter:
+    posting_windows:
+      - start: "09:00"
+        end: "12:00"
+        timezone: "UTC"
+      - start: "17:00"
+        end: "20:00"
+        timezone: "UTC"
+    max_posts_per_day: 10
+    min_interval_minutes: 60
+    required_hashtags: ["#trading", "#forex", "#strategywarehouse"]
+
+  discord:
+    max_posts_per_day: 20
+    min_interval_minutes: 15
+    channels:
+      signals: "123456789012345678"
+      performance: "876543210987654321"
+
+  telegram:
+    max_posts_per_day: 15
+    min_interval_minutes: 30
+    required_hashtags: ["#trading", "#forex"]
+
+  linkedin:
+    max_posts_per_day: 3
+    min_interval_minutes: 240
+    required_hashtags: ["#trading", "#fintech", "#quant"]
+
+  reddit:
+    max_posts_per_day: 5
+    min_interval_minutes: 120
+    subreddits: ["forex", "algotrading"]
+
+  tiktok:
+    max_posts_per_day: 2
+    min_interval_minutes: 360
+    required_hashtags: ["#trading", "#forex", "#foryou"]
+
+guardrails:
+  blocked_actions:
+    - spend_money
+    - respond_to_dms
+  requires_approval:
+    - posts_with_predictions

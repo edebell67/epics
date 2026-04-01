@@ -1,0 +1,136 @@
+{
+  "defaultContext": "quarter-close",
+  "heroCopy": "Use the same micro-decision handlers for voice and tap actions, keep the latest change visible in a single confirmation chip, and allow one-tap undo before quarter export moves on.",
+  "attachHint": "The first candidate is visually promoted so a sole trader can clear the receipt match in seconds.",
+  "pendingCopy": "Open the bottom sheet to review the top three matches and decide whether to confirm, defer, or skip the link.",
+  "sheetCopy": "Each candidate keeps the merchant, date, amount, and match reasons visible. The leading option is promoted, but the user can still override it.",
+  "outcomes": [
+    "Voice and tap actions share the same intent dispatcher so they produce the same state changes.",
+    "Every applied voice action raises a single confirmation chip with one-tap undo.",
+    "Receipt attach, match confirm, and No match still resolve without creating export blockers."
+  ],
+  "voiceCommandExamples": [
+    "Category: Travel",
+    "Business",
+    "Personal",
+    "Split 40%",
+    "Attach receipt",
+    "Match first",
+    "No match"
+  ],
+  "blockerStatus": {
+    "createsExportBlocker": false,
+    "safeCopy": "No export blockers created"
+  },
+  "contexts": [
+    {
+      "id": "quarter-close",
+      "label": "Quarter close",
+      "summary": "Clear pending receipts before the final pack is generated.",
+      "description": "This quarter-close pass keeps the export queue moving while the evidence link is confirmed, deferred, or marked as no match."
+    },
+    {
+      "id": "inbox",
+      "label": "Inbox",
+      "summary": "Resolve receipts as they land in the mobile queue.",
+      "description": "Inbox mode uses the same bottom-sheet decision flow so the receipt can be resolved the moment it appears."
+    }
+  ],
+  "evidence": {
+    "fileName": "af153ef4-0a2f-41e0-9760-91f76d3e4815-tesco_receipt_20260320.png",
+    "merchant": "Tesco",
+    "amount": 12.5,
+    "doc_date": "2026-03-20",
+    "storage_link": "https://storage.example.com/evidence/user-123/af153ef4-0a2f-41e0-9760-91f76d3e4815-tesco_receipt_20260320.png"
+  },
+  "transaction": {
+    "txn_id": "txn-gwr-004",
+    "merchant": "Great Western Railway",
+    "date": "2026-03-21",
+    "amount": 48.2,
+    "classification": {
+      "txn_id": "txn-gwr-004",
+      "category_code": null,
+      "category_name": null,
+      "business_personal": null,
+      "is_split": false,
+      "split_business_pct": null,
+      "confidence": 0,
+      "applied_by": "import",
+      "review_required": true,
+      "duplicate_resolution": "NONE",
+      "duplicate_of_txn_id": null,
+      "classification_id": "8bac32cb-b60b-4ab9-af0e-bb748a8b8928",
+      "created_at": "2026-03-27T00:02:40.764Z",
+      "updated_at": "2026-03-27T00:02:40.781Z"
+    }
+  },
+  "categoryCatalog": [
+    {
+      "code": "travel",
+      "name": "Travel"
+    },
+    {
+      "code": "meals",
+      "name": "Meals"
+    },
+    {
+      "code": "software",
+      "name": "Software"
+    }
+  ],
+  "candidates": [
+    {
+      "candidate_rank": 1,
+      "bank_txn_id": "txn-tesco-001",
+      "merchant": "Tesco Stores",
+      "date": "2026-03-20",
+      "amount": 12.5,
+      "link_confidence": 0.97,
+      "reasons": [
+        "Exact amount match",
+        "Exact date match",
+        "Strong merchant match"
+      ],
+      "scores": {
+        "amount": 1,
+        "merchant": 0.9,
+        "date": 1
+      }
+    },
+    {
+      "candidate_rank": 2,
+      "bank_txn_id": "txn-pret-002",
+      "merchant": "Pret A Manger",
+      "date": "2026-03-19",
+      "amount": 12.95,
+      "link_confidence": 0.6,
+      "reasons": [
+        "Close amount match",
+        "Within 1 day"
+      ],
+      "scores": {
+        "amount": 0.8,
+        "merchant": 0.07692307692307687,
+        "date": 0.9
+      }
+    },
+    {
+      "candidate_rank": 3,
+      "bank_txn_id": "txn-coop-003",
+      "merchant": "Co-op Food",
+      "date": "2026-03-18",
+      "amount": 12.3,
+      "link_confidence": 0.57,
+      "reasons": [
+        "Close amount match",
+        "Within 3 days"
+      ],
+      "scores": {
+        "amount": 0.8,
+        "merchant": 0.09999999999999998,
+        "date": 0.7
+      }
+    }
+  ]
+}

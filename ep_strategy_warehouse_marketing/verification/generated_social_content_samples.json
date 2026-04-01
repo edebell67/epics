@@ -1,0 +1,401 @@
+{
+  "content_matrix": [
+    {
+      "pillar": "daily_signal_edge",
+      "campaign_angle": "momentum",
+      "content_type": "signal_alert",
+      "theme": "Surface the strongest live mover with fast proof and a clear invite.",
+      "format_name": "flash_signal_post",
+      "target_platforms": [
+        "twitter",
+        "discord",
+        "telegram"
+      ],
+      "hook_style": "Urgent momentum hook",
+      "call_to_action": "Join the Strategy Warehouse list for the next live signal batch."
+    },
+    {
+      "pillar": "performance_recap",
+      "campaign_angle": "risk_discipline",
+      "content_type": "performance_summary",
+      "theme": "Translate snapshot data into disciplined weekly-style proof.",
+      "format_name": "proof_of_process_post",
+      "target_platforms": [
+        "linkedin",
+        "reddit",
+        "twitter"
+      ],
+      "hook_style": "Measured proof hook",
+      "call_to_action": "Get the operating notes and performance recap in the subscriber digest."
+    },
+    {
+      "pillar": "leaderboard_watch",
+      "campaign_angle": "leaderboard",
+      "content_type": "strategy_ranking",
+      "theme": "Show ranked leaders and why the board is rotating.",
+      "format_name": "leaderboard_carousel",
+      "target_platforms": [
+        "twitter",
+        "linkedin",
+        "tiktok"
+      ],
+      "hook_style": "Competitive leaderboard hook",
+      "call_to_action": "Subscribe to track when the leaderboard flips."
+    },
+    {
+      "pillar": "trader_education",
+      "campaign_angle": "education",
+      "content_type": "educational",
+      "theme": "Turn warehouse output into reusable explanations about risk and selection.",
+      "format_name": "educational_breakdown",
+      "target_platforms": [
+        "linkedin",
+        "reddit",
+        "discord"
+      ],
+      "hook_style": "Teach with one sharp lesson",
+      "call_to_action": "Join for deeper breakdowns behind each strategy setup."
+    }
+  ],
+  "generated_at": "2026-03-18T18:31:02.562924",
+  "source_snapshot_dir": "C:\\Users\\edebe\\eds\\TradeApps\\breakout\\fs\\json\\live\\forex\\2026-03-18",
+  "posts": [
+    {
+      "content_id": "4b36b44d-d059-4cf8-9c11-71e4a5f9c081",
+      "content_type": "signal_alert",
+      "campaign_angle": "momentum",
+      "pillar": "daily_signal_edge",
+      "format_name": "flash_signal_post",
+      "headline": "NZDAUD_C setup presses +1120 pts",
+      "body": "Momentum check: brk R 2 tp20.0 sl20.0 on NZDAUD_C. Net +1120 pts, sell-led bias. 5 buys vs 3 sells on the latest pass.",
+      "media_urls": [],
+      "hashtags": [
+        "#StrategyWarehouse",
+        "#TradingSignals",
+        "#AlgoTrading",
+        "#NZDAUD_C"
+      ],
+      "call_to_action": "Join the Strategy Warehouse list for the next live signal batch.",
+      "landing_page_url": "https://strategywarehouse.example.com/subscribe",
+      "created_at": "2026-03-18T18:31:10.188338Z",
+      "scheduled_for": null,
+      "platform_variants": {
+        "twitter": {
+          "platform": "twitter",
+          "headline": "NZDAUD_C setup presses +1120 pts",
+          "body": "Momentum check: brk R 2 tp20.0 sl20.0 on NZDAUD_C. Net +1120 pts, sell-led bias. 5 buys vs 3 sells on the latest pass. #StrategyWarehouse #TradingSignals #AlgoTrading #NZDAUD_C Join the Strategy Warehouse list for the next live signal batch.",
+          "hashtags": [
+            "#StrategyWarehouse",
+            "#TradingSignals",
+            "#AlgoTrading",
+            "#NZDAUD_C"
+          ],
+          "call_to_action": "Join the Strategy Warehouse list for the next live signal batch."
+        },
+        "discord": {
+          "platform": "discord",
+          "headline": "NZDAUD_C setup presses +1120 pts",
+          "body": "Momentum check: brk R 2 tp20.0 sl20.0 on NZDAUD_C. Net +1120 pts, sell-led bias. 5 buys vs 3 sells on the latest pass. Join the Strategy Warehouse list for the next live signal batch.",
+          "hashtags": [
+            "#StrategyWarehouse",
+            "#TradingSignals",
+            "#AlgoTrading",
+            "#NZDAUD_C"
+          ],
+          "call_to_action": "Join the Strategy Warehouse list for the next live signal batch."
+        },
+        "telegram": {
+          "platform": "telegram",
+          "headline": "NZDAUD_C setup presses +1120 pts",
+          "body": "Momentum check: brk R 2 tp20.0 sl20.0 on NZDAUD_C. Net +1120 pts, sell-led bias. 5 buys vs 3 sells on the latest pass. #StrategyWarehouse #TradingSignals #AlgoTrading #NZDAUD_C Join the Strategy Warehouse list for the next live signal batch.",
+          "hashtags": [
+            "#StrategyWarehouse",
+            "#TradingSignals",
+            "#AlgoTrading",
+            "#NZDAUD_C"
+          ],
+          "call_to_action": "Join the Strategy Warehouse list for the next live signal batch."
+        }
+      },
+      "source_data": {
+        "strategy": "breakout_R_2_tp20.0_sl20.0",
+        "product": "NZDAUD_C",
+        "latest_point": {
+          "t": "2026-03-18T18:25:43.263114",
+          "net": 1120.0,
+          "buy_net": 550.0,
+          "sell_net": 570.0,
+          "buy_alt": -750.0,
+          "sell_alt": -690.0,
+          "live_buy": 0.0,
+          "live_sell": 0.0,
+          "b_c": 5,
+          "s_c": 3,
+          "buyPercent": 80.0,
+          "sellPercent": 100.0
+        }
+      },
+      "campaign_assets": [
+        {
+          "asset_type": "quote_card",
+          "title": "NZDAUD_C momentum card",
+          "visual_brief": "Highlight NZDAUD_C net curve and current strategy label.",
+          "callout": "Fast signal, clear edge, direct CTA."
+        }
+      ]
+    },
+    {
+      "content_id": "756412c5-703e-4d5b-abc4-0b67d71252fb",
+      "content_type": "performance_summary",
+      "campaign_angle": "risk_discipline",
+      "pillar": "performance_recap",
+      "format_name": "proof_of_process_post",
+      "headline": "NQ leads 207 live checks",
+      "body": "Discipline over noise: NQ leads the board with +1255 pts while 207 snapshots keep the tape honest. The engine keeps publishing only when the board shows repeatable strength.",
+      "media_urls": [],
+      "hashtags": [
+        "#StrategyWarehouse",
+        "#TradingSignals",
+        "#AlgoTrading",
+        "#RiskManagement"
+      ],
+      "call_to_action": "Get the operating notes and performance recap in the subscriber digest.",
+      "landing_page_url": "https://strategywarehouse.example.com/subscribe",
+      "created_at": "2026-03-18T18:31:10.191499Z",
+      "scheduled_for": null,
+      "platform_variants": {
+        "linkedin": {
+          "platform": "linkedin",
+          "headline": "NQ leads 207 live checks",
+          "body": "Discipline over noise: NQ leads the board with +1255 pts while 207 snapshots keep the tape honest. The engine keeps publishing only when the board shows repeatable strength. #StrategyWarehouse #TradingSignals #AlgoTrading #RiskManagement Get the operating notes and performance recap in the subscriber digest.",
+          "hashtags": [
+            "#StrategyWarehouse",
+            "#TradingSignals",
+            "#AlgoTrading",
+            "#RiskManagement"
+          ],
+          "call_to_action": "Get the operating notes and performance recap in the subscriber digest."
+        },
+        "reddit": {
+          "platform": "reddit",
+          "headline": "NQ leads 207 live checks",
+          "body": "Discipline over noise: NQ leads the board with +1255 pts while 207 snapshots keep the tape honest. The engine keeps publishing only when the board shows repeatable strength.\n\nCTA: Get the operating notes and performance recap in the subscriber digest.",
+          "hashtags": [],
+          "call_to_action": "Get the operating notes and performance recap in the subscriber digest."
+        },
+        "twitter": {
+          "platform": "twitter",
+          "headline": "NQ leads 207 live checks",
+          "body": "Discipline over noise: NQ leads the board with +1255 pts while 207 snapshots keep the tape honest. The engine keeps publishing only when the board shows repeatable strength. #StrategyWarehouse #TradingSignals #AlgoTrading #RiskManagement Get the operating notes and performance...",
+          "hashtags": [
+            "#StrategyWarehouse",
+            "#TradingSignals",
+            "#AlgoTrading",
+            "#RiskManagement"
+          ],
+          "call_to_action": "Get the operating notes and performance recap in the subscriber digest."
+        }
+      },
+      "source_data": {
+        "latest_snapshot_time": "2026-03-18T18:30:00",
+        "leader": {
+          "rank": 1,
+          "score_rank": 8,
+          "score": 3968.0,
+          "product": "NQ",
+          "strategy": "breakout_R_2_tp20.0_sl30.0",
+          "net": 1255.0
+        },
+        "snapshot_count": 207
+      },
+      "campaign_assets": [
+        {
+          "asset_type": "carousel",
+          "title": "Performance recap carousel",
+          "visual_brief": "Slide 1 headline, slide 2 snapshot count, slide 3 why discipline matters.",
+          "callout": "Proof without overclaiming."
+        }
+      ]
+    },
+    {
+      "content_id": "b1ca22f9-5cfc-4911-933d-6f6000708dec",
+      "content_type": "strategy_ranking",
+      "campaign_angle": "leaderboard",
+      "pillar": "leaderboard_watch",
+      "format_name": "leaderboard_carousel",
+      "headline": "DNA leaderboard rotation is tightening",
+      "body": "Leaderboard watch: 1. DNA_104008_CHF (+505) | 2. DNA_104025_CHF (+505) | 3. DNA_104029_CHF (+505). Rotation matters more than hype. Watch which names stay on the board.",
+      "media_urls": [],
+      "hashtags": [
+        "#StrategyWarehouse",
+        "#TradingSignals",
+        "#AlgoTrading",
+        "#Leaderboard"
+      ],
+      "call_to_action": "Subscribe to track when the leaderboard flips.",
+      "landing_page_url": "https://strategywarehouse.example.com/subscribe",
+      "created_at": "2026-03-18T18:31:10.196765Z",
+      "scheduled_for": null,
+      "platform_variants": {
+        "twitter": {
+          "platform": "twitter",
+          "headline": "DNA leaderboard rotation is tightening",
+          "body": "Leaderboard watch: 1. DNA_104008_CHF (+505) | 2. DNA_104025_CHF (+505) | 3. DNA_104029_CHF (+505). Rotation matters more than hype. Watch which names stay on the board. #StrategyWarehouse #TradingSignals #AlgoTrading #Leaderboard Subscribe to track when the leaderboard flips.",
+          "hashtags": [
+            "#StrategyWarehouse",
+            "#TradingSignals",
+            "#AlgoTrading",
+            "#Leaderboard"
+          ],
+          "call_to_action": "Subscribe to track when the leaderboard flips."
+        },
+        "linkedin": {
+          "platform": "linkedin",
+          "headline": "DNA leaderboard rotation is tightening",
+          "body": "Leaderboard watch: 1. DNA_104008_CHF (+505) | 2. DNA_104025_CHF (+505) | 3. DNA_104029_CHF (+505). Rotation matters more than hype. Watch which names stay on the board. #StrategyWarehouse #TradingSignals #AlgoTrading #Leaderboard Subscribe to track when the leaderboard flips.",
+          "hashtags": [
+            "#StrategyWarehouse",
+            "#TradingSignals",
+            "#AlgoTrading",
+            "#Leaderboard"
+          ],
+          "call_to_action": "Subscribe to track when the leaderboard flips."
+        },
+        "tiktok": {
+          "platform": "tiktok",
+          "headline": "DNA leaderboard rotation is tightening",
+          "body": "Leaderboard watch: 1. DNA_104008_CHF (+505) | 2. DNA_104025_CHF (+505) | 3. DNA_104029_CHF (+505). Rotation matters more than hype. Watch which names stay on the board. #StrategyWarehouse #TradingSignals #AlgoTrading #Leaderboard Subscribe to track when the leaderboard flips.",
+          "hashtags": [
+            "#StrategyWarehouse",
+            "#TradingSignals",
+            "#AlgoTrading",
+            "#Leaderboard"
+          ],
+          "call_to_action": "Subscribe to track when the leaderboard flips."
+        }
+      },
+      "source_data": {
+        "latest_snapshot_time": "2026-03-18T18:35:00",
+        "leaders": [
+          {
+            "rank": 1,
+            "product": "DNA_104008_CHF",
+            "strategy": "BRK-L-TGT_tp544.00_sl108.00",
+            "net": 504.9999999999977
+          },
+          {
+            "rank": 2,
+            "product": "DNA_104025_CHF",
+            "strategy": "BUCKET-L-FLIP-TS_tp535.00_sl90.00",
+            "net": 504.9999999999977
+          },
+          {
+            "rank": 3,
+            "product": "DNA_104029_CHF",
+            "strategy": "BRK-L-FLIP-TS_tp541.00_sl166.00",
+            "net": 504.9999999999977
+          },
+          {
+            "rank": 4,
+            "product": "DNA_104037_CHF",
+            "strategy": "BRK-L-BE-S_tp541.00_sl132.00",
+            "net": 504.9999999999977
+          },
+          {
+            "rank": 5,
+            "product": "DNA_104103_CHF",
+            "strategy": "TIME-L-TGT-TP_tp537.00_sl126.00",
+            "net": 504.9999999999977
+          }
+        ]
+      },
+      "campaign_assets": [
+        {
+          "asset_type": "leaderboard_card",
+          "title": "Top 3 DNA strategies",
+          "visual_brief": "Three-column leaderboard with rank badges and point totals.",
+          "callout": "Show movement between yesterday and today."
+        }
+      ]
+    },
+    {
+      "content_id": "efe0fa2f-72e6-4230-9b9e-9b2ca5d2e2a3",
+      "content_type": "educational",
+      "campaign_angle": "education",
+      "pillar": "trader_education",
+      "format_name": "educational_breakdown",
+      "headline": "How to read a strategy board without chasing noise",
+      "body": "What makes a strategy feed usable? Repeated snapshots, ranked leaders, and a clear filter for noise. Today that means tracking brk R 2 tp20.0 sl30.0, brk R Rev 2 tp20.0 sl50.0 and ignoring one-off spikes.",
+      "media_urls": [],
+      "hashtags": [
+        "#TradingEducation",
+        "#StrategyWarehouse",
+        "#ProcessOverPrediction"
+      ],
+      "call_to_action": "Join for deeper breakdowns behind each strategy setup.",
+      "landing_page_url": "https://strategywarehouse.example.com/subscribe",
+      "created_at": "2026-03-18T18:31:10.196854Z",
+      "scheduled_for": null,
+      "platform_variants": {
+        "linkedin": {
+          "platform": "linkedin",
+          "headline": "How to read a strategy board without chasing noise",
+          "body": "What makes a strategy feed usable? Repeated snapshots, ranked leaders, and a clear filter for noise. Today that means tracking brk R 2 tp20.0 sl30.0, brk R Rev 2 tp20.0 sl50.0 and ignoring one-off spikes. #TradingEducation #StrategyWarehouse #ProcessOverPrediction Join for deeper breakdowns behind each strategy setup.",
+          "hashtags": [
+            "#TradingEducation",
+            "#StrategyWarehouse",
+            "#ProcessOverPrediction"
+          ],
+          "call_to_action": "Join for deeper breakdowns behind each strategy setup."
+        },
+        "reddit": {
+          "platform": "reddit",
+          "headline": "How to read a strategy board without chasing noise",
+          "body": "What makes a strategy feed usable? Repeated snapshots, ranked leaders, and a clear filter for noise. Today that means tracking brk R 2 tp20.0 sl30.0, brk R Rev 2 tp20.0 sl50.0 and ignoring one-off spikes.\n\nCTA: Join for deeper breakdowns behind each strategy setup.",
+          "hashtags": [],
+          "call_to_action": "Join for deeper breakdowns behind each strategy setup."
+        },
+        "discord": {
+          "platform": "discord",
+          "headline": "How to read a strategy board without chasing noise",
+          "body": "What makes a strategy feed usable? Repeated snapshots, ranked leaders, and a clear filter for noise. Today that means tracking brk R 2 tp20.0 sl30.0, brk R Rev 2 tp20.0 sl50.0 and ignoring one-off spikes. Join for deeper breakdowns behind each strategy setup.",
+          "hashtags": [
+            "#TradingEducation",
+            "#StrategyWarehouse",
+            "#ProcessOverPrediction"
+          ],
+          "call_to_action": "Join for deeper breakdowns behind each strategy setup."
+        }
+      },
+      "source_data": {
+        "leaders": [
+          {
+            "rank": 1,
+            "score_rank": 8,
+            "score": 3968.0,
+            "product": "NQ",
+            "strategy": "breakout_R_2_tp20.0_sl30.0",
+            "net": 1255.0
+          },
+          {
+            "rank": 2,
+            "score_rank": 6,
+            "score": 5446.0,
+            "product": "NQ",
+            "strategy": "breakout_R_Rev_2_tp20.0_sl50.0",
+            "net": 1200.0
+          }
+        ],
+        "lesson": "Use repeat snapshots to separate consistency from noise."
+      },
+      "campaign_assets": [
+        {
+          "asset_type": "script_outline",
+          "title": "Educational explainer",
+          "visual_brief": "30-second talking-head outline with one chart overlay.",
+          "callout": "Teach the filter, not the prediction."
+        }
+      ]
+    }
+  ]
+}

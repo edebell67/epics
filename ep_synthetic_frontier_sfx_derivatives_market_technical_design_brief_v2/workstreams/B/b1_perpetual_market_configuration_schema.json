@@ -1,0 +1,300 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Synthetic Frontier Perpetual Market Configuration Pack",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "epic",
+    "workstream_task",
+    "markets"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "epic": {
+      "type": "string"
+    },
+    "workstream_task": {
+      "type": "string",
+      "const": "B1"
+    },
+    "markets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/market"
+      }
+    }
+  },
+  "definitions": {
+    "market": {
+      "type": "object",
+      "required": [
+        "instrument_id",
+        "display_name",
+        "underlier_code",
+        "contract_type",
+        "status",
+        "launch_phase",
+        "quote_collateral",
+        "settlement_currency",
+        "isolated_margin",
+        "cross_margin_enabled",
+        "initial_leverage_min",
+        "initial_leverage_max",
+        "governance_leverage_ceiling",
+        "maintenance_margin_ratio",
+        "margin_call_buffer_ratio",
+        "index_reference",
+        "pricing_rules",
+        "tick_size",
+        "lot_size",
+        "min_order_notional_usdc",
+        "max_order_notional_usdc",
+        "position_size_cap",
+        "open_interest_cap_usdc",
+        "reduce_only_on_halt",
+        "vault_id",
+        "vault",
+        "shared_dependencies",
+        "funding",
+        "transparency_fields",
+        "governance_parameters"
+      ],
+      "properties": {
+        "instrument_id": {
+          "type": "string",
+          "pattern": "^SFX_[A-Z]{3}_PERP$"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "underlier_code": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "contract_type": {
+          "type": "string",
+          "const": "perpetual"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "prelaunch",
+            "active",
+            "reduce_only",
+            "halted",
+            "retired"
+          ]
+        },
+        "launch_phase": {
+          "type": "string"
+        },
+        "quote_collateral": {
+          "type": "string",
+          "const": "USDC"
+        },
+        "settlement_currency": {
+          "type": "string",
+          "const": "USDC"
+        },
+        "isolated_margin": {
+          "type": "boolean",
+          "const": true
+        },
+        "cross_margin_enabled": {
+          "type": "boolean",
+          "const": false
+        },
+        "initial_leverage_min": {
+          "type": "number",
+          "minimum": 1.0
+        },
+        "initial_leverage_max": {
+          "type": "number",
+          "minimum": 1.0
+        },
+        "governance_leverage_ceiling": {
+          "type": "number",
+          "minimum": 1.0
+        },
+        "maintenance_margin_ratio": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "margin_call_buffer_ratio": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "index_reference": {
+          "type": "object",
+          "required": [
+            "index_id",
+            "publication_interval_seconds",
+            "max_staleness_seconds",
+            "confidence_floor"
+          ],
+          "properties": {
+            "index_id": {
+              "type": "string",
+              "pattern": "^MVI_[A-Z]{3}$"
+            },
+            "publication_interval_seconds": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_staleness_seconds": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "confidence_floor": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            }
+          }
+        },
+        "pricing_rules": {
+          "type": "object",
+          "required": [
+            "trade_price_source",
+            "mark_price_source",
+            "liquidation_reference_source",
+            "circuit_breaker_anchor"
+          ],
+          "properties": {
+            "trade_price_source": {
+              "type": "string",
+              "const": "order_book"
+            },
+            "mark_price_source": {
+              "type": "string"
+            },
+            "liquidation_reference_source": {
+              "type": "string",
+              "const": "index_reference"
+            },
+            "circuit_breaker_anchor": {
+              "type": "string",
+              "const": "index_reference"
+            }
+          }
+        },
+        "tick_size": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "lot_size": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "min_order_notional_usdc": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "max_order_notional_usdc": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "position_size_cap": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "open_interest_cap_usdc": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "reduce_only_on_halt": {
+          "type": "boolean"
+        },
+        "vault_id": {
+          "type": "string",
+          "pattern": "^VAULT_[A-Z]{3}_ISO$"
+        },
+        "vault": {
+          "type": "object",
+          "required": [
+            "exposure_cap_usdc",
+            "fee_share_ratio",
+            "loss_containment_boundary"
+          ],
+          "properties": {
+            "exposure_cap_usdc": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "fee_share_ratio": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "loss_containment_boundary": {
+              "type": "string"
+            }
+          }
+        },
+        "shared_dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "funding": {
+          "type": "object",
+          "required": [
+            "enabled",
+            "settlement_interval_seconds",
+            "base_multiplier",
+            "max_abs_rate_per_interval",
+            "inputs"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "settlement_interval_seconds": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "base_multiplier": {
+              "type": "number",
+              "minimum": 0.0
+            },
+            "max_abs_rate_per_interval": {
+              "type": "number",
+              "minimum": 0.0
+            },
+            "inputs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "transparency_fields": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "governance_parameters": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "operator_notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

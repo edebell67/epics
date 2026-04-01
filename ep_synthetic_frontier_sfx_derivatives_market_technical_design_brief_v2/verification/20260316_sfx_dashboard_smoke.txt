@@ -1,0 +1,5 @@
+Smoke test passed.
+Dashboard URL: http://localhost:3002
+Backend URL: http://localhost:3002
+Health status: 200
+Market-state status: 200

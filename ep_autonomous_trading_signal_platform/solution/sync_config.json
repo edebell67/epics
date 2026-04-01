@@ -1,0 +1,86 @@
+{
+  "config_version": 1,
+  "default_interval_seconds": 300,
+  "policy": {
+    "publishable_only": true,
+    "exclude_sensitive_internal_data": true,
+    "allow_schema_defined_fields_only": true
+  },
+  "targets": {
+    "signals": {
+      "enabled": true,
+      "interval_seconds": 60,
+      "source_schema": "json/publishable_signal_schema.json",
+      "target_table": "signals",
+      "publishable_fields": [
+        "signal_id",
+        "timestamp",
+        "asset",
+        "direction",
+        "entry",
+        "tp",
+        "sl",
+        "strategy",
+        "confidence"
+      ],
+      "excluded_internal_fields": [
+        "guid",
+        "created",
+        "last_update",
+        "model",
+        "target_profit",
+        "target_loss"
+      ]
+    },
+    "trade_results": {
+      "enabled": true,
+      "interval_seconds": 120,
+      "source_schema": "json/publishable_trade_schema.json",
+      "target_table": "trade_results",
+      "publishable_fields": [
+        "trade_id",
+        "signal_id",
+        "open_time",
+        "close_time",
+        "entry_price",
+        "exit_price",
+        "profit_loss"
+      ],
+      "excluded_internal_fields": [
+        "guid",
+        "last_update",
+        "int_profit_time",
+        "max_net_return_time",
+        "min_net_return_time",
+        "alt_net_return",
+        "trade_reason",
+        "close_type"
+      ]
+    },
+    "strategy_performance": {
+      "enabled": true,
+      "interval_seconds": 300,
+      "source_schema": "json/strategy_schema.json",
+      "target_table": "strategy_performance",
+      "publishable_fields": [
+        "strategy_id",
+        "strategy_name",
+        "asset",
+        "timeframe",
+        "win_rate",
+        "profit_factor",
+        "drawdown",
+        "trade_count"
+      ],
+      "excluded_internal_fields": [
+        "model",
+        "product",
+        "pair",
+        "profitable_percent",
+        "wr",
+        "dd",
+        "total_trade_count"
+      ]
+    }
+  }
+}

@@ -1,0 +1,103 @@
+:root {
+  --bg-main: #fffdfc;
+  --bg-surface: #ffffff;
+  --text-main: #2d2624;
+  --text-muted: #7a6b67;
+  --accent: #d4af37; /* Soft Gold */
+  --accent-soft: #fdf2f0; /* Soft Rose */
+  --border: #f2e9e7;
+  --shadow: 0 10px 40px rgba(122, 107, 103, 0.05);
+  
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body: 'Outfit', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  --container-width: 1200px;
+  --transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Base */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background-color: var(--bg-main); color: var(--text-main); font-family: var(--font-body); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+.container { max-width: var(--container-width); margin: 0 auto; padding: 0 2.5rem; }
+
+/* Typography */
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; line-height: 1.1; letter-spacing: -0.01em; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 1.5rem; display: block; }
+
+/* Navbar */
+.navbar { padding: 2rem 0; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(255, 253, 252, 0.9); backdrop-filter: blur(10px); z-index: 1000; }
+.navbar .container { display: flex; justify-content: space-between; align-items: center; }
+.brand { display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+.brand-name { font-family: var(--font-display); font-size: 1.75rem; color: var(--text-main); font-weight: 600; }
+.brand-tagline { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); }
+.nav { display: flex; gap: 3rem; align-items: center; }
+.nav a { text-decoration: none; color: var(--text-main); font-size: 0.9rem; font-weight: 400; transition: var(--transition); }
+.nav a:hover { color: var(--accent); }
+.nav-button { background: var(--text-main); color: white !important; padding: 0.6rem 1.5rem; border-radius: 100px; font-weight: 500; }
+
+/* Hero */
+.hero { padding: 8rem 0; }
+.hero-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 6rem; align-items: center; }
+.hero-content h1 { font-size: 5rem; margin-bottom: 2rem; }
+.hero-content .accent { color: var(--accent); font-style: italic; font-weight: 400; }
+.hero-description { font-size: 1.25rem; margin-bottom: 3.5rem; color: var(--text-muted); max-width: 40ch; }
+.hero-actions { display: flex; gap: 1.5rem; }
+
+.hero-image-wrapper { border-radius: 400px 400px 0 0; overflow: hidden; box-shadow: var(--shadow); position: relative; }
+.hero-img { width: 100%; height: auto; display: block; transform: scale(1.05); }
+
+/* Split Services */
+.split-services { padding: 10rem 0; background: var(--accent-soft); }
+.split-grid { display: flex; flex-direction: column; gap: 12rem; }
+.split-item { display: grid; grid-template-columns: 1fr 1.2fr; gap: 8rem; align-items: center; }
+.split-item.reverse { direction: rtl; }
+.split-item.reverse .split-copy { direction: ltr; }
+.split-copy h2 { font-size: 3.5rem; margin-bottom: 2rem; }
+.split-copy p { font-size: 1.15rem; margin-bottom: 2.5rem; color: var(--text-muted); }
+
+.feature-list { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.feature-list li { position: relative; padding-left: 1.5rem; font-size: 0.9rem; font-weight: 500; }
+.feature-list li::before { content: "⊹"; position: absolute; left: 0; color: var(--accent); font-size: 1.2rem; }
+
+.split-image img { width: 100%; border-radius: 20px; box-shadow: var(--shadow); }
+
+/* Contact CTA */
+.contact-cta { padding: 10rem 0; }
+.cta-card { background: var(--bg-surface); padding: 8rem 4rem; text-align: center; border-radius: 40px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+.cta-card h2 { font-size: 4rem; margin-bottom: 1.5rem; max-width: 15ch; margin-left: auto; margin-right: auto; }
+.cta-card p { font-size: 1.2rem; margin-bottom: 4rem; color: var(--text-muted); }
+.cta-actions { display: flex; gap: 2rem; justify-content: center; margin-bottom: 3rem; }
+.cta-meta p { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); }
+
+/* Buttons */
+.button { padding: 1.2rem 2.5rem; border-radius: 100px; font-weight: 500; text-decoration: none; transition: var(--transition); border: 1px solid transparent; font-size: 0.9rem; }
+.button-primary { background: var(--text-main); color: white; }
+.button-primary:hover { background: var(--accent); transform: scale(1.02); }
+.button-secondary { background: transparent; border-color: var(--border); color: var(--text-main); }
+.button-secondary:hover { border-color: var(--text-main); transform: scale(1.02); }
+
+/* Footer */
+.footer { padding: 6rem 0 0; background: #fffaf8; border-top: 1px solid var(--border); }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 4rem; padding-bottom: 4rem; }
+.footer h4 { font-family: var(--font-body); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 2rem; letter-spacing: 0.1em; color: var(--text-main); }
+.footer p { font-size: 0.9rem; color: var(--text-muted); }
+.footer-bottom { border-top: 1px solid var(--border); padding: 2.5rem 0; text-align: center; font-size: 0.8rem; color: var(--text-muted); }
+
+.tech-badge { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid var(--border); }
+.tech-icon { color: #cbb0a9; }
+.tech-text { display: flex; flex-direction: column; gap: 0.1rem; }
+.tech-text strong { font-size: 0.8rem; color: var(--text-main); }
+.tech-text span { font-size: 0.7rem; color: var(--text-muted); }
+
+/* Reveal Animation */
+.reveal { opacity: 0; transform: translateY(40px); transition: 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.reveal.active { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 1000px) {
+  .hero-grid, .split-item, .footer-grid { grid-template-columns: 1fr; gap: 4rem; }
+  .hero-content h1 { font-size: 3.5rem; }
+  .split-item.reverse { direction: ltr; }
+  .cta-card { padding: 4rem 2rem; }
+  .cta-actions { flex-direction: column; }
+}

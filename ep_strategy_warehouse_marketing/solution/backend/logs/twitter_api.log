@@ -1,0 +1,250 @@
+2026-03-17 20:01:46,342 - twitter_connector - ERROR - Authentication failed: API Error
+2026-03-17 20:01:46,342 - twitter_connector - ERROR - Authentication failed: API Error
+2026-03-17 20:01:46,353 - twitter_connector - INFO - Successfully authenticated as testuser
+2026-03-17 20:01:46,353 - twitter_connector - INFO - Successfully authenticated as testuser
+2026-03-17 20:01:46,353 - twitter_connector - INFO - Successfully authenticated as testuser
+2026-03-17 20:02:05,079 - twitter_connector - ERROR - Failed to post tweet: API Error
+2026-03-17 20:02:05,203 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-17 20:02:05,203 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-17 20:02:05,211 - twitter_connector - ERROR - Failed to post tweet with media: Upload Error
+2026-03-17 20:02:05,211 - twitter_connector - ERROR - Failed to post tweet with media: Upload Error
+2026-03-17 20:02:05,211 - twitter_connector - ERROR - Failed to post tweet with media: Upload Error
+2026-03-17 20:02:05,220 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-17 20:02:05,220 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-17 20:02:05,220 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-17 20:02:05,220 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-17 20:02:05,223 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-17 20:02:05,223 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-17 20:02:05,223 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-17 20:02:05,223 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-17 20:02:05,223 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-17 20:02:05,236 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-17 20:02:05,236 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-17 20:02:05,236 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-17 20:02:05,236 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-17 20:02:05,236 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-17 20:02:05,236 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-17 20:02:05,240 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-17 20:02:05,240 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-17 20:02:05,240 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-17 20:02:05,240 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-17 20:02:05,240 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-17 20:02:05,240 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-17 20:02:05,240 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-17 20:02:42,194 - twitter_connector - ERROR - Failed to post tweet: API Error
+2026-03-17 20:02:42,204 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-17 20:02:42,204 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-17 20:02:42,210 - twitter_connector - ERROR - Failed to post tweet with media: Upload Error
+2026-03-17 20:02:42,210 - twitter_connector - ERROR - Failed to post tweet with media: Upload Error
+2026-03-17 20:02:42,210 - twitter_connector - ERROR - Failed to post tweet with media: Upload Error
+2026-03-17 20:02:42,215 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-17 20:02:42,215 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-17 20:02:42,215 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-17 20:02:42,215 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-17 20:02:42,220 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-17 20:02:42,220 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-17 20:02:42,220 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-17 20:02:42,220 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-17 20:02:42,220 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-17 20:02:42,225 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-17 20:02:42,225 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-17 20:02:42,225 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-17 20:02:42,225 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-17 20:02:42,225 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-17 20:02:42,225 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-17 20:02:42,228 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-17 20:02:42,228 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-17 20:02:42,228 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-17 20:02:42,228 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-17 20:02:42,228 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-17 20:02:42,228 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-17 20:02:42,228 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-18 18:34:26,274 - twitter_connector - ERROR - Authentication failed: API Error
+2026-03-18 18:34:26,274 - twitter_connector - ERROR - Authentication failed: API Error
+2026-03-18 18:34:26,281 - twitter_connector - INFO - Successfully authenticated as testuser
+2026-03-18 18:34:26,281 - twitter_connector - INFO - Successfully authenticated as testuser
+2026-03-18 18:34:26,281 - twitter_connector - INFO - Successfully authenticated as testuser
+2026-03-18 18:34:26,284 - twitter_connector - ERROR - Failed to post tweet: API Error
+2026-03-18 18:34:26,284 - twitter_connector - ERROR - Failed to post tweet: API Error
+2026-03-18 18:34:26,284 - twitter_connector - ERROR - Failed to post tweet: API Error
+2026-03-18 18:34:26,284 - twitter_connector - ERROR - Failed to post tweet: API Error
+2026-03-18 18:34:26,288 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-18 18:34:26,288 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-18 18:34:26,288 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-18 18:34:26,288 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-18 18:34:26,288 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-18 18:34:26,292 - twitter_connector - ERROR - Failed to post tweet with media: Upload Error
+2026-03-18 18:34:26,292 - twitter_connector - ERROR - Failed to post tweet with media: Upload Error
+2026-03-18 18:34:26,292 - twitter_connector - ERROR - Failed to post tweet with media: Upload Error
+2026-03-18 18:34:26,292 - twitter_connector - ERROR - Failed to post tweet with media: Upload Error
+2026-03-18 18:34:26,292 - twitter_connector - ERROR - Failed to post tweet with media: Upload Error
+2026-03-18 18:34:26,292 - twitter_connector - ERROR - Failed to post tweet with media: Upload Error
+2026-03-18 18:34:26,298 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-18 18:34:26,298 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-18 18:34:26,298 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-18 18:34:26,298 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-18 18:34:26,298 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-18 18:34:26,298 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-18 18:34:26,298 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-18 18:34:26,306 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-18 18:34:26,306 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-18 18:34:26,306 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-18 18:34:26,306 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-18 18:34:26,306 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-18 18:34:26,306 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-18 18:34:26,306 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-18 18:34:26,306 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-18 18:34:26,314 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-18 18:34:26,314 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-18 18:34:26,314 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-18 18:34:26,314 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-18 18:34:26,314 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-18 18:34:26,314 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-18 18:34:26,314 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-18 18:34:26,314 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-18 18:34:26,314 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-18 18:34:26,318 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-18 18:34:26,318 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-18 18:34:26,318 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-18 18:34:26,318 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-18 18:34:26,318 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-18 18:34:26,318 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-18 18:34:26,318 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-18 18:34:26,318 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-18 18:34:26,318 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-18 18:34:26,318 - twitter_connector - INFO - Checking rate limit status for create_tweet
+2026-03-18 18:38:26,752 - twitter_connector - ERROR - Authentication failed: API Error
+2026-03-18 18:38:26,755 - twitter_connector - INFO - Successfully authenticated as testuser
+2026-03-18 18:38:26,758 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 1/3: API Error
+2026-03-18 18:38:27,759 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 2/3: API Error
+2026-03-18 18:38:28,759 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 3/3: API Error
+2026-03-18 18:38:28,759 - twitter_connector - ERROR - Failed to post tweet: API Error
+2026-03-18 18:38:28,762 - twitter_connector - WARNING - Rate limit reached. Queued text request. Queue size=1
+2026-03-18 18:38:28,765 - twitter_connector - ERROR - Tweet exceeds 280 characters
+2026-03-18 18:38:28,768 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 1/3: Temporary error
+2026-03-18 18:38:28,769 - twitter_connector - INFO - Successfully posted tweet: 2001
+2026-03-18 18:38:28,771 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-18 18:38:28,775 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-18 18:38:28,777 - twitter_connector - WARNING - Twitter operation media_upload:path/to/image.png failed on attempt 1/3: Upload Error
+2026-03-18 18:38:29,778 - twitter_connector - WARNING - Twitter operation media_upload:path/to/image.png failed on attempt 2/3: Upload Error
+2026-03-18 18:38:30,779 - twitter_connector - WARNING - Twitter operation media_upload:path/to/image.png failed on attempt 3/3: Upload Error
+2026-03-18 18:38:30,779 - twitter_connector - ERROR - Failed to post tweet with media: Upload Error
+2026-03-18 18:38:30,782 - twitter_connector - WARNING - Rate limit reached. Queued media request. Queue size=1
+2026-03-18 18:38:30,787 - twitter_connector - ERROR - Media tweet requires between 1 and 4 media items
+2026-03-18 18:38:30,790 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-18 18:38:30,792 - twitter_connector - WARNING - Twitter operation post_thread_root failed on attempt 1/3: API Error
+2026-03-18 18:38:31,793 - twitter_connector - WARNING - Twitter operation post_thread_root failed on attempt 2/3: API Error
+2026-03-18 18:38:32,799 - twitter_connector - WARNING - Twitter operation post_thread_root failed on attempt 3/3: API Error
+2026-03-18 18:38:32,804 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-18 18:38:32,811 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-18 18:38:32,815 - twitter_connector - INFO - Successfully posted tweet: 3001
+2026-03-18 18:38:32,816 - twitter_connector - INFO - Flushed 1 queued Twitter requests
+2026-03-18 18:38:32,823 - twitter_connector - INFO - Checking rate limit status for create_tweet. Remaining=15, queued=0
+2026-03-18 18:38:56,209 - twitter_connector - ERROR - Authentication failed: API Error
+2026-03-18 18:38:56,214 - twitter_connector - INFO - Successfully authenticated as testuser
+2026-03-18 18:38:56,217 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 1/3: API Error
+2026-03-18 18:38:57,218 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 2/3: API Error
+2026-03-18 18:38:58,220 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 3/3: API Error
+2026-03-18 18:38:58,220 - twitter_connector - ERROR - Failed to post tweet: API Error
+2026-03-18 18:38:58,224 - twitter_connector - WARNING - Rate limit reached. Queued text request. Queue size=1
+2026-03-18 18:38:58,229 - twitter_connector - ERROR - Tweet exceeds 280 characters
+2026-03-18 18:38:58,232 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 1/3: Temporary error
+2026-03-18 18:38:58,234 - twitter_connector - INFO - Successfully posted tweet: 2001
+2026-03-18 18:38:58,238 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-18 18:38:58,245 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-18 18:38:58,249 - twitter_connector - WARNING - Twitter operation media_upload:path/to/image.png failed on attempt 1/3: Upload Error
+2026-03-18 18:38:59,249 - twitter_connector - WARNING - Twitter operation media_upload:path/to/image.png failed on attempt 2/3: Upload Error
+2026-03-18 18:39:00,252 - twitter_connector - WARNING - Twitter operation media_upload:path/to/image.png failed on attempt 3/3: Upload Error
+2026-03-18 18:39:00,252 - twitter_connector - ERROR - Failed to post tweet with media: Upload Error
+2026-03-18 18:39:00,256 - twitter_connector - WARNING - Rate limit reached. Queued media request. Queue size=1
+2026-03-18 18:39:00,261 - twitter_connector - ERROR - Media tweet requires between 1 and 4 media items
+2026-03-18 18:39:00,265 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-18 18:39:00,268 - twitter_connector - WARNING - Twitter operation post_thread_root failed on attempt 1/3: API Error
+2026-03-18 18:39:01,269 - twitter_connector - WARNING - Twitter operation post_thread_root failed on attempt 2/3: API Error
+2026-03-18 18:39:02,270 - twitter_connector - WARNING - Twitter operation post_thread_root failed on attempt 3/3: API Error
+2026-03-18 18:39:02,270 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-18 18:39:02,274 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-18 18:39:02,277 - twitter_connector - INFO - Successfully posted tweet: 3001
+2026-03-18 18:39:02,277 - twitter_connector - INFO - Flushed 1 queued Twitter requests
+2026-03-18 18:39:02,280 - twitter_connector - INFO - Checking rate limit status for create_tweet. Remaining=15, queued=0
+2026-03-20 21:37:24,742 - twitter_connector - ERROR - Authentication failed: API Error
+2026-03-20 21:37:24,746 - twitter_connector - INFO - Successfully authenticated as testuser
+2026-03-20 21:37:24,749 - twitter_connector - WARNING - Twitter operation media_upload:path/to/image.png failed on attempt 1/3: Upload Error
+2026-03-20 21:37:25,751 - twitter_connector - WARNING - Twitter operation media_upload:path/to/image.png failed on attempt 2/3: Upload Error
+2026-03-20 21:37:26,752 - twitter_connector - WARNING - Twitter operation media_upload:path/to/image.png failed on attempt 3/3: Upload Error
+2026-03-20 21:37:26,752 - twitter_connector - ERROR - Failed to post tweet with media: Upload Error
+2026-03-20 21:37:26,754 - twitter_connector - WARNING - Rate limit reached. Queued media request. Queue size=1
+2026-03-20 21:37:26,755 - twitter_connector - ERROR - Media tweet requires between 1 and 4 media items
+2026-03-20 21:37:26,760 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-20 21:37:26,762 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 1/3: API Error
+2026-03-20 21:37:27,763 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 2/3: API Error
+2026-03-20 21:37:28,764 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 3/3: API Error
+2026-03-20 21:37:28,764 - twitter_connector - ERROR - Failed to post tweet: API Error
+2026-03-20 21:37:28,766 - twitter_connector - WARNING - Rate limit reached. Queued text request. Queue size=1
+2026-03-20 21:37:28,768 - twitter_connector - ERROR - Tweet exceeds 280 characters
+2026-03-20 21:37:28,770 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 1/3: Temporary error
+2026-03-20 21:37:28,771 - twitter_connector - INFO - Successfully posted tweet: 2001
+2026-03-20 21:37:28,774 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-20 21:37:28,777 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-20 21:37:28,780 - twitter_connector - WARNING - Twitter operation post_thread_root failed on attempt 1/3: API Error
+2026-03-20 21:37:29,781 - twitter_connector - WARNING - Twitter operation post_thread_root failed on attempt 2/3: API Error
+2026-03-20 21:37:30,782 - twitter_connector - WARNING - Twitter operation post_thread_root failed on attempt 3/3: API Error
+2026-03-20 21:37:30,782 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-20 21:37:30,785 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-20 21:37:30,788 - twitter_connector - INFO - Successfully posted tweet: 3001
+2026-03-20 21:37:30,788 - twitter_connector - INFO - Flushed 1 queued Twitter requests
+2026-03-20 21:37:30,791 - twitter_connector - INFO - Checking rate limit status for create_tweet. Remaining=15, queued=0
+2026-03-22 21:00:01,665 - twitter_connector - ERROR - Authentication failed: API Error
+2026-03-22 21:00:01,686 - twitter_connector - INFO - Successfully authenticated as testuser
+2026-03-22 21:00:01,702 - twitter_connector - WARNING - Twitter operation media_upload:path/to/image.png failed on attempt 1/3: Upload Error
+2026-03-22 21:00:02,705 - twitter_connector - WARNING - Twitter operation media_upload:path/to/image.png failed on attempt 2/3: Upload Error
+2026-03-22 21:00:03,709 - twitter_connector - WARNING - Twitter operation media_upload:path/to/image.png failed on attempt 3/3: Upload Error
+2026-03-22 21:00:03,709 - twitter_connector - ERROR - Failed to post tweet with media: Upload Error
+2026-03-22 21:00:03,725 - twitter_connector - WARNING - Rate limit reached. Queued media request. Queue size=1
+2026-03-22 21:00:03,744 - twitter_connector - ERROR - Media tweet requires between 1 and 4 media items
+2026-03-22 21:00:03,773 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-22 21:00:03,789 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 1/3: API Error
+2026-03-22 21:00:04,791 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 2/3: API Error
+2026-03-22 21:00:05,793 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 3/3: API Error
+2026-03-22 21:00:05,793 - twitter_connector - ERROR - Failed to post tweet: API Error
+2026-03-22 21:00:05,802 - twitter_connector - WARNING - Rate limit reached. Queued text request. Queue size=1
+2026-03-22 21:00:05,811 - twitter_connector - ERROR - Tweet exceeds 280 characters
+2026-03-22 21:00:05,823 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 1/3: Temporary error
+2026-03-22 21:00:05,826 - twitter_connector - INFO - Successfully posted tweet: 2001
+2026-03-22 21:00:05,836 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-22 21:00:05,846 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-22 21:00:05,857 - twitter_connector - WARNING - Twitter operation post_thread_root failed on attempt 1/3: API Error
+2026-03-22 21:00:06,860 - twitter_connector - WARNING - Twitter operation post_thread_root failed on attempt 2/3: API Error
+2026-03-22 21:00:07,864 - twitter_connector - WARNING - Twitter operation post_thread_root failed on attempt 3/3: API Error
+2026-03-22 21:00:07,864 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-22 21:00:07,886 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-22 21:00:07,901 - twitter_connector - INFO - Successfully posted tweet: 3001
+2026-03-22 21:00:07,901 - twitter_connector - INFO - Flushed 1 queued Twitter requests
+2026-03-22 21:00:07,909 - twitter_connector - INFO - Checking rate limit status for create_tweet. Remaining=15, queued=0
+2026-03-22 21:13:37,923 - twitter_connector - ERROR - Authentication failed: API Error
+2026-03-22 21:13:37,940 - twitter_connector - INFO - Successfully authenticated as testuser
+2026-03-22 21:13:37,953 - twitter_connector - WARNING - Twitter operation media_upload:path/to/image.png failed on attempt 1/3: Upload Error
+2026-03-22 21:13:38,955 - twitter_connector - WARNING - Twitter operation media_upload:path/to/image.png failed on attempt 2/3: Upload Error
+2026-03-22 21:13:39,956 - twitter_connector - WARNING - Twitter operation media_upload:path/to/image.png failed on attempt 3/3: Upload Error
+2026-03-22 21:13:39,956 - twitter_connector - ERROR - Failed to post tweet with media: Upload Error
+2026-03-22 21:13:39,968 - twitter_connector - WARNING - Rate limit reached. Queued media request. Queue size=1
+2026-03-22 21:13:39,978 - twitter_connector - ERROR - Media tweet requires between 1 and 4 media items
+2026-03-22 21:13:39,998 - twitter_connector - INFO - Successfully posted tweet with media: 12345
+2026-03-22 21:13:40,007 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 1/3: API Error
+2026-03-22 21:13:41,017 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 2/3: API Error
+2026-03-22 21:13:42,018 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 3/3: API Error
+2026-03-22 21:13:42,018 - twitter_connector - ERROR - Failed to post tweet: API Error
+2026-03-22 21:13:42,028 - twitter_connector - WARNING - Rate limit reached. Queued text request. Queue size=1
+2026-03-22 21:13:42,037 - twitter_connector - ERROR - Tweet exceeds 280 characters
+2026-03-22 21:13:42,046 - twitter_connector - WARNING - Twitter operation post_text failed on attempt 1/3: Temporary error
+2026-03-22 21:13:42,047 - twitter_connector - INFO - Successfully posted tweet: 2001
+2026-03-22 21:13:42,058 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-22 21:13:42,067 - twitter_connector - INFO - Successfully posted tweet: 12345
+2026-03-22 21:13:42,078 - twitter_connector - WARNING - Twitter operation post_thread_root failed on attempt 1/3: API Error
+2026-03-22 21:13:43,080 - twitter_connector - WARNING - Twitter operation post_thread_root failed on attempt 2/3: API Error
+2026-03-22 21:13:44,081 - twitter_connector - WARNING - Twitter operation post_thread_root failed on attempt 3/3: API Error
+2026-03-22 21:13:44,082 - twitter_connector - ERROR - Failed to post thread: API Error
+2026-03-22 21:13:44,095 - twitter_connector - INFO - Successfully posted thread: ['1001', '1002']
+2026-03-22 21:13:44,100 - twitter_connector - INFO - Successfully posted tweet: 3001
+2026-03-22 21:13:44,101 - twitter_connector - INFO - Flushed 1 queued Twitter requests
+2026-03-22 21:13:44,113 - twitter_connector - INFO - Checking rate limit status for create_tweet. Remaining=15, queued=0

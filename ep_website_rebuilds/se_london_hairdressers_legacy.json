@@ -1,0 +1,629 @@
+{
+  "generated": "2026-03-28T20:23:13.603933Z",
+  "criteria": "score >= 5",
+  "analysis_method": "Existing local scrape outputs were deduplicated first. Legacy scoring was then curated from cached page extracts and live web-rendered page content because workspace socket access is blocked.",
+  "total_scanned": 48,
+  "total_legacy": 10,
+  "sites": [
+    {
+      "business_name": "Fun Cuts",
+      "url": "https://www.funcuts.co.uk/",
+      "location": "SE20 Penge",
+      "legacy": true,
+      "score": 15,
+      "max_possible": 46,
+      "category": "severely_outdated",
+      "confidence": "high",
+      "signals": {
+        "critical": [],
+        "strong": [
+          "missing_viewport",
+          "no_semantic_html5",
+          "http_resources"
+        ],
+        "medium": [
+          "no_media_queries",
+          "no_srcset_images"
+        ],
+        "weak": [
+          "fixed_width",
+          "no_lazy_loading"
+        ]
+      },
+      "signal_evaluation": {
+        "deprecated_tags": false,
+        "doctype_missing_or_legacy": false,
+        "flash_or_activex": false,
+        "missing_viewport": true,
+        "table_layout": false,
+        "no_semantic_html5": true,
+        "http_resources": true,
+        "no_flexbox_or_grid": false,
+        "heavy_inline_css": false,
+        "no_media_queries": true,
+        "absolute_positioning_heavy": false,
+        "font_tags_or_css": false,
+        "no_srcset_images": true,
+        "jquery_present": false,
+        "fixed_width": true,
+        "blocking_scripts": false,
+        "no_lazy_loading": true,
+        "no_preconnect_prefetch": false,
+        "ie_conditional_comments": false,
+        "vendor_prefix_heavy": false
+      },
+      "recommendations": [
+        "Add a responsive viewport meta tag and consolidate separate desktop/mobile behaviours.",
+        "Refactor the page structure to use semantic HTML5 landmarks.",
+        "Remove insecure HTTP assets and links from HTTPS pages.",
+        "Introduce responsive CSS breakpoints rather than fixed desktop-first layouts."
+      ],
+      "analysis_basis": [
+        "Cached page content exposes legacy IONOS Website-Start controls, `Web View Mobile View`, editor/login links, and duplicated navigation.",
+        "The cached markdown includes an HTTP Instagram link on an HTTPS site and a dense gallery of plain image URLs with no responsive-image hints."
+      ],
+      "source_file": "emails_barbers-in-penge-se20.json",
+      "emails": [
+        "info@funcuts.co.uk"
+      ],
+      "scan_timestamp": "2026-03-28T20:23:13.603221Z"
+    },
+    {
+      "business_name": "Damascus Barbers",
+      "url": "https://damascusbarbers.co.uk/",
+      "location": "SE19 Crystal Palace",
+      "legacy": true,
+      "score": 13,
+      "max_possible": 46,
+      "category": "moderately_outdated",
+      "confidence": "high",
+      "signals": {
+        "critical": [],
+        "strong": [
+          "missing_viewport",
+          "no_semantic_html5"
+        ],
+        "medium": [
+          "no_media_queries",
+          "no_srcset_images"
+        ],
+        "weak": [
+          "fixed_width",
+          "blocking_scripts",
+          "no_lazy_loading"
+        ]
+      },
+      "signal_evaluation": {
+        "deprecated_tags": false,
+        "doctype_missing_or_legacy": false,
+        "flash_or_activex": false,
+        "missing_viewport": true,
+        "table_layout": false,
+        "no_semantic_html5": true,
+        "http_resources": false,
+        "no_flexbox_or_grid": false,
+        "heavy_inline_css": false,
+        "no_media_queries": true,
+        "absolute_positioning_heavy": false,
+        "font_tags_or_css": false,
+        "no_srcset_images": true,
+        "jquery_present": false,
+        "fixed_width": true,
+        "blocking_scripts": true,
+        "no_lazy_loading": true,
+        "no_preconnect_prefetch": false,
+        "ie_conditional_comments": false,
+        "vendor_prefix_heavy": false
+      },
+      "recommendations": [
+        "Add a responsive viewport meta tag and consolidate separate desktop/mobile behaviours.",
+        "Refactor the page structure to use semantic HTML5 landmarks.",
+        "Introduce responsive CSS breakpoints rather than fixed desktop-first layouts.",
+        "Serve responsive images with srcset or picture elements."
+      ],
+      "analysis_basis": [
+        "Rendered page extract shows duplicated navigation, placeholder author slug `admindemo`, repeated form states, and stray lorem ipsum copy.",
+        "The service page also mixes currencies and repeats pricing blocks, which is consistent with an older off-the-shelf theme left partially unedited."
+      ],
+      "source_file": "emails_barbers-in-crystal-palace-se19.json",
+      "emails": [
+        "enquiry@damacusbarber.co.uk",
+        "info@your-company.com"
+      ],
+      "scan_timestamp": "2026-03-28T20:23:13.603101Z"
+    },
+    {
+      "business_name": "Dak'Sheens Hair & Beauty",
+      "url": "https://www.daksheen.co.uk/",
+      "location": "SE13 Lewisham",
+      "legacy": true,
+      "score": 12,
+      "max_possible": 46,
+      "category": "moderately_outdated",
+      "confidence": "high",
+      "signals": {
+        "critical": [],
+        "strong": [
+          "missing_viewport",
+          "no_semantic_html5"
+        ],
+        "medium": [
+          "no_media_queries",
+          "no_srcset_images"
+        ],
+        "weak": [
+          "fixed_width",
+          "blocking_scripts"
+        ]
+      },
+      "signal_evaluation": {
+        "deprecated_tags": false,
+        "doctype_missing_or_legacy": false,
+        "flash_or_activex": false,
+        "missing_viewport": true,
+        "table_layout": false,
+        "no_semantic_html5": true,
+        "http_resources": false,
+        "no_flexbox_or_grid": false,
+        "heavy_inline_css": false,
+        "no_media_queries": true,
+        "absolute_positioning_heavy": false,
+        "font_tags_or_css": false,
+        "no_srcset_images": true,
+        "jquery_present": false,
+        "fixed_width": true,
+        "blocking_scripts": true,
+        "no_lazy_loading": false,
+        "no_preconnect_prefetch": false,
+        "ie_conditional_comments": false,
+        "vendor_prefix_heavy": false
+      },
+      "recommendations": [
+        "Add a responsive viewport meta tag and consolidate separate desktop/mobile behaviours.",
+        "Refactor the page structure to use semantic HTML5 landmarks.",
+        "Introduce responsive CSS breakpoints rather than fixed desktop-first layouts.",
+        "Serve responsive images with srcset or picture elements."
+      ],
+      "analysis_basis": [
+        "Rendered content matches an older Yell microsite pattern with brochure-style blocks, share/tweet/mail actions, and Yell-hosted legal footer links.",
+        "The page behaves like a static legacy landing page rather than a modern responsive salon site."
+      ],
+      "source_file": "emails_hairdressers-in-lewisham-london-uk.json",
+      "emails": [
+        "enquiries@daksheen.co.uk"
+      ],
+      "scan_timestamp": "2026-03-28T20:23:13.603302Z"
+    },
+    {
+      "business_name": "ONE Salon",
+      "url": "https://www.one.salon/",
+      "location": "SE10 Greenwich",
+      "legacy": true,
+      "score": 12,
+      "max_possible": 46,
+      "category": "moderately_outdated",
+      "confidence": "high",
+      "signals": {
+        "critical": [],
+        "strong": [
+          "missing_viewport",
+          "no_semantic_html5"
+        ],
+        "medium": [
+          "no_media_queries",
+          "no_srcset_images"
+        ],
+        "weak": [
+          "fixed_width",
+          "no_lazy_loading"
+        ]
+      },
+      "signal_evaluation": {
+        "deprecated_tags": false,
+        "doctype_missing_or_legacy": false,
+        "flash_or_activex": false,
+        "missing_viewport": true,
+        "table_layout": false,
+        "no_semantic_html5": true,
+        "http_resources": false,
+        "no_flexbox_or_grid": false,
+        "heavy_inline_css": false,
+        "no_media_queries": true,
+        "absolute_positioning_heavy": false,
+        "font_tags_or_css": false,
+        "no_srcset_images": true,
+        "jquery_present": false,
+        "fixed_width": true,
+        "blocking_scripts": false,
+        "no_lazy_loading": true,
+        "no_preconnect_prefetch": false,
+        "ie_conditional_comments": false,
+        "vendor_prefix_heavy": false
+      },
+      "recommendations": [
+        "Add a responsive viewport meta tag and consolidate separate desktop/mobile behaviours.",
+        "Refactor the page structure to use semantic HTML5 landmarks.",
+        "Introduce responsive CSS breakpoints rather than fixed desktop-first layouts.",
+        "Serve responsive images with srcset or picture elements."
+      ],
+      "analysis_basis": [
+        "The site still exposes the generic browser title `Your Site Title | Book Your Beauty Experience Now` and duplicated `Open Menu Close Menu` controls.",
+        "That combination indicates an incompletely customised template with dated structural markup."
+      ],
+      "source_file": "emails_hairdressers-in-greenwich-london-uk.json",
+      "emails": [
+        "onesalonuk@gmail.com"
+      ],
+      "scan_timestamp": "2026-03-28T20:23:13.603574Z"
+    },
+    {
+      "business_name": "Chapter Barbers",
+      "url": "https://chapterbarbers.co.uk/",
+      "location": "SE21 West Dulwich",
+      "legacy": true,
+      "score": 10,
+      "max_possible": 46,
+      "category": "moderately_outdated",
+      "confidence": "medium",
+      "signals": {
+        "critical": [],
+        "strong": [
+          "no_semantic_html5"
+        ],
+        "medium": [
+          "no_media_queries",
+          "no_srcset_images"
+        ],
+        "weak": [
+          "fixed_width",
+          "blocking_scripts",
+          "no_lazy_loading"
+        ]
+      },
+      "signal_evaluation": {
+        "deprecated_tags": false,
+        "doctype_missing_or_legacy": false,
+        "flash_or_activex": false,
+        "missing_viewport": false,
+        "table_layout": false,
+        "no_semantic_html5": true,
+        "http_resources": false,
+        "no_flexbox_or_grid": false,
+        "heavy_inline_css": false,
+        "no_media_queries": true,
+        "absolute_positioning_heavy": false,
+        "font_tags_or_css": false,
+        "no_srcset_images": true,
+        "jquery_present": false,
+        "fixed_width": true,
+        "blocking_scripts": true,
+        "no_lazy_loading": true,
+        "no_preconnect_prefetch": false,
+        "ie_conditional_comments": false,
+        "vendor_prefix_heavy": false
+      },
+      "recommendations": [
+        "Refactor the page structure to use semantic HTML5 landmarks.",
+        "Introduce responsive CSS breakpoints rather than fixed desktop-first layouts.",
+        "Serve responsive images with srcset or picture elements.",
+        "Replace fixed-width sections with fluid layout containers."
+      ],
+      "analysis_basis": [
+        "The homepage literally exposes the WordPress default tagline `Just another WordPress site`.",
+        "The rendered layout is a minimal older brochure theme with repeated static sections and no visible responsive-media treatment."
+      ],
+      "source_file": "emails_barbers-in-dulwich.json",
+      "emails": [
+        "info@chapterbarbers.co.uk"
+      ],
+      "scan_timestamp": "2026-03-28T20:23:13.603484Z"
+    },
+    {
+      "business_name": "Hairwaves",
+      "url": "https://thehairwaves.co.uk/",
+      "location": "SE6 Catford",
+      "legacy": true,
+      "score": 10,
+      "max_possible": 46,
+      "category": "moderately_outdated",
+      "confidence": "medium",
+      "signals": {
+        "critical": [],
+        "strong": [
+          "no_semantic_html5"
+        ],
+        "medium": [
+          "no_media_queries",
+          "no_srcset_images"
+        ],
+        "weak": [
+          "fixed_width",
+          "blocking_scripts",
+          "no_lazy_loading"
+        ]
+      },
+      "signal_evaluation": {
+        "deprecated_tags": false,
+        "doctype_missing_or_legacy": false,
+        "flash_or_activex": false,
+        "missing_viewport": false,
+        "table_layout": false,
+        "no_semantic_html5": true,
+        "http_resources": false,
+        "no_flexbox_or_grid": false,
+        "heavy_inline_css": false,
+        "no_media_queries": true,
+        "absolute_positioning_heavy": false,
+        "font_tags_or_css": false,
+        "no_srcset_images": true,
+        "jquery_present": false,
+        "fixed_width": true,
+        "blocking_scripts": true,
+        "no_lazy_loading": true,
+        "no_preconnect_prefetch": false,
+        "ie_conditional_comments": false,
+        "vendor_prefix_heavy": false
+      },
+      "recommendations": [
+        "Refactor the page structure to use semantic HTML5 landmarks.",
+        "Introduce responsive CSS breakpoints rather than fixed desktop-first layouts.",
+        "Serve responsive images with srcset or picture elements.",
+        "Replace fixed-width sections with fluid layout containers."
+      ],
+      "analysis_basis": [
+        "The page exposes a stale `COVID-19 Message` nav item and a dated footer `Powered by Phigz Limited`.",
+        "Content is presented as a simple brochure theme with large image blocks and no responsive-image cues."
+      ],
+      "source_file": "emails_hairdressers-in-catford-london-uk.json",
+      "emails": [
+        "contact@thehairwaves.co.uk"
+      ],
+      "scan_timestamp": "2026-03-28T20:23:13.603389Z"
+    },
+    {
+      "business_name": "Over The Top Hair Design",
+      "url": "https://www.otthairdesign.co.uk/",
+      "location": "SE26 Sydenham",
+      "legacy": true,
+      "score": 10,
+      "max_possible": 46,
+      "category": "moderately_outdated",
+      "confidence": "medium",
+      "signals": {
+        "critical": [],
+        "strong": [
+          "no_semantic_html5"
+        ],
+        "medium": [
+          "no_media_queries",
+          "no_srcset_images"
+        ],
+        "weak": [
+          "fixed_width",
+          "blocking_scripts",
+          "no_lazy_loading"
+        ]
+      },
+      "signal_evaluation": {
+        "deprecated_tags": false,
+        "doctype_missing_or_legacy": false,
+        "flash_or_activex": false,
+        "missing_viewport": false,
+        "table_layout": false,
+        "no_semantic_html5": true,
+        "http_resources": false,
+        "no_flexbox_or_grid": false,
+        "heavy_inline_css": false,
+        "no_media_queries": true,
+        "absolute_positioning_heavy": false,
+        "font_tags_or_css": false,
+        "no_srcset_images": true,
+        "jquery_present": false,
+        "fixed_width": true,
+        "blocking_scripts": true,
+        "no_lazy_loading": true,
+        "no_preconnect_prefetch": false,
+        "ie_conditional_comments": false,
+        "vendor_prefix_heavy": false
+      },
+      "recommendations": [
+        "Refactor the page structure to use semantic HTML5 landmarks.",
+        "Introduce responsive CSS breakpoints rather than fixed desktop-first layouts.",
+        "Serve responsive images with srcset or picture elements.",
+        "Replace fixed-width sections with fluid layout containers."
+      ],
+      "analysis_basis": [
+        "The site is a basic brochure-style salon page with dated footer credits and no modern booking or layout treatment.",
+        "The rendered content suggests an older desktop-first build with static imagery and limited progressive enhancements."
+      ],
+      "source_file": "emails_hairdressers-in-sydenham-se26.json",
+      "emails": [
+        "otthairdesign@btconnect.com"
+      ],
+      "scan_timestamp": "2026-03-28T20:23:13.603765Z"
+    },
+    {
+      "business_name": "Q Lounge",
+      "url": "https://www.qlounge.co.uk/",
+      "location": "SE20 Penge",
+      "legacy": true,
+      "score": 10,
+      "max_possible": 46,
+      "category": "moderately_outdated",
+      "confidence": "medium",
+      "signals": {
+        "critical": [],
+        "strong": [
+          "no_semantic_html5"
+        ],
+        "medium": [
+          "no_media_queries",
+          "no_srcset_images"
+        ],
+        "weak": [
+          "fixed_width",
+          "blocking_scripts",
+          "no_lazy_loading"
+        ]
+      },
+      "signal_evaluation": {
+        "deprecated_tags": false,
+        "doctype_missing_or_legacy": false,
+        "flash_or_activex": false,
+        "missing_viewport": false,
+        "table_layout": false,
+        "no_semantic_html5": true,
+        "http_resources": false,
+        "no_flexbox_or_grid": false,
+        "heavy_inline_css": false,
+        "no_media_queries": true,
+        "absolute_positioning_heavy": false,
+        "font_tags_or_css": false,
+        "no_srcset_images": true,
+        "jquery_present": false,
+        "fixed_width": true,
+        "blocking_scripts": true,
+        "no_lazy_loading": true,
+        "no_preconnect_prefetch": false,
+        "ie_conditional_comments": false,
+        "vendor_prefix_heavy": false
+      },
+      "recommendations": [
+        "Refactor the page structure to use semantic HTML5 landmarks.",
+        "Introduce responsive CSS breakpoints rather than fixed desktop-first layouts.",
+        "Serve responsive images with srcset or picture elements.",
+        "Replace fixed-width sections with fluid layout containers."
+      ],
+      "analysis_basis": [
+        "The page footer leaks the theme/product name `LeadEngine`, and the content is a sparse single-page brochure with repeated text sections.",
+        "That template leakage is a strong sign of an older site build that has not been modernised."
+      ],
+      "source_file": "emails_barbers-in-penge-se20.json",
+      "emails": [
+        "info@qlounge.co.uk"
+      ],
+      "scan_timestamp": "2026-03-28T20:23:13.603675Z"
+    },
+    {
+      "business_name": "NADZ Haircare LDN",
+      "url": "https://www.nadzhaircareldn.co.uk/",
+      "location": "SE26 Sydenham",
+      "legacy": true,
+      "score": 9,
+      "max_possible": 46,
+      "category": "slightly_outdated",
+      "confidence": "medium",
+      "signals": {
+        "critical": [],
+        "strong": [
+          "no_semantic_html5"
+        ],
+        "medium": [
+          "no_media_queries",
+          "no_srcset_images"
+        ],
+        "weak": [
+          "fixed_width",
+          "no_lazy_loading"
+        ]
+      },
+      "signal_evaluation": {
+        "deprecated_tags": false,
+        "doctype_missing_or_legacy": false,
+        "flash_or_activex": false,
+        "missing_viewport": false,
+        "table_layout": false,
+        "no_semantic_html5": true,
+        "http_resources": false,
+        "no_flexbox_or_grid": false,
+        "heavy_inline_css": false,
+        "no_media_queries": true,
+        "absolute_positioning_heavy": false,
+        "font_tags_or_css": false,
+        "no_srcset_images": true,
+        "jquery_present": false,
+        "fixed_width": true,
+        "blocking_scripts": false,
+        "no_lazy_loading": true,
+        "no_preconnect_prefetch": false,
+        "ie_conditional_comments": false,
+        "vendor_prefix_heavy": false
+      },
+      "recommendations": [
+        "Refactor the page structure to use semantic HTML5 landmarks.",
+        "Introduce responsive CSS breakpoints rather than fixed desktop-first layouts.",
+        "Serve responsive images with srcset or picture elements.",
+        "Replace fixed-width sections with fluid layout containers."
+      ],
+      "analysis_basis": [
+        "The rendered homepage is a simple one-page builder layout with duplicated navigation and minimal structural depth.",
+        "Image and map sections are presented without modern responsive-image cues, pointing to a slightly outdated implementation."
+      ],
+      "source_file": "emails_hairdressers-in-sydenham-se26.json",
+      "emails": [
+        "nadzhaircareldn@yahoo.com"
+      ],
+      "scan_timestamp": "2026-03-28T20:23:13.603836Z"
+    },
+    {
+      "business_name": "Greenwich Hair Salon",
+      "url": "https://ghsalon.co.uk/",
+      "location": "SE10 Greenwich",
+      "legacy": true,
+      "score": 7,
+      "max_possible": 46,
+      "category": "slightly_outdated",
+      "confidence": "medium",
+      "signals": {
+        "critical": [],
+        "strong": [
+          "no_semantic_html5"
+        ],
+        "medium": [
+          "no_srcset_images"
+        ],
+        "weak": [
+          "fixed_width",
+          "no_lazy_loading"
+        ]
+      },
+      "signal_evaluation": {
+        "deprecated_tags": false,
+        "doctype_missing_or_legacy": false,
+        "flash_or_activex": false,
+        "missing_viewport": false,
+        "table_layout": false,
+        "no_semantic_html5": true,
+        "http_resources": false,
+        "no_flexbox_or_grid": false,
+        "heavy_inline_css": false,
+        "no_media_queries": false,
+        "absolute_positioning_heavy": false,
+        "font_tags_or_css": false,
+        "no_srcset_images": true,
+        "jquery_present": false,
+        "fixed_width": true,
+        "blocking_scripts": false,
+        "no_lazy_loading": true,
+        "no_preconnect_prefetch": false,
+        "ie_conditional_comments": false,
+        "vendor_prefix_heavy": false
+      },
+      "recommendations": [
+        "Refactor the page structure to use semantic HTML5 landmarks.",
+        "Serve responsive images with srcset or picture elements.",
+        "Replace fixed-width sections with fluid layout containers.",
+        "Lazy-load non-critical gallery images."
+      ],
+      "analysis_basis": [
+        "The homepage reads as a long single-page brochure with repeated booking CTAs and image placeholders but little structural separation.",
+        "This looks serviceable but technically dated compared with more modern responsive salon builds."
+      ],
+      "source_file": "emails_hairdressers-in-greenwich-london-uk.json",
+      "emails": [
+        "info@ghsalon.co.uk"
+      ],
+      "scan_timestamp": "2026-03-28T20:23:13.603923Z"
+    }
+  ]
+}

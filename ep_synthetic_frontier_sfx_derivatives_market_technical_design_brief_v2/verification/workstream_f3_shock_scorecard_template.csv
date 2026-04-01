@@ -1,0 +1,2 @@
+scenario_id,instrument_id,shock_size,liquidity_regime,source_degradation_mode,aggregate_stress_level,halt_or_recovery_path,vault_capital_integrity,liquidity_continuity,funding_stabilization,transparency_outputs,governance_stability,overall_pass,reproducibility_hash
+<scenario_id>,<instrument_id>,<0.30-0.50>,<regime>,<mode>,<level>,<timeline_state>,pass|fail,pass|fail,pass|fail,pass|fail,pass|fail,pass|fail,<stable_result_hash>
