@@ -1,10 +1,155 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta http-equiv="refresh" content="0; url=./ep_product_showcase_website/index.html">
-    <title>Redirecting...</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDS | Master Portfolio Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --card-bg: #141414;
+            --accent: #ffffff;
+            --text-main: #e0e0e0;
+            --text-dim: #888888;
+            --border: #222222;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 4rem 2rem;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+            max-width: 600px;
+        }
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+        p.subtitle {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1000px;
+        }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            background: #1a1a1a;
+        }
+        .card h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            margin-bottom: 0.75rem;
+        }
+        .card p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+        .tag {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            align-self: flex-start;
+        }
+        footer {
+            margin-top: auto;
+            padding-top: 4rem;
+            color: #333;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+    </style>
 </head>
 <body>
-    <p>Redirecting to <a href="./ep_product_showcase_website/index.html">Product Showcase</a>...</p>
+    <header>
+        <h1>Final Output Portal</h1>
+        <p class="subtitle">Centralized access to all EDS project epics and commercial systems.</p>
+    </header>
+
+    <div class="grid">
+        <a href="./ep_product_showcase_website/index.html" class="card">
+            <div>
+                <span class="tag">Studio</span>
+                <h3>Product Showcase</h3>
+                <p>High-performance commercial systems spanning software, trading, and lead generation.</p>
+            </div>
+            <span style="font-size: 0.8rem; color: var(--text-dim)">Launch &rarr;</span>
+        </a>
+
+        <a href="./ep_site_rebuild_funcut/index.html" class="card">
+            <div>
+                <span class="tag">Site Rebuild</span>
+                <h3>FunCut Hair Salon</h3>
+                <p>Premium multi-page redesign featuring service pricing, galleries, and client testimonials.</p>
+            </div>
+            <span style="font-size: 0.8rem; color: var(--text-dim)">Launch &rarr;</span>
+        </a>
+
+        <a href="./ep_website_rebuilds/redesigns/index.html" class="card">
+            <div>
+                <span class="tag">Portfolio</span>
+                <h3>Hairdresser Redesigns</h3>
+                <p>Strategic portfolio of SE London salon upgrades with optimized conversion funnels.</p>
+            </div>
+            <span style="font-size: 0.8rem; color: var(--text-dim)">Launch &rarr;</span>
+        </a>
+
+        <a href="./ep_strategy_warehouse_marketing/solution/frontend/index.html" class="card">
+            <div>
+                <span class="tag">Marketing</span>
+                <h3>Strategy Warehouse</h3>
+                <p>Autonomous marketing engine and subscriber growth dashboard for trading strategies.</p>
+            </div>
+            <span style="font-size: 0.8rem; color: var(--text-dim)">Launch &rarr;</span>
+        </a>
+
+        <a href="./ep_breakout_daily_system_commercial_reposition/solution/frontend/index.html" class="card">
+            <div>
+                <span class="tag">App</span>
+                <h3>Breakout Daily System</h3>
+                <p>Commercial repositioning and trade panel interface for high-frequency execution.</p>
+            </div>
+            <span style="font-size: 0.8rem; color: var(--text-dim)">Launch &rarr;</span>
+        </a>
+    </div>
+
+    <footer>
+        &copy; 2026 EDS COMMERCIAL SYSTEMS STUDIO
+    </footer>
 </body>
 </html>
