@@ -1,0 +1,383 @@
+{
+  "audience": [
+    {
+      "eligibility_geography": {
+        "country": "UK",
+        "locality": "Blackheath",
+        "region": "London"
+      },
+      "evidence_sources": [],
+      "exclusions": [],
+      "needs": [
+        "Restore hot water quickly",
+        "Understand the cause of pressure loss"
+      ],
+      "pains": [
+        "No heating or hot water",
+        "Uncertainty over callout cost"
+      ],
+      "recorded_at": "2026-08-17T11:43:13.412+00:00",
+      "segment_id": "tgt_boiler_repair_blackheath__seg_blackheath_homeowner_boiler_pressure_loss",
+      "segment_name": "Blackheath homeowner, boiler pressure loss",
+      "target_id": "tgt_boiler_repair_blackheath",
+      "urgency": "high"
+    }
+  ],
+  "classifications": [],
+  "community_signals": [
+    {
+      "community_source": "r/DIYUK",
+      "evidence": "Manually curated community thread theme.",
+      "geography": {
+        "country": "UK",
+        "locality": "Blackheath",
+        "region": "London"
+      },
+      "intent_cues": [
+        "troubleshooting"
+      ],
+      "metadata": {},
+      "observed_at": "2026-08-17T11:42:47.580Z",
+      "observed_metrics": {
+        "synthetic_upvotes": 58
+      },
+      "pain_point": "Recurring pressure loss with no obvious cause",
+      "question": "Boiler pressure keeps dropping overnight, anyone else had this?",
+      "recorded_at": "2026-08-17T11:44:22.079+00:00",
+      "signal_id": "cm_demo_01",
+      "source_type": "manual_curation",
+      "target_id": "tgt_boiler_repair_blackheath",
+      "topic": "boiler_pressure_loss"
+    }
+  ],
+  "competitor_signals": [
+    {
+      "attention_source": "organic_search",
+      "channel": "google_search",
+      "competition_indicator": "medium",
+      "competitor_name": "Synthetic Rival Plumbing Co",
+      "evidence": "Manually curated competitor observation.",
+      "geography": {
+        "country": "UK",
+        "locality": "Blackheath",
+        "region": "London"
+      },
+      "metadata": {},
+      "observed_at": "2026-08-17T11:42:47.579Z",
+      "query": "boiler pressure loss repair blackheath",
+      "recorded_at": "2026-08-17T11:44:13.701+00:00",
+      "relevance_score": 0.72,
+      "signal_id": "cp_demo_01",
+      "source_type": "manual_curation",
+      "target_id": "tgt_boiler_repair_blackheath",
+      "topic": "boiler_pressure_loss"
+    }
+  ],
+  "conversion": {
+    "allowed_transitions": [
+      [
+        "visit",
+        "engage"
+      ],
+      [
+        "engage",
+        "tool_use"
+      ],
+      [
+        "tool_use",
+        "enquiry"
+      ],
+      [
+        "enquiry",
+        "lead"
+      ],
+      [
+        "lead",
+        "qualified_lead"
+      ],
+      [
+        "qualified_lead",
+        "booking"
+      ],
+      [
+        "booking",
+        "sale"
+      ],
+      [
+        "sale",
+        "revenue"
+      ]
+    ],
+    "recorded_at": "2026-08-17T11:43:19.217+00:00",
+    "stages": [
+      {
+        "label": "Visit",
+        "order": 1,
+        "stage_id": "visit"
+      },
+      {
+        "label": "Engage",
+        "order": 2,
+        "stage_id": "engage"
+      },
+      {
+        "label": "Tool use",
+        "order": 3,
+        "stage_id": "tool_use"
+      },
+      {
+        "label": "Enquiry",
+        "order": 4,
+        "stage_id": "enquiry"
+      },
+      {
+        "label": "Lead",
+        "order": 5,
+        "stage_id": "lead"
+      },
+      {
+        "label": "Qualified lead",
+        "order": 6,
+        "stage_id": "qualified_lead"
+      },
+      {
+        "label": "Booking",
+        "order": 7,
+        "stage_id": "booking"
+      },
+      {
+        "label": "Sale",
+        "order": 8,
+        "stage_id": "sale"
+      },
+      {
+        "label": "Revenue",
+        "order": 9,
+        "stage_id": "revenue"
+      }
+    ],
+    "success_criteria": "A lead reaches the sale stage with a recorded outcome.",
+    "success_stage_id": "sale",
+    "target_id": "tgt_boiler_repair_blackheath"
+  },
+  "created_at": "2026-08-17T11:42:47.562+00:00",
+  "demand_signals": [
+    {
+      "geography": {
+        "country": "UK",
+        "locality": "Blackheath",
+        "region": "London"
+      },
+      "metadata": {},
+      "observed_at": "2026-08-17T11:42:47.577Z",
+      "raw_query": "boiler pressure dropped to zero no hot water",
+      "recorded_at": "2026-08-17T11:43:52.202+00:00",
+      "service_context": {
+        "market_segment": "domestic_plumbing",
+        "service_name": "boiler_repair"
+      },
+      "signal_id": "sig_demand_01",
+      "source_type": "manual_curation",
+      "target_id": "tgt_boiler_repair_blackheath",
+      "topic": "boiler_pressure_loss"
+    }
+  ],
+  "lineage": [
+    {
+      "action": "created",
+      "at": "2026-08-17T11:42:47.562+00:00",
+      "node": "run",
+      "phase": 0,
+      "summary": "Run created"
+    },
+    {
+      "action": "register_target",
+      "at": "2026-08-17T11:43:01.189+00:00",
+      "node": "node_01",
+      "phase": 1,
+      "summary": "Registered tgt_boiler_repair_blackheath"
+    },
+    {
+      "action": "register_product",
+      "at": "2026-08-17T11:43:07.559+00:00",
+      "node": "node_02",
+      "phase": 1,
+      "summary": "Described product for tgt_boiler_repair_blackheath"
+    },
+    {
+      "action": "register_audience",
+      "at": "2026-08-17T11:43:13.417+00:00",
+      "node": "node_03",
+      "phase": 1,
+      "summary": "Defined segment tgt_boiler_repair_blackheath__seg_blackheath_homeowner_boiler_pressure_loss"
+    },
+    {
+      "action": "define_conversion",
+      "at": "2026-08-17T11:43:19.231+00:00",
+      "node": "node_04",
+      "phase": 1,
+      "summary": "Defined conversion funnel for tgt_boiler_repair_blackheath"
+    },
+    {
+      "action": "register_demand_signal",
+      "at": "2026-08-17T11:43:52.209+00:00",
+      "node": "node_05",
+      "phase": 2,
+      "summary": "Recorded demand signal sig_demand_01"
+    },
+    {
+      "action": "register_question",
+      "at": "2026-08-17T11:43:59.311+00:00",
+      "node": "node_06",
+      "phase": 2,
+      "summary": "Recorded question q_demo_01"
+    },
+    {
+      "action": "register_social_video_signal",
+      "at": "2026-08-17T11:44:05.375+00:00",
+      "node": "node_07",
+      "phase": 2,
+      "summary": "Recorded social/video signal sv_demo_01"
+    },
+    {
+      "action": "register_competitor_signal",
+      "at": "2026-08-17T11:44:13.703+00:00",
+      "node": "node_08",
+      "phase": 2,
+      "summary": "Recorded competitor signal cp_demo_01"
+    },
+    {
+      "action": "register_community_signal",
+      "at": "2026-08-17T11:44:22.087+00:00",
+      "node": "node_09",
+      "phase": 2,
+      "summary": "Recorded community signal cm_demo_01"
+    },
+    {
+      "action": "register_trend",
+      "at": "2026-08-17T11:44:28.153+00:00",
+      "node": "node_10",
+      "phase": 2,
+      "summary": "Recorded trend trend_demo_01"
+    }
+  ],
+  "product": {
+    "benefits": [
+      "Hot water restored quickly",
+      "No guesswork on cause",
+      "Transparent pricing"
+    ],
+    "commercial_model": "Fixed diagnostic fee plus quoted repair cost.",
+    "customer_outcome": "Working boiler and restored hot water within 24 hours.",
+    "differentiators": [
+      "Local Blackheath coverage",
+      "Vetted-only engineer network"
+    ],
+    "evidence_sources": [],
+    "features": [
+      "Same-day callout",
+      "Fixed diagnostic fee",
+      "Vetted local engineers"
+    ],
+    "problem": "Homeowners lose boiler pressure and hot water with no clear diagnosis path.",
+    "recorded_at": "2026-08-17T11:43:07.556+00:00",
+    "solution": "A vetted local boiler-repair callout that diagnoses and restores pressure same-day.",
+    "target_id": "tgt_boiler_repair_blackheath"
+  },
+  "questions": [
+    {
+      "evidence": "Manually curated fixture consistent with the EP050 master spec's worked example.",
+      "geography": {
+        "country": "UK",
+        "locality": "Blackheath",
+        "region": "London"
+      },
+      "intent_cues": [
+        "troubleshooting"
+      ],
+      "metadata": {},
+      "observed_at": "2026-08-17T11:42:47.578Z",
+      "pain_point": "Recurring pressure loss with no obvious cause",
+      "question_id": "q_demo_01",
+      "question_text": "Why does my boiler pressure keep dropping overnight?",
+      "recorded_at": "2026-08-17T11:43:59.308+00:00",
+      "source_type": "manual_curation",
+      "target_id": "tgt_boiler_repair_blackheath",
+      "topic": "boiler_pressure_loss"
+    }
+  ],
+  "run_id": "run_20260817_114247_46b36420",
+  "social_video_signals": [
+    {
+      "evidence": "Manually curated theme.",
+      "format": "short_video",
+      "geography": {
+        "country": "UK",
+        "locality": "Blackheath",
+        "region": "London"
+      },
+      "intent_cues": [
+        "troubleshooting"
+      ],
+      "metadata": {},
+      "observed_at": "2026-08-17T11:42:47.578Z",
+      "observed_metrics": {
+        "synthetic_views": 4200
+      },
+      "platform": "youtube",
+      "recorded_at": "2026-08-17T11:44:05.372+00:00",
+      "signal_id": "sv_demo_01",
+      "source_type": "manual_curation",
+      "target_id": "tgt_boiler_repair_blackheath",
+      "theme": "overnight_pressure_drop_diagnosis",
+      "topic": "boiler_pressure_loss"
+    }
+  ],
+  "target": {
+    "app_id": "ep047_trades_directory",
+    "domain": null,
+    "geography": {
+      "country": "UK",
+      "locality": "Blackheath",
+      "region": "London"
+    },
+    "market": "domestic_plumbing",
+    "product": null,
+    "registered_at": "2026-08-17T11:43:01.140+00:00",
+    "service": "boiler_repair",
+    "status": "active",
+    "target_id": "tgt_boiler_repair_blackheath",
+    "target_type": "service_market"
+  },
+  "trends": [
+    {
+      "baseline_sample_count": 10,
+      "baseline_value": 20.0,
+      "confidence": 1.0,
+      "current_sample_count": 12,
+      "current_value": 32.0,
+      "direction": "up",
+      "evidence": "Manually curated trend observation.",
+      "geography": {
+        "country": "UK",
+        "locality": "Blackheath",
+        "region": "London"
+      },
+      "metadata": {},
+      "metric_name": "demand_signal_count",
+      "recorded_at": "2026-08-17T11:44:28.150+00:00",
+      "source_type": "manual_curation",
+      "spike_flag": true,
+      "target_id": "tgt_boiler_repair_blackheath",
+      "topic": "boiler_pressure_loss",
+      "trend_id": "trend_demo_01",
+      "velocity": 0.6,
+      "window": {
+        "baseline_end": "2026-08-08T00:00:00+00:00",
+        "baseline_start": "2026-08-01T00:00:00+00:00",
+        "current_end": "2026-08-15T00:00:00+00:00",
+        "current_start": "2026-08-08T00:00:00+00:00"
+      }
+    }
+  ]
+}

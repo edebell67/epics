@@ -1,0 +1,32 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-7.4.4, pluggy-1.0.0 -- C:\Users\edebe\anaconda3\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\edebe\eds
+plugins: anyio-4.9.0, langsmith-0.3.19
+collecting ... collected 23 items
+
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_positive_classification_seed_fixture PASSED [  4%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_contract_schema_conformance PASSED [  8%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_deterministic_reproducibility PASSED [ 13%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_missing_required_fields_rejected_fail_closed[signal_id] PASSED [ 17%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_missing_required_fields_rejected_fail_closed[target_id] PASSED [ 21%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_missing_required_fields_rejected_fail_closed[raw_query] PASSED [ 26%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_missing_required_fields_rejected_fail_closed[topic] PASSED [ 30%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_missing_required_fields_rejected_fail_closed[source_type] PASSED [ 34%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_missing_required_fields_rejected_fail_closed[observed_at] PASSED [ 39%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_missing_required_fields_rejected_fail_closed[geography] PASSED [ 43%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_missing_required_fields_rejected_fail_closed[service_context] PASSED [ 47%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_missing_geography_subfield_rejected[locality] PASSED [ 52%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_missing_geography_subfield_rejected[region] PASSED [ 56%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_missing_geography_subfield_rejected[country] PASSED [ 60%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_missing_service_context_subfield_rejected[service_name] PASSED [ 65%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_missing_service_context_subfield_rejected[market_segment] PASSED [ 69%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_invalid_source_type_enum_rejected PASSED [ 73%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_invalid_date_format_rejected PASSED [ 78%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_non_dict_payload_rejected PASSED [ 82%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_lineage_preservation PASSED [ 86%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_json_serialization_roundtrip PASSED [ 91%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_offline_no_network_assertion PASSED [ 95%]
+epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py::test_nodes01_to_05_upstream_live_integration PASSED [100%]
+
+============================= 23 passed in 0.18s ==============================

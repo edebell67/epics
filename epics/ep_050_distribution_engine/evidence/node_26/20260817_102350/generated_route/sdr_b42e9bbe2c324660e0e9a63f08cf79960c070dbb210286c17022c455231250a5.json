@@ -1,0 +1,30 @@
+{
+  "approval_state": "approved",
+  "compliance_verified": true,
+  "destination": {
+    "cta_label": "Request a diagnostic quote.",
+    "cta_type": "lead_intake",
+    "eligible": true,
+    "url": "https://service.blackheathplumbing.test/book"
+  },
+  "external_action": false,
+  "lineage": {
+    "asset_id": "asset_node21_live_001",
+    "opportunity_id": "opp_node21_live_001",
+    "publication_plan_id": "mpp_021363cdee54beb4abb4008749dfaab0ddbdc3ee56b3581af5d7428ad44a2993",
+    "search_distribution_id": "sdp_0b672c78b57c655840119a0997d717a9f5dd6819ca3ec54ba801ea37587cbb0c",
+    "target_id": "target_boiler_repair_blackheath"
+  },
+  "route_id": "sdr_b42e9bbe2c324660e0e9a63f08cf79960c070dbb210286c17022c455231250a5",
+  "router_version": "smart_destination_router_v1.0.0",
+  "routing_context": {
+    "channel": "search_landing",
+    "geography": "blackheath",
+    "intent": "diagnostic_quote",
+    "service": "boiler_repair",
+    "topic": "safe boiler pressure guide"
+  },
+  "rule_explanation": "Approved diagnostic-quote search context maps to the inherited allowlisted .test booking destination.",
+  "rule_id": "diagnostic_quote_search_v1",
+  "schema_version": "1.0.0"
+}

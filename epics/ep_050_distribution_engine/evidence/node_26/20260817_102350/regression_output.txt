@@ -1,0 +1,8 @@
+Command: python -m py_compile epics/ep_050_distribution_engine/implementation/node_26/smart_destination_router.py epics/ep_050_distribution_engine/implementation/node_26/test_smart_destination_router.py && python epics/ep_050_distribution_engine/implementation/node_26/test_smart_destination_router.py
+Captured: 2026-08-17T10:24:46+01:00
+
+Ran 9 tests in 0.530s
+
+OK
+
+Coverage: real Node 19→20→21→26 construction; deterministic output; local persistence/idempotency; in-memory conflict; malformed Node 21 lineage; unknown rule; non-.test destination; external-action request; PII; falsely-completed deferred context; and broken asset lineage. Socket construction was replaced with an AssertionError before each test, proving no socket/network construction occurred.

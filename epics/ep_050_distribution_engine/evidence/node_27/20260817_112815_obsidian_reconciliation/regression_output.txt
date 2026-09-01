@@ -1,0 +1,11 @@
+Command:
+python -m py_compile epics/ep_050_distribution_engine/implementation/node_27/structured_lead_capture.py epics/ep_050_distribution_engine/implementation/node_27/test_structured_lead_capture.py && python epics/ep_050_distribution_engine/implementation/node_27/test_structured_lead_capture.py
+
+Output:
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 0.531s
+
+OK
+
+Result: PASS (7/7). The regression monkey-patches socket.socket to raise, so no network socket can be constructed during the Node 19→20→21→26→27 test path.

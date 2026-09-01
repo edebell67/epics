@@ -1,0 +1,14 @@
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Check the gauge safely."
+      },
+      "name": "What should I know about Safe Boiler Pressure Guide?"
+    }
+  ]
+}

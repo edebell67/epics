@@ -1,0 +1,8 @@
+PASS approved fixture: accepted
+PASS unapproved compliance: rejected
+PASS unverified disclaimer: rejected
+PASS unverified facts: rejected
+PASS unsafe destination: rejected
+PASS tracking lineage mismatch: rejected
+PASS empty channels: rejected
+PASS 7/7 offline consumer checks; no network or external action performed

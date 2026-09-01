@@ -1,0 +1,9 @@
+test_lineage_mismatch_fails_closed (__main__.Node19ToNode20IntegrationTest.test_lineage_mismatch_fails_closed) ... ok
+test_non_test_destination_fails_closed (__main__.Node19ToNode20IntegrationTest.test_non_test_destination_fails_closed) ... ok
+test_real_node_19_output_creates_canonical_mock_plan (__main__.Node19ToNode20IntegrationTest.test_real_node_19_output_creates_canonical_mock_plan) ... ok
+test_real_node_19_output_is_idempotent (__main__.Node19ToNode20IntegrationTest.test_real_node_19_output_is_idempotent) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.046s
+
+OK

@@ -1,0 +1,13 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-7.4.4, pluggy-1.0.0 -- C:\Users\edebe\anaconda3\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\edebe\eds
+plugins: anyio-4.9.0, langsmith-0.3.19
+collecting ... collected 4 items
+
+epics/ep_050_distribution_engine/integration/canonical_contracts/test_node19_to_node20_canonical_contract.py::test_canonical_metadata_and_provenance PASSED [ 25%]
+epics/ep_050_distribution_engine/integration/canonical_contracts/test_node19_to_node20_canonical_contract.py::test_producer_asset_package_schema_positive PASSED [ 50%]
+epics/ep_050_distribution_engine/integration/canonical_contracts/test_node19_to_node20_canonical_contract.py::test_consumer_mock_publication_plan_positive PASSED [ 75%]
+epics/ep_050_distribution_engine/integration/canonical_contracts/test_node19_to_node20_canonical_contract.py::test_safety_boundary_enforcement PASSED [100%]
+
+============================== 4 passed in 0.50s ==============================

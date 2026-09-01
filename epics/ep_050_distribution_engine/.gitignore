@@ -1,0 +1,23 @@
+# Local run history and caches — never part of the deploy package.
+# The hosted instance starts with empty data/ by design (see render.yaml).
+implementation/operational_console_claude/data/
+**/__pycache__/
+**/.pytest_cache/
+**/.playwright-cli/
+.env
+
+# Legacy console superseded by operational_console_claude/ — unreferenced by server.py,
+# and its test_console_server.py collides on basename with the live console's test of the
+# same name during pytest collection. Dead weight, not part of the deployed service.
+implementation/operational_console/
+
+# Test-only cross-epic compatibility check against epics/ep_048_YTA/scripts/script_parser.py,
+# which isn't part of ep050 and never ships with it. The production module it tests
+# (ep048_script_adapter.py) has no import on script_parser — pure markdown-string generation.
+implementation/node_18/test_ep048_script_adapter.py
+
+# Tests EP048_SCRIPTS_DIR (epics/ep_048_YTA/scripts/), a real cross-epic runtime dependency of
+# ep048_render_publish_trigger.py that genuinely can't be vendored into ep050's package. On the
+# hosted instance this action stays inert (raises a clean Ep048TriggerError), same category as
+# live-fetch staying disabled — by design, not a bug.
+implementation/node_18/test_ep048_render_publish_trigger.py

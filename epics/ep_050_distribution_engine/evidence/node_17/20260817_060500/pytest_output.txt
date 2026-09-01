@@ -1,0 +1,16 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-7.4.4, pluggy-1.0.0 -- C:\Users\edebe\anaconda3\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\edebe\eds
+plugins: anyio-4.9.0, langsmith-0.3.19
+collecting ... collected 7 items
+
+epics/ep_050_distribution_engine/implementation/node_17/test_content_utility_factory.py::test_positive_asset_generation PASSED [ 14%]
+epics/ep_050_distribution_engine/implementation/node_17/test_content_utility_factory.py::test_determinism_and_idempotency PASSED [ 28%]
+epics/ep_050_distribution_engine/implementation/node_17/test_content_utility_factory.py::test_missing_facts_fails_closed PASSED [ 42%]
+epics/ep_050_distribution_engine/implementation/node_17/test_content_utility_factory.py::test_missing_lineage_fails_closed PASSED [ 57%]
+epics/ep_050_distribution_engine/implementation/node_17/test_content_utility_factory.py::test_prohibited_pii_screening PASSED [ 71%]
+epics/ep_050_distribution_engine/implementation/node_17/test_content_utility_factory.py::test_serialization_roundtrip PASSED [ 85%]
+epics/ep_050_distribution_engine/implementation/node_17/test_content_utility_factory.py::test_nodes01_to_17_full_pipeline_live_integration PASSED [100%]
+
+============================== 7 passed in 0.15s ==============================

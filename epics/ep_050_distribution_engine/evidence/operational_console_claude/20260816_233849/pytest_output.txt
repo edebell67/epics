@@ -1,0 +1,28 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.1, pytest-9.0.2, pluggy-1.6.0 -- C:\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\edebe\eds
+plugins: anyio-4.8.0, asyncio-1.3.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 18 items
+
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_server_binds_loopback_only PASSED [  5%]
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_status_endpoint_reports_ready_and_no_external_action PASSED [ 11%]
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_phases_endpoint_matches_master_workflow_seven_stages PASSED [ 16%]
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_static_files_are_served PASSED [ 22%]
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_create_run_returns_run_id_and_persists PASSED [ 27%]
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_get_unknown_run_returns_404 PASSED [ 33%]
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_invalid_run_id_format_returns_400 PASSED [ 38%]
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_node01_register_positive_records_lineage PASSED [ 44%]
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_node01_register_missing_field_returns_400 PASSED [ 50%]
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_node02_before_node01_is_rejected_fail_closed PASSED [ 55%]
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_node02_register_positive_after_node01 PASSED [ 61%]
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_node03_before_node02_is_rejected_fail_closed PASSED [ 66%]
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_node03_register_positive_after_node01_and_node02 PASSED [ 72%]
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_node03_prohibited_pii_is_rejected PASSED [ 77%]
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_node11_classify_without_target_or_registered_run_target_is_rejected PASSED [ 83%]
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_node11_classify_positive_using_run_target PASSED [ 88%]
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_node11_classify_invalid_source_type_is_rejected PASSED [ 94%]
+epics/ep_050_distribution_engine/implementation/operational_console_claude/test_console_server.py::test_full_lifecycle_regression PASSED [100%]
+
+============================= 18 passed in 3.36s ==============================

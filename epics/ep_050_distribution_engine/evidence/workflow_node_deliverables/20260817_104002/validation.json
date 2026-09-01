@@ -1,0 +1,44 @@
+[
+    {
+        "file":  "EP050_distribution_engine_ingestion_workflow.html",
+        "deliverables_panel_count":  1,
+        "deliverables_contract_count":  1,
+        "deliverables_render_count":  1
+    },
+    {
+        "file":  "EP050_distribution_engine_demand_intelligence_workflow.html",
+        "deliverables_panel_count":  1,
+        "deliverables_contract_count":  1,
+        "deliverables_render_count":  1
+    },
+    {
+        "file":  "EP050_distribution_engine_strategy_workflow.html",
+        "deliverables_panel_count":  1,
+        "deliverables_contract_count":  1,
+        "deliverables_render_count":  1
+    },
+    {
+        "file":  "EP050_distribution_engine_assets_workflow.html",
+        "deliverables_panel_count":  1,
+        "deliverables_contract_count":  1,
+        "deliverables_render_count":  1
+    },
+    {
+        "file":  "EP050_distribution_engine_distribution_conversion_workflow.html",
+        "deliverables_panel_count":  1,
+        "deliverables_contract_count":  1,
+        "deliverables_render_count":  1
+    },
+    {
+        "file":  "EP050_distribution_engine_lead_lifecycle_workflow.html",
+        "deliverables_panel_count":  1,
+        "deliverables_contract_count":  1,
+        "deliverables_render_count":  1
+    },
+    {
+        "file":  "EP050_distribution_engine_learning_workflow.html",
+        "deliverables_panel_count":  1,
+        "deliverables_contract_count":  1,
+        "deliverables_render_count":  1
+    }
+]

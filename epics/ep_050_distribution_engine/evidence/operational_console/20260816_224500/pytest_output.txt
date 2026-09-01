@@ -1,0 +1,25 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-7.4.4, pluggy-1.0.0 -- C:\Users\edebe\anaconda3\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\edebe\eds
+plugins: anyio-4.9.0, langsmith-0.3.19
+collecting ... collected 8 items
+
+epics/ep_050_distribution_engine/implementation/operational_console/test_console_server.py::test_get_status_endpoint PASSED [ 12%]
+epics/ep_050_distribution_engine/implementation/operational_console/test_console_server.py::test_get_target_endpoint PASSED [ 25%]
+epics/ep_050_distribution_engine/implementation/operational_console/test_console_server.py::test_get_contracts_endpoint PASSED [ 37%]
+epics/ep_050_distribution_engine/implementation/operational_console/test_console_server.py::test_classify_live_positive PASSED [ 50%]
+epics/ep_050_distribution_engine/implementation/operational_console/test_console_server.py::test_classify_missing_field_fails_closed PASSED [ 62%]
+epics/ep_050_distribution_engine/implementation/operational_console/test_console_server.py::test_classify_contract_violation_fails_closed PASSED [ 75%]
+epics/ep_050_distribution_engine/implementation/operational_console/test_console_server.py::test_audit_log_workflow PASSED [ 87%]
+epics/ep_050_distribution_engine/implementation/operational_console/test_console_server.py::test_static_assets_serving PASSED [100%]
+
+============================== 8 passed in 0.83s ==============================
+
+--- Lifecycle and Process Verification ---
+Testing Operational Console server launch lifecycle...
+Server responded HTTP 200 OK:
+System: EP050 Operational Console | Active MVP nodes: 21
+console.html served successfully (HTTP 200).
+Terminating test server process...
+Lifecycle test passed 100%.

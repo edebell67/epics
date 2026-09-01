@@ -1,0 +1,16 @@
+Command: python epics/ep_050_distribution_engine/integration/reviews/hermes/node19_to_node20_candidate_v1_1_test.py
+
+PASS approved fixture and stable idempotent mock plan
+PASS unapproved compliance: rejected
+PASS unverified disclaimer: rejected
+PASS unverified facts: rejected
+PASS unsafe destination: rejected
+PASS tracking lineage mismatch: rejected
+PASS empty headline: rejected
+PASS invalid generated timestamp: rejected
+PASS undeclared schedule channel: rejected
+PASS unexpected top-level property: rejected
+PASS external action output: rejected
+PASS no-network assertion
+PASS 12/12 offline candidate contract checks; no Node 20 implementation or external action performed
+Exit status: 0

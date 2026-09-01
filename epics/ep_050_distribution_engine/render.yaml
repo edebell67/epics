@@ -1,0 +1,23 @@
+# EP050 Demand Operations console — Render Blueprint.
+# Version 1.0.0 (2026-09-01).
+#
+# Public, unauthenticated deployment matching the ep051/ep052/ep053/ep054 pattern.
+# Live-fetch stays disabled: EP050_LIVE_FETCH_ENABLED is intentionally NOT set here,
+# so external providers (Google CSE, YouTube, Reddit, StackExchange) are never called
+# from the hosted instance. Data is local JSON under implementation/operational_console_claude/data/,
+# which resets on every redeploy/restart by design — this is a public showcase instance,
+# not the real operational tool (that stays local).
+#
+# Apply from the Render dashboard: New > Blueprint > point at edebell67/epics,
+# root directory epics/ep_050_distribution_engine.
+
+services:
+  - type: web
+    name: ep050-demand-operations
+    runtime: python
+    plan: free
+    rootDir: implementation
+    buildCommand: pip install -r operational_console_claude/requirements.txt
+    startCommand: python operational_console_claude/server.py
+    healthCheckPath: /api/status
+    autoDeploy: true

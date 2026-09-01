@@ -1,0 +1,29 @@
+EP050 Node 20 consolidated current-code regression
+Timestamp: 2026-08-17T06:36:39+01:00
+Command:
+python -m py_compile epics/ep_050_distribution_engine/implementation/node_20/publishing_scheduler.py epics/ep_050_distribution_engine/implementation/node_20/test_publishing_scheduler.py
+python epics/ep_050_distribution_engine/implementation/node_20/test_publishing_scheduler.py
+python epics/ep_050_distribution_engine/integration/reviews/hermes/node19_to_node20_candidate_v1_1_test.py
+
+py_compile: PASS
+Node 20 current-code unittest suite: PASS 10/10
+- actual Node 19 evaluate_asset_compliance output -> canonical Node 20 mock plan
+- idempotent in-memory persistence
+- tracking lineage rejection
+- non-.test destination rejection
+- unapproved compliance rejection
+- malformed timestamp rejection
+- undeclared schedule channel rejection
+- unexpected property rejection
+- repository conflict rejection
+- non-mapping rejection
+All Node 20 tests replace socket.socket with a failure; no socket construction was attempted.
+
+Legacy candidate-contract checks: PASS 12/12
+- approved fixture/idempotent plan
+- nine unsafe input rejection gates
+- external_action output rejection
+- socket-prohibited no-network assertion
+
+Aggregate: PASS 22/22 behavioral checks plus py_compile.
+Safety result: outputs remain in-memory mock records with external_action:false; no network, queue, credentials, timer, scheduler, publishing adapter, or external action exists.

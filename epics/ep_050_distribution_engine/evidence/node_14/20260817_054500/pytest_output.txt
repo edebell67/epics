@@ -1,0 +1,17 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-7.4.4, pluggy-1.0.0 -- C:\Users\edebe\anaconda3\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\edebe\eds
+plugins: anyio-4.9.0, langsmith-0.3.19
+collecting ... collected 8 items
+
+epics/ep_050_distribution_engine/implementation/node_14/test_channel_placement_selection.py::test_positive_channel_selection PASSED [ 12%]
+epics/ep_050_distribution_engine/implementation/node_14/test_channel_placement_selection.py::test_idempotency_and_determinism PASSED [ 25%]
+epics/ep_050_distribution_engine/implementation/node_14/test_channel_placement_selection.py::test_custom_weights_and_ranking PASSED [ 37%]
+epics/ep_050_distribution_engine/implementation/node_14/test_channel_placement_selection.py::test_missing_lineage_fails_closed PASSED [ 50%]
+epics/ep_050_distribution_engine/implementation/node_14/test_channel_placement_selection.py::test_invalid_weights_sum_fails_closed PASSED [ 62%]
+epics/ep_050_distribution_engine/implementation/node_14/test_channel_placement_selection.py::test_invalid_raw_score_bounds_fails_closed PASSED [ 75%]
+epics/ep_050_distribution_engine/implementation/node_14/test_channel_placement_selection.py::test_serialization_roundtrip PASSED [ 87%]
+epics/ep_050_distribution_engine/implementation/node_14/test_channel_placement_selection.py::test_nodes01_to_05_to_11_to_14_full_pipeline_live_integration PASSED [100%]
+
+============================== 8 passed in 0.12s ==============================

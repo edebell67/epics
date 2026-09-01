@@ -1,0 +1,10 @@
+{
+    "strategy_complete_cards":  3,
+    "assets_complete_cards":  3,
+    "node_11_evidence":  true,
+    "node_14_evidence":  true,
+    "node_16_evidence":  true,
+    "node_17_evidence":  true,
+    "version_history_strategy":  true,
+    "version_history_assets":  true
+}

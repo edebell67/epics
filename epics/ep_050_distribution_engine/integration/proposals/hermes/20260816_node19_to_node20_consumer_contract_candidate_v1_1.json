@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EP050 Node 19 to Node 20 Consumer-Corrected Contract Candidate",
+  "contract_version": "1.1.0-candidate",
+  "status": "consumer_candidate_pending_producer_review_and_canonical_decision",
+  "safety_boundary": {
+    "external_action": false,
+    "network": "prohibited",
+    "publishing_adapter": "excluded"
+  },
+  "approved_asset_package_schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["schema_version", "asset_id", "target_id", "opportunity_id", "asset_type", "headline", "body_content", "cta_definition", "compliance_stamp", "target_channels", "schedule_request", "generated_at"],
+    "properties": {
+      "schema_version": {"const": "1.1.0-candidate"},
+      "asset_id": {"type": "string", "minLength": 1},
+      "target_id": {"type": "string", "minLength": 1},
+      "opportunity_id": {"type": "string", "minLength": 1},
+      "asset_type": {"type": "string", "enum": ["troubleshooting_guide", "faq_article", "diagnostic_checklist", "video_script"]},
+      "headline": {"type": "string", "minLength": 1},
+      "body_content": {
+        "type": "object", "additionalProperties": false,
+        "required": ["summary", "steps", "safety_disclaimer"],
+        "properties": {
+          "summary": {"type": "string", "minLength": 1},
+          "steps": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+          "safety_disclaimer": {"type": "string", "minLength": 1}
+        }
+      },
+      "cta_definition": {
+        "type": "object", "additionalProperties": false,
+        "required": ["cta_label", "cta_type", "destination_url", "tracking_params"],
+        "properties": {
+          "cta_label": {"type": "string", "minLength": 1},
+          "cta_type": {"type": "string", "enum": ["lead_intake", "phone_call", "quote_request"]},
+          "destination_url": {"type": "string", "format": "uri", "pattern": "^https://[A-Za-z0-9.-]+\\.test(?:/|$)"},
+          "tracking_params": {
+            "type": "object", "additionalProperties": false,
+            "required": ["utm_source", "utm_medium", "utm_campaign", "asset_id"],
+            "properties": {
+              "utm_source": {"type": "string", "minLength": 1},
+              "utm_medium": {"type": "string", "minLength": 1},
+              "utm_campaign": {"type": "string", "minLength": 1},
+              "asset_id": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      },
+      "compliance_stamp": {
+        "type": "object", "additionalProperties": false,
+        "required": ["approved", "checked_at", "validator_version", "disclaimer_verified", "facts_verified"],
+        "properties": {
+          "approved": {"const": true},
+          "checked_at": {"type": "string", "format": "date-time", "minLength": 1},
+          "validator_version": {"type": "string", "minLength": 1},
+          "disclaimer_verified": {"const": true},
+          "facts_verified": {"const": true}
+        }
+      },
+      "target_channels": {"type": "array", "minItems": 1, "items": {"type": "string", "enum": ["search_landing", "social_post", "video_host", "local_directory"]}, "uniqueItems": true},
+      "schedule_request": {
+        "type": "object", "additionalProperties": false,
+        "required": ["channel", "audience", "scheduled_at"],
+        "properties": {
+          "channel": {"type": "string", "enum": ["search_landing", "social_post", "video_host", "local_directory"]},
+          "audience": {"type": "string", "minLength": 1},
+          "scheduled_at": {"type": "string", "format": "date-time", "minLength": 1}
+        }
+      },
+      "generated_at": {"type": "string", "format": "date-time", "minLength": 1}
+    }
+  },
+  "mock_publication_plan_schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["schema_version", "publication_plan_id", "asset_id", "target_id", "opportunity_id", "channel", "audience", "scheduled_at", "cta", "approval_state", "external_action"],
+    "properties": {
+      "schema_version": {"const": "1.1.0-candidate"},
+      "publication_plan_id": {"type": "string", "pattern": "^mpp_[a-f0-9]{64}$"},
+      "asset_id": {"type": "string", "minLength": 1},
+      "target_id": {"type": "string", "minLength": 1},
+      "opportunity_id": {"type": "string", "minLength": 1},
+      "channel": {"type": "string", "enum": ["search_landing", "social_post", "video_host", "local_directory"]},
+      "audience": {"type": "string", "minLength": 1},
+      "scheduled_at": {"type": "string", "format": "date-time", "minLength": 1},
+      "cta": {"type": "object", "additionalProperties": false, "required": ["label", "type", "destination_url", "tracking_params"], "properties": {"label": {"type": "string", "minLength": 1}, "type": {"type": "string", "enum": ["lead_intake", "phone_call", "quote_request"]}, "destination_url": {"type": "string", "format": "uri", "pattern": "^https://[A-Za-z0-9.-]+\\.test(?:/|$)"}, "tracking_params": {"type": "object", "additionalProperties": false, "required": ["utm_source", "utm_medium", "utm_campaign", "asset_id"], "properties": {"utm_source": {"type": "string", "minLength": 1}, "utm_medium": {"type": "string", "minLength": 1}, "utm_campaign": {"type": "string", "minLength": 1}, "asset_id": {"type": "string", "minLength": 1}}}}},
+      "approval_state": {"const": "approved"},
+      "external_action": {"const": false}
+    }
+  },
+  "consumer_semantics": {
+    "lineage_rule": "cta_definition.tracking_params.asset_id MUST equal asset_id; schedule_request.channel MUST be in target_channels.",
+    "idempotency_rule": "publication_plan_id is mpp_ plus SHA-256 of canonical UTF-8 JSON with sorted keys for asset_id, channel, destination_url, audience, and scheduled_at. An identical key returns the identical mock plan; the same publication_plan_id with any differing output field is rejected as a conflict.",
+    "output_boundary": "The output is a local mock record only. This candidate defines no publishing adapter, credentials, request, queue, or external side effect."
+  }
+}

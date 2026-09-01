@@ -1,0 +1,23 @@
+Command:
+python -m py_compile epics/ep_050_distribution_engine/implementation/node_26/smart_destination_router.py epics/ep_050_distribution_engine/implementation/node_26/test_smart_destination_router.py
+python epics/ep_050_distribution_engine/implementation/node_26/test_smart_destination_router.py
+
+Result:
+test_broken_context_lineage (__main__.RouterTest.test_broken_context_lineage) ... ok
+test_conflict (__main__.RouterTest.test_conflict) ... ok
+test_deterministic (__main__.RouterTest.test_deterministic) ... ok
+test_external_request_pii_and_deferred_completion_rejected (__main__.RouterTest.test_external_request_pii_and_deferred_completion_rejected) ... ok
+test_missing_node21_lineage (__main__.RouterTest.test_missing_node21_lineage) ... ok
+test_non_test_destination (__main__.RouterTest.test_non_test_destination) ... ok
+test_persistence_and_idempotency (__main__.RouterTest.test_persistence_and_idempotency) ... ok
+test_real_node19_to_26_integration (__main__.RouterTest.test_real_node19_to_26_integration) ... ok
+test_unknown_rule (__main__.RouterTest.test_unknown_rule) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.728s
+
+OK
+
+Post-run mirror verification:
+cmp -s canonical lifecycle record and authorized Obsidian mirror: PASS
+SHA-256 canonical == mirror: 3d70695d9258faf028e086170f0e7f3a6cd0b38ab6f8671ebfb7b57ad31f73ba

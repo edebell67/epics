@@ -1,0 +1,16 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-7.4.4, pluggy-1.0.0 -- C:\Users\edebe\anaconda3\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\edebe\eds
+plugins: anyio-4.9.0, langsmith-0.3.19
+collecting ... collected 7 items
+
+epics/ep_050_distribution_engine/implementation/node_19/test_quality_compliance.py::test_positive_evaluation_and_schema_conformance PASSED [ 14%]
+epics/ep_050_distribution_engine/implementation/node_19/test_quality_compliance.py::test_missing_disclaimer_rejected PASSED [ 28%]
+epics/ep_050_distribution_engine/implementation/node_19/test_quality_compliance.py::test_unverified_fact_in_knowledge_store_rejected PASSED [ 42%]
+epics/ep_050_distribution_engine/implementation/node_19/test_quality_compliance.py::test_prohibited_pii_rejected PASSED [ 57%]
+epics/ep_050_distribution_engine/implementation/node_19/test_quality_compliance.py::test_external_action_violation_rejected PASSED [ 71%]
+epics/ep_050_distribution_engine/implementation/node_19/test_quality_compliance.py::test_determinism_and_serialization PASSED [ 85%]
+epics/ep_050_distribution_engine/implementation/node_19/test_quality_compliance.py::test_nodes01_to_19_full_pipeline_live_integration PASSED [100%]
+
+============================== 7 passed in 0.19s ==============================

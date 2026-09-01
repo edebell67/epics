@@ -1,0 +1,28 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-7.4.4, pluggy-1.0.0 -- C:\Users\edebe\anaconda3\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\edebe\eds
+plugins: anyio-4.9.0, langsmith-0.3.19
+collecting ... collected 8 items
+
+epics/ep_050_distribution_engine/implementation/operational_console/test_console_server.py::test_get_operational_run PASSED [ 12%]
+epics/ep_050_distribution_engine/implementation/operational_console/test_console_server.py::test_reset_operational_run PASSED [ 25%]
+epics/ep_050_distribution_engine/implementation/operational_console/test_console_server.py::test_phase3_classify_updates_run_and_audit PASSED [ 37%]
+epics/ep_050_distribution_engine/implementation/operational_console/test_console_server.py::test_get_status_preserved_matrix PASSED [ 50%]
+epics/ep_050_distribution_engine/implementation/operational_console/test_console_server.py::test_get_target_endpoint PASSED [ 62%]
+epics/ep_050_distribution_engine/implementation/operational_console/test_console_server.py::test_get_contracts_endpoint PASSED [ 75%]
+epics/ep_050_distribution_engine/implementation/operational_console/test_console_server.py::test_audit_log_workflow PASSED [ 87%]
+epics/ep_050_distribution_engine/implementation/operational_console/test_console_server.py::test_static_assets_serving PASSED [100%]
+
+============================== 8 passed in 0.85s ==============================
+
+--- Clean State Launch and 7-Phase Run Verification ---
+Testing Operational Console 7-phase master-workflow server launch...
+Server responded HTTP 200 OK:
+System: EP050 Operational Console | Active MVP nodes: 21
+7-Phase Run Active ID: run_20260816_boiler_001
+Phase 1 Status: COMPLETED | Target: tgt_boiler_repair_blackheath
+Phase 3 Status: OPERATIONAL_ACTIVE | Live Node 11 Classifier: ACTIVE
+console.html served successfully (HTTP 200).
+Terminating test server process...
+Lifecycle test passed 100%.

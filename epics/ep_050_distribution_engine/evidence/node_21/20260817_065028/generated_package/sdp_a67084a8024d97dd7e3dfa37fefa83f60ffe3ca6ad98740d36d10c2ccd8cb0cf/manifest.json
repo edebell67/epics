@@ -1,0 +1,32 @@
+{
+  "approval_state": "approved",
+  "artifacts": [
+    "article.md",
+    "landing-page.md",
+    "faq.json",
+    "structured-data.json",
+    "internal-link-plan.json",
+    "sitemap-indexing-support.json",
+    "localized-page-plan.json",
+    "manifest.json"
+  ],
+  "asset_id": "asset_node21_live_001",
+  "cta": {
+    "destination_url": "https://service.blackheathplumbing.test/book",
+    "label": "Request a diagnostic quote.",
+    "tracking_params": {
+      "asset_id": "asset_node21_live_001",
+      "utm_campaign": "emergency_boiler_repair",
+      "utm_medium": "search_landing",
+      "utm_source": "distribution_engine"
+    },
+    "type": "lead_intake"
+  },
+  "external_action": false,
+  "landing_url": "https://service.blackheathplumbing.test/book/search/safe-boiler-pressure-guide",
+  "opportunity_id": "opp_node21_live_001",
+  "publication_plan_id": "mpp_c946cf729ebcedb0afd9d9c32dfb2d72c7f85599a75e612f70193736aed81153",
+  "schema_version": "1.0.0",
+  "search_distribution_id": "sdp_a67084a8024d97dd7e3dfa37fefa83f60ffe3ca6ad98740d36d10c2ccd8cb0cf",
+  "target_id": "target_boiler_repair_blackheath"
+}

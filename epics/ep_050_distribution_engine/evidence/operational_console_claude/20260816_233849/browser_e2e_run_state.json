@@ -1,0 +1,136 @@
+{
+  "audience": [
+    {
+      "eligibility_geography": {
+        "country": "UK",
+        "locality": "Blackheath",
+        "region": "London"
+      },
+      "evidence_sources": [],
+      "exclusions": [],
+      "needs": [
+        "Restore hot water quickly",
+        "Understand the cause of pressure loss"
+      ],
+      "pains": [
+        "No heating or hot water",
+        "Uncertainty over callout cost"
+      ],
+      "recorded_at": "2026-08-16T23:37:39.736+00:00",
+      "segment_id": "tgt_boiler_repair_blackheath__seg_blackheath_homeowner_boiler_pressure_loss",
+      "segment_name": "Blackheath homeowner, boiler pressure loss",
+      "target_id": "tgt_boiler_repair_blackheath",
+      "urgency": "high"
+    }
+  ],
+  "classifications": [
+    {
+      "classification_id": "cls_sig_console_demo_01_6c0e7b3691ef",
+      "classified_at": "2026-08-16T23:37:50.570889+00:00",
+      "commercial_intent_score": 0.0,
+      "geography": {
+        "country": "UK",
+        "locality": "Blackheath",
+        "region": "London"
+      },
+      "metadata": {},
+      "primary_intent": "troubleshooting",
+      "rule_trace": [
+        "matched_troubleshooting_keywords:dropped,pressure,zero,no hot water,fix",
+        "urgency_determined:high",
+        "primary_intent:troubleshooting"
+      ],
+      "secondary_intents": [
+        "urgent_emergency",
+        "commercial_investigation"
+      ],
+      "service_context": {
+        "market_segment": "domestic_plumbing",
+        "service_name": "boiler_repair"
+      },
+      "signal_id": "sig_console_demo_01",
+      "source_type": "manual_curation",
+      "target_id": "tgt_boiler_repair_blackheath",
+      "troubleshooting_score": 1.0,
+      "urgency_level": "high"
+    }
+  ],
+  "created_at": "2026-08-16T23:30:51.180+00:00",
+  "lineage": [
+    {
+      "action": "created",
+      "at": "2026-08-16T23:30:51.180+00:00",
+      "node": "run",
+      "phase": 0,
+      "summary": "Run created"
+    },
+    {
+      "action": "register_target",
+      "at": "2026-08-16T23:33:00.333+00:00",
+      "node": "node_01",
+      "phase": 1,
+      "summary": "Registered tgt_boiler_repair_blackheath"
+    },
+    {
+      "action": "register_product",
+      "at": "2026-08-16T23:37:10.419+00:00",
+      "node": "node_02",
+      "phase": 1,
+      "summary": "Described product for tgt_boiler_repair_blackheath"
+    },
+    {
+      "action": "register_audience",
+      "at": "2026-08-16T23:37:39.740+00:00",
+      "node": "node_03",
+      "phase": 1,
+      "summary": "Defined segment tgt_boiler_repair_blackheath__seg_blackheath_homeowner_boiler_pressure_loss"
+    },
+    {
+      "action": "classify_signal",
+      "at": "2026-08-16T23:37:50.572+00:00",
+      "node": "node_11",
+      "phase": 3,
+      "summary": "Classified sig_console_demo_01 as troubleshooting"
+    }
+  ],
+  "product": {
+    "benefits": [
+      "Hot water restored quickly",
+      "No guesswork on cause",
+      "Transparent pricing"
+    ],
+    "commercial_model": "Fixed diagnostic fee plus quoted repair cost.",
+    "customer_outcome": "Working boiler and restored hot water within 24 hours.",
+    "differentiators": [
+      "Local Blackheath coverage",
+      "Vetted-only engineer network"
+    ],
+    "evidence_sources": [],
+    "features": [
+      "Same-day callout",
+      "Fixed diagnostic fee",
+      "Vetted local engineers"
+    ],
+    "problem": "Homeowners lose boiler pressure and hot water with no clear diagnosis path.",
+    "recorded_at": "2026-08-16T23:37:10.415+00:00",
+    "solution": "A vetted local boiler-repair callout that diagnoses and restores pressure same-day.",
+    "target_id": "tgt_boiler_repair_blackheath"
+  },
+  "run_id": "run_20260816_233051_4e8e0fb5",
+  "target": {
+    "app_id": "ep047_trades_directory",
+    "domain": null,
+    "geography": {
+      "country": "UK",
+      "locality": "Blackheath",
+      "region": "London"
+    },
+    "market": "domestic_plumbing",
+    "product": null,
+    "registered_at": "2026-08-16T23:33:00.331+00:00",
+    "service": "boiler_repair",
+    "status": "active",
+    "target_id": "tgt_boiler_repair_blackheath",
+    "target_type": "service_market"
+  }
+}

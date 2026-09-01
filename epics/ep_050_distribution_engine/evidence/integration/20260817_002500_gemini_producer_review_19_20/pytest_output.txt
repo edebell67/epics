@@ -1,0 +1,17 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-7.4.4, pluggy-1.0.0 -- C:\Users\edebe\anaconda3\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\edebe\eds
+plugins: anyio-4.9.0, langsmith-0.3.19
+collecting ... collected 8 items
+
+epics/ep_050_distribution_engine/integration/reviews/gemini/test_node19_to_node20_producer_review.py::test_schema_syntax_and_metadata PASSED [ 12%]
+epics/ep_050_distribution_engine/integration/reviews/gemini/test_node19_to_node20_producer_review.py::test_positive_producer_asset_validation PASSED [ 25%]
+epics/ep_050_distribution_engine/integration/reviews/gemini/test_node19_to_node20_producer_review.py::test_compliance_stamp_disclaimer_false_fails PASSED [ 37%]
+epics/ep_050_distribution_engine/integration/reviews/gemini/test_node19_to_node20_producer_review.py::test_compliance_stamp_facts_false_fails PASSED [ 50%]
+epics/ep_050_distribution_engine/integration/reviews/gemini/test_node19_to_node20_producer_review.py::test_non_test_domain_url_fails PASSED [ 62%]
+epics/ep_050_distribution_engine/integration/reviews/gemini/test_node19_to_node20_producer_review.py::test_empty_string_field_fails PASSED [ 75%]
+epics/ep_050_distribution_engine/integration/reviews/gemini/test_node19_to_node20_producer_review.py::test_mock_publication_plan_positive PASSED [ 87%]
+epics/ep_050_distribution_engine/integration/reviews/gemini/test_node19_to_node20_producer_review.py::test_mock_plan_external_action_true_fails PASSED [100%]
+
+============================== 8 passed in 0.22s ==============================

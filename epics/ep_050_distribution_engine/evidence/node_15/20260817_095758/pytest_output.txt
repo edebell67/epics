@@ -1,0 +1,29 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.1, pytest-9.0.2, pluggy-1.6.0 -- C:\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\edebe\eds
+plugins: anyio-4.8.0, asyncio-1.3.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 19 items
+
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_single_member_forms_one_item_cluster PASSED [  5%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_two_members_with_same_traits_merge_into_one_cluster PASSED [ 10%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_members_differing_by_locality_form_separate_clusters PASSED [ 15%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_members_differing_by_primary_intent_form_separate_clusters PASSED [ 21%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_members_differing_by_primary_channel_form_separate_clusters PASSED [ 26%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_empty_members_list_is_rejected PASSED [ 31%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_duplicate_signal_id_within_same_run_is_rejected PASSED [ 36%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_missing_lineage_bundle_key_is_rejected PASSED [ 42%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_mismatched_lineage_across_subrecords_is_rejected PASSED [ 47%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_demand_opportunity_score_out_of_range_is_rejected PASSED [ 52%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_demand_opportunity_score_non_numeric_is_rejected PASSED [ 57%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_campaign_context_email_is_rejected PASSED [ 63%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_campaign_context_phone_is_rejected PASSED [ 68%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_determinism_same_members_produce_same_cluster_id_across_registries PASSED [ 73%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_identical_rerun_is_idempotent_and_does_not_duplicate PASSED [ 78%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_conflicting_stored_cluster_is_rejected PASSED [ 84%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_persistence_round_trip_via_new_registry_instance PASSED [ 89%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_registration_makes_no_network_call PASSED [ 94%]
+epics/ep_050_distribution_engine/implementation/node_15/test_campaign_cluster_generation.py::test_full_lifecycle_regression PASSED [100%]
+
+============================= 19 passed in 0.53s ==============================
