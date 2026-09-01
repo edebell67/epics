@@ -1,3 +1,7 @@
+# Version history
+# v3.0.0 · 2026-09-01 · Removes the SQLite disk and requires the existing shared PostgreSQL DATABASE_URL in place.
+# v2.1.0 · 2026-09-01 · Declares the hosted EP051 dependency explicitly for reproducible deployment.
+# v2.0.0 · 2026-08-31 · Adds persistent storage for MVP player, entry and invitation state.
 services:
   - type: web
     name: ep054-strategy-fantasy-challenge
@@ -8,3 +12,8 @@ services:
     healthCheckPath: /health
     autoDeploy: false
     plan: starter
+    envVars:
+      - key: STRATEGY_DIRECTORY_URL
+        value: https://ep051-directory.onrender.com
+      - key: DATABASE_URL
+        sync: false

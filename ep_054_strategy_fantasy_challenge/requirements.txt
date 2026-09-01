@@ -1,2 +1,7 @@
+# requirements.txt — Runtime dependencies for the hosted EP054 service.
+#
+# VERSION HISTORY
+# v2.0.0 · 2026-09-01 · Adds psycopg for the workflow-mandated PostgreSQL persistence layer.
 fastapi==0.141.1
 uvicorn[standard]==0.42.0
+psycopg[binary]==3.2.10

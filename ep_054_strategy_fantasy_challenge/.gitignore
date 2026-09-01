@@ -1,0 +1,8 @@
+# Version history: v1.2.0 · 2026-09-01 · Retains legacy SQLite ignores while PostgreSQL becomes the only supported runtime.
+# v1.1.0 · 2026-09-01 · Excludes browser release-prep artifacts from deployment commits.
+# v1.0.0 · 2026-08-31 · Excludes local runtime state.
+fantasy_mvp.sqlite3
+fantasy_mvp.sqlite3-*
+__pycache__/
+.playwright-cli/
+output/

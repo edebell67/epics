@@ -1,68 +1,104 @@
+/* Version history
+ * v2.0.0 · 2026-08-31 · Replaces strategy fixtures and simulated scoring with EP051-backed catalogue and rankings.
+ * v1.3.0 · 2026-08-31 · Adds attributable friend invitations into the same Global Challenge.
+ * v1.2.0 · 2026-08-31 · Narrows the MVP to build, enter, live rank and share.
+ * v1.1.0 · 2026-08-31 · Introduced deterministic position-movement exploration.
+ * v1.0.0 · 2026-08-31 · Version history added; file predates this convention.
+ */
 (() => {
   'use strict';
+  const $ = id => document.getElementById(id);
   const state = {
-    portfolio_id: 'PF_DRAFT', version: 1, status: 'draft', provenance: 'MANUAL',
-    strategies: [
-      { id: 'DNA_108742', name: 'Mean Reversion FX', source: 'Finder AI', version: 'v4' },
-      { id: 'DNA_104921', name: 'Defensive Carry Filter', source: 'Directory', version: 'v2' },
-      { id: 'DNA_112087', name: 'Sideways Range Capture', source: 'Finder AI', version: 'v3' }
-    ],
-    saved: [], entered: false, round: 0, sequence: 18427
+    entered: false, running: false, beat: 0, timer: null, invite: null, entryId: null,
+    strategies: [], candidates: [], catalogue: [], competitors: [], directorySource: null,
+    previousRanks: {}
   };
-  const $ = (id) => document.getElementById(id);
-  const candidates = [
-    { id: 'DNA_107311', name: 'Volatility Guard Overlay', source: 'Finder AI', version: 'v1' },
-    { id: 'DNA_103882', name: 'EUR/USD Intraday Reset', source: 'Agent import', version: 'v5' },
-    { id: 'DNA_115904', name: 'Trend Exhaustion Monitor', source: 'Directory', version: 'v2' }
-  ];
-  const event = (kind, text) => {
-    $('eventStatus').textContent = kind;
-    const row = document.createElement('div'); row.className = 'event'; row.innerHTML = `<b>${kind}</b> · ${text}`;
-    $('destinationEvents').prepend(row);
+  const portfolioName = () => $('portfolioName').value.trim() || 'Untitled Portfolio';
+  const api = async (path, options={}) => { const response=await fetch(path,{headers:{'Content-Type':'application/json'},...options}); if(!response.ok) throw new Error((await response.json()).detail||`Request failed: ${response.status}`); return response.json(); };
+  const ranked = () => [...state.competitors].sort((a,b)=>b.score-a.score).map((row,index)=>({...row,rank:index+1}));
+  const announce = (kind,text) => {
+    $('eventStatus').textContent=kind;
+    const row=document.createElement('div'); row.className='event';
+    const title=document.createElement('b'); title.textContent=kind;
+    row.append(title,document.createTextNode(` · ${text}`)); $('destinationEvents').prepend(row);
   };
-  const compositionFingerprint = () => state.strategies.map(s => s.id).sort().join('|').split('').reduce((n,c) => ((n * 31 + c.charCodeAt(0)) >>> 0), 7).toString(16).toUpperCase().padStart(8,'0');
-  const portfolioLabel = () => $('portfolioName').value.trim() || 'Untitled Portfolio';
   const renderStrategies = () => {
-    $('portfolioStrategies').innerHTML = state.strategies.map((s,i) => `<article class="strategy"><div><small>${s.id} · ${s.version} · ${s.source}</small><b>${s.name}</b></div><button aria-label="Remove ${s.name}" data-remove="${i}">×</button></article>`).join('');
-    document.querySelectorAll('[data-remove]').forEach(btn => btn.onclick = () => { state.strategies.splice(Number(btn.dataset.remove), 1); state.status='draft'; render(); event('STRATEGY_REMOVED', 'Membership changed; resave to validate destinations.'); });
+    $('strategyCount').textContent=`${state.strategies.length} / 10 selected`;
+    $('portfolioStrategies').replaceChildren(...state.strategies.map((s,index)=>{
+      const row=document.createElement('article'); row.className='strategy';
+      const copy=document.createElement('div'); const meta=document.createElement('small'); meta.textContent=`${s[0]} · ${s[2]}`; const name=document.createElement('b'); name.textContent=s[1]; copy.append(meta,name);
+      const remove=document.createElement('button'); remove.textContent='×'; remove.setAttribute('aria-label',`Remove ${s[1]}`); remove.onclick=()=>{state.strategies.splice(index,1);renderStrategies();renderAvailable();};
+      row.append(copy,remove); return row;
+    }));
+    $('enterGlobal').disabled=state.entered||state.strategies.length<3;
+    $('enterGlobal').innerHTML=state.strategies.length<3?`Select ${3-state.strategies.length} more ${state.strategies.length===2?'strategy':'strategies'} <b>↗</b>`:'Enter Global Challenge <b>↗</b>';
   };
-  const renderObject = () => {
-    $('objectName').textContent = portfolioLabel(); $('portfolioId').textContent = state.portfolio_id;
-    $('fingerprint').textContent = state.strategies.length ? compositionFingerprint() : 'EMPTY'; $('version').textContent = state.version; $('provenance').textContent = state.provenance;
-    $('portfolioStatus').textContent = `${state.status.toUpperCase()} · ${state.strategies.length} ${state.strategies.length===1?'strategy':'strategies'}`;
+  const renderAvailable = () => {
+    const query=$('strategySearch').value.trim().toLowerCase(), sort=$('strategySort').value;
+    const selected=new Set(state.strategies.map(item=>item[0]));
+    let rows=state.catalogue.filter(item=>!selected.has(item[0])&&(!query||item[0].toLowerCase().includes(query)||item[1].toLowerCase().includes(query)));
+    rows.sort((a,b)=>sort==='return_desc'?b[3]-a[3]:sort==='trades_desc'?b[4]-a[4]:a[0].localeCompare(b[0]));
+    $('availableCount').textContent=`${rows.length} choices`;
+    $('availableStrategies').innerHTML=rows.slice(0,30).map(item=>`<article class="available-strategy"><div><small>${item[0]} · ${item[4]} trades today</small><b>${item[1]}</b><span class="metric ${item[3]>=0?'positive':'negative'}">${item[3]>=0?'+':''}${item[3].toFixed(2)} net return</span><span class="metric">${item[5]===null?'—':(item[5]*100).toFixed(1)+'%'} win rate</span></div><button data-strategy-id="${item[0]}" ${state.strategies.length>=10?'disabled':''}>Select +</button></article>`).join('')||'<p class="help">No available strategies match this search.</p>';
+    $('availableStrategies').querySelectorAll('[data-strategy-id]').forEach(button=>button.onclick=()=>{const item=state.catalogue.find(row=>row[0]===button.dataset.strategyId);if(item&&state.strategies.length<10){state.strategies.push(item);renderStrategies();renderAvailable();}});
   };
-  const renderSaved = () => {
-    $('savedPortfolios').innerHTML = state.saved.length ? state.saved.map(p => `<article class="saved"><div><b>${p.name}</b><small>${p.portfolio_id} · ${p.members} strategies · ${p.status}</small></div><button class="secondary" data-open="${p.portfolio_id}">Open</button></article>`).join('') : '<p class="help">Save a portfolio once, then reuse it across Global, Friends and Agent destinations.</p>';
-    document.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { event('PORTFOLIO_REOPENED', `${b.dataset.open} loaded as the active reusable object.`); document.getElementById('portfolio').scrollIntoView({behavior:'smooth'}); });
+  const renderRanks = (direction='') => {
+    const rows=ranked(), me=rows.find(row=>row.me), container=$('neighbourRows');
+    if(!rows.length){container.innerHTML='<p class="help">No verified Global Challenge entries yet.</p>';$('leaderboardRows').innerHTML='<p class="help">The leaderboard appears after the first evidence-backed entry.</p>';return null;}
+    const old=new Map([...container.children].map(node=>[node.dataset.portfolioKey,node.getBoundingClientRect().top]));
+    const start=me?Math.max(0,Math.min(rows.length-5,me.rank-3)):0;
+    container.innerHTML=rows.slice(start,start+5).map(row=>{
+      const prior=state.previousRanks[row.key]??row.rank, delta=prior-row.rank;
+      return `<article class="neighbour-row ${row.me?'me':''} ${row.me&&direction?`moved-${direction}`:''}" data-portfolio-key="${row.key}"><span class="rank-stack">#${row.rank}<small class="rank-change ${delta>0?'up':delta<0?'down':''}">${delta>0?`▲ ${delta}`:delta<0?`▼ ${Math.abs(delta)}`:'—'}</small></span><div><b>${row.name}</b><small>${row.me?'YOUR VERIFIED ENTRY':'GLOBAL CHALLENGE ENTRY'}</small></div><span class="score-stack">${row.score.toFixed(2)}<small>net pts</small></span></article>`;
+    }).join('');
+    [...container.children].forEach(node=>{const top=old.get(node.dataset.portfolioKey);if(top!==undefined){const shift=top-node.getBoundingClientRect().top;if(shift){node.style.transform=`translateY(${shift}px)`;requestAnimationFrame(()=>requestAnimationFrame(()=>node.style.transform=''));}}});
+    rows.forEach(row=>state.previousRanks[row.key]=row.rank);
+    $('leaderboardRows').innerHTML=rows.map(row=>`<article class="board-row ${row.me?'me':''}"><span class="rank">#${row.rank}</span><div><b>${row.name}</b><small>${row.me?'YOUR VERIFIED ENTRY':'GLOBAL CHALLENGE PARTICIPANT'}</small></div><span class="points">${row.score.toFixed(2)} net pts</span></article>`).join('');
+    return me;
   };
-  const renderBoard = () => {
-    const score = 184 + state.round * 17;
-    const rows = [{rank:1,name:'Maya · Momentum Select',points:248+state.round*8},{rank:2,name:'Jon · Macro Basket',points:221+state.round*10},{rank:state.entered?3:4,name:portfolioLabel(),points:score,me:true},{rank:state.entered?4:3,name:'Rae · Range Blend',points:162+state.round*5}].sort((a,b)=>b.points-a.points).map((r,i)=>({...r,rank:i+1}));
-    $('leaderboardRows').innerHTML=rows.map(r=>`<article class="board-row ${r.me?'me':''}"><span class="rank">#${r.rank}</span><div><b>${r.name}</b><small>${r.me?'YOUR LOCKED ENTRY SNAPSHOT':'Global Weekly participant'}</small></div><span class="points">${r.points} pts</span></article>`).join('');
+  const advance = async () => {
+    if(!state.entered||!state.entryId) return;
+    state.beat+=1; const previous=state.previousRanks[state.entryId];
+    const board=await api(`/api/leaderboard?entry_id=${encodeURIComponent(state.entryId)}`);
+    state.competitors=board.rows.map(row=>({key:row.entry_id,name:`${row.display_name} · ${row.portfolio_name}`,score:Number(row.score),me:row.is_current,contributions:row.contributions||[]}));
+    const after=board.current?.rank, direction=previous&&after<previous?'up':previous&&after>previous?'down':''; renderRanks(direction);
+    $('pulseTick').textContent=`Refresh ${String(state.beat).padStart(2,'0')}`;
+    const score=Number(board.current?.score||0),movement=previous&&after<previous?`rose to #${after}`:previous&&after>previous?`fell to #${after}`:`is #${after}`;
+    $('captureCaption').textContent=`Updated ${new Date(board.updated_at).toLocaleTimeString()} · ${portfolioName()} ${movement} with ${score.toFixed(2)} evidence-backed net points.`;
+    $('eventStatus').textContent=`EP051 RANK · #${after}`;
+    if($('inviteDialog').open){$('inviteRank').textContent=`#${after}`;$('inviteCopy').textContent=`${portfolioName()} has ${score.toFixed(2)} net points. Your friend will build their own portfolio and join the same Global Challenge.`;}
   };
-  const render = () => { renderStrategies(); renderObject(); renderSaved(); renderBoard(); };
-  const save = () => {
-    if (state.strategies.length < 3) { event('VALIDATION_BLOCKED', 'Global Weekly needs at least 3 strategies. Add another first.'); return; }
-    const hash=compositionFingerprint(); const existing=state.saved.find(p=>p.hash===hash);
-    if(existing){ $('duplicateNotice').hidden=false; $('duplicateNotice').textContent=`Exact duplicate detected: ${existing.portfolio_id}. Use Existing Portfolio, open it, or modify this combination.`; event('PORTFOLIO_DUPLICATE_DETECTED', `${existing.portfolio_id} has the same canonical strategy membership.`); return; }
-    state.portfolio_id=`PF_${state.sequence++}`; state.status='validated';
-    state.saved.unshift({portfolio_id:state.portfolio_id,name:portfolioLabel(),members:state.strategies.length,status:'VALIDATED',hash});
-    $('duplicateNotice').hidden=true; event('PORTFOLIO_SAVED', `${state.portfolio_id} saved once and can now be submitted anywhere.`); render();
+  const syncTimer = () => {
+    clearInterval(state.timer);
+    if(state.running) state.timer=setInterval(()=>advance().catch(error=>announce('RANK_REFRESH_FAILED',error.message)),15000);
+    $('liveToggle').textContent=state.running?'Pause':'Resume';
+    $('pulseStatus').innerHTML=`<i class="live-dot"></i>${state.entered?(state.running?'EP051 ranking live':'Verified ranking paused'):'Waiting for verified entry'}`;
   };
-  $('addStrategy').onclick=()=>{const next=candidates.find(c=>!state.strategies.some(s=>s.id===c.id)); if(!next){event('STRATEGY_LIMIT_REACHED','All demo strategy fixtures are already present.'); return;} state.strategies.push(next);state.provenance=next.source==='Agent import'?'AGENT_IMPORT':'FINDER_AI';event('STRATEGY_ADDED',`${next.id} flowed into the editable portfolio.`);render();};
-  $('openFinder').onclick=()=>{window.open('https://www.thetechprinciple.com/epic/ep053/','_blank','noopener'); const next=candidates[0];if(!state.strategies.some(s=>s.id===next.id)){state.strategies.push(next);state.provenance='FINDER_AI';render();}event('FINDER_OPENED_FROM_FANTASY','Simulated Finder match added; existing Finder AI opened in a new tab.');};
-  $('importAgent').onclick=()=>{const next=candidates[1];if(!state.strategies.some(s=>s.id===next.id)){state.strategies.push(next);state.provenance='AGENT_IMPORT';render();}event('AGENT_PORTFOLIO_IMPORTED','Atlas-07 strategy set contributed a simulated strategy membership.');};
-  $('savePortfolio').onclick=save;
-  $('duplicatePortfolio').onclick=()=>{state.version+=1;$('portfolioName').value=`${portfolioLabel()} v${state.version}`;state.status='draft';event('PORTFOLIO_CLONED','Created a local editable variation; original portfolio stays reusable.');render();};
-  $('archivePortfolio').onclick=()=>{state.status='archived';event('PORTFOLIO_ARCHIVED','Active local portfolio is archived; no remote state changed.');render();};
-  $('enterGlobal').onclick=()=>{if(state.status!=='validated'){event('DESTINATION_VALIDATION','Save a valid portfolio before creating a competition snapshot.');return;}state.entered=true; state.status='submitted'; const p=state.saved.find(x=>x.portfolio_id===state.portfolio_id);if(p)p.status='GLOBAL WEEKLY · SNAPSHOT LOCKED';event('GLOBAL_COMPETITION_JOINED',`ENTRY_${state.portfolio_id.slice(3)} locks ${state.strategies.length} strategy IDs with rules v1 and scoring v1.`);render();$('leaderboard').scrollIntoView({behavior:'smooth'});};
-  $('createChallenge').onclick=()=>$('challengeDialog').showModal();
-  $('inviteFriend').onclick=()=>{const recipient=$('inviteRecipient').value||'friend';$('challengeDialog').close();event('INVITE_CREATED',`Private challenge created for ${recipient}; invite context retains ${state.portfolio_id}.`);};
-  $('sendToAgent').onclick=()=>{if(state.status==='draft')event('AGENT_HANDOFF_NOTICE','You can demo the handoff now; in production, a validated portfolio would be required.');$('agentDialog').showModal();};
-  const agentHandoff=(name,newAgent)=>{const skillPayload={skill_type:'strategy_portfolio',portfolio_id:state.portfolio_id,portfolio_version:state.version,source:'strategy_fantasy_challenge'}; const h=$('agentHandoff');h.hidden=false;h.innerHTML=[`PORTFOLIO_SKILL_CREATED · ${skillPayload.skill_type}`,`PORTFOLIO_REFERENCE · ${skillPayload.portfolio_id} v${skillPayload.portfolio_version}`,newAgent?`AGENT_CREATED · ${name} · $1.00 starting Arena capital`:`AGENT_SELECTED · ${name}`, 'AGENT_SKILL_ATTACHED · portfolio strategy set assigned','ARENA_JOINED · simulated participant activated'].map((x,i)=>`<div class="${i>1?'done':''}">${x}</div>`).join('');$('ownerLink').hidden=false;event('AGENT_SKILL_ATTACHED',`${state.portfolio_id} assigned as a reusable portfolio skill to ${name}.`);event('ARENA_JOINED','Simulated Arena activation complete. Owner View is available.');};
-  $('existingAgent').onclick=()=>agentHandoff('Atlas-07',false); $('newAgent').onclick=()=>agentHandoff('Nova-PF',true);
-  $('advanceRound').onclick=()=>{state.round+=1;event('LEADERBOARD_UPDATED',`Round ${state.round} deterministically recalculated all demo points and ranks.`);renderBoard();};
+  $('addStrategy').onclick=()=>{};
+  $('strategySearch').addEventListener('input',renderAvailable);
+  $('strategySort').addEventListener('change',renderAvailable);
+  $('enterGlobal').onclick=async()=>{
+    if(!portfolioName()||state.strategies.length<3){announce('ENTRY BLOCKED','Name the portfolio and choose at least three EP051 strategies.');return;}
+    $('enterGlobal').disabled=true;
+    try{const entry=await api('/api/entries',{method:'POST',body:JSON.stringify({email:$('playerEmail').value,display_name:$('displayName').value,portfolio_name:portfolioName(),strategy_ids:state.strategies.map(item=>item[0])})});state.entryId=entry.entry_id;announce('ENTRY_PERSISTED',`${entry.entry_id} · ${entry.baseline_version} · ${entry.evidence.length} evidence baselines`);}catch(error){announce('ENTRY_BLOCKED',error.message);$('enterGlobal').disabled=false;return;}
+    state.entered=true; state.running=true;
+    $('challengeFriend').disabled=false; $('portfolioStatus').textContent=`ENTERED · ${state.strategies.length} EP051 strategies`; announce('GLOBAL ENTRY CREATED',`${portfolioName()} entered from verified EP051 baselines.`);syncTimer();await advance();$('livePosition').scrollIntoView({behavior:'smooth'});
+  };
+  $('liveToggle').onclick=()=>{if(!state.entered)return;state.running=!state.running;syncTimer();};
+  const invitation=()=>{
+    const me=ranked().find(row=>row.me);
+    if(!state.invite||!me) throw new Error('Create a verified entry and invitation first.');
+    const url=`${location.origin}${location.pathname.replace(/\/$/,'')}/invite/${state.invite.id}`;
+    return {me,url,text:`I'm #${me.rank} in the Strategy Fantasy Global Challenge with ${me.score.toFixed(2)} evidence-backed net points. Can you build a portfolio that beats me? Join the same Global Challenge: ${url}`};
+  };
+  $('challengeFriend').onclick=async()=>{try{const persisted=await api('/api/invitations',{method:'POST',body:JSON.stringify({entry_id:state.entryId})});state.invite={id:persisted.invite_token,challenge:persisted.challenge_id,created_at:persisted.created_at,persisted:true};const invite=invitation();$('inviteRank').textContent=`#${invite.me.rank}`;$('inviteCopy').textContent=`${portfolioName()} has ${invite.me.score.toFixed(2)} evidence-backed net points. Your friend will build their own portfolio and join the same Global Challenge.`;$('inviteLink').value=invite.url;$('inviteStatus').textContent=`${state.invite.id} · persisted attributable invitation ready.`;$('inviteDialog').showModal();announce('INVITE_CREATED',`${state.invite.id} links back to the same Global Challenge.`);}catch(error){announce('INVITE_BLOCKED',error.message);}};
+  $('shareInvite').onclick=async()=>{const invite=invitation();try{if(navigator.share){await navigator.share({title:'Can you beat my strategy portfolio?',text:invite.text,url:invite.url});$('inviteStatus').textContent='Native share sheet opened.';}else{await navigator.clipboard.writeText(invite.text);$('inviteStatus').textContent='Invitation message copied.';}announce('INVITE_SHARED',`${state.invite.id} shared from current rank #${invite.me.rank}.`);}catch(error){$('inviteStatus').textContent=error.name==='AbortError'?'Share cancelled.':'Sharing unavailable; copy the invitation link instead.';}};
+  $('copyInvite').onclick=async()=>{const invite=invitation();try{await navigator.clipboard.writeText(invite.url);$('inviteStatus').textContent='Attributable invitation link copied.';announce('INVITE_SHARED',`${state.invite.id} copied for a friend.`);}catch{$('inviteLink').select();$('inviteStatus').textContent='Select and copy the invitation link above.';}};
+  $('previewInvite').onclick=()=>{$('friendPreview').hidden=false;$('previewInvite').hidden=true;$('inviteStatus').textContent='Preview only: the link opens the normal entry journey.';announce('INVITE_OPENED',`${state.invite.id} opened in the friend-journey preview.`);};
+  $('acceptPreview').onclick=async()=>{try{await api(`/api/invitations/${state.invite.id}/accept`,{method:'POST',body:JSON.stringify({email:'friend@example.test',display_name:'Invited friend'})});$('friendPreview').innerHTML='<b>CHALLENGE ACCEPTED</b><span>Your friend now chooses strategies and enters this same Global Challenge—no private competition was created.</span>';$('inviteStatus').textContent='Invitation accepted · same Global Challenge confirmed.';announce('INVITE_ACCEPTED',`${state.invite.id} attributed to a new entrant.`);}catch(error){announce('INVITE_ACCEPT_BLOCKED',error.message);}};
+  $('portfolioName').addEventListener('input',()=>{const current=state.competitors.find(row=>row.me);if(current){current.name=portfolioName();renderRanks();}});
   $('resetDemo').onclick=()=>location.reload();
-  document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());
-  render();
+  document.querySelectorAll('[data-close]').forEach(button=>button.onclick=()=>button.closest('dialog').close());
+  const loadDirectory=async()=>{try{const payload=await api('/api/strategies');state.directorySource=payload.source;state.catalogue=payload.strategies.map(row=>{const win=row.win_rate===null||row.win_rate===undefined?null:Number(row.win_rate);return [row.strategy_id,row.display_name,`${row.total_trades} trades today · ${Number(row.total_net_return)>=0?'+':''}${Number(row.total_net_return).toFixed(2)} net return · ${win===null?'—':(win*100).toFixed(1)+'%'} win rate · evidence ${row.evidence_end||'pending'}`,Number(row.total_net_return),Number(row.total_trades),win];});state.strategies=[];state.candidates=state.catalogue;renderStrategies();renderAvailable();$('eventStatus').textContent=`EP051 CURRENT · ${payload.source.eligibility_date}`;}catch(error){state.strategies=[];state.candidates=[];state.catalogue=[];$('strategyCount').textContent='0 current-date strategies';$('portfolioStrategies').innerHTML=`<p class="notice">${error.message}</p>`;$('availableStrategies').innerHTML='';$('addStrategy').disabled=true;$('enterGlobal').disabled=true;announce('NO CURRENT STRATEGIES','Entry disabled: historical strategies are excluded.');}renderRanks();syncTimer();};
+  loadDirectory();
 })();
