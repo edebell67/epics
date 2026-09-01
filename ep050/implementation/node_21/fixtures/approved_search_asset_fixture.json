@@ -1,0 +1,12 @@
+{
+  "asset_id": "asset_node21_live_001",
+  "target_id": "target_boiler_repair_blackheath",
+  "opportunity_id": "opp_node21_live_001",
+  "title": "Safe Boiler Pressure Guide",
+  "body_content": "Check the gauge safely.\nConsult a qualified engineer.",
+  "safety_disclaimer": "SAFETY: Gas Safe guidance requires qualified inspection.",
+  "call_to_action": "Request a diagnostic quote.",
+  "fact_ids": ["fact_verified_001"],
+  "metadata": {"channel": "search_landing", "external_action": false},
+  "created_at": "2026-08-17T06:20:00+01:00"
+}

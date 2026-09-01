@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_version": "node_27_capture_fixture_v1.0.0",
+  "session_id": "session_test_001",
+  "source": "search_landing",
+  "consent": {
+    "granted": true,
+    "timestamp": "2026-08-17T11:12:00Z",
+    "version": "v1",
+    "basis": "explicit_opt_in"
+  },
+  "external_action": false,
+  "privacy_note": "Pseudonymous local fixture; contains no customer contact or free-text data."
+}

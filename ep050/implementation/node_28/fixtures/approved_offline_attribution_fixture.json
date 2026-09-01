@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_version": "node_28_offline_attribution_fixture_v1.0.0",
+  "upstream_fixture": "../../node_27/fixtures/approved_structured_lead_capture_fixture.json",
+  "attribution_model": {
+    "name": "deterministic_last_verified_touch",
+    "version": "1.0.0",
+    "confidence": 1.0
+  },
+  "expected": {
+    "external_action": false,
+    "required_lineage": ["target_id", "opportunity_id", "asset_id", "publication_plan_id", "search_distribution_id"],
+    "destination_must_be_https_test": true,
+    "pii_free": true
+  }
+}

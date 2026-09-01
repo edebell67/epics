@@ -1,0 +1,60 @@
+<!doctype html>
+<!--
+epics/ep_050_distribution_engine/implementation/operational_console_claude/console.html
+EP050 Operational Console v2 — operator run surface for the seven-phase master workflow.
+
+VERSION HISTORY
+v1.1.0 · 2026-08-18 · Adds #run-selector: a dropdown to load an existing run back into the
+  console, since state.runId previously only lived in memory for the current page load with no
+  way to resume a run after navigating away or reloading. Per direct user request ("we need a
+  view screen for actively running job/campaign").
+v1.0.0 · 2026-08-17 · Initial seven-phase operational run UI, wiring real Nodes 01/02/03/11.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP050 Operational Console v2</title>
+<link rel="stylesheet" href="/console.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">EP050</span>
+    <h1>Distribution Engine — Operational Console</h1>
+  </div>
+  <div class="run-controls">
+    <span id="run-indicator" class="run-indicator run-indicator--empty">No active run</span>
+    <select id="run-selector" class="run-selector"><option value="">Load existing run…</option></select>
+    <button id="new-run-btn" class="btn btn--primary">New Run</button>
+    <span class="external-flag" title="All publish/outreach/routing/payment/deploy actions are disabled in this console and require separate authorization.">External actions: DISABLED</span>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" id="phase-rail" aria-label="Phase navigation">
+    <!-- populated by console.js from /api/phases -->
+  </nav>
+
+  <main class="stage" id="stage">
+    <!-- populated by console.js: one panel per phase, plus Delivery Status -->
+  </main>
+
+  <aside class="lineage" aria-label="Run lineage">
+    <h2>Run lineage</h2>
+    <p class="lineage-sub">Local-only audit trail. No external action is recorded because none is authorized.</p>
+    <ol id="lineage-list" class="lineage-list"></ol>
+  </aside>
+</div>
+
+<template id="tpl-locked-phase">
+  <div class="locked-phase">
+    <p class="locked-phase__lede">This phase is not yet implemented.</p>
+    <ul class="locked-phase__nodes"></ul>
+    <button class="btn btn--disabled" disabled title="Locked: prerequisite nodes not yet implemented">Execute Phase (Locked)</button>
+  </div>
+</template>
+
+<script src="/console.js"></script>
+</body>
+</html>
