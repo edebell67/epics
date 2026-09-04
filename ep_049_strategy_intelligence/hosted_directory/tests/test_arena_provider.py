@@ -1,4 +1,10 @@
 # VERSION HISTORY
+# v1.2.0 · 2026-09-04 · Adds test_arena_install_creates_missing_deliveries_parent_directory,
+#   a regression for the Render startup failure on commit 37cc54a1 (PermissionError creating
+#   /app/runtime under the container's non-root user) - covers the app-level mkdir logic this
+#   fixture's own tmp_path (which always pre-exists) doesn't exercise. The container-permission
+#   half of that fix (Dockerfile chown) can't be verified from this test environment - no docker
+#   binary here - so this only proves db_path.parent.mkdir(parents=True) itself is still correct.
 # v1.1.0 · 2026-09-04 · Relocated from epics/ep_051_strategy_directory/hosted_directory/ to
 #   epics/ep_049_strategy_intelligence/hosted_directory/ per Ed's EP049 ownership decision.
 #   Updated test_windowed_query_on_non_sqlserver_backend_reports_503 to
@@ -75,6 +81,15 @@ def headers(agent_id=None):
 def test_missing_credential_is_rejected(client):
     response = client.post("/v1/queries", json={"request_id": str(uuid4()), "kind": "quality"})
     assert response.status_code == 401
+
+
+def test_arena_install_creates_missing_deliveries_parent_directory(tmp_path):
+    deliveries_path = tmp_path / "runtime" / "arena_intelligence_deliveries.sqlite"
+    assert not deliveries_path.parent.exists()
+    create_app(settings=Settings(data_backend="memory", ep052_intelligence_token=TOKEN,
+               arena_deliveries_path=str(deliveries_path)))
+    assert deliveries_path.parent.is_dir()
+    assert deliveries_path.exists()
 
 
 def test_missing_agent_id_is_rejected(client):
