@@ -8,10 +8,12 @@ from datetime import datetime, timezone
 import hashlib, json
 from fastapi.testclient import TestClient
 from app.config import Settings
+from app.contracts import Snapshot, Strategy, snapshot_hash
 from app.intelligence.ingestion import IngestionLedger, SourceEnvelope
 from app.intelligence.metrics import calculate, evidence_confidence
 from app.intelligence.profile import build_profile
 from app.main import create_app
+from app.repository import MemoryRepository
 
 
 def test_metric_engine_golden_values_and_drawdown():
@@ -49,12 +51,19 @@ def test_profile_contains_classification_metrics_evidence_and_provenance():
     assert profile.methodology["outcome"]=="signed net_return"
 
 
-def test_intelligence_profile_api_uses_server_computation(monkeypatch):
-    import app.main as module
-    monkeypatch.setattr(module,"local_strategies",lambda *args,**kwargs:[{"strategy_id":"DNA_102001","descriptive_name":None,"product_name":"EURUSD","market":"FX"}])
-    monkeypatch.setattr(module,"local_equity_curve",lambda *args,**kwargs:[{"closed_at":"2024-01-01T00:00:00+00:00","net_return":5}])
-    settings=Settings(data_backend="sqlserver",db_server="unused",db_user="unused",db_pass="unused",local_intelligence_cache_path="runtime/__missing_profile_cache__.json",allow_synchronous_local_fallback=True)
-    client=TestClient(create_app(settings=settings)); response=client.get("/api/intelligence/strategies/DNA_102001")
+def test_intelligence_profile_api_uses_server_computation():
+    # v2.0.0 (2026-09-04): EP049 is now Postgres/memory-only (no SQL Server
+    # fallback to monkeypatch local_strategies/local_equity_curve against) -
+    # exercises the same behavior via a real MemoryRepository instead.
+    summary=Strategy(strategy_id="DNA_102001",total_trades=1,wins=1,losses=0,breakevens=0,total_net_return=5,win_rate=1.0,profit_factor=None,max_drawdown_money=0,evidence_start="2024-01-01T00:00:00Z",evidence_end="2024-01-01T00:00:00Z",quality_state="COLLECTING")
+    curve=[{"trade_number":1,"opened_at":"2024-01-01T00:00:00+00:00","closed_at":"2024-01-01T00:00:00+00:00","net_return":5,"equity":5,"drawdown":0}]
+    profile=build_profile(summary.model_dump(mode="json"),curve)
+    series=[{"strategy_id":"DNA_102001","trade_id":"t1","trade_number":1,"observed_at":"2024-01-01T00:00:00Z","net_return":5,"cumulative_net_return":5,"drawdown":0}]
+    digest=snapshot_hash([summary],[profile],series);now=datetime.now(timezone.utc)
+    snapshot=Snapshot(snapshot_id="dna-profile-api",source_watermark=now,generated_at=now,item_count=1,sha256=digest,items=[summary],intelligence_profiles=[profile],return_series=series)
+    repository=MemoryRepository();repository.promote(snapshot)
+    settings=Settings(data_backend="memory")
+    client=TestClient(create_app(repository=repository,settings=settings)); response=client.get("/api/intelligence/strategies/DNA_102001")
     assert response.status_code==200
     assert response.json()["identity"]["strategy_id"]=="DNA_102001"
     assert response.json()["metrics"]["total_return"]["value"]==5
