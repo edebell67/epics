@@ -5,9 +5,11 @@ and per-user intelligence objects (watchlists, saved searches, collections).
 Extracted from epics/ep_051_strategy_directory/hosted_directory/app/main.py
 (where these routes and their helper closures originally lived alongside
 EP051's own directory-listing routes) into its own deployable service, per
-Ed's explicit EP049 ownership decision. Reuses EP051's app.config/app.contracts/
-app.repository via the namespace-package merge (see conftest.py in both
-hosted_directory/ trees) rather than duplicating that data-layer code.
+Ed's explicit EP049 ownership decision. app.config/app.contracts/app.repository
+are now vendored copies of EP051's (see their own version histories) living
+directly under this service's own app/, not merged in via namespace package -
+this service has its own Dockerfile/requirements.txt and deploys standalone
+on its own Render rootDir, independent of EP051's filesystem path.
 
 Postgres/memory backends only - unlike EP051, this service never runs
 against local SQL Server, so none of the sqlserver-only fast-path branches
@@ -16,6 +18,11 @@ repository-backed implementations built during the EP051 Postgres port
 (FS commit 9c74a022) needed moving.
 
 Version history:
+- 1.1.0 (2026-09-04): Vendors app.config/app.contracts/app.repository locally
+  (previously reused via namespace-package merge with EP051's directory) and
+  adds a module-level `app = create_app()` ASGI instance, so this service can
+  deploy standalone with its own Dockerfile/requirements.txt, independent of
+  EP051's filesystem/package path.
 - 1.0.0 (2026-09-04): Initial standalone extraction from EP051's main.py.
 """
 from __future__ import annotations
@@ -644,3 +651,9 @@ def create_app(repository=None, settings: Settings | None = None) -> FastAPI:
 
     arena_provider.install(app, cfg, arena_universe)
     return app
+
+
+# Module-level ASGI instance for `uvicorn app.main:app` (Render's Dockerfile
+# CMD, added 2026-09-04). Settings load from the environment at import time,
+# same as create_app()'s own default when called with no arguments.
+app = create_app()

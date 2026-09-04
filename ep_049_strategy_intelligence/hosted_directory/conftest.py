@@ -1,6 +1,13 @@
 """Test bootstrap for the EP049 strategy-intelligence package.
 
 Version history:
+- 2.0.0 (2026-09-04): EP049 no longer needs EP051's filesystem path at all.
+  app/config.py, app/contracts.py and app/repository.py are now vendored
+  copies living directly under this repo's own app/ (see their version
+  histories) instead of being merged in from EP051's app/ package via
+  sys.path - required so EP049 can deploy standalone on its own Render
+  rootDir. This file now only needs to put this directory's own hosted_directory
+  on sys.path, same as any single-package pytest setup.
 - 1.1.0 (2026-09-04): EP049 now has its own standalone app/main.py (no
   longer served by EP051's FastAPI host) - fixed the sys.path insertion
   order, which previously left EP051's directory ahead of EP049's own,
@@ -19,14 +26,6 @@ import sys
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
-_EP051_HOSTED_DIRECTORY = _HERE.parent.parent / "ep_051_strategy_directory" / "hosted_directory"
 
-for _path in (str(_EP051_HOSTED_DIRECTORY), str(_HERE)):
-    if _path in sys.path:
-        sys.path.remove(_path)
-    sys.path.insert(0, _path)
-# _HERE goes in last, so it ends up first on sys.path - this repo's own
-# app/main.py must win module resolution for its own test suite, with
-# EP051's app/ package only supplying app.config/app.contracts/app.repository
-# (which EP049's app/main.py imports directly) plus whatever else this
-# repo's own app/ package does not itself provide.
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))

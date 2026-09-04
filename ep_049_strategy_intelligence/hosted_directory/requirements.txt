@@ -1,0 +1,7 @@
+# Version history: 1.0.0 (2026-09-04) initial standalone runtime.
+# No pyodbc: EP049 is Postgres/memory-only, unlike EP051 (no local SQL Server mode).
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+pydantic-settings==2.10.1
+httpx==0.28.1
+psycopg[binary]==3.2.9

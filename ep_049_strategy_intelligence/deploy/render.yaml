@@ -1,0 +1,65 @@
+# EP049 strategy-intelligence — Render Blueprint.
+# Version 1.0.0 (2026-09-04).
+#
+# Deploys the FastAPI app in hosted_directory/ (image built from
+# hosted_directory/Dockerfile) against a managed Render Postgres database.
+# Standalone service - no longer depends on EP051's filesystem/package path
+# (app/config.py, app/contracts.py, app/repository.py are vendored copies
+# under this service's own app/, see their version histories).
+#
+# Apply from the Render dashboard: New > Blueprint > point at this repo,
+# root directory epics/ep_049_strategy_intelligence. Render reads this file
+# from deploy/render.yaml if you set the Blueprint's "render.yaml path"
+# accordingly, or copy it to the repo root if your Render setup expects
+# that default location.
+#
+# Data note: this service reads the same promoted-snapshot / return-series
+# / intelligence-profile data EP051 does. If EP051 and EP049 point at
+# separate Postgres databases, whatever process promotes snapshots must
+# write to both (or this service's DATABASE_URL must point at the same
+# database as ep051-db) - not resolved here, flagging for the deployment
+# decision.
+
+services:
+  - type: web
+    name: ep049-intelligence
+    runtime: docker
+    dockerfilePath: ./hosted_directory/Dockerfile
+    dockerContext: ./hosted_directory
+    plan: starter
+    healthCheckPath: /healthz
+    envVars:
+      - key: DATA_BACKEND
+        value: postgres
+      - key: DATABASE_URL
+        sync: false  # point at the same database as ep051-db (see note above)
+      # Leave unset until the OIDC identity edge is actually in front of
+      # this service. Without it, private per-user intelligence routes
+      # correctly stay unloaded and only the public query/discovery/regime
+      # endpoints serve traffic.
+      - key: INTELLIGENCE_USER_TOKEN
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://ep049-intelligence.onrender.com
+      # EP052 Arena intelligence provider (app/arena_provider.py). Shared
+      # secret between this service and the EP052 Arena's intelligence
+      # client - both sides must be set to the same value by hand.
+      - key: EP052_INTELLIGENCE_TOKEN
+        sync: false
+      # SQLite file for arena_provider.py's query_log/deliveries idempotency
+      # tables. Requires a persistent disk mounted at (or above) this path -
+      # without one, delivery idempotency state is lost on every restart/redeploy.
+      - key: ARENA_DELIVERIES_PATH
+        sync: false
+      - key: ARENA_ANOMALY_THRESHOLD
+        value: "30"
+      - key: ARENA_ANOMALY_WINDOW_SECONDS
+        value: "300"
+      # Regime-shape (intraday price-shape similar-day search) inputs. Only
+      # meaningful if raw tick captures are reachable from this service.
+      - key: REGIME_PRICE_CAPTURE_ROOT
+        sync: false
+      - key: REGIME_SHAPE_INDEX_DIR
+        sync: false
+      - key: REGIME_SHAPE_MIN_PERIODS
+        value: "6"
