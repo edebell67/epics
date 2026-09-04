@@ -1,0 +1,30 @@
+{
+  "date": "2026-09-03",
+  "summary": "End-to-end proof of the owner-instruction layer: owner writes free-text guidance into the Arena's existing Feedback box, an agent (instructed_intelligence_agent.py) interprets it, queries the real intelligence provider, and relays the result back to the owner - all against a freshly registered owner+agent pair, not fabricated.",
+  "arena_instance": "http://127.0.0.1:8057 (fresh isolated run: evidence/trading/instruction_relay_demo, intelligence_mode=external)",
+  "owner_instruction": {
+    "message": "Focus on the top 3 best performing strategies with a consistent win rate over the last 3 hours.",
+    "submitted_via": "POST /v1/owner/feedback"
+  },
+  "agent_processing": {
+    "script": "scripts/instructed_intelligence_agent.py --arena-url http://127.0.0.1:8057 --agent-secret <agent.secret.json>",
+    "interpreted_as": {"kind": "high_win_rate", "limit": 3, "window_hours": 3},
+    "note": "kind resolved to high_win_rate rather than top_performers because the interpreter's keyword priority checks win-rate phrasing before performance phrasing when an instruction contains both - a known, deterministic simplification of the rule-based interpreter, not a bug."
+  },
+  "real_query_result": {
+    "strategy_ids": ["DNA_201764", "DNA_201824", "DNA_200022"],
+    "universe_eligible": 498,
+    "notice": "Ranked by metrics/win_rate within [2026-09-03T11:21:10Z, 2026-09-03T14:21:10Z), 498 strategies eligible, 3 returned."
+  },
+  "relay_confirmed": {
+    "feedback_acknowledged_at": "2026-09-03T14:21:12.410344+00:00",
+    "reply_visible_to_owner_via": "GET /v1/owner/feedback/{feedback_id} - replies[] array contains the agent's summary message"
+  },
+  "billing_confirmed": {
+    "intelligence_fees_usd": "0.01",
+    "spendable_usd_before": "1000.00",
+    "spendable_usd_after": "999.99",
+    "verified_via": "GET /v1/owner/positions"
+  },
+  "unit_tests": "scripts/test_instructed_intelligence_agent.py - 10 tests covering kind keyword matching, limit/strategy_id/window extraction, and safe fallback on unmatched or empty input. All passing."
+}

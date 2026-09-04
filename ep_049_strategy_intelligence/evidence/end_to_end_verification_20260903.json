@@ -1,0 +1,48 @@
+{
+  "date": "2026-09-03",
+  "summary": "Real intelligence provider replacing simulated_intelligence.py's random selection; verified direct-to-provider and end-to-end through the live Arena with a real registered agent.",
+  "direct_provider_tests": {
+    "valid_request_top_performers": {
+      "status": 200,
+      "strategy_ids": ["DNA_201308", "DNA_201368", "DNA_201288"],
+      "notice": "Ranked by metrics/total_return within [inception, now), 500 strategies eligible, 3 returned."
+    },
+    "exact_retry_same_delivery_id": "confirmed - identical delivery_id returned on retry",
+    "changed_content_same_request_id": { "status": 409, "detail": "REQUEST_ID_CONFLICT" },
+    "unrecognized_kind_fallback": {
+      "status": 200,
+      "notice": "kind 'moon_phase_alignment' is not a recognized ranking; ranked by quality_score within [inception, now) instead. Recognized kinds: ['best_return', 'high_win_rate', 'low_drawdown', 'net_return', 'quality', 'quality_score', 'safe', 'top_performers', 'win_rate']."
+    },
+    "wrong_bearer_token": { "status": 401 },
+    "missing_agent_id_header": { "status": 422 }
+  },
+  "end_to_end_via_arena": {
+    "agent_credential_source": "evidence/trading/review_20260902_162516_687/agent.secret.json (real, previously-registered agent, not fabricated)",
+    "shared_service_token_source": "lean_delivery/app/runtime/intelligence.key (the Arena's own established token, not a freshly generated one)",
+    "config_toml_cutover": {
+      "intelligence_url": "http://127.0.0.1:8055/v1/queries -> http://127.0.0.1:8012/v1/queries",
+      "intelligence_mode": "simulated_random -> external"
+    },
+    "contract_confirms_external_mode": true,
+    "first_query": {
+      "kind": "top_performers",
+      "fee_usd": "0.01",
+      "mode": "external",
+      "source_version": "dna-strategy-directory-1.0.0",
+      "strategy_ids": ["DNA_201308", "DNA_201368", "DNA_201288"]
+    },
+    "receipt_recovery_confirmed": true,
+    "second_query_after_bugfix": {
+      "kind": "high_win_rate",
+      "strategy_ids": ["DNA_201305", "DNA_201365", "DNA_201265"],
+      "notice": "Ranked by metrics/win_rate within [inception, now), 500 strategies eligible, 3 returned."
+    }
+  },
+  "bug_found_and_fixed_during_verification": {
+    "description": "arena_universe() in main.py unconditionally required data_backend=='sqlserver', even for the non-windowed (all_profiles()) path which already supports memory/postgres backends - caused every query to 503 EXTERNAL_PROVIDER_UNAVAILABLE on non-sqlserver backends regardless of window.",
+    "found_by": "tests/test_arena_provider.py (written per the workflow's RIP-050/060 requirement before committing)",
+    "fix": "Only require sqlserver for the windowed basis_profiles() rebuild; all_profiles() handles its own backend branching."
+  },
+  "test_coverage": "tests/test_arena_provider.py - 9 tests: auth (missing credential, missing agent id), empty-universe non-error, windowed-query-unavailable-backend 503, exact retry, request_id conflict, real ranking (not random), strategy_ids subset enforcement, unrecognized kind fallback.",
+  "full_suite": "113 passed (104 pre-existing + 9 new), 0 regressions."
+}
