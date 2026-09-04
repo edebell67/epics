@@ -37,6 +37,13 @@ class Settings(BaseSettings):
     local_intelligence_cache_max_age_seconds: int = 604_800
     allow_synchronous_local_fallback: bool = False
     intelligence_profile_cache_seconds: int = 60
+    regime_price_capture_root: str | None = r"X:\EDS\TradeApps\breakout\fs\json\live\forex"
+    regime_shape_index_dir: str = "runtime/regime_shape_index"
+    regime_shape_min_periods: int = 6
+    ep052_intelligence_token: str | None = None
+    arena_deliveries_path: str = "runtime/arena_intelligence_deliveries.sqlite"
+    arena_anomaly_threshold: int = 30
+    arena_anomaly_window_seconds: int = 300
 
     @property
     def cors_origins(self) -> list[str]:

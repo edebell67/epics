@@ -1,6 +1,21 @@
 """Public and ingestion contracts.
 
 Version history:
+- 1.2.1 (2026-08-31): Reverts an open_trades/open_net_return addition to
+  Strategy made and deployed-locally-only within hours of each other on
+  2026-08-31. Adding them broke hosted sync for ~4.5 hours: Strategy.model_
+  validate() sets undeclared-but-present dict keys to their default (None)
+  rather than omitting them, so even though export_snapshot.py stripped
+  the raw dict first, the resulting Strategy objects still serialized
+  "open_trades": null / "open_net_return": null - changing this snapshot's
+  sha256 in a way the currently-deployed (older) hosted server's own
+  reconciliation couldn't reproduce, failing every /finalize with 422.
+  Local/Arena open-position display never needed this field on Strategy at
+  all - it reads app.repository.local_open_trade_summary()'s plain dict
+  output directly (see arena/server.py), bypassing this contract entirely.
+  If/when hosted has genuinely caught up and this is worth re-adding to
+  the shared contract, coordinate the local commit and the hosted deploy
+  in the same session, not sequentially.
 - 1.2.0 (2026-08-28): Adds SnapshotEnvelope/SnapshotBatch for the staged, batched
   ingestion path (see PUB-04 in the EP051 data-sync workflow doc) - replaces
   a single large POST /internal/snapshots body with begin/batch/finalize
@@ -68,14 +83,22 @@ class IntelligenceReturnPoint(BaseModel):
     net_return: float
     cumulative_net_return: float
     drawdown: float
-    # Optional fields retain compatibility with snapshots published earlier.
+    # Optional - absent on snapshots published before this field existed.
+    # Lets the hosted trade-ledger view show what the local SQL Server view
+    # always could (entry/exit price, product, signal), not just net_return.
     product: str | None = Field(default=None, max_length=500)
     signal: str | None = Field(default=None, max_length=10)
     entry_price: float | None = None
     exit_price: float | None = None
-    # Optional: absent on snapshots published before enriched ledger/rank data.
+    # Optional - absent on snapshots published before these fields existed.
+    # alt_net_return mirrors local's own /trades ledger; rank_position/
+    # total_strategies is this trade's rank among every exported strategy's
+    # cumulative net_return at this same instant, precomputed once at
+    # export time (see sync/export_snapshot.py) - hosted has no live SQL
+    # Server access to compute this per-request the way local's
+    # /rank-journey endpoint does, so this is necessarily an all-time
+    # ranking over the exported population, not local's current-day one.
     alt_net_return: float | None = None
-    # Export-time, all-history rank across the last published population.
     rank_position: int | None = None
     total_strategies: int | None = None
 
