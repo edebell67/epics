@@ -1,4 +1,0 @@
-(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;root.ExchangeBooth=api;})(typeof window!=='undefined'?window:globalThis,function(){
- function exchangeBoothSpec(group,index){const height=Math.max(2.8,Number(group.towerHeight)||2.8);return{ id:`GROUP ${String(index+1).padStart(2,'0')}`, label:group.label, footprint:'octagonal', parts:['raised trading counter','dual uprights','overhead market header','quote screen','front trade tape','roof flag'], counter:{height:.65,width:2.35,depth:1.72}, performanceColumn:{height,width:.82,depth:.82}, screen:{width:1.76,height:1.02}, roofFlag:{text:String(group.flagLabel||group.label||'GROUP').slice(0,18),height:1.23,width:2.13}, tape:`${group.strategyCount} STRAT · ${group.totalTrades}`};}
- return{exchangeBoothSpec};
-});

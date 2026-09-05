@@ -1,11 +1,11 @@
+# VERSION HISTORY v1.0.1 · 2026-09-02 · Exclude runtime credentials and provider receipts.
+# v1.0.0 · 2026-09-02 · Keep archived runtime data and generated preview artifacts out of new commits.
+/lean_delivery/app/runtime/
+/archive/
+/evidence/
 __pycache__/
-*.py[cod]
-.pytest_cache/
-.venv/
-venv/
+*.pyc
 .env
-.env.*
-!.env.example
-.DS_Store
-Thumbs.db
-*.log
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm

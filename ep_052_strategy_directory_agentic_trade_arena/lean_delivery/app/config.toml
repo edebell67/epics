@@ -1,0 +1,21 @@
+# VERSION HISTORY v1.2.0 · 2026-09-05 · Point directory/intelligence URLs at hosted Render services for production deploy.
+# v1.1.0 · 2026-09-02 · Publish display refresh timing without controlling agent polling.
+# v1.0.0 · 2026-09-02 · Configurable simulation economics and connection settings.
+environment = "simulation"
+currency = "USD"
+seed_funds = "1000.00"
+trade_fee = "0.01"
+intelligence_fee = "0.01"
+minimum_units = 1
+maximum_positions = 10
+initial_units = 1000
+initial_nav = "1000.00"
+price_decimal_places = 10
+directory_url = "https://ep051-directory.onrender.com/api/dna/strategies"
+directory_page_size = 100
+provider_timeout_seconds = 15
+connection_expiry_seconds = 300
+view_poll_seconds = 5
+max_query_results = 20
+intelligence_url = "https://ep049-intelligence.onrender.com/v1/queries"
+intelligence_mode = "external"

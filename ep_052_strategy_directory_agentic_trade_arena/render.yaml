@@ -1,10 +1,21 @@
+# Agentic Trading Arena — Render Blueprint.
+# Version 2.0.0 (2026-09-05).
+#
+# Deploys the lean_exchange FastAPI package under lean_delivery/app,
+# replacing the earlier arena/server.py demo. See DEPLOYMENT.md.
+
 services:
   - type: web
     name: agentic-trading-arena
     runtime: python
     plan: free
-    rootDir: arena
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    rootDir: lean_delivery/app
+    buildCommand: pip install .
+    startCommand: uvicorn lean_exchange.api:create_app --factory --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     autoDeploy: true
+    envVars:
+      # Shared secret with ep051-directory / ep049-intelligence's arena_provider.py.
+      # Set by hand to the same value configured on those services.
+      - key: EP052_INTELLIGENCE_TOKEN
+        sync: false
