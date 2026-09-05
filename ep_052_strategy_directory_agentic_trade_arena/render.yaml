@@ -1,8 +1,15 @@
 # Agentic Trading Arena — Render Blueprint.
-# Version 2.0.0 (2026-09-05).
+# Version 2.1.0 (2026-09-05).
 #
 # Deploys the lean_exchange FastAPI package under lean_delivery/app,
 # replacing the earlier arena/server.py demo. See DEPLOYMENT.md.
+#
+# IMPORTANT: build with `pip install -e .`, not `pip install .`. A regular
+# install copies the package into site-packages, which breaks config.py's
+# APP_ROOT-relative lookups (config.toml, ../../rules, runtime/) since
+# __file__ then resolves inside site-packages instead of the checked-out
+# repo. Editable install keeps __file__ pointing at the actual deploy
+# worktree, which is required for those paths to resolve at runtime.
 
 services:
   - type: web
@@ -10,7 +17,7 @@ services:
     runtime: python
     plan: free
     rootDir: lean_delivery/app
-    buildCommand: pip install .
+    buildCommand: pip install -e .
     startCommand: uvicorn lean_exchange.api:create_app --factory --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     autoDeploy: true
