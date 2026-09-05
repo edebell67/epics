@@ -28,7 +28,7 @@ services:
     autoDeploy: true
     envVars:
       - key: EP052_ALLOWED_HOSTS
-        value: agentic-trading-arena.onrender.com,127.0.0.1,localhost,testserver
+        value: ep052-agentic-arena.onrender.com,127.0.0.1,localhost,testserver
       # Shared secret with ep051-directory / ep049-intelligence's arena_provider.py.
       # Set by hand to the same value configured on those services.
       - key: EP052_INTELLIGENCE_TOKEN
