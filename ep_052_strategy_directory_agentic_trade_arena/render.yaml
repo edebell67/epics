@@ -1,5 +1,5 @@
 # Agentic Trading Arena — Render Blueprint.
-# Version 2.1.0 (2026-09-05).
+# Version 2.2.0 (2026-09-05).
 #
 # Deploys the lean_exchange FastAPI package under lean_delivery/app,
 # replacing the earlier arena/server.py demo. See DEPLOYMENT.md.
@@ -10,6 +10,11 @@
 # __file__ then resolves inside site-packages instead of the checked-out
 # repo. Editable install keeps __file__ pointing at the actual deploy
 # worktree, which is required for those paths to resolve at runtime.
+#
+# EP052_ALLOWED_HOSTS must include this service's actual hostname, or
+# Starlette's TrustedHostMiddleware returns 400 Invalid host header for
+# every request, including Render's own health check (api.py defaults to
+# 127.0.0.1/localhost/testserver only, which is dev-only).
 
 services:
   - type: web
@@ -22,6 +27,8 @@ services:
     healthCheckPath: /health
     autoDeploy: true
     envVars:
+      - key: EP052_ALLOWED_HOSTS
+        value: agentic-trading-arena.onrender.com,127.0.0.1,localhost,testserver
       # Shared secret with ep051-directory / ep049-intelligence's arena_provider.py.
       # Set by hand to the same value configured on those services.
       - key: EP052_INTELLIGENCE_TOKEN

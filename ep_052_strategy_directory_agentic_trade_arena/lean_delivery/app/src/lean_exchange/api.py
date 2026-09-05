@@ -1,4 +1,5 @@
-# VERSION HISTORY v1.10.0 · 2026-09-02 · Advertise the read-only live Arena workspace.
+# VERSION HISTORY v1.11.0 · 2026-09-05 · Read allowed hosts from EP052_ALLOWED_HOSTS so hosted deploys aren't rejected by TrustedHostMiddleware.
+# v1.10.0 · 2026-09-02 · Advertise the read-only live Arena workspace.
 # v1.9.0 · 2026-09-02 · Serve authenticated shared Arena projections with resumable filtering.
 # v1.8.0 · 2026-09-02 · Expose private positions and owner value-change reconciliation from recorded prices/trades.
 # v1.7.2 · 2026-09-02 · Advertise verified trade-report links and updated visitor rules after live settlement verification.
@@ -14,6 +15,7 @@
 # v1.2.0 · 2026-09-02 · Publish executable contract schemas and validation-only routes for review.
 # v1.1.0 · 2026-09-02 · Expose read-only source diagnostics without claiming tradable inventory or prices.
 # v1.0.0 · 2026-09-02 · Live discovery/configuration/rule delivery; only implemented capabilities advertised.
+import os
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -45,7 +47,9 @@ def create_app(settings: Settings | None = None, rules_root: Path | None = None,
             participant_funds.initialise(db, row['id'], cfg.seed_funds)
     app = FastAPI(title='EP052 Lean Exchange API', version='0.1.0',
                   description='Visiting-agent API. Only listed endpoints are implemented; no agent runner.')
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=['127.0.0.1', 'localhost', 'testserver'])
+    default_hosts = '127.0.0.1,localhost,testserver'
+    allowed_hosts = [h.strip() for h in os.environ.get('EP052_ALLOWED_HOSTS', default_hosts).split(',') if h.strip()]
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
     app.add_middleware(activity.ActionMiddleware, authority=authority)
     app.state.authority = authority
     app.include_router(access.router(authority))
