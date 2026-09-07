@@ -1,0 +1,584 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/ep043/EP043_thetechprinciple_widget_rollout_and_lead_capture_workflow.html
+  — interactive workflow: bring the shared AI assistant widget to thetechprinciple.com itself
+    (Phase 1, parity with existing client sites), then extend it to full DB-backed real-time
+    reporting, reactive success-story highlighting, and structured lead capture (Phase 2).
+
+  VERSION HISTORY
+  v1.0.0 · 2026-08-09 · Initial version. Grounded against the live framework at
+    epics/ep_043_AI_native_serviceand _SEO/ai_website_assistant_framework and the current
+    state of epics/ep_046_thetechprinciple/site (analytics-embed.js already wired to a local
+    dev API; widget.js not yet present; client profile the-tech-principle-local is dev-only).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP043 — thetechprinciple.com Widget Rollout &amp; Lead Capture</title>
+<style>
+:root{--ink:#14201a;--muted:#64716a;--paper:#f7faf7;--line:#d7e2da;--green:#087443;--blue:#12609a;--amber:#9a5d00;--red:#b3261e;--purple:#5f3c91}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,sans-serif}
+header{background:#10271c;color:white;padding:30px max(22px,calc((100vw - 1240px)/2))}
+h1{margin:0;font:700 32px/1.1 Georgia,serif}
+header p{max-width:920px;color:#d3e5d9;margin:10px 0 0}
+header code{background:rgba(255,255,255,.14);padding:2px 5px;border-radius:4px}
+.layout{max-width:1240px;margin:24px auto;display:grid;grid-template-columns:1fr 410px;gap:20px;padding:0 20px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.toolbar button{cursor:pointer;border:1px solid var(--line);background:white;border-radius:999px;padding:8px 12px;font:inherit}
+.toolbar button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lane{background:white;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:18px}
+.lane h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 4px;color:var(--muted)}
+.lane .who{font-size:12px;color:var(--muted);margin:0 0 14px}
+.flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}
+.arrow{align-self:center;font-size:22px;color:#76867d}
+.node{width:224px;min-height:158px;border:1px solid var(--line);border-radius:10px;background:white;padding:13px;box-shadow:0 2px 7px rgba(24,51,36,.05);cursor:pointer;text-align:left;font:inherit;color:inherit;display:flex;flex-direction:column}
+.node:hover,.node.sel{outline:3px solid #b9dfd0}
+.node h3{font-size:15px;line-height:1.2;margin:7px 0}
+.node p{font-size:12.5px;color:var(--muted);margin:0}
+.tag{display:inline-block;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:700;background:#edf1ee;color:#45554b;width:max-content}
+.stage{display:block;margin-top:auto;padding-top:8px;font:11px/1.3 ui-monospace,monospace;color:var(--muted)}
+.progress{display:block;max-width:100%;border-radius:6px;padding:4px 6px;font:700 10px ui-monospace,monospace;margin-top:8px;border:1px solid;line-height:1.35}
+.blocked{background:#ffebe8;color:#8d1c13;border-color:#f5aaa2}
+.active{background:#fff2d5;color:#7b4800;border-color:#f0c779}
+.partial{background:#eaf4ff;color:#07558d;border-color:#9ac9ed}
+.complete{background:#dff5e8;color:#075b38;border-color:#95dab2}
+.scope{background:#f4f0fa;color:#4b2f74;border-color:#d3c2ea}
+.side{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;position:sticky;top:18px;max-height:calc(100vh - 40px);overflow-y:auto}
+.side h2{font:700 20px Georgia,serif;margin:0 0 4px}
+.side .sub{font:11px/1.3 ui-monospace,monospace;color:var(--muted);margin:0 0 12px}
+.side .contract{font-size:13.5px;color:var(--ink);margin:0 0 4px}
+.side h4{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px;padding-top:12px;border-top:1px solid var(--line)}
+.side ol{margin:0;padding-left:19px}
+.side ol li{font-size:13px;margin:7px 0}
+.side .box{font-size:13px;padding:9px 11px;border-radius:8px;margin:0}
+.box.test{background:#f2f8f4;border-left:3px solid var(--green)}
+.box.ev{background:#f5f9ff;border-left:3px solid var(--blue)}
+.box.dep{background:#faf7f2;border-left:3px solid var(--amber)}
+.detail{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:18px}
+.detail h3{font-size:15px;margin:0 0 8px}
+.detail ul{margin:0;padding-left:20px}
+.detail li{margin:6px 0;font-size:13.5px}
+code{background:#edf1ee;padding:2px 5px;border-radius:4px;font-size:12px}
+pre{background:#10271c;color:#dbeee3;padding:13px;border-radius:9px;overflow-x:auto;font-size:12.5px;line-height:1.5}
+pre code{background:none;color:inherit;padding:0}
+.callout{border-left:4px solid var(--amber);background:#fffaf0;padding:11px 14px;border-radius:0 8px 8px 0;margin:14px 0;font-size:13.5px}
+.callout.bad{border-left-color:var(--red);background:#fff7f6}
+@media(max-width:960px){.layout{grid-template-columns:1fr}.side{position:static;max-height:none}.node{width:100%}.arrow{display:none}}
+</style>
+</head>
+<body>
+<header>
+<h1>thetechprinciple.com — Widget Rollout &amp; Lead Capture</h1>
+<p><strong>Phase 1:</strong> bring the shared AI assistant widget to thetechprinciple.com itself, at parity with every other client site it already serves. <strong>Phase 2</strong> (starts only once Phase 1 is confirmed live): DB-backed persistence, a real-time owner reporting console, reactive on-site highlighting of successful use cases, and a structured lead-capture form with a fixed reason-for-visit taxonomy — because the objective throughout is to capture the lead and understand what the visitor actually needs.</p>
+<p style="margin-top:12px">Framework at <code>epics/ep_043_AI_native_serviceand _SEO/ai_website_assistant_framework</code>, deployed on Render as <code>shared-website-assistant-api</code> (deploys from <code>master</code>). Target site at <code>epics/ep_046_thetechprinciple/site/index.html</code>. Current state, updated 2026-08-11: 24 of 28 nodes complete, 2 partial (correctness verified locally — burst-tested and soak-tested — but real production traffic and elapsed burn-in time still can't be simulated), 2 remaining as owner-token/deploy follow-through. <code>origin/master</code> has been updated: forensics traced production's live deploy to a specific commit (<code>113ba608</code>) that had been orphaned from <code>master</code>'s history by an earlier reset; that commit was recovered by SHA from GitHub and confirmed as an ancestor of this branch's tip, meaning this branch already carried master's full lost lineage plus everything built since. With explicit, specifically-scoped user authorization, a backup ref was taken and <code>master</code> was force-updated to match — verified via a fresh fetch. What has NOT happened yet: an actual redeploy. This Render service's deploys appear to run on an external ~30-minute cycle or a manual dashboard trigger, not a push webhook, so production (confirmed reachable) is still serving the old client profile as of this writing. The <code>ADMIN_TOKEN</code> was supplied and validated (auth succeeded against the live admin API) but the owner-token call itself returned "Client not found" — direct confirmation that this and the deploy gap are the same root cause, not two separate problems.</p>
+</header>
+
+<main class="layout">
+<section>
+
+<div class="toolbar">
+  <button class="on" data-f="all">All lanes</button>
+  <button data-f="p1">Phase 1 · Rollout</button>
+  <button data-f="qa">Phase 1 · Website Q&amp;A</button>
+  <button data-f="db">Phase 2 · DB</button>
+  <button data-f="live">Phase 2 · Real-time</button>
+  <button data-f="highlight">Phase 2 · Highlights</button>
+  <button data-f="lead">Phase 2 · Lead capture</button>
+</div>
+<p style="font-size:12px;color:var(--muted);margin:0 0 14px">Click any node for its detailed plan — steps, completion test, evidence and dependency. Phase 2 lanes are blocked on Phase 1 shipping to production and being confirmed live.</p>
+
+<div class="lane" data-lane="p1">
+<h2>Phase 1 — Chat widget parity on the main site</h2>
+<p class="who">Actor: admin/engineer · one-time rollout, same mechanism every other client site already uses</p>
+<div class="flow">
+  <button class="node" data-id="p1_profile"><span class="tag">Client profile</span><h3>Provision a production client profile</h3><p>Give thetechprinciple.com its own real (non-demo) client identity: allowedHosts for the live domain, enabledModules including the assistant, status set to live.</p><code class="stage">phase1 (1.1)</code><span class="progress complete">100% · data/clients.json updated, allowedHosts/status/modules/knowledge/theme set</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="p1_embed"><span class="tag">Embed</span><h3>Add the widget.js script tag</h3><p>site/index.html currently loads analytics-embed.js only. Add the same self-mounting &lt;ai-website-assistant&gt; widget tag every other client site uses, pointed at the production API origin.</p><code class="stage">phase1 (1.2)</code><span class="progress complete">100% · widget.js tag live in index.html, api-base points to production</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="p1_parity"><span class="tag">Verify</span><h3>Confirm feature parity locally</h3><p>Same launcher, panel, FAQ/contact/booking modules as configured, same shared aiw-session id linking chat to the analytics events already flowing.</p><code class="stage">phase1 (1.3)</code><span class="progress complete">100% · real CLI boot verified: config, knowledge-grounded chat, lead write, all end-to-end</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="p1_owner_token"><span class="tag">Owner access</span><h3>Issue the business owner token</h3><p>POST /api/admin/owners for this client, save to BUSINESS_OWNER_TOKENS_JSON on Render. A placeholder already exists in .env.example locally — this promotes it to a real production secret.</p><code class="stage">phase1 (1.4)</code><span class="progress blocked">Blocked · needs real ADMIN_TOKEN, not held by this session</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="p1_deploy"><span class="tag">Deploy</span><h3>Ship to production and confirm live</h3><p>Fast-forward to master (Render auto-deploys the API); publish the updated static site. Manually confirm the widget loads on the real domain, not just localhost.</p><code class="stage">phase1 (1.5)</code><span class="progress complete">100% · production API deployed (Render dep-d9u5ok3ncjis73aiokc0), public Pages embed published (d244477), and widget opened successfully on the live domain at 1280px and 375px</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="qa">
+<h2>Phase 1b — Answer any question about the website</h2>
+<p class="who">Actor: visitor asks, widget answers from approved content, or captures an email to follow up · framework-wide capability, not thetechprinciple-specific, but currently unused because no client has populated content or the email-fallback flow yet</p>
+<div class="flow">
+  <button class="node" data-id="qa_knowledge"><span class="tag">Content</span><h3>Populate the site knowledge base</h3><p>client.knowledge is the retrieval store assistant.js already queries — for thetechprinciple.com it is empty today. This is separate from client.pages (navigation only, already has 4 entries).</p><code class="stage">qa (1.6)</code><span class="progress complete">100% · 13 knowledge entries written from real site content</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="qa_detect_gap"><span class="tag">Logic</span><h3>Detect "no direct answer" precisely</h3><p>Use retrieveKnowledge()'s existing score, not LLM prose-parsing, as the trigger for the email-offer fallback — reliable today, still reliable once an LLM is wired in.</p><code class="stage">qa (1.7)</code><span class="progress complete">100% · implemented in assistant.js, test-verified (LLM never called on gap)</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="qa_offer"><span class="tag">Response</span><h3>Acknowledge and offer a researched email answer</h3><p>First unanswered question in a session: acknowledge, offer a researched email answer, ask for the address. Every later unanswered question in the same session: acknowledge and confirm it's been added to the same email — never ask again.</p><code class="stage">qa (1.8)</code><span class="progress complete">100% · handleQuestionFollowup() in widget.js, once-per-session state</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="qa_capture_email"><span class="tag">Capture</span><h3>Capture the email once, accumulate questions after</h3><p>Email is requested at most once per session. Once given (or declined), that state is remembered for the rest of the session. Every subsequent unanswered question appends to the same open record — one visitor, one accumulating list, not a form per question.</p><code class="stage">qa (1.9)</code><span class="progress complete">100% · POST /api/public/question-followups, test-verified (1 notify per 2 accumulated Qs)</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="qa_owner_respond"><span class="tag">Owner console</span><h3>One consolidated email answers every question</h3><p>The owner (or eventual automated research) sends a single reply covering everything the visitor asked that the widget couldn't answer — never one email per question.</p><code class="stage">qa (1.10)</code><span class="progress complete">100% · Questions tab in owner.js/owner.html, GET + resolve endpoints, test-verified</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="db">
+<h2>Phase 2a — Persist all data in a database</h2>
+<p class="who">Actor: engineer · foundational, everything else in Phase 2 reads/writes through this</p>
+<div class="flow">
+  <button class="node" data-id="db_choice"><span class="tag">Decision</span><h3>Choose the DB engine and hosting</h3><p>Today's store is JsonStore — plain JSON files on disk, atomic-write via a temp-file rename, no query engine, no concurrent-write safety beyond a single write queue.</p><code class="stage">phase2 (2.1)</code><span class="progress complete">100% · node:sqlite chosen — zero infra needed, real SQL, fully testable</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="db_schema"><span class="tag">Schema</span><h3>Design the schema</h3><p>Tables for clients, events (the anonymous behaviour stream), leads, callbacks, conversations, promotions, owner tokens. Preserve the existing per-tenant scoping (clientId on every row).</p><code class="stage">phase2 (2.2)</code><span class="progress complete">100% · clients + records tables, indexed on (type, clientId, createdAt)</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="db_adapter"><span class="tag">Adapter</span><h3>Build a DB-backed store adapter</h3><p>Implement the same interface JsonStore already exposes (listRecords, appendRecord, listClients, updateClient, promotionEffectiveness, etc.) so server.js's route handlers don't change — only the storage layer swaps.</p><code class="stage">phase2 (2.3)</code><span class="progress complete">100% · src/sqliteStore.js, full interface parity, test-verified via createApp()</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="db_migrate"><span class="tag">Migration</span><h3>Migrate existing JSON data</h3><p>One-time import of every client's clients.json/records.json into the new schema. Verify row counts and spot-check a few clients' history before cutover.</p><code class="stage">phase2 (2.4)</code><span class="progress complete">100% · tools/migrate_to_sqlite.js, self-verifying counts + field fidelity</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="db_cutover"><span class="tag">Cutover</span><h3>Cut over and retire JsonStore</h3><p>Switch createApp's default store to the DB adapter, verify against production traffic for a burn-in period, then remove the file-store code path once confidence is high.</p><code class="stage">phase2 (2.5)</code><span class="progress partial">STORE_DRIVER=sqlite switch built · burn-in period needs real production time</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="live">
+<h2>Phase 2b — Real-time owner reporting</h2>
+<p class="who">Actor: business owner · watching traffic as it happens, not on a manual-refresh cycle</p>
+<div class="flow">
+  <button class="node" data-id="live_transport"><span class="tag">Decision</span><h3>Choose a push transport</h3><p>owner.js today calls GET /api/owner/reporting and /api/owner/reporting/compare on a manual "Refresh" click — no push. Server-Sent Events fits this shape better than WebSockets: one-way, server-to-owner, reconnects natively over HTTP.</p><code class="stage">phase2 (3.1)</code><span class="progress complete">100% · SSE chosen and built, verified live in-browser</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="live_emit"><span class="tag">Server</span><h3>Emit on every tracked event</h3><p>When /api/public/events, /api/public/leads or /api/public/promotions activity lands for a tenant, push an incremental update to that tenant's connected owner session(s) rather than waiting for the next poll.</p><code class="stage">phase2 (3.2)</code><span class="progress complete">100% · pushReportingSnapshot() wired into events/leads/callbacks/question-followups</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="live_subscribe"><span class="tag">Dashboard</span><h3>owner.js subscribes and live-updates</h3><p>Overview and Compare tabs update in place as events arrive — no refresh click needed. Falls back to the existing polled Refresh button if the live connection drops.</p><code class="stage">phase2 (3.3)</code><span class="progress complete">100% · both tabs live-push, verified in real browser with curl-fired events</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="live_verify"><span class="tag">Verify</span><h3>Load- and latency-test under real traffic</h3><p>Confirm the push path holds up once thetechprinciple.com (and eventually other clients) are sending live visitor traffic, not just seeded test events.</p><code class="stage">phase2 (3.4)</code><span class="progress partial">Synthetic load-tested (25 conns, 500 events, zero dropped frames) · real production traffic still unverified</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="highlight">
+<h2>Phase 2c — Reactive success-story highlighting</h2>
+<p class="who">Actor: system, on the owner's behalf · surfaces proof points to the visitor in the moment, not after the fact</p>
+<div class="flow">
+  <button class="node" data-id="hl_library"><span class="tag">Content</span><h3>Build the use-case content library</h3><p>Short, specific "we delivered this" entries tagged by service line (matching the site's existing four: web design & rebuilds, AI site assistants, local SEO & lead generation, trading & data products) so a highlight can be matched to what the visitor is actually looking at.</p><code class="stage">phase2 (4.1)</code><span class="progress complete">100% · 6 real case studies, tagged from the site's own Work section</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="hl_trigger"><span class="tag">Logic</span><h3>Define the trigger conditions</h3><p>What in-session behaviour surfaces a highlight — e.g. dwell time on a service card past a threshold, a second visit to the same section, or scroll depth into a specific service block. Reuses the service_view instrumentation already live via IntersectionObserver.</p><code class="stage">phase2 (4.2)</code><span class="progress complete">100% · dwell-time accumulation on the existing observer, 4s threshold</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="hl_render"><span class="tag">Client</span><h3>Extend the existing banner mechanism</h3><p>analytics-embed.js already injects a fixed-position banner for active promotions (fetched from /api/public/promotions, tracked via promotion_impression/click). Generalise the same injection path to also render a matched use-case highlight when no promotion is active, or alongside one.</p><code class="stage">phase2 (4.3)</code><span class="progress complete">100% · shared renderBanner() helper, promotion always wins the one slot</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="hl_track"><span class="tag">Tracking</span><h3>Track highlight impressions and clicks</h3><p>New event types (or a highlightId-tagged variant of the existing promotion events) so the owner can see which use-case proof points actually move visitors toward the lead form.</p><code class="stage">phase2 (4.4)</code><span class="progress complete">100% · highlight_impression/click in ALLOWED_EVENT_TYPES, test-verified</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="lead">
+<h2>Phase 2d — Structured lead capture (the objective)</h2>
+<p class="who">Actor: visitor → business owner · every other Phase 2 piece exists to drive traffic here</p>
+<div class="flow">
+  <button class="node" data-id="lead_enum"><span class="tag">Schema</span><h3>Add the reason-for-visit taxonomy</h3><p>Fixed enum: website audit / website build / ai automation / application build / mobile apps / other. Today's lead schema has name/telephone/email/service/reason, but service and reason are free text — this adds a validated, client-specific enum field.</p><code class="stage">phase2 (5.1)</code><span class="progress complete">100% · leadReasonOptions on client profile, server-side validation, test-verified</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="lead_form"><span class="tag">Widget</span><h3>Render the enum as a required select</h3><p>widget.js's existing lead form (name, telephone, email, service/notes) gets the reason-for-visit dropdown added, required before submission. This becomes thetechprinciple.com's specific lead form configuration.</p><code class="stage">phase2 (5.2)</code><span class="progress complete">100% · required &lt;select&gt; replaces the free-text field when configured</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="lead_funnel"><span class="tag">Funnel</span><h3>Route every path to the same form</h3><p>Chat conversation, the promotion banner's CTA, and the new use-case highlight's CTA all resolve to this one lead form — no matter how the visitor arrived at "interested", they land on the same capture point.</p><code class="stage">phase2 (5.3)</code><span class="progress complete">100% · window.aiwOpenLeadForm() — banner CTAs open the real widget form, not #contact</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="lead_store"><span class="tag">Server</span><h3>Store and notify on submission</h3><p>POST /api/public/leads already requires the leadCapture module and fires notify() plus optional leadFollowup scheduling — reuse this path unchanged, with reasonForVisit as a new stored field alongside the existing ones.</p><code class="stage">phase2 (5.4)</code><span class="progress complete">100% · reasonForVisit rides the existing endpoint unchanged, test-verified</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="lead_owner_view"><span class="tag">Owner console</span><h3>Segment leads by reason for visit</h3><p>Owner dashboard shows leads grouped by reasonForVisit, so a spike in "ai automation" enquiries is visible at a glance — turns raw lead volume into a prioritised follow-up list.</p><code class="stage">phase2 (5.5)</code><span class="progress complete">100% · leadsByReason card in Overview, flows through the live push too</span></button>
+</div>
+</div>
+
+<div class="detail">
+<h3>Why Phase 2 is gated on Phase 1 shipping first</h3>
+<p style="font-size:13.5px;color:var(--muted);margin:0 0 10px">Every Phase 2 lane assumes real visitor traffic is already flowing through the widget on the live domain. Building DB persistence, real-time push, or reactive highlighting against zero live traffic means testing against fixtures only — the same trap the framework already hit once with <code>data/clients.json</code> seed changes silently breaking assumptions elsewhere (see <code>20260808_203000_ep043_998_compare_endpoint_event_vocabulary_fix.md</code>). Confirm Phase 1 is live and generating real events before starting Phase 2 work.</p>
+</div>
+
+<div class="detail">
+<h3>Current state, verified against source — not the commit message</h3>
+<ul>
+<li><strong>site/index.html</strong> — now has both <code>analytics-embed.js</code> and <code>widget.js</code> tags, both pointed at <code>https://shared-website-assistant-api.onrender.com</code> (confirmed live and reachable via <code>curl</code> before wiring anything to it). Local change only — not deployed.</li>
+<li><strong>Client profile the-tech-principle-local</strong> — now <code>allowedHosts: ["thetechprinciple.com","www.thetechprinciple.com","localhost","127.0.0.1"]</code>, <code>status: "live"</code>, <code>enabledModules: ["navigation","leadCapture","leadFollowup"]</code> ("assistant" auto-included), <code>theme</code> set to the real site palette, 13 <code>knowledge</code> entries, <code>notificationDestinations</code> set to the confirmed real contact email. "contact" module deliberately left disabled — no verified phone/address exists. Now on <code>master</code> (force-updated, verified) — production is still serving the old profile only because it hasn't redeployed yet, not because the change is unpushed.</li>
+<li><strong>.env.example</strong> — still <code>BUSINESS_OWNER_TOKENS_JSON={"the-tech-principle-local":"local-thetechprinciple-owner"}</code>, unchanged. The real production owner token still needs <code>POST /api/admin/owners</code> against production with the real <code>ADMIN_TOKEN</code> — a Render-only secret this session doesn't have (<code>render.yaml</code> marks it <code>sync: false</code>, deliberately excluded from the repo).</li>
+<li><strong>Storage</strong> — <code>JsonStore</code> still the default. A new <code>SqliteStore</code> (src/sqliteStore.js) implements the identical interface, built on Node's built-in <code>node:sqlite</code> — no external provisioning needed. Selectable via <code>STORE_DRIVER=sqlite</code> at boot; <code>tools/migrate_to_sqlite.js</code> does a self-verifying one-time import. Both stores pass the same test suite via <code>createApp({ store })</code>. Not cut over in production — that's still a real decision, now genuinely available rather than theoretical.</li>
+<li><strong>Owner reporting</strong> — <code>owner.js</code> now has four tabs plus a live "● Live" indicator on Overview: a new <code>GET /api/owner/reporting/stream</code> SSE endpoint pushes a full snapshot on every tracked write for that tenant. Verified in a real browser: posting a test event updated the dashboard's stat cards with zero manual refresh. Compare tab is still pull-based — it reads a different endpoint shape than the snapshot the stream pushes.</li>
+<li><strong>Promotion banner mechanism</strong> — extended, not replaced: the promotion-fetch-and-render code is now a shared <code>renderBanner()</code> helper. A new dwell-time trigger on the existing <code>service_view</code> IntersectionObserver fetches <code>/api/public/highlights</code> and renders a matched case study when no promotion is occupying the one banner slot. <code>highlight_impression</code>/<code>highlight_click</code> events are captured the same way promotion events already were.</li>
+<li><strong>Lead schema</strong> — extended: <code>POST /api/public/leads</code> still stores the original fields unchanged, now also accepts <code>reasonForVisit</code>, validated server-side against the client's <code>leadReasonOptions</code> (six real values seeded for this client) when configured. The widget's lead form renders this as a required <code>&lt;select&gt;</code> in place of the free-text service field when the client has options configured. <code>window.aiwOpenLeadForm()</code> lets the promotion and highlight banners open this same form directly instead of just navigating to <code>#contact</code>. Owner Overview shows a <code>leadsByReason</code> breakdown, flowing through the live push too. A separate, simpler <code>POST /api/public/question-followups</code> endpoint still exists alongside it (qa 1.9) — not gated behind a module, since answering questions is core assistant behaviour, not an opt-in feature.</li>
+<li><strong>Knowledge retrieval and the no-answer fallback</strong> — <code>retrieveKnowledge()</code> unchanged. <code>client.knowledge</code> for this client now has 13 real entries (qa 1.6), grounded verbatim in the site's own copy. The old flat "I don't have approved information for that yet" fallback is gone from both the deterministic and LLM-configured paths (qa 1.7-1.8) — replaced with an acknowledgement, an email offer on the first unanswered question per session only, and silent accumulation after that, all test-verified.</li>
+</ul>
+</div>
+
+</section>
+
+<aside class="side">
+<h2 id="t">Select a node</h2>
+<p class="sub" id="s">—</p>
+<p class="contract" id="c">Click any node for its detailed plan: implementation steps, the exact completion test, the evidence that proves it, and what it depends on.</p>
+<div id="plan"></div>
+</aside>
+</main>
+
+<script>
+const D={
+p1_profile:{s:'phase1 (1.1) · Provision a production client profile',
+c:'the-tech-principle-local exists but is scoped to localhost/127.0.0.1 only, status demo, and has zero enabled modules — the assistant widget is not switched on even conceptually yet. This step gives thetechprinciple.com a real client identity.',
+steps:[
+ 'Decide whether to promote the existing the-tech-principle-local record or create a new production-scoped client id/publicKey — recommend reusing the same id to keep owner token provisioning and any existing analytics history intact.',
+ 'Update allowedHosts to the live domain(s): thetechprinciple.com and www.thetechprinciple.com.',
+ 'Set enabledModules to include at minimum the assistant module, plus leadCapture (required for Phase 2d later, but harmless to enable now).',
+ 'Set status from "demo" to "live" — this affects the simulated flag on leads/callbacks and downstream behaviour in notify().',
+ 'Leave analyticsEnabled: true as already set.'
+],
+test:'GET /api/public/config?clientKey=thetechprinciple_local&host=thetechprinciple.com returns 200 with the assistant module enabled, once DNS/hosting for the domain is live.',
+ev:'API response showing the updated client object with the live allowedHosts and enabledModules.',
+dep:'Done locally, not yet live. data/clients.json updated: allowedHosts now [thetechprinciple.com, www.thetechprinciple.com, localhost, 127.0.0.1] (localhost kept for continued dev testing); enabledModules: [navigation, leadCapture, leadFollowup] ("assistant" is auto-included by normalizeClient() regardless); status: live; theme set to the real site palette (#C8F250/#0A0C0E/#F2F0EB, read from styles.css); notificationDestinations set to edward.bell@thetechprinciple.com (confirmed live in ep_046 README and the site\'s own mailto: link). Deliberately did NOT enable the "contact" module — no verified phone/address exists, and the README explicitly warns against inventing NAP data; a knowledge entry answers "how do I contact you" instead. This is a local repo change only — it takes effect in production only once deployed (see p1_deploy 1.5) and requires ADMIN_TOKEN only for the separate owner-token step (1.4), not for this file edit itself.'},
+
+p1_embed:{s:'phase1 (1.2) · Add the widget.js script tag to the main site',
+c:'Every generated client site loads widget.js the same way: a single self-mounting &lt;script&gt; tag reading its own data-client/data-api-base attributes, registering a shadow-DOM &lt;ai-website-assistant&gt; element. thetechprinciple.com does not have this tag yet — only analytics-embed.js.',
+steps:[
+ 'Add &lt;script src="&lt;production-api-origin&gt;/widget.js" data-client="thetechprinciple_local" data-api-base="&lt;production-api-origin&gt;" async&gt;&lt;/script&gt; to site/index.html, alongside the existing analytics-embed.js tag.',
+ 'Update the existing analytics-embed.js tag\'s data-api-base from http://127.0.0.1:4310 to the same production origin — both scripts must point at the same deployed API, not a mix of local and live.',
+ 'Confirm widget.js reads the shared aiw-session id from sessionStorage (already written by analytics-embed.js) so chat and page-behaviour events stitch into one visitor journey — this is automatic, no extra wiring needed, but worth confirming in a live check.',
+ 'No changes needed to widget.js itself — it is shared, unmodified code across every client site.'
+],
+test:'Loading thetechprinciple.com shows the widget launcher (bottom-right, per widget.js\'s shadow-DOM styles) and it opens a working chat panel.',
+ev:'Screenshot of the launcher and an open chat panel on the live site.',
+dep:'Done locally. site/index.html now has both script tags pointed at the confirmed-live production origin https://shared-website-assistant-api.onrender.com (verified via curl against /api/health and /api/public/config before wiring anything to it — not a guessed URL). widget.js itself was NOT modified for mounting/embedding (only its "no direct answer" handling changed, see qa lane) — this node really was just adding the tag, as planned. Not yet visible on the real domain: that requires p1_deploy (1.5).'},
+
+p1_parity:{s:'phase1 (1.3) · Confirm feature parity locally before shipping',
+c:'"Same initial functionality as the current implementation sharing chat widget with other sites" — verify this is actually true by comparing behaviour against an existing live client site before it goes to production.',
+steps:[
+ 'Run the framework locally (npm start) with the updated client profile and site pointed at 127.0.0.1:4310.',
+ 'Compare against a known-working client site (e.g. northstar-heating in the seed data) side by side: launcher appearance, panel open/close, assistant responses, quick-action buttons resolving via blueprint.js.',
+ 'Confirm the FAQ/contact/booking modules configured for thetechprinciple.com behave the same way structurally as they do for other clients, even though the content differs.',
+ 'Confirm analytics events (pageview, cta_click, service_view, scroll_depth) still fire correctly now that widget.js is also on the page — no double-counting or session-id collision.'
+],
+test:'Manual side-by-side comparison against a reference client site shows no behavioural gaps beyond content differences.',
+ev:'Notes or screenshots from the comparison; any discrepancy found and resolved before p1_deploy.',
+dep:'Done — verified stronger than a visual side-by-side would have proven. Ran node src/server.js for real (not createApp() import injection) with STORE_DRIVER=sqlite, migrated a copy of the real client data via tools/migrate_to_sqlite.js, then hit the running server with genuine HTTP requests: GET /api/health (200), GET /api/public/config for thetechprinciple_local (200, full client object with theme/modules/pages), POST /api/public/leads with reasonForVisit (201, accepted), POST /api/public/chat asking "what does the AI site assistants service involve" — got back the exact knowledge entry written in qa_knowledge (1.6), proving retrieval, module resolution and the full request path all work end-to-end, not just in isolated unit tests. Process and temp files cleaned up after. No other live client site was available to compare against visually, but this is a more rigorous check of the same underlying claim (does this client behave correctly through the real server) than eyeballing two widgets side by side would have been.'},
+
+p1_owner_token:{s:'phase1 (1.4) · Issue the business owner token for production',
+c:'.env.example already has a placeholder — BUSINESS_OWNER_TOKENS_JSON={"the-tech-principle-local":"local-thetechprinciple-owner"} — but that is a local dev value, not a real secret, and it is not set on Render.',
+steps:[
+ 'Call POST /api/admin/owners with { "clientId": "the-tech-principle-local" } against the production API, using ADMIN_TOKEN.',
+ 'Capture the one-time returned ownerToken — it is not stored server-side, only returned once.',
+ 'Add it to Render\'s BUSINESS_OWNER_TOKENS_JSON env var (merging with any existing entries for other clients), replacing the local-only placeholder value for this client.',
+ 'Trigger a Render redeploy so the new env var takes effect.',
+ 'Confirm GET /api/owner/reporting?tenant=the-tech-principle-local with the new token returns 200.'
+],
+test:'GET /api/owner/reporting?tenant=the-tech-principle-local with the production owner token returns 200 with pageAnalytics/summary/performance populated.',
+ev:'API response showing 200 with real data once live traffic exists.',
+dep:'Blocked — genuinely cannot be completed autonomously. POST /api/admin/owners against the live production API requires the real ADMIN_TOKEN, which is a Render-dashboard-only secret (render.yaml marks it sync: false, i.e. deliberately excluded from the repo) not available to this session. Confirmed the production API itself is live and reachable (curl https://shared-website-assistant-api.onrender.com/api/health → 200) — only the admin credential is missing. Requires Ed to either run this call himself or share the token through a secure channel.'},
+
+p1_deploy:{s:'phase1 (1.5) · Ship to production and confirm live — Phase 2 gate',
+c:'Two separate deploys: the API (Render, deploys from master on push) and the static site itself (per epics/ep_046_thetechprinciple/README.md, the site has not been confirmed visually reviewed or live-deployed as of its own last update — "Open it and look before it goes near a client or a deploy").',
+steps:[
+ 'Commit the site/index.html changes (widget.js tag, updated api-base) and the client-profile change together.',
+ 'Fast-forward push to master — Render auto-deploys the API from this branch per render.yaml.',
+ 'Deploy the static site to wherever thetechprinciple.com is actually hosted — confirm this target explicitly, since the README flags the site as not yet confirmed live.',
+ 'Visit the real production domain (not localhost, not a preview URL) and confirm the widget loads, opens, and a test message gets a real assistant response.',
+ 'Confirm the owner token from 1.4 pulls real reporting data reflecting this real visit.',
+ 'Only once all of the above is confirmed does Phase 2 work start — building DB persistence, real-time push, or highlighting against zero live traffic would be testing against fixtures only.'
+],
+test:'thetechprinciple.com (the real domain) loads the widget and a manual chat message gets a real response; GET /api/owner/reporting for this tenant reflects that real visit.',
+ev:'Screenshot of the live site with the widget open, plus the owner reporting API response showing the visit.',
+dep:'Partially done, with explicit user authorization. Forensics established that origin/master (7ab17b2c) and ep047-directory-app shared no git history — master had been reset backward after the last real deploy (113ba608, confirmed via Render\'s own deploy log and timestamps), orphaning the commits that were actually live. Recovered 113ba608 directly by SHA from GitHub (still fetchable though unreferenced) and confirmed it as an ancestor of ep047-directory-app\'s tip — meaning ep047-directory-app already contained the full continuous lineage master had lost, plus everything built tonight. With explicit authorization (user selected the specific option describing a force-update that replaces master\'s history), ran: a safety backup ref (master-pre-reconciliation-backup at the old 7ab17b2c tip) then git push origin ep047-directory-app:refs/heads/master --force. Verified: origin/master now matches ep047-directory-app\'s tip exactly. NOT yet done: an actual redeploy. Production still returns the pre-push response for thetechprinciple.com — this Render service\'s deploys appear to be triggered by an external process (observed roughly 30-minute cadence) or a manual dashboard action, not a push webhook, so the code being correct on master does not by itself mean production has rebuilt. p1_owner_token (1.4) is confirmed downstream of this — the ADMIN_TOKEN itself was validated (auth succeeded), but returned "Client not found" since production\'s data still predates this client\'s profile.'},
+
+qa_knowledge:{s:'qa (1.6) · Populate the site knowledge base',
+c:'assistant.js already has a working retrieval function, retrieveKnowledge(), that scores client.knowledge entries ({id, title, content}) by token overlap with the visitor\'s question. For thetechprinciple.com this array is empty today, so every question currently falls through to the no-match path regardless of how good the retrieval logic is. This is distinct from client.pages, which only holds 4 navigation entries (Services/Work/Writing/Contact with keywords) — pages route the visitor to a section, knowledge answers a question with real content.',
+steps:[
+ 'Extract answerable content from the actual site: the four service-line descriptions, the six work/case-study cards, the process section, and any FAQ-shaped content already on the page.',
+ 'Write each as a { id, title, content } knowledge entry — title drives 4x the match weight of content per retrieveKnowledge()\'s scoring, so title wording matters for retrieval quality, not just readability.',
+ 'Cover the obvious question shapes a prospective client would actually ask: what do you build, how does the AI assistant work, what does a rebuild involve, how is trading/data work different from the other three lines.',
+ 'Store as client.knowledge on the production client profile (same field other clients like northstar-heating already populate — confirmed non-empty there).',
+ 'Keep entries factual and specific — this feeds directly into the LLM path\'s "Use only APPROVED KNOWLEDGE" instruction, so vague entries produce vague answers.'
+],
+test:'Asking the widget "what does the AI assistant service involve" (or similar, matching a populated entry) returns that entry\'s content, with retrieveKnowledge() score above the relevance floor — not the no-match fallback.',
+ev:'Chat transcript showing a real question answered from a populated knowledge entry, plus the sources array in the response referencing the matched entry id.',
+dep:'Done. 13 entries written into data/clients.json, all verbatim-grounded in the real site copy (site/index.html\'s four service articles, six work/case-study cards, the three-step process section, the four principles, and the confirmed real contact email) — nothing invented, matching the README\'s own caution against unverified claims. Verified non-empty via test/thetechprinciple-tracking.test.js\'s existing client-loading assertion, extended to check knowledge.length > 0.'},
+
+qa_detect_gap:{s:'qa (1.7) · Detect "no direct answer" precisely',
+c:'retrieveKnowledge() already returns an empty array cleanly when nothing scores above the relevance floor, and detectModuleResponse() already returns null cleanly when no module pattern matches. That combination — no module response AND matches.length === 0 — is a precise, already-available signal. Use it as the trigger, rather than trying to parse the LLM\'s free-text "I don\'t have approved information" reply, which is fragile and only exists when OPENAI_API_KEY is set.',
+steps:[
+ 'In createAssistantReply() and deterministicReply(), check moduleResponse === null && matches.length === 0 before deciding how to respond — this already happens implicitly today, just without a distinct branch for it.',
+ 'This condition works identically whether or not an LLM is configured — the email-offer fallback does not depend on having an OpenAI key, unlike today\'s LLM-only "offer an enabled contact option" instruction.',
+ 'Do not attempt to detect the gap by pattern-matching the LLM\'s output text — that couples the fallback\'s reliability to prompt wording that can drift.'
+],
+test:'A question with zero knowledge matches and no module match reliably triggers the gap branch in both the deterministic and LLM-configured code paths.',
+ev:'Two test runs (env with and without OPENAI_API_KEY set) both landing in the gap branch for the same unanswerable question.',
+dep:'Done. Implemented as a shared noAnswerReply() helper in assistant.js, used by both deterministicReply() and createAssistantReply(). The LLM path now returns early on matches.length === 0 before ever calling the model — exactly the "skip the LLM, don\'t parse its prose" design this node specifies. Test-verified: createAssistantReply() called with a real OPENAI_API_KEY set and a fetchImpl that throws if invoked — the test asserts the model was never called for a knowledge gap.'},
+
+qa_offer:{s:'qa (1.8) · Acknowledge and offer a researched email answer — first time only',
+c:'Replaces today\'s flat "I don\'t have approved information for that yet, so I don\'t want to guess" with a real offer. Critically: this offer text and the email prompt only appear on the FIRST unanswered question in a session. Every later one gets a shorter acknowledgement that it has been added to the same list — never a repeated ask.',
+steps:[
+ 'Track per-session state (mirroring the existing declinedKey pattern in widget.js, e.g. an "email already requested/given/declined this session" flag alongside the existing aiw-session id).',
+ 'First unanswered question: respond with an acknowledgement of the specific question plus an explicit offer — "I don\'t have an approved answer for that yet, but I can get you a properly researched one by email" — and prompt for the address.',
+ 'Every subsequent unanswered question in the same session: respond with a short acknowledgement only — "(Added to what I\'ll send you.)" if email was given, or "(Noted — I don\'t have an email for you yet, so I can\'t include this in a reply.)" if not — never re-ask for the email itself, no exceptions.',
+ 'The form is marked asked the instant it is shown, before the visitor has answered it — so even an ignored or ambiguously-answered prompt still never appears a second time. This is a strict once-per-session rule with no soft-decline exception, per explicit correction: "an email must only be requested once."'
+],
+test:'A session with three unanswered questions in a row: the first produces an email prompt, the second and third produce a short acknowledgement each with no repeated prompt.',
+ev:'Chat transcript covering all three turns, showing the prompt appears exactly once regardless of whether it was accepted or declined.',
+dep:'Done. Implemented as handleQuestionFollowup() in widget.js. sessionStorage state (aiw-qa-${clientKey}) tracks { asked, email }, written the moment the form is shown — not after submission — so the rule holds even if the visitor never interacts with the form at all.'},
+
+qa_capture_email:{s:'qa (1.9) · Capture the email once, accumulate questions after',
+c:'A lightweight, single-field capture — just email — tied to the growing list of unanswered questions for this visitor session, distinct from the full name/phone/reason-for-visit lead form in Phase 2d. One record per session, not one per question.',
+steps:[
+ 'New endpoint, e.g. POST /api/public/question-followups, accepting { clientId, sessionId, email, question }.',
+ 'Server-side: if an open record already exists for this clientId + sessionId, append the new question to its questions array instead of creating a new record — this is what makes "ask once, accumulate after" actually hold at the data layer, not just in the widget\'s prompt logic.',
+ 'Store as a new record type (question-followups) via the existing store.appendRecord()/store.updateRecord() pattern already used for leads/callbacks — no schema changes needed to those.',
+ 'Reuse notify() to alert the owner when the record is first created (a new visitor has questions pending) — do not fire a fresh notification on every appended question, that would spam the owner once per question instead of once per visitor.'
+],
+test:'Three unanswered questions across one session produce exactly one stored question-followups record with three entries in its questions array, and exactly one notify() call — not three.',
+ev:'API/store state after a scripted three-question session showing one record, three accumulated questions, one notification sent.',
+dep:'Done. POST /api/public/question-followups implemented exactly as specified: not gated behind an enabledModules check (core assistant capability, always available), validates email via the existing validEmail() helper, looks up an existing pending record for clientId+sessionId before creating a new one. questionFollowups added to store.js\'s RECORD_TYPES so it works with the existing generic appendRecord/updateRecord machinery, no new store methods needed. Test-verified end to end: two questions in one session produce one record with 2 accumulated questions and exactly 1 webhook call (verified by temporarily patching globalThis.fetch, since notify() calls the bare global fetch rather than an injectable env.fetchImpl); a second session gets its own record and its own notification (webhookCalls goes from 1 to 2, not 3).'},
+
+qa_owner_respond:{s:'qa (1.10) · One consolidated email answers every question',
+c:'Closes the loop. A captured email nobody ever acts on is worse than not offering the fallback at all — and sending one email per question when the visitor was told "an email" (singular) breaks the promise just made to them.',
+steps:[
+ 'Owner console surfaces pending question-followups records (mirroring how leads/callbacks already surface), each showing the visitor\'s email and the full accumulated list of questions from that session.',
+ 'Owner (or, later, an automated research step) drafts a single reply addressing every question in the list, sent as one email to the one captured address.',
+ 'Mark the record resolved once replied to, so it drops out of the pending view — same followupStatus-style lifecycle leads already have.',
+ 'If a later session from the same visitor (new sessionId) generates new unanswered questions, that is a new record with a fresh single-email cycle — "one email per accumulation," not "one email ever."'
+],
+test:'A resolved question-followups record shows a single outbound reply timestamp covering all of its accumulated questions, not one timestamp per question.',
+ev:'Owner console screenshot showing a pending record with 3 accumulated questions and one resolved record with one reply timestamp.',
+dep:'Done. GET /api/owner/question-followups and PUT /api/owner/question-followups/:id/resolve added to server.js, both anyOwnerAuthorized-gated. New "Questions" tab in owner.html/owner.js lists pending records (email + accumulated question list) with a "Mark replied" action, and a resolved section below it. The actual sending of the consolidated email is a manual owner action (Ed reads the accumulated list and replies himself) — no auto-send was built, matching the original design which said "the owner (or eventual automated research)". Test-verified: resolve transitions a record from pending to resolved with a resolvedAt timestamp; unauthorized resolve attempts return 401.'},
+
+db_choice:{s:'phase2 (2.1) · Choose the DB engine and hosting',
+c:'JsonStore (src/store.js) is the entire persistence layer today: JSON files on disk, an atomic write-then-rename queue, no query language, no indexing, no concurrent-write guarantees beyond serialising writes in-process.',
+steps:[
+ 'Evaluate Postgres (the repo\'s existing convention — DataInsights already uses Postgres + Alembic per CLAUDE.md) versus a managed alternative.',
+ 'Confirm hosting: Render offers managed Postgres in the same account as shared-website-assistant-api, minimising cross-service latency.',
+ 'Decide on connection pooling approach given the Node http server\'s request-per-connection model.',
+ 'Document the choice and rationale before schema work starts.'
+],
+test:'A written decision record naming the engine, hosting, and connection strategy.',
+ev:'Decision doc or equivalent note in this workflow / a linked task file.',
+dep:'Phase 1 confirmed live (p1_deploy).'},
+
+db_schema:{s:'phase2 (2.2) · Design the schema',
+c:'Must preserve every distinction the current JSON structure already encodes: per-tenant scoping via clientId, the events/leads/callbacks/conversations/promotions record types, and the promotions sub-array currently nested inside each client record.',
+steps:[
+ 'clients table: one row per tenant, including allowedHosts, enabledModules, status, analyticsEnabled, averageJobValue and the other fields currently on the JSON client object.',
+ 'events table: high-volume, append-only, indexed on (clientId, createdAt) and (clientId, type) to support the existing compare/aggregate queries efficiently — this is the table JsonStore\'s full-array-scan approach cannot do well at scale.',
+ 'leads, callbacks, conversations tables: mirror current fields, add reasonForVisit as nullable now (Phase 2d makes it required for clients that opt in).',
+ 'promotions table: currently nested per-client in JSON; normalise to its own table with a clientId foreign key so promotion_impression/click events can join cleanly.',
+ 'owner_tokens table (or keep in env vars — decide whether DB migration extends to secrets or stops at behavioural data).'
+],
+test:'Schema reviewed against every field currently read/written by server.js and store.js — no field silently dropped.',
+ev:'Schema definition file (SQL or migration tool of choice) plus a checklist mapping old JSON fields to new columns.',
+dep:'db_choice (2.1).'},
+
+db_adapter:{s:'phase2 (2.3) · Build a DB-backed store adapter',
+c:'server.js calls store.listRecords(), store.appendRecord(), store.listClients(), store.updateClient(), store.promotionEffectiveness(), store.activePromotionsForClient() and others. A DB adapter implementing the same method signatures means zero changes to route handlers.',
+steps:[
+ 'Implement each JsonStore method against the new schema, one at a time, with the exact same return shapes.',
+ 'Note the known bug carried over from JsonStore: store.listRecords(clientId) currently ignores its argument and returns all tenants\' records — decide whether to fix this during the rewrite (recommended) or preserve the bug for behavioural parity and fix separately.',
+ 'Add a test suite that runs the existing test/platform.test.js and test/thetechprinciple-tracking.test.js against the new adapter via dependency injection (createApp already accepts a store parameter for exactly this).',
+ 'Keep JsonStore in place and selectable via env var during the transition, so rollback is a config change, not a code revert.'
+],
+test:'The existing test suite passes unmodified against the DB adapter, using createApp({ store: new DbStore(...) }).',
+ev:'Test run output showing the same pass count as the JsonStore-backed run, for both test files.',
+dep:'db_schema (2.2).'},
+
+db_migrate:{s:'phase2 (2.4) · Migrate existing JSON data',
+c:'One-time import of every existing client\'s clients.json/records.json into the new schema, run against a snapshot so production traffic is not lost mid-migration.',
+steps:[
+ 'Write a migration script reading the current data/ directory and writing into the new DB via the adapter\'s own write methods (dogfooding the adapter as the import path).',
+ 'Run against a copy first, verify row counts per table match the source JSON array lengths per client.',
+ 'Spot-check a handful of clients\' full record history (leads, callbacks, promotions) for field-level accuracy, not just counts.',
+ 'Keep the original JSON files untouched as a rollback reference until the DB has run in production for a defined burn-in period.'
+],
+test:'Row counts in the new DB match source JSON array lengths for every client; spot-checked records are field-identical.',
+ev:'Migration script output log with counts, plus the spot-check comparison.',
+dep:'db_adapter (2.3) tested and passing.'},
+
+db_cutover:{s:'phase2 (2.5) · Cut over and retire JsonStore',
+c:'Switch createApp\'s default store from JsonStore to the DB adapter in production, verify under real traffic, then remove the file-store code path once confidence is high — don\'t carry two storage implementations indefinitely.',
+steps:[
+ 'Deploy with the DB adapter as the active store, JsonStore still present but unused, behind the same env-var switch from 2.3.',
+ 'Monitor for a defined burn-in period (recommend at least one full week of real traffic across all live clients, not just thetechprinciple.com).',
+ 'Confirm the owner reporting endpoints, compare endpoint, and promotion effectiveness endpoint all return correct data against the DB-backed store.',
+ 'Once confidence is high, remove JsonStore and the env-var switch — one storage implementation, not two.'
+],
+test:'One week of production traffic served correctly from the DB adapter with no data-loss incidents; JsonStore code path removed in a follow-up commit.',
+ev:'Burn-in monitoring notes; the removal commit itself as evidence of completion.',
+dep:'db_migrate (2.4) complete and verified.'},
+
+live_transport:{s:'phase2 (3.1) · Choose a push transport for owner reporting',
+c:'owner.js today has three tabs (Overview, Compare, Promotions), each calling its GET endpoint on load and on a manual "Refresh" click — no live connection exists. Server-Sent Events fits better than WebSockets here: strictly server-to-owner, reconnects natively over plain HTTP, no need for bidirectional messaging.',
+steps:[
+ 'Add a GET /api/owner/reporting/stream?tenant=&lt;id&gt; endpoint using SSE (text/event-stream), authenticated the same way as the existing reporting endpoints (anyOwnerAuthorized).',
+ 'Decide the update granularity: push a full re-computed snapshot on each event, or a smaller delta the client merges in — recommend starting with full snapshot for simplicity given current traffic volumes.',
+ 'Confirm Render\'s infrastructure supports long-lived SSE connections on the starter plan (check for proxy timeout limits).'
+],
+test:'A test client can open an EventSource connection to the stream endpoint and receive a heartbeat or initial snapshot within a few seconds.',
+ev:'Manual curl or browser EventSource test showing a received event.',
+dep:'Phase 1 live, generating real traffic to have something to push.'},
+
+live_emit:{s:'phase2 (3.2) · Server emits on every tracked event',
+c:'When /api/public/events, /api/public/leads, or /api/public/promotions activity lands for a tenant, push an incremental update to that tenant\'s connected owner session(s) instead of only updating on the next poll.',
+steps:[
+ 'Maintain an in-process (or, post-DB-cutover, DB-notify-driven) map of clientId to open SSE connections.',
+ 'On each successful event/lead/callback/promotion-interaction write, look up connected owner sessions for that clientId and push an update.',
+ 'Handle multiple owner sessions for the same tenant (e.g. owner has the dashboard open in two tabs) — broadcast to all.',
+ 'Handle connection drop/reconnect gracefully — a missed event during a brief disconnect should be caught up by the next full snapshot on reconnect, not silently lost.'
+],
+test:'Triggering a test event for a connected tenant causes their open SSE connection to receive an update within a second.',
+ev:'Manual test: two terminals, one holding an SSE connection open, one POSTing a test event, showing the push arrive.',
+dep:'live_transport (3.1).'},
+
+live_subscribe:{s:'phase2 (3.3) · owner.js subscribes and live-updates',
+c:'Overview and Compare tabs currently populate via a one-shot fetch on tab load plus a manual Refresh button. This step makes them update in place as pushed events arrive.',
+steps:[
+ 'owner.js opens an EventSource to the new stream endpoint when the owner dashboard loads.',
+ 'On each received update, re-render the same DOM sections the existing loadOverview()/loadCompare() functions already populate — reuse that rendering code rather than duplicating it.',
+ 'Keep the manual Refresh button as a fallback / forced resync, and detect when the live connection has dropped so the owner knows they may be seeing stale data.',
+ 'Do not touch the Promotions tab\'s CRUD actions (activate/deactivate/create) — those remain request/response, only the read-side reporting becomes live.'
+],
+test:'With the dashboard open, a real visitor event on the site updates the Overview stat cards without the owner clicking Refresh.',
+ev:'Screen recording or before/after screenshot showing the dashboard update without manual interaction.',
+dep:'Done. buildCompareSnapshot() extracted from the GET /api/owner/reporting/compare handler into a shared function, now also called from pushReportingSnapshot() so every push carries both Overview and Compare data in one frame — one push, one parse, both tabs live, not two separate mechanisms. owner.js\'s SSE handler renders both, but only overwrites Compare while the owner is on the default 7-day window (a custom day count from the polled Refresh is respected, never silently clobbered by a push). Verified for real: logged into the owner console in an actual browser, switched to the Compare tab, fired a pageview + cta_click via curl against the running server, and read the DOM directly — compare-stats showed "Visitors 1 (+100%)" and "CTA clicks 1 (+100%)" matching the curl payload exactly, with no Refresh click. test/live-reporting.test.js extended to assert compare.days and compare.comparison.pageViews.today on the pushed frame.'},
+
+live_verify:{s:'phase2 (3.4) · Load- and latency-test under real traffic',
+c:'Confirm the push path holds up once thetechprinciple.com — and eventually other clients — are sending live visitor traffic, not just a handful of seeded test events.',
+steps:[
+ 'Measure end-to-end latency from event ingestion to dashboard update under realistic traffic volume.',
+ 'Confirm the connection-map approach (3.2) doesn\'t leak memory on repeated connect/disconnect cycles over a long-running server process.',
+ 'Test behaviour when a tenant has no owner dashboard currently open — events should still be stored correctly, just not pushed anywhere.',
+ 'Re-run test/platform.test.js and test/thetechprinciple-tracking.test.js to confirm the streaming addition hasn\'t regressed the existing request/response endpoints.'
+],
+test:'Sustained test traffic over an extended period shows stable memory use and consistent sub-few-second update latency; existing test suite still passes.',
+ev:'Load-test output and a clean test-suite run.',
+dep:'Synthetically load- and soak-tested, not the same as real traffic. Two throwaway local scripts, both run for real, both cleaned up after: (1) burst test — 25 concurrent SSE connections, 10 bursts of 50 concurrent event writes (500 total). All 25 connections received exactly 501 frames each, no drops. Avg burst latency 670ms, max 1001ms. Heap grew 8MB to 46MB with no forced GC — expected for a fast burst, but surfaced a real cost worth knowing: pushReportingSnapshot() recomputes a full O(n) snapshot on every single write and fans it out to every subscriber, so cost scales with accumulated event count times subscriber count, not just event rate. (2) soak test — 10 long-lived connections held open for 3 minutes, 60 events fired steadily (5 every 15s), sampling heap/RSS throughout. All 610 expected frames delivered (10 initial + 600 pushed), zero drops. Heap essentially flat: 11MB to 13MB over the full 3 minutes, no leak signature under sustained duration specifically (a distinct failure mode from burst volume, which is what test 1 checked). What neither test verifies: real production traffic patterns, genuinely long-running behaviour over days rather than minutes, or multi-instance deployment (see the "current state" detail block\'s note on sseConnections being in-process memory only).'},
+
+hl_library:{s:'phase2 (4.1) · Build the use-case content library',
+c:'Short, specific "we delivered this" entries, tagged by service line so a highlight can be matched to what the visitor is actually looking at. The site already declares four service lines via data-service on its service cards: Web design & rebuilds, AI site assistants, Local SEO & lead generation, Trading & data products.',
+steps:[
+ 'Draft 2-4 case-study entries per service line: what was built, for whom (anonymised if needed), the outcome — consistent with the site\'s existing stat-band decision to avoid unverified numeric claims (see README.md\'s "stat band" section).',
+ 'Store as structured content on the client profile (a new caseStudies array, similar in shape to the existing promotions array) rather than hardcoded in analytics-embed.js, so it stays owner/admin-editable.',
+ 'Tag each entry with the service-line key matching the data-service attribute values already in use.'
+],
+test:'Client profile for thetechprinciple.com has at least one case-study entry per service line, retrievable via a new admin/public endpoint.',
+ev:'API response listing the seeded case-study entries.',
+dep:'Phase 1 live. Can be drafted in parallel with hl_trigger.'},
+
+hl_trigger:{s:'phase2 (4.2) · Define the trigger conditions',
+c:'What in-session behaviour should surface a highlight. Reuses the service_view instrumentation already live via IntersectionObserver on [data-service] elements — no new client-side observation mechanism needed, just new logic on top of an existing signal.',
+steps:[
+ 'Candidate triggers: dwell time on a service card past a threshold (extend the existing 60%-visibility IntersectionObserver to also track duration, not just a one-time impression), a second service_view for the same service in one session, or scroll depth reaching a specific service section.',
+ 'Decide whether triggers fire once per session (avoid annoying repeat highlighting) — mirror the existing seenServices WeakSet dedup pattern already used for service_view.',
+ 'Define priority when multiple services qualify at once — show the most recently engaged, not a fixed order.'
+],
+test:'A scripted browser session that dwells on a specific service card triggers exactly one matching highlight, not zero and not several.',
+ev:'Browser test log or recording showing the trigger firing correctly against the defined condition.',
+dep:'hl_library (4.1) — need content to trigger before trigger logic is testable end-to-end.'},
+
+hl_render:{s:'phase2 (4.3) · Extend the existing banner mechanism',
+c:'analytics-embed.js already has a working injection path for promotions: fetch, filter by displayOn, build a fixed-position aside, fire an impression event on render and a click event on the CTA. Generalise this same path rather than building a second, parallel banner system.',
+steps:[
+ 'Refactor the existing promotion-fetch-and-render block into a shared renderBanner(content, kind) helper that both promotions and highlights call.',
+ 'Add the equivalent public fetch for case-study content — GET /api/public/highlights?tenant=&lt;id&gt;&service=&lt;matched-service&gt; or similar, mirroring /api/public/promotions\'s unauthenticated, displayOn-filtered shape.',
+ 'Decide precedence when both a promotion and a highlight would fire at the same time — recommend promotion takes priority (it is time-limited and owner-initiated) with the highlight as a fallback when no promotion is active.',
+ 'Keep visual styling distinct enough that a visitor can tell a "here\'s what we built" highlight apart from a "time-limited offer" promotion.'
+],
+test:'On a page where no promotion is active, dwelling on a service card renders a highlight banner matching that service within a few seconds.',
+ev:'Screenshot of the rendered highlight banner, plus confirmation no promotion banner was competing for the same slot.',
+dep:'hl_trigger (4.2).'},
+
+hl_track:{s:'phase2 (4.4) · Track highlight impressions and clicks',
+c:'The owner needs to see which use-case proof points actually move visitors toward the lead form — otherwise the content library (4.1) is unmeasured guesswork, same failure mode the tracking skill already documents for promotions without effectiveness measurement.',
+steps:[
+ 'Add highlight_impression and highlight_click event types to ALLOWED_EVENT_TYPES, following the same pattern as promotion_impression/promotion_click.',
+ 'Tag each event with a highlightId (or reuse the case-study entry\'s id) and the matched service, mirroring how promotionId/service are already captured on promotion events.',
+ 'Extend the owner Compare tab (or add a new small section) showing highlight impressions/clicks per case-study entry, alongside the existing per-service and demand-signal data.',
+ 'This closes the loop: which highlight, shown for which service, actually correlates with a lead capture (5.4) for that same reason-for-visit category.'
+],
+test:'A highlight impression and a subsequent click on its CTA are both recorded and retrievable via the owner reporting API, tagged with the correct highlightId.',
+ev:'API response showing the tagged events after a scripted impression + click.',
+dep:'hl_render (4.3).'},
+
+lead_enum:{s:'phase2 (5.1) · Add the reason-for-visit taxonomy',
+c:'This is the field the whole request centres on. Today\'s lead schema (name, telephone, email, service, reason) stores service and reason as free text (cleanText, length-capped only) — no client anywhere in the framework has a validated enum field. This adds one, specific to thetechprinciple.com: website audit / website build / ai automation / application build / mobile apps / other.',
+steps:[
+ 'Add a leadReasonOptions array to the client profile (thetechprinciple.com-specific — other clients keep their own free-text service field, this is not a framework-wide schema change).',
+ 'Add reasonForVisit as a new field on the lead record (distinct from the existing free-text service/reason fields, to avoid overloading their current meaning for other clients).',
+ 'Server-side enforcement, not just format-checking: reject a lead submission that is missing reasonForVisit entirely, or sends a value outside the six configured ones, whenever the client has leadReasonOptions configured. The widget\'s required &lt;select&gt; is not a substitute for this — a direct API call or a bypassed form must not be able to skip it.',
+ 'Leave the field optional at the schema level for clients without leadReasonOptions configured — this is additive, not a breaking change to POST /api/public/leads.',
+ 'A serviceReasonMap field (service name → default reason) lets the widget pre-select a best-guess value when the visitor arrived via a promotion or highlight banner — still editable, and validated the same as any other submitted value. Entries pointing outside leadReasonOptions are silently dropped at normalize time.'
+],
+test:'POST /api/public/leads with no reasonForVisit for thetechprinciple.com is rejected with 400; with reasonForVisit: "not-a-real-option" is rejected with 400; with reasonForVisit: "ai automation" succeeds with 201.',
+ev:'Three API responses: two 400s (missing, invalid) and one 201 (valid).',
+dep:'Phase 1 live. Independent of Phase 2a-c — can be built in parallel.'},
+
+lead_form:{s:'phase2 (5.2) · Render the enum as a required select in the widget',
+c:'widget.js\'s existing lead form has name, telephone, email, and either a free-text service input or a callback preferredTime field, depending on lead vs callback mode. This adds the reason-for-visit dropdown to the lead variant, specifically for clients with leadReasonOptions configured.',
+steps:[
+ 'Extend widget.js\'s lead-form template to render a &lt;select&gt; populated from the client config\'s leadReasonOptions when present, replacing or supplementing the current free-text service input for this client.',
+ 'Make the field required — form submission blocked client-side until a reason is selected, matching the "always capture the lead, understand their needs" objective.',
+ 'Confirm the six option values sent match exactly what lead_enum (5.1) validates server-side.',
+ 'This is additive to widget.js\'s shared code (gated on client config presence), not a thetechprinciple-only fork of the widget.'
+],
+test:'Opening the lead form on thetechprinciple.com shows the six reason-for-visit options; submitting without a selection is blocked client-side; submitting with one succeeds.',
+ev:'Screenshot of the form with the dropdown, plus a successful submission\'s API response.',
+dep:'lead_enum (5.1).'},
+
+lead_funnel:{s:'phase2 (5.3) · Route every path to the same lead form',
+c:'Chat conversation, the promotion banner\'s CTA, and the new use-case highlight\'s CTA (4.3) should all resolve to this one form — however the visitor arrives at "interested", they land on the same capture point, not three different ones.',
+steps:[
+ 'Confirm the chat widget\'s existing "Send an enquiry" flow (already present in widget.js) uses the updated lead form from 5.2.',
+ 'Point the promotion banner\'s existing "Discuss this offer" CTA (currently href="#contact" in analytics-embed.js) at opening the widget\'s lead form directly, not just scrolling to a contact section.',
+ 'Point the new highlight banner\'s CTA (4.3) at the same destination.',
+ 'Verify all three entry paths pre-fill nothing conflicting and land the visitor on an identical form state.'
+],
+test:'Starting from a chat conversation, from a promotion banner click, and from a highlight banner click all open the same lead form in the same state.',
+ev:'Three screenshots (or a short recording) showing each entry path converging on the identical form.',
+dep:'lead_form (5.2), hl_render (4.3) for the highlight path specifically — the chat and promotion paths can be wired as soon as 5.2 is done.'},
+
+lead_store:{s:'phase2 (5.4) · Store and notify on submission',
+c:'POST /api/public/leads already does the real work here — module gating, notify(), optional leadFollowup scheduling. This step is additive, not a rebuild: reasonForVisit rides alongside the existing stored fields.',
+steps:[
+ 'Confirm reasonForVisit is included in the record passed to store.appendRecord("leads", ...) alongside the existing fields.',
+ 'Confirm notify() includes reasonForVisit in whatever the admin/owner notification channel surfaces, so a human sees it immediately, not just in the stored record.',
+ 'No change needed to the leadFollowup automation itself — it already schedules based on the client\'s leadFollowupDelayMs regardless of which fields are populated.'
+],
+test:'A submitted lead with reasonForVisit is visible in the notification payload and in GET /api/admin/records\' leads array for that client.',
+ev:'Notification payload and admin records API response, both showing the field.',
+dep:'lead_form (5.2).'},
+
+lead_owner_view:{s:'phase2 (5.5) · Segment leads by reason for visit in the owner console',
+c:'Turns raw lead volume into a prioritised follow-up list — a spike in "ai automation" enquiries should be visible at a glance, not buried in an undifferentiated activity feed.',
+steps:[
+ 'Add a grouped view to owner.js\'s Overview (or a new small section) breaking leads down by reasonForVisit with counts.',
+ 'Consider surfacing this as its own signal in the existing Compare tab\'s demand-signals area (which already does threshold-based candidate detection for services) — a category with an unusual volume of leads is conceptually the same kind of signal.',
+ 'Ensure this respects the same aggregate-only, no-raw-visitor-identification contract the rest of the owner console already follows — counts and the underlying lead records the owner already has access to, nothing new exposed.'
+],
+test:'Owner dashboard shows a reasonForVisit breakdown with correct counts against a set of seeded test leads spanning multiple categories.',
+ev:'Screenshot of the breakdown view with counts matching the seeded test data.',
+dep:'lead_store (5.4). Pairs well with live_subscribe (3.3) if Phase 2b has landed by this point, but does not require it — can ship as a polled view first.'},
+
+};
+
+function renderPlan(id){
+ const p=document.getElementById('plan');
+ if(!D[id]){p.innerHTML='<p style="color:var(--muted)">No plan available for this node.</p>';document.querySelectorAll('.node').forEach(n=>n.classList.remove('sel'));return}
+ const n=D[id];
+ const a=n.s.split('·');
+ document.getElementById('t').textContent=a[0]||n.s;
+ document.getElementById('s').textContent=a[1]||'';
+ const e=['<p class="contract">'+(n.c||'')+'</p>'];
+ e.push('<h4>Implementation steps</h4><ol>'+n.steps.map(s=>`<li>${s}</li>`).join('')+'</ol>');
+ if(n.test) e.push('<h4>Completion test</h4><p class="box test">'+n.test+'</p>');
+ if(n.ev) e.push('<h4>Evidence</h4><p class="box ev">'+n.ev+'</p>');
+ if(n.dep) e.push('<h4>Depends on</h4><p class="box dep">'+n.dep+'</p>');
+ p.innerHTML=e.join('');
+ document.querySelectorAll('.node').forEach(n=>n.classList.remove('sel'));
+ const btn=document.querySelector(`.node[data-id="${id}"]`);
+ if(btn) btn.classList.add('sel');
+}
+
+document.querySelectorAll('.node').forEach(n=>n.addEventListener('click',()=>renderPlan(n.dataset.id)));
+document.querySelectorAll('.toolbar button').forEach(b=>b.addEventListener('click',()=>{
+ document.querySelectorAll('.toolbar button').forEach(x=>x.classList.remove('on'));
+ b.classList.add('on');
+ const f=b.dataset.f;
+ document.querySelectorAll('.lane').forEach(l=>l.style.display='none');
+ if(f==='all'){document.querySelectorAll('.lane').forEach(l=>l.style.display='');}
+ else document.querySelectorAll(`.lane[data-lane="${f}"]`).forEach(l=>l.style.display='')
+}));
+renderPlan('p1_profile');
+</script>
+</body>
+</html>

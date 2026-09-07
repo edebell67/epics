@@ -280,6 +280,18 @@ a{ color: inherit; text-decoration: none; }
 }
 .nav__links a:hover{ color: var(--on-ink); }
 .nav__links a:hover::after{ transform: scaleX(1); }
+.nav__product-menu{ position:relative; }
+.nav__product-menu summary{ cursor:pointer; list-style:none; color:var(--on-ink-mute); font-size:.9375rem; font-weight:500; padding-block:.35rem; }
+.nav__product-menu summary::-webkit-details-marker{ display:none; }
+.nav__product-menu summary span{ color:var(--accent); margin-left:.25rem; }
+.nav__product-menu[open] summary{ color:var(--on-ink); }
+.nav__product-panel{ position:absolute; z-index:20; top:2.2rem; left:-1rem; width:19rem; padding:.55rem; border:1px solid var(--line-dark); border-radius:10px; background:rgba(10,12,14,.98); box-shadow:0 18px 42px rgba(0,0,0,.35); }
+.nav__product-panel a{ display:block; padding:.8rem .9rem; border-radius:6px; }
+.nav__product-panel a:hover{ background:rgba(200,242,80,.1); }
+.nav__product-panel a::after{ display:none; }
+.nav__product-panel strong,.nav__product-panel span{ display:block; }
+.nav__product-panel strong{ color:var(--on-ink); font-size:.9rem; }
+.nav__product-panel span{ margin-top:.2rem; color:var(--on-ink-mute); font-size:.75rem; font-weight:400; line-height:1.4; }
 
 .nav__toggle{
   display: none;
@@ -678,7 +690,7 @@ a{ color: inherit; text-decoration: none; }
 
 .process{
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1px;
   background: var(--line-light);
   border-block: 1px solid var(--line-light);
@@ -745,12 +757,11 @@ a{ color: inherit; text-decoration: none; }
   border-block: 1px solid var(--line-light);
 }
 
-/* Each card can carry more than one real, independent reference (workflow map,
-   skills, live app) — so the card itself is not one big link. Every reference
-   that has a real destination gets its own CTA in .post__actions; one that
-   doesn't (e.g. no live app yet) is simply omitted, not faked with a shared href. */
-.post{
-  background: var(--paper);
+.post{ background: var(--paper); }
+
+/* The whole card is the hit target — one link, so there is a single tab stop
+   per post rather than a title/"read more" pair pointing at the same place. */
+.post__link{
   display: grid;
   gap: 0.9rem;
   align-content: start;
@@ -758,23 +769,7 @@ a{ color: inherit; text-decoration: none; }
   padding: clamp(1.75rem, 3.5vw, 2.5rem) clamp(1.5rem, 3vw, 2.25rem);
   transition: background-color 0.45s var(--ease);
 }
-.post:hover{ background: var(--paper-2); }
-
-.post__shot{
-  aspect-ratio: 8 / 5;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid var(--line-light);
-  background: var(--ink-2);
-}
-.post__shot img{
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.6s var(--ease);
-}
-.post:hover .post__shot img{ transform: scale(1.03); }
+.post__link:hover{ background: var(--paper-2); }
 
 .post__meta{
   display: flex;
@@ -788,7 +783,7 @@ a{ color: inherit; text-decoration: none; }
   font-size: clamp(1.15rem, 2vw, 1.45rem);
   transition: color 0.3s var(--ease);
 }
-.post:hover .post__title{ color: var(--accent-on-paper); }
+.post__link:hover .post__title{ color: var(--accent-on-paper); }
 
 .post__excerpt{
   font-size: 0.9375rem;
@@ -796,24 +791,16 @@ a{ color: inherit; text-decoration: none; }
   color: var(--on-paper-mute);
 }
 
-.post__actions{
+.post__more{
   margin-top: 0.35rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.4rem;
-}
-
-.post__cta{
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--accent-on-paper);
-  transition: color 0.3s var(--ease);
 }
-.post__cta:hover{ color: var(--on-paper); }
-.post__cta:hover .btn__arrow{ transform: translateX(4px); }
+.post__link:hover .btn__arrow{ transform: translateX(4px); }
 
 /* ============================================================
    ARTICLE (blog post pages)
@@ -1088,7 +1075,6 @@ a{ color: inherit; text-decoration: none; }
 @media (max-width: 1024px){
   .work{ grid-template-columns: repeat(2, 1fr); }
   .posts{ grid-template-columns: repeat(2, 1fr); }
-  .process{ grid-template-columns: repeat(2, 1fr); }
   .sec-head--split{ grid-template-columns: 1fr; align-items: start; }
   .principles__shell{ grid-template-columns: 1fr; }
   .stats__grid{ grid-template-columns: repeat(2, 1fr); }

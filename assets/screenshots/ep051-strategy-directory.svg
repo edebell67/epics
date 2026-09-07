@@ -1,0 +1,64 @@
+<svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="t051">
+<title id="t051">DNA Strategy Directory preview</title>
+<defs>
+<linearGradient id="g051" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#12222A"/>
+<stop offset="0.7" stop-color="#12161A"/>
+</linearGradient>
+</defs>
+<rect width="640" height="400" rx="12" fill="url(#g051)"/>
+<rect x="0.5" y="0.5" width="639" height="399" rx="11.5" fill="none" stroke="rgba(255,255,255,0.10)"/>
+<rect width="640" height="34" rx="12" fill="#0A0C0E"/>
+<rect y="22" width="640" height="12" fill="#0A0C0E"/>
+<circle cx="20" cy="17" r="4" fill="#3A2A2A"/>
+<circle cx="34" cy="17" r="4" fill="#3A3220"/>
+<circle cx="48" cy="17" r="4" fill="#22301E"/>
+<rect x="220" y="9" width="280" height="16" rx="8" fill="rgba(255,255,255,0.06)"/>
+<text x="360" y="21" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" fill="#8B939B">thetechprinciple.com/epic/ep051</text>
+<text x="32" y="72" font-family="ui-sans-serif,system-ui" font-size="9" fill="#7FA6B8" letter-spacing="0.1em">DNA / STRATEGY DIRECTORY</text>
+<text x="32" y="100" font-family="ui-sans-serif,system-ui" font-size="22" font-weight="700" fill="#F4F5F3">Find a strategy that</text>
+<text x="32" y="126" font-family="ui-sans-serif,system-ui" font-size="22" font-weight="700" fill="#C8F250">earns its place.</text>
+<text x="32" y="146" font-family="ui-sans-serif,system-ui" font-size="9.5" fill="#8B939B">Net return after included costs. Recalculated from closed-trade evidence.</text>
+<!-- filter pills -->
+<g font-family="ui-sans-serif,system-ui" font-size="8" fill="#C7CBD1">
+<rect x="32" y="160" width="86" height="20" rx="10" fill="rgba(200,242,80,0.14)" stroke="rgba(200,242,80,0.35)"/>
+<text x="46" y="173" fill="#C8F250">Current day</text>
+<rect x="124" y="160" width="72" height="20" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+<text x="138" y="173">All history</text>
+<rect x="202" y="160" width="66" height="20" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+<text x="216" y="173">EURUSD</text>
+</g>
+<!-- table -->
+<g font-family="ui-monospace,monospace" font-size="8">
+<text x="32" y="204" fill="#8B939B" letter-spacing="0.04em">STRATEGY ID</text>
+<text x="330" y="204" fill="#8B939B" text-anchor="end" letter-spacing="0.04em">NET RETURN</text>
+<text x="430" y="204" fill="#8B939B" text-anchor="end" letter-spacing="0.04em">WIN RATE</text>
+<text x="540" y="204" fill="#8B939B" text-anchor="end" letter-spacing="0.04em">PROFIT FACTOR</text>
+<rect x="32" y="212" width="576" height="1" fill="rgba(255,255,255,0.1)"/>
+
+<text x="32" y="234" fill="#F4F5F3">DNA_108742 · v4</text>
+<text x="330" y="234" fill="#C8F250" text-anchor="end">+18.4%</text>
+<text x="430" y="234" fill="#C7CBD1" text-anchor="end">61%</text>
+<text x="540" y="234" fill="#C7CBD1" text-anchor="end">2.14</text>
+<rect x="32" y="242" width="576" height="1" fill="rgba(255,255,255,0.06)"/>
+
+<text x="32" y="264" fill="#F4F5F3">DNA_104921 · v2</text>
+<text x="330" y="264" fill="#C8F250" text-anchor="end">+12.1%</text>
+<text x="430" y="264" fill="#C7CBD1" text-anchor="end">58%</text>
+<text x="540" y="264" fill="#C7CBD1" text-anchor="end">1.87</text>
+<rect x="32" y="272" width="576" height="1" fill="rgba(255,255,255,0.06)"/>
+
+<text x="32" y="294" fill="#F4F5F3">DNA_112087 · v3</text>
+<text x="330" y="294" fill="#C8F250" text-anchor="end">+9.6%</text>
+<text x="430" y="294" fill="#C7CBD1" text-anchor="end">54%</text>
+<text x="540" y="294" fill="#C7CBD1" text-anchor="end">1.62</text>
+<rect x="32" y="302" width="576" height="1" fill="rgba(255,255,255,0.06)"/>
+
+<text x="32" y="324" fill="#F4F5F3">DNA_101355 · v6</text>
+<text x="330" y="324" fill="#E58A8A" text-anchor="end">-2.3%</text>
+<text x="430" y="324" fill="#C7CBD1" text-anchor="end">47%</text>
+<text x="540" y="324" fill="#C7CBD1" text-anchor="end">0.91</text>
+</g>
+<rect x="32" y="352" width="576" height="30" rx="7" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)"/>
+<text x="46" y="370" font-family="ui-sans-serif,system-ui" font-size="8.5" fill="#8B939B">LIVE DIRECTORY · CLOSED-TRADE EVIDENCE · every figure recomputed from real trades, not backtest</text>
+</svg>

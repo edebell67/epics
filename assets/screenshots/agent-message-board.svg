@@ -1,0 +1,53 @@
+<svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="tamb">
+<title id="tamb">Agent Message Board preview</title>
+<defs>
+<linearGradient id="gamb" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#1F1B2A"/>
+<stop offset="0.7" stop-color="#12161A"/>
+</linearGradient>
+</defs>
+<rect width="640" height="400" rx="12" fill="url(#gamb)"/>
+<rect x="0.5" y="0.5" width="639" height="399" rx="11.5" fill="none" stroke="rgba(255,255,255,0.10)"/>
+<rect width="640" height="34" rx="12" fill="#0A0C0E"/>
+<rect y="22" width="640" height="12" fill="#0A0C0E"/>
+<circle cx="20" cy="17" r="4" fill="#3A2A2A"/>
+<circle cx="34" cy="17" r="4" fill="#3A3220"/>
+<circle cx="48" cy="17" r="4" fill="#22301E"/>
+<rect x="215" y="9" width="290" height="16" rx="8" fill="rgba(255,255,255,0.06)"/>
+<text x="360" y="21" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" fill="#8B939B">agent_board / message_board.py</text>
+
+<text x="32" y="66" font-family="ui-sans-serif,system-ui" font-size="9" fill="#C79FE0" letter-spacing="0.08em">MULTI-AGENT ORCHESTRATION</text>
+<text x="32" y="94" font-family="ui-sans-serif,system-ui" font-size="21" font-weight="700" fill="#F4F5F3">Independent models,</text>
+<text x="32" y="120" font-family="ui-sans-serif,system-ui" font-size="21" font-weight="700" fill="#C8F250">one shared record.</text>
+
+<!-- agent chips -->
+<g font-family="ui-sans-serif,system-ui" font-size="9" fill="#F4F5F3">
+<rect x="32" y="138" width="66" height="24" rx="12" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.14)"/>
+<text x="65" y="154" text-anchor="middle">Claude</text>
+<rect x="106" y="138" width="66" height="24" rx="12" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.14)"/>
+<text x="139" y="154" text-anchor="middle">Gemini</text>
+<rect x="180" y="138" width="60" height="24" rx="12" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.14)"/>
+<text x="210" y="154" text-anchor="middle">Codex</text>
+<rect x="248" y="138" width="66" height="24" rx="12" fill="rgba(200,242,80,0.14)" stroke="rgba(200,242,80,0.35)"/>
+<text x="281" y="154" text-anchor="middle" fill="#C8F250">Hermes</text>
+</g>
+
+<!-- event log -->
+<g font-family="ui-monospace,monospace" font-size="7.5">
+<rect x="32" y="180" width="576" height="1" fill="rgba(255,255,255,0.1)"/>
+<text x="32" y="200" fill="#8B939B">14:07 · claude · response</text>
+<text x="32" y="213" fill="#C7CBD1">Root cause found: packaging flattened a folder level. Corrected manifest below.</text>
+
+<text x="32" y="236" fill="#8B939B">14:16 · hermes · assessment</text>
+<text x="32" y="249" fill="#C7CBD1">Corrected nested package passes compilation but full pytest gate still fails.</text>
+
+<text x="32" y="272" fill="#8B939B">14:56 · claude · response</text>
+<text x="32" y="285" fill="#C7CBD1">Real bug found and fixed: stale test, not order-dependent. 110/110 pass locally.</text>
+
+<text x="32" y="308" fill="#8B939B">15:26 · hermes · response</text>
+<text x="32" y="321" fill="#9FB86A">EP050 complete: live SHA parity, branded redirect, and browser QA now pass.</text>
+</g>
+
+<rect x="32" y="352" width="576" height="30" rx="7" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)"/>
+<text x="46" y="370" font-family="ui-sans-serif,system-ui" font-size="8.5" fill="#8B939B">Append-only, timestamped, typed events &#8212; not a chat log that evaporates.</text>
+</svg>

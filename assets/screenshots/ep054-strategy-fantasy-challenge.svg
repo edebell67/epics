@@ -1,0 +1,55 @@
+<svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="t054">
+<title id="t054">Strategy Fantasy Challenge preview</title>
+<defs>
+<linearGradient id="g054" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#1E2A12"/>
+<stop offset="0.7" stop-color="#12161A"/>
+</linearGradient>
+</defs>
+<rect width="640" height="400" rx="12" fill="url(#g054)"/>
+<rect x="0.5" y="0.5" width="639" height="399" rx="11.5" fill="none" stroke="rgba(255,255,255,0.10)"/>
+<rect width="640" height="34" rx="12" fill="#0A0C0E"/>
+<rect y="22" width="640" height="12" fill="#0A0C0E"/>
+<circle cx="20" cy="17" r="4" fill="#3A2A2A"/>
+<circle cx="34" cy="17" r="4" fill="#3A3220"/>
+<circle cx="48" cy="17" r="4" fill="#22301E"/>
+<rect x="220" y="9" width="280" height="16" rx="8" fill="rgba(255,255,255,0.06)"/>
+<text x="360" y="21" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" fill="#8B939B">thetechprinciple.com/epic/ep054</text>
+
+<text x="32" y="68" font-family="ui-sans-serif,system-ui" font-size="9" fill="#9FB86A" letter-spacing="0.08em">HUMAN-FIRST · PREVIEW-ONLY DEMO</text>
+<text x="32" y="96" font-family="ui-sans-serif,system-ui" font-size="21" font-weight="700" fill="#F4F5F3">Pick strategies.</text>
+<text x="32" y="122" font-family="ui-sans-serif,system-ui" font-size="21" font-weight="700" fill="#C8F250">Back your instinct.</text>
+<text x="32" y="142" font-family="ui-sans-serif,system-ui" font-size="9.5" fill="#8B939B">Build one fantasy portfolio. Challenge friends, or send it into the Arena.</text>
+
+<!-- portfolio card -->
+<rect x="32" y="160" width="576" height="130" rx="9" fill="rgba(0,0,0,0.2)" stroke="rgba(255,255,255,0.1)"/>
+<text x="48" y="180" font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700" fill="#F4F5F3">Defensive FX Five</text>
+<text x="520" y="180" font-family="ui-monospace,monospace" font-size="7.5" fill="#8B939B" text-anchor="end">DRAFT · 3 strategies</text>
+
+<g font-family="ui-sans-serif,system-ui" font-size="8.5">
+<rect x="48" y="192" width="168" height="42" rx="7" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+<text x="58" y="206" font-size="6.5" fill="#8B939B">DNA_108742 · v4 · Finder AI</text>
+<text x="58" y="221" fill="#F4F5F3" font-weight="600">Mean Reversion FX</text>
+
+<rect x="228" y="192" width="168" height="42" rx="7" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+<text x="238" y="206" font-size="6.5" fill="#8B939B">DNA_104921 · v2 · Directory</text>
+<text x="238" y="221" fill="#F4F5F3" font-weight="600">Defensive Carry Filter</text>
+
+<rect x="408" y="192" width="168" height="42" rx="7" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+<text x="418" y="206" font-size="6.5" fill="#8B939B">DNA_112087 · v3 · Finder AI</text>
+<text x="418" y="221" fill="#F4F5F3" font-weight="600">Sideways Range Capture</text>
+</g>
+
+<rect x="48" y="246" width="120" height="24" rx="12" fill="#C8F250"/>
+<text x="108" y="262" text-anchor="middle" font-family="ui-sans-serif,system-ui" font-size="9" font-weight="700" fill="#0A0C0E">Save Portfolio →</text>
+<text x="182" y="262" font-family="ui-sans-serif,system-ui" font-size="8.5" fill="#8B939B">Duplicate &amp; modify · Archive</text>
+
+<!-- fingerprint row -->
+<g font-family="ui-monospace,monospace" font-size="7.5" fill="#C7CBD1">
+<text x="32" y="316">PORTFOLIO ID  PF_DRAFT</text>
+<text x="220" y="316">FINGERPRINT  331E7FB3</text>
+<text x="400" y="316">PROVENANCE  MANUAL</text>
+</g>
+<rect x="32" y="352" width="576" height="30" rx="7" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)"/>
+<text x="46" y="370" font-family="ui-sans-serif,system-ui" font-size="8.5" fill="#8B939B">The same owner can't accidentally save the same strategy membership twice.</text>
+</svg>

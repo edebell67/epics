@@ -1,0 +1,64 @@
+<svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="t053">
+<title id="t053">Strategy Finder AI preview</title>
+<defs>
+<linearGradient id="g053" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#24210F"/>
+<stop offset="0.7" stop-color="#12161A"/>
+</linearGradient>
+</defs>
+<rect width="640" height="400" rx="12" fill="url(#g053)"/>
+<rect x="0.5" y="0.5" width="639" height="399" rx="11.5" fill="none" stroke="rgba(255,255,255,0.10)"/>
+<rect width="640" height="34" rx="12" fill="#0A0C0E"/>
+<rect y="22" width="640" height="12" fill="#0A0C0E"/>
+<circle cx="20" cy="17" r="4" fill="#3A2A2A"/>
+<circle cx="34" cy="17" r="4" fill="#3A3220"/>
+<circle cx="48" cy="17" r="4" fill="#22301E"/>
+<rect x="220" y="9" width="280" height="16" rx="8" fill="rgba(255,255,255,0.06)"/>
+<text x="360" y="21" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" fill="#8B939B">thetechprinciple.com/epic/ep053</text>
+
+<text x="32" y="68" font-family="ui-sans-serif,system-ui" font-size="9" fill="#D9C77E" letter-spacing="0.08em">STRATEGY DIRECTORY × AGENTIC ARENA</text>
+<text x="32" y="96" font-family="ui-sans-serif,system-ui" font-size="21" font-weight="700" fill="#F4F5F3">Find a strategy.</text>
+<text x="32" y="122" font-family="ui-sans-serif,system-ui" font-size="21" font-weight="700" fill="#C8F250">Give it an agent.</text>
+
+<!-- step chips -->
+<g font-family="ui-sans-serif,system-ui" font-size="9" fill="#F4F5F3">
+<rect x="32" y="140" width="72" height="26" rx="13" fill="rgba(200,242,80,0.16)" stroke="rgba(200,242,80,0.4)"/>
+<text x="68" y="157" text-anchor="middle" fill="#C8F250">FIND</text>
+<text x="112" y="157" fill="#8B939B">→</text>
+<rect x="128" y="140" width="72" height="26" rx="13" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.12)"/>
+<text x="164" y="157" text-anchor="middle">SELECT</text>
+<text x="208" y="157" fill="#8B939B">→</text>
+<rect x="224" y="140" width="112" height="26" rx="13" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.12)"/>
+<text x="280" y="157" text-anchor="middle">GIVE TO AGENT</text>
+<text x="344" y="157" fill="#8B939B">→</text>
+<rect x="360" y="140" width="72" height="26" rx="13" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.12)"/>
+<text x="396" y="157" text-anchor="middle">WATCH</text>
+</g>
+
+<!-- search box -->
+<text x="32" y="196" font-family="ui-sans-serif,system-ui" font-size="9.5" fill="#8B939B">What should your agent look for?</text>
+<rect x="32" y="206" width="576" height="34" rx="8" fill="rgba(0,0,0,0.25)" stroke="rgba(255,255,255,0.12)"/>
+<text x="46" y="228" font-family="ui-sans-serif,system-ui" font-size="10" fill="#C7CBD1">Defensive EUR/USD intraday, sideways markets</text>
+<rect x="512" y="212" width="86" height="22" rx="11" fill="#C8F250"/>
+<text x="555" y="227" text-anchor="middle" font-family="ui-sans-serif,system-ui" font-size="8.5" font-weight="700" fill="#0A0C0E">Find →</text>
+
+<!-- result cards -->
+<g font-family="ui-sans-serif,system-ui">
+<rect x="32" y="256" width="184" height="72" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.09)"/>
+<text x="44" y="276" font-size="7" fill="#8B939B" letter-spacing="0.04em">DNA_108742 · v4</text>
+<text x="44" y="294" font-size="10.5" font-weight="600" fill="#F4F5F3">Mean Reversion FX</text>
+<text x="44" y="312" font-size="8" fill="#C8F250">Match score 0.91</text>
+
+<rect x="228" y="256" width="184" height="72" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.09)"/>
+<text x="240" y="276" font-size="7" fill="#8B939B" letter-spacing="0.04em">DNA_104921 · v2</text>
+<text x="240" y="294" font-size="10.5" font-weight="600" fill="#F4F5F3">Defensive Carry Filter</text>
+<text x="240" y="312" font-size="8" fill="#C8F250">Match score 0.84</text>
+
+<rect x="424" y="256" width="184" height="72" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.09)"/>
+<text x="436" y="276" font-size="7" fill="#8B939B" letter-spacing="0.04em">DNA_112087 · v3</text>
+<text x="436" y="294" font-size="10.5" font-weight="600" fill="#F4F5F3">Sideways Range Capture</text>
+<text x="436" y="312" font-size="8" fill="#C8F250">Match score 0.78</text>
+</g>
+<rect x="32" y="352" width="576" height="30" rx="7" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)"/>
+<text x="46" y="370" font-family="ui-sans-serif,system-ui" font-size="8.5" fill="#8B939B">Finder does not trade — it searches, selects, and hands a skill reference to an agent.</text>
+</svg>

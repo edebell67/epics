@@ -1,0 +1,57 @@
+<svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="t047">
+<title id="t047">TTP Directory preview</title>
+<defs>
+<linearGradient id="g047" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#16261C"/>
+<stop offset="0.7" stop-color="#12161A"/>
+</linearGradient>
+</defs>
+<rect width="640" height="400" rx="12" fill="url(#g047)"/>
+<rect x="0.5" y="0.5" width="639" height="399" rx="11.5" fill="none" stroke="rgba(255,255,255,0.10)"/>
+<rect width="640" height="34" rx="12" fill="#0A0C0E"/>
+<rect y="22" width="640" height="12" fill="#0A0C0E"/>
+<circle cx="20" cy="17" r="4" fill="#3A2A2A"/>
+<circle cx="34" cy="17" r="4" fill="#3A3220"/>
+<circle cx="48" cy="17" r="4" fill="#22301E"/>
+<rect x="215" y="9" width="290" height="16" rx="8" fill="rgba(255,255,255,0.06)"/>
+<text x="360" y="21" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" fill="#8B939B">thetechprinciple.com/directory</text>
+
+<text x="32" y="68" font-family="ui-sans-serif,system-ui" font-size="9" fill="#9FB86A" letter-spacing="0.08em">LOCAL BUSINESS DIRECTORY</text>
+<text x="32" y="96" font-family="ui-sans-serif,system-ui" font-size="21" font-weight="700" fill="#F4F5F3">Find a business</text>
+<text x="32" y="122" font-family="ui-sans-serif,system-ui" font-size="21" font-weight="700" fill="#C8F250">you can trust.</text>
+<text x="32" y="142" font-family="ui-sans-serif,system-ui" font-size="9.5" fill="#8B939B">1,498 businesses across 51 categories and 48 towns.</text>
+
+<!-- category chips -->
+<g font-family="ui-sans-serif,system-ui" font-size="8.5" fill="#F4F5F3">
+<rect x="32" y="156" width="82" height="24" rx="12" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)"/>
+<text x="73" y="172" text-anchor="middle">Builders 155</text>
+<rect x="120" y="156" width="94" height="24" rx="12" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)"/>
+<text x="167" y="172" text-anchor="middle">IT Services 98</text>
+<rect x="220" y="156" width="88" height="24" rx="12" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)"/>
+<text x="264" y="172" text-anchor="middle">Roofers 92</text>
+<rect x="314" y="156" width="112" height="24" rx="12" fill="rgba(200,242,80,0.14)" stroke="rgba(200,242,80,0.35)"/>
+<text x="370" y="172" text-anchor="middle" fill="#C8F250">Web Design 77</text>
+</g>
+
+<!-- listing rows -->
+<g font-family="ui-sans-serif,system-ui" font-size="9">
+<rect x="32" y="196" width="576" height="1" fill="rgba(255,255,255,0.1)"/>
+<rect x="32" y="206" width="576" height="42" rx="7" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>
+<text x="46" y="224" fill="#F4F5F3" font-weight="600">Golden Clean Ltd</text>
+<text x="46" y="239" fill="#8B939B" font-size="7.5">Window Cleaners · Leeds</text>
+<text x="590" y="231" text-anchor="end" fill="#8B939B" font-family="ui-monospace,monospace" font-size="7.5">4 AUG</text>
+
+<rect x="32" y="254" width="576" height="42" rx="7" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>
+<text x="46" y="272" fill="#F4F5F3" font-weight="600">All Clean Services Limited</text>
+<text x="46" y="287" fill="#8B939B" font-size="7.5">Window Cleaners · Manchester</text>
+<text x="590" y="279" text-anchor="end" fill="#8B939B" font-family="ui-monospace,monospace" font-size="7.5">4 AUG</text>
+</g>
+
+<!-- news strip -->
+<rect x="32" y="308" width="576" height="44" rx="7" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.07)"/>
+<text x="46" y="325" font-family="ui-monospace,monospace" font-size="7" fill="#8B939B" letter-spacing="0.05em">LEEDS · LOCAL NEWS · /news</text>
+<text x="46" y="341" font-family="ui-sans-serif,system-ui" font-size="9" fill="#F4F5F3">One year to go! Leeds marks key milestone in build-up to Grand D&#233;part</text>
+
+<rect x="32" y="362" width="576" height="20" rx="6" fill="rgba(200,242,80,0.08)" stroke="rgba(200,242,80,0.25)"/>
+<text x="46" y="376" font-family="ui-sans-serif,system-ui" font-size="8" fill="#9FB86A">Local news drives claim-and-quote traffic straight back into the directory.</text>
+</svg>
