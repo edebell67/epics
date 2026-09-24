@@ -1,0 +1,35 @@
+# epics/ep_057_sql_to_pgsql/render_cache/render.yaml — Render Blueprint for the hosted Top10 5-min equity curves app.
+# v1.0.1 · 2026-09-24 · diskSizeGB 15 (Ed confirmed storage); retention stays 3 days.
+# v1.0.0 · 2026-09-23 · Postgres + web service + 5-minute import cron. Deploy source: edebell67/epics (NOT FS.git).
+# The cron fetches new batches from the top10-cache-data branch at run time, so it never needs a redeploy to see new data.
+databases:
+  - name: ep057-top10-db
+    plan: basic-1gb        # RAM tier; the 3-day window (~2.1M snapshot rows + ~283k trades) is ~1 GB on disk
+    diskSizeGB: 15         # Ed's available Postgres storage; room to lengthen CACHE_RETENTION_DAYS later
+    postgresMajorVersion: "16"
+
+services:
+  - type: web
+    name: ep057-top10-live
+    runtime: python
+    rootDir: ep_057_sql_to_pgsql/dashboards_and_uis   # top10_live_app.py + html; needs render_cache/requirements.txt content
+    buildCommand: pip install -r ../render_cache/requirements.txt
+    startCommand: uvicorn top10_live_app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/live_day
+    autoDeploy: false
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: {name: ep057-top10-db, property: connectionString}
+
+  - type: cron
+    name: ep057-top10-cache-import
+    runtime: python
+    rootDir: ep_057_sql_to_pgsql/render_cache
+    schedule: "*/5 * * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python import_cache.py --init-schema
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: {name: ep057-top10-db, property: connectionString}
+      - key: CACHE_RETENTION_DAYS
+        value: "3"
