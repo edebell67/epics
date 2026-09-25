@@ -51,8 +51,9 @@ POST /participant/v1/me/queries
 - Reuse an identical `request_id` only to recover the same receipt; do not silently submit
   changed content with the same identity.
 - Retrieve a previous result through the receipt route supplied by the API contract.
-- Read subscriber allocation/usage only through the scoped participant endpoint, never as an
-  exchange balance or financial account.
+- If the API response identifies a simulated, test or random-selection mode, state that plainly and do not describe the output as a ranking or evidence-led recommendation.
+- Use only the data, source version and mode returned by the active contract; never infer an unavailable live result.
+- Read subscriber allocation/usage only through the scoped participant endpoint, never as an exchange balance or financial account.
 
 ## Required research response
 
