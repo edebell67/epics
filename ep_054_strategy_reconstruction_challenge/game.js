@@ -2,61 +2,32 @@
   'use strict';
   const sourceSnapshotDate = '2026-09-23';
   const evidenceWindow = '30 matched historical/replay tests on 23 September 2026';
-  const scenario = {
-    id: 'HSRC-001',
-    title: 'The Split Route',
-    graceSeconds: 90,
-    steps: [
-      {title:'Lock the case', prompt:'Which comparison rule keeps the reconstruction fair?', context:'You can inspect a result only after proving the two modes faced the same selected strategy basket.', correct:0, options:[
-        ['Use the same basket in both modes','The route begins with a matched comparison.','+30'],
-        ['Compare any two attractive outcomes','That introduces a selection mismatch.','−20'],
-        ['Ignore the selected records','The source route cannot be reproduced without them.','−20']
-      ]},
-      {title:'Inspect the route', prompt:'Which evidence is most useful before accepting a headline result?', context:'A route can look convincing while hiding how much activity it required.', correct:1, options:[
-        ['Only the higher aggregate result','A single headline cannot explain the route.','−20'],
-        ['Closed rotations in each mode','Correct: activity is part of the recorded evidence.','+30'],
-        ['A new current-date record','This case is fixed to its historical snapshot.','−20']
-      ]},
-      {title:'Check the challenge', prompt:'Which counter-evidence must stay visible in the replay?', context:'A good reconstruction does not erase routes that produced a different result.', correct:2, options:[
-        ['None; the larger total settles the case','The scenario requires contrary observations.','−20'],
-        ['Only the most dramatic record','That is not a complete counter-evidence check.','−20'],
-        ['8 Total-higher tests and 1 tie','Correct: the result was not unanimous.','+30']
-      ]},
-      {title:'State the limit', prompt:'What is the strongest defensible conclusion?', context:'Choose the statement that stays inside the fixed historical evidence window.', correct:1, options:[
-        ['This mode will remain superior','The frozen case cannot establish a future result.','−20'],
-        ['Split was higher more often in this dated sample','Correct: this is the limit of the observation.','+30'],
-        ['Players should select the mode now','The game never gives a current selection instruction.','−20']
-      ]}
-    ]
-  };
-  const state = {index:0, gamePoints:0, streak:0, elapsedSeconds:0, paused:false, choices:[], completion:false, timer:null, startedAt:null};
+  const nodeGraph = [
+    [{x:18,y:37,kind:'MATCH',mark:'M'},{x:50,y:22,kind:'MIX',mark:'?'},{x:82,y:37,kind:'BLIND',mark:'×'}],
+    [{x:18,y:42,kind:'HEADLINE',mark:'H'},{x:50,y:20,kind:'LEDGER',mark:'L'},{x:82,y:42,kind:'NEW',mark:'N'}],
+    [{x:18,y:35,kind:'ERASE',mark:'×'},{x:50,y:19,kind:'DRAMA',mark:'!'},{x:82,y:35,kind:'COUNTER',mark:'C'}],
+    [{x:18,y:40,kind:'FORECAST',mark:'F'},{x:50,y:18,kind:'DATED',mark:'D'},{x:82,y:40,kind:'SELECT',mark:'S'}]
+  ];
+  const scenario = { id:'HSRC-001', title:'The Split Route', graceSeconds:90, steps:[
+    {title:'Set the evidence boundary',prompt:'Which route gives the case a fair starting boundary?',context:'The board only unlocks when both modes faced the same selected strategy basket.',correct:0,options:[['Use the same basket in both modes','Matched comparison recorded. The first route is stable.','+30'],['Compare any attractive outcomes','Selection mismatch. The route loses its footing.','−20'],['Ignore the selected records','The source route cannot be reproduced without them.','−20']]},
+    {title:'Choose your next evidence',prompt:'Which case object should you inspect before accepting a headline?',context:'A route can look strong while hiding the activity needed to create it.',correct:1,options:[['Read only the larger aggregate','A headline alone does not explain the route.','−20'],['Open the closed-rotation ledger','The ledger exposes the activity behind the outcome.','+30'],['Pull a current-date record','This case is locked to a historical snapshot.','−20']]},
+    {title:'Cross the counter-evidence gate',prompt:'Which record keeps your reconstruction honest?',context:'The canonical route includes the observations that challenge its strongest claim.',correct:2,options:[['Remove every contrary result','A reconstruction fails when it removes evidence.','−20'],['Keep only the dramatic record','One striking item is not a counter-evidence check.','−20'],['Keep 8 Total-higher tests and 1 tie','Counter-evidence secured. The conclusion remains bounded.','+30']]},
+    {title:'Reach the reveal',prompt:'Which final statement can the frozen case support?',context:'The last move must stay inside the disclosed evidence window.',correct:1,options:[['This mode will remain superior','The board cannot turn a dated observation into a future claim.','−20'],['Split was higher more often in this dated sample','The route reaches the reveal without overclaiming.','+30'],['Players should select the mode now','The game never gives a current selection instruction.','−20']]}
+  ]};
+  const state = {index:0,gamePoints:0,streak:0,elapsedSeconds:0,paused:false,choices:[],completion:false,timer:null,player:{x:50,y:83}};
   const $ = id => document.getElementById(id);
   const format = total => `${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;
-  const save = () => localStorage.setItem('hsrc-001', JSON.stringify({...state, timer:null}));
-  const reset = () => {clearInterval(state.timer);Object.assign(state,{index:0,gamePoints:0,streak:0,elapsedSeconds:0,paused:false,choices:[],completion:false,timer:null,startedAt:Date.now()});localStorage.removeItem('hsrc-001');};
-  const renderMap = () => {const nodes=[['◈','CASE LOCK'],['⌁','ROUTE LEDGER'],['⚠','COUNTER GATE'],['✦','VERDICT']];$('gameMap').innerHTML=scenario.steps.map((step,i)=>{const choice=state.choices[i];const cls=i===state.index&&!state.completion?'active':choice?(choice.correct?'correct':'missed'):'';return `<div class="node ${cls}" data-icon="${nodes[i][0]}">${nodes[i][1]}</div>`;}).join('');};
+  const save = () => localStorage.setItem('hsrc-001', JSON.stringify({...state,timer:null}));
+  const reset = () => {clearInterval(state.timer);Object.assign(state,{index:0,gamePoints:0,streak:0,elapsedSeconds:0,paused:false,choices:[],completion:false,timer:null,player:{x:50,y:83}});localStorage.removeItem('hsrc-001');};
+  const movePlayer = node => {state.player={x:node.x,y:node.y};const token=$('playerToken');token.style.setProperty('--x',`${node.x}%`);token.style.setProperty('--y',`${node.y}%`);};
+  const renderChoices = step => {$('choiceGrid').replaceChildren(...step.options.map((item,i)=>{const node=nodeGraph[state.index][i];const button=document.createElement('button');button.className='map-node';button.style.setProperty('--x',`${node.x}%`);button.style.setProperty('--y',`${node.y}%`);button.innerHTML=`<span class="node-mark">${node.mark}</span><span>${node.kind}</span>`;button.setAttribute('aria-label',item[0]);button.onclick=()=>choose(i);return button;}));};
+  const render = () => {const step=scenario.steps[state.index];if(!step){complete();return;}$('points').textContent=state.gamePoints;$('timer').textContent=format(state.elapsedSeconds);$('streak').textContent=state.streak;$('step').textContent=`${state.index+1} / ${scenario.steps.length}`;$('mapTitle').textContent=step.title;$('prompt').textContent=step.prompt;$('context').textContent=step.context;$('missionBadge').textContent=state.streak>=2?'STREAK ACTIVE':'CHOOSE A PATH';$('feedback').textContent='';$('feedback').className='feedback';$('sourceLabel').textContent=`FROZEN CASE FILE · ${sourceSnapshotDate} · ${evidenceWindow} · GAME POINTS ONLY`;renderChoices(step);movePlayer(state.player);};
   const tick = () => {if(!state.paused&&!state.completion){state.elapsedSeconds+=1;$('timer').textContent=format(state.elapsedSeconds);save();}};
-  const render = () => {
-    const step=scenario.steps[state.index];
-    $('points').textContent=state.gamePoints;$('streak').textContent=`×${state.streak}`;$('timer').textContent=format(state.elapsedSeconds);$('step').textContent=`${state.index+1} / ${scenario.steps.length}`;$('missionBadge').textContent=state.streak>=2?'STREAK CHARGED':'UNLOCK THE PATH';$('sourceLabel').textContent=`FROZEN CASE FILE · ${sourceSnapshotDate} · ${evidenceWindow} · GAME POINTS ONLY`;
-    renderMap();
-    if(!step) return complete();
-    $('mapTitle').textContent=step.title;$('prompt').textContent=step.prompt;$('context').textContent=step.context;$('feedback').textContent='';$('feedback').className='feedback';
-    $('choiceGrid').replaceChildren(...step.options.map((item,i)=>{const button=document.createElement('button');button.className='choice';button.innerHTML=`<span class="letter">${['◈','⌁','✦'][i]}</span><span>${item[0]}<small>${item[2]} game points</small></span>`;button.onclick=()=>choose(i);return button;}));
-  };
-  const choose = selected => {
-    const step=scenario.steps[state.index]; const correct=selected===step.correct; const delta=correct?30:-20;
-    state.streak=correct?state.streak+1:0;state.gamePoints+=delta;state.choices.push({junction:step.title,selected:step.options[selected][0],correct,delta,explanation:step.options[selected][1],at:state.elapsedSeconds});
-    $('feedback').textContent=step.options[selected][1];$('feedback').className=`feedback ${correct?'good':'bad'}`;
-    [...$('choiceGrid').children].forEach(button=>button.disabled=true);$('points').textContent=state.gamePoints;$('streak').textContent=`×${state.streak}`;$('missionBadge').textContent=correct?'PATH UNLOCKED':'ROUTE DAMAGED';renderMap();save();
-    setTimeout(()=>{state.index+=1;render();},750);
-  };
-  const complete = () => {
-    state.completion=true;clearInterval(state.timer);const penalty=Math.max(0,state.elapsedSeconds-scenario.graceSeconds);state.gamePoints-=penalty;$('points').textContent=state.gamePoints;$('game').hidden=true;$('result').hidden=false;$('resultTitle').textContent=state.gamePoints>=80?'Route reconstructed':'Route complete — review the missed evidence';$('resultCopy').textContent=state.gamePoints>=80?'You held the comparison to its dated evidence, inspected activity and retained the counter-evidence.':'You completed the route, but the replay shows where the historical evidence was weakened.';$('finalPoints').textContent=state.gamePoints;$('finalTime').textContent=format(state.elapsedSeconds);$('routeScore').textContent=`${state.choices.filter(x=>x.correct).length} / ${scenario.steps.length}`;$('statusBadge').textContent='COMPLETE';save();
-  };
-  const replay = () => {$('replayPanel').hidden=false;$('replaySteps').innerHTML=state.choices.map((choice,i)=>`<article class="replay-step ${choice.correct?'good':'bad'}"><b>${i+1}. ${choice.junction} · ${choice.delta>0?'+':''}${choice.delta} points</b><div>${choice.selected}</div><small>${choice.explanation} · ${format(choice.at)}</small></article>`).join('');$('replayPanel').scrollIntoView({behavior:'smooth'});};
+  const choose = selected => {const step=scenario.steps[state.index];const node=nodeGraph[state.index][selected];const correct=selected===step.correct;const delta=correct?30:-20;state.streak=correct?state.streak+1:0;state.gamePoints+=delta;state.choices.push({junction:step.title,selected:step.options[selected][0],correct,delta,explanation:step.options[selected][1],at:state.elapsedSeconds,node:node.kind});[...$('choiceGrid').children].forEach(button=>button.disabled=true);movePlayer(node);$('points').textContent=state.gamePoints;$('streak').textContent=state.streak;$('missionBadge').textContent=correct?'PATH SECURED':'WRONG TURN';$('feedback').textContent=step.options[selected][1];$('feedback').className=`feedback ${correct?'good':'bad'}`;save();setTimeout(()=>{state.index+=1;render();},900);};
+  const complete = () => {state.completion=true;clearInterval(state.timer);const penalty=Math.max(0,state.elapsedSeconds-scenario.graceSeconds);state.gamePoints-=penalty;$('game').hidden=true;$('result').hidden=false;$('resultTitle').textContent=state.gamePoints>=80?'You found the defensible route':'Case closed — inspect the wrong turns';$('resultCopy').textContent=state.gamePoints>=80?'You kept the evidence boundary, inspected the route and carried counter-evidence to the reveal.':'Your replay identifies the junctions where the reconstruction weakened.';$('finalPoints').textContent=state.gamePoints;$('finalTime').textContent=format(state.elapsedSeconds);$('routeScore').textContent=`${state.choices.filter(x=>x.correct).length} / ${scenario.steps.length}`;save();};
+  const replay = () => {$('replayPanel').hidden=false;$('replaySteps').innerHTML=state.choices.map((choice,i)=>`<article class="replay-step ${choice.correct?'good':'bad'}"><small>MOVE ${i+1} · ${choice.node} · ${format(choice.at)}</small><b>${choice.selected}</b><p>${choice.delta>0?'+':''}${choice.delta} points — ${choice.explanation}</p></article>`).join('');$('replayPanel').scrollIntoView({behavior:'smooth'});};
   $('startGame').onclick=()=>{reset();$('intro').hidden=true;$('game').hidden=false;state.timer=setInterval(tick,1000);render();};
-  $('pauseGame').onclick=()=>{state.paused=!state.paused;$('pauseGame').textContent=state.paused?'Resume':'Pause';$('statusBadge').textContent=state.paused?'PAUSED':'PLAYING';save();};
+  $('pauseGame').onclick=()=>{state.paused=!state.paused;$('pauseGame').textContent=state.paused?'▶':'Ⅱ';$('missionBadge').textContent=state.paused?'PAUSED':'CHOOSE A PATH';save();};
   $('restartGame').onclick=()=>{reset();$('result').hidden=true;$('replayPanel').hidden=true;$('intro').hidden=false;};
   $('replayGame').onclick=replay;
 })();

@@ -3,63 +3,62 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#080b18">
+  <meta name="theme-color" content="#15211d">
   <title>Historical Strategy Reconstruction Challenge</title>
   <meta name="description" content="A mobile-first historical reconstruction puzzle using a fixed evidence snapshot. Game points only; no advice, execution or performance claim.">
   <link rel="stylesheet" href="game.css">
 </head>
 <body>
   <main class="app-shell">
-    <header class="topbar"><a class="wordmark" href="/">TTP <span>//</span> ARCADE</a><span class="mode-badge">SEASON ZERO · CASE 001</span></header>
+    <header class="topbar"><a class="wordmark" href="/">THE TECH PRINCIPLE</a><span>CASE FILE 001</span></header>
 
-    <section id="intro" class="intro panel">
-      <div class="star-field" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-      <p class="eyebrow">THE EVIDENCE VAULT PRESENTS</p>
-      <div class="intro-token">✦</div>
+    <section id="intro" class="cover panel">
+      <div class="cover-map" aria-hidden="true"><span class="map-start">START</span><i></i><i></i><i></i><span class="map-end">REVEAL</span></div>
+      <p class="kicker">HISTORICAL STRATEGY RECONSTRUCTION</p>
+      <div class="level-mark">01</div>
       <h1 class="game-title">THE<br><em>SPLIT ROUTE</em></h1>
-      <p class="tagline">A historical evidence heist. Find the true route before the reveal locks.</p>
-      <div class="mission-card">
-        <div class="mission-icon">⌁</div><div><small>YOUR MISSION</small><strong>Rebuild the four lost junctions using only the frozen case file.</strong></div>
-      </div>
-      <div class="case-facts"><span>◉ 4 junctions</span><span>◷ 90s grace</span><span>✦ +120 perfect</span></div>
-      <button id="startGame" class="primary">ENTER THE VAULT <b>→</b></button>
+      <p class="tagline">A four-move evidence puzzle. Choose your path on the case board. Every route is recorded. Not every route survives the reveal.</p>
+      <div class="cover-rule"><b>THE RULE</b><span>Reach the reveal with the strongest reconstruction and the fewest penalties.</span></div>
+      <div class="case-facts"><span>4 moves</span><span>90s grace</span><span>frozen historical case</span></div>
+      <button id="startGame" class="primary">PLAY CASE 001 <b>→</b></button>
       <p class="boundary">Historical reconstruction game. Game points are not money or investment outcomes. Not investment advice, trade signals, a forecast, brokerage, custody or execution.</p>
     </section>
 
     <section id="game" class="game" hidden aria-live="polite">
-      <header class="hud panel">
-        <div class="hud-stat score-stat"><small>POINTS</small><b id="points">0</b></div>
-        <div class="hud-stat"><small>CLOCK</small><b id="timer">00:00</b></div>
-        <div class="hud-stat"><small>STREAK</small><b id="streak">×0</b></div>
-        <button id="pauseGame" class="quiet" aria-label="Pause game">Ⅱ</button>
+      <header class="hud">
+        <div><small>POINTS</small><b id="points">0</b></div>
+        <div><small>TIME</small><b id="timer">00:00</b></div>
+        <div><small>STREAK</small><b id="streak">0</b></div>
+        <button id="pauseGame" class="pause" aria-label="Pause game">Ⅱ</button>
       </header>
-      <section class="map-card panel">
-        <div class="map-head"><div><p class="eyebrow">CASE 001 · THE SPLIT ROUTE</p><h2 id="mapTitle">Choose your first move</h2></div><span id="statusBadge" class="status">LIVE</span></div>
-        <div id="gameMap" class="game-map" aria-label="Scenario route map"></div>
+
+      <section class="game-board panel">
+        <div class="board-header"><div><p class="kicker">JUNCTION <span id="step">1 / 4</span></p><h2 id="mapTitle">Set the evidence boundary</h2></div><span id="missionBadge">YOUR MOVE</span></div>
+        <p id="prompt" class="board-prompt">Loading case board…</p>
+        <div id="gameMap" class="game-map" aria-label="Interactive reconstruction board">
+          <div class="route route-a" aria-hidden="true"></div><div class="route route-b" aria-hidden="true"></div><div class="route route-c" aria-hidden="true"></div>
+          <div id="choiceGrid" class="choice-grid"></div>
+          <div id="playerToken" class="player-token" aria-label="Player position"><span>✦</span></div>
+          <div class="board-start" aria-hidden="true">START</div><div class="board-finish" aria-hidden="true">REVEAL</div>
+        </div>
+        <div class="board-footer"><p id="context"></p><p id="feedback" class="feedback" aria-live="polite"></p></div>
         <p id="sourceLabel" class="source-label"></p>
-      </section>
-      <section class="decision panel">
-        <div class="decision-head"><p class="eyebrow">EVIDENCE JUNCTION <span id="step">0 / 4</span></p><span id="missionBadge">UNLOCK THE PATH</span></div>
-        <h2 id="prompt">Loading scenario…</h2>
-        <p id="context" class="context"></p>
-        <div id="choiceGrid" class="choice-grid"></div>
-        <p id="feedback" class="feedback" aria-live="polite"></p>
       </section>
     </section>
 
     <section id="result" class="result panel" hidden>
-      <div class="result-burst" aria-hidden="true">✦</div>
-      <p class="eyebrow">VAULT EXIT UNLOCKED</p>
+      <p class="kicker">CASE CLOSED</p>
+      <div class="seal">CASE<br>COMPLETE</div>
       <h2 id="resultTitle">Route reconstructed</h2>
       <p id="resultCopy" class="lede"></p>
       <div class="result-stats"><div><small>GAME POINTS</small><b id="finalPoints">0</b></div><div><small>TIME</small><b id="finalTime">00:00</b></div><div><small>ROUTE</small><b id="routeScore">0 / 4</b></div></div>
-      <button id="replayGame" class="primary">PLAY BACK THE RUN <b>▶</b></button>
-      <button id="restartGame" class="secondary">RUN THE CASE AGAIN</button>
+      <button id="replayGame" class="primary">REPLAY THE CASE <b>▶</b></button>
+      <button id="restartGame" class="secondary">PLAY AGAIN</button>
       <p class="boundary">This completed historical case records what occurred in the disclosed sample only. It does not establish a future result or recommendation.</p>
     </section>
 
     <section id="replayPanel" class="replay panel" hidden>
-      <div class="map-head"><div><p class="eyebrow">REPLAY ARCHIVE</p><h2>Your decision trail</h2></div><span class="status">RECORDED</span></div>
+      <p class="kicker">YOUR CASE RECORD</p><h2>Decision replay</h2>
       <div id="replaySteps" class="replay-steps"></div>
       <p class="boundary">Source: 30 matched historical/replay tests, 23 September 2026. Buy/Sell Split was higher in 21 tests; Total Net was higher in 8; 1 tied. The result is a dated observation, not a forecast.</p>
     </section>
