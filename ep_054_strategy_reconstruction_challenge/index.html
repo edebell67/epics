@@ -18,7 +18,7 @@
       <div class="level-mark">01</div>
       <h1 class="game-title">THE<br><em>SPLIT ROUTE</em></h1>
       <p class="tagline">A four-move evidence puzzle. Choose your path on the case board. Every route is recorded. Not every route survives the reveal.</p>
-      <div class="cover-rule"><b>THE RULE</b><span>Reach the reveal with the strongest reconstruction and the fewest penalties.</span></div>
+      <div class="cover-rule"><b>YOUR OBJECTIVE</b><span>Reconstruct whether “Split was higher more often” is defensible in this dated sample. Choose the next evidence that reduces uncertainty—not the blob that looks most promising.</span></div>
       <div class="case-facts"><span>4 moves</span><span>90s grace</span><span>frozen historical case</span></div>
       <button id="startGame" class="primary">PLAY CASE 001 <b>→</b></button>
       <p class="boundary">Historical reconstruction game. Game points are not money or investment outcomes. Not investment advice, trade signals, a forecast, brokerage, custody or execution.</p>
@@ -35,13 +35,14 @@
       <section class="game-board panel">
         <div class="board-header"><div><p class="kicker">JUNCTION <span id="step">1 / 4</span></p><h2 id="mapTitle">Set the evidence boundary</h2></div><span id="missionBadge">YOUR MOVE</span></div>
         <p id="prompt" class="board-prompt">Loading case board…</p>
+        <div id="caseObjective" class="objective-card"><b>CASE OBJECTIVE</b><p>Build a defensible answer to the dated claim: <em>“Was Split higher more often in this sample?”</em> Each move should make the reconstruction fairer, more complete or more honestly limited.</p></div>
         <div id="gameMap" class="game-map" aria-label="Interactive reconstruction board">
           <div class="route route-a" aria-hidden="true"></div><div class="route route-b" aria-hidden="true"></div><div class="route route-c" aria-hidden="true"></div>
           <div id="choiceGrid" class="choice-grid"></div>
           <div id="playerToken" class="player-token" aria-label="Player position"><span>✦</span></div>
           <div class="board-start" aria-hidden="true">START</div><div class="board-finish" aria-hidden="true">REVEAL</div>
         </div>
-        <div class="board-footer"><p id="context"></p><p id="feedback" class="feedback" aria-live="polite"></p></div>
+        <div class="board-footer"><p id="context"></p><p id="feedback" class="feedback" aria-live="polite"></p><button id="continueGame" class="continue" hidden>NEXT JUNCTION →</button></div>
         <p id="sourceLabel" class="source-label"></p>
       </section>
     </section>

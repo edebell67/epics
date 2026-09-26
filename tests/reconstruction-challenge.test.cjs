@@ -18,6 +18,8 @@ test('Level 1 reconstruction challenge provides a mobile game shell and clear hi
   assert.match(html, /class="game-title"/);
   assert.match(html, /id="missionBadge"/);
   assert.match(html, /id="playerToken"/);
+  assert.match(html, /id="caseObjective"/);
+  assert.match(html, /id="continueGame"/);
   assert.match(html, /class="[^\"]*game-board/);
   assert.match(html, /id="streak"/);
   assert.match(html, /not investment advice/i);
@@ -32,6 +34,7 @@ test('scenario code locks a dated source snapshot and records game-only score, t
   assert.match(js, /streak/);
   assert.match(js, /nodeGraph/);
   assert.match(js, /movePlayer/);
+  assert.match(js, /continueGame/);
   assert.match(js, /elapsedSeconds/);
   assert.match(js, /choices/);
   assert.match(js, /pause/);
