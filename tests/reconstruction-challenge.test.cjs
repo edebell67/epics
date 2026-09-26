@@ -15,6 +15,9 @@ test('Level 1 reconstruction challenge provides a mobile game shell and clear hi
   assert.match(html, /id="choiceGrid"/);
   assert.match(html, /id="gameMap"/);
   assert.match(html, /id="replayPanel"/);
+  assert.match(html, /class="game-title"/);
+  assert.match(html, /id="missionBadge"/);
+  assert.match(html, /id="streak"/);
   assert.match(html, /not investment advice/i);
   assert.match(html, /meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/);
 });
@@ -24,6 +27,7 @@ test('scenario code locks a dated source snapshot and records game-only score, t
   assert.match(js, /sourceSnapshotDate/);
   assert.match(js, /evidenceWindow/);
   assert.match(js, /gamePoints/);
+  assert.match(js, /streak/);
   assert.match(js, /elapsedSeconds/);
   assert.match(js, /choices/);
   assert.match(js, /pause/);
@@ -34,7 +38,9 @@ test('scenario code locks a dated source snapshot and records game-only score, t
 
 test('mobile-first CSS exposes full-width decision controls and reduced-motion support', () => {
   const css = read('game.css');
-  assert.match(css, /min-height:\s*44px/);
-  assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
-  assert.match(css, /@media \(min-width: 760px\)/);
+  assert.match(css, /min-height:\s*48px/);
+  assert.match(css, /--void:/);
+  assert.match(css, /@keyframes/);
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)/);
+  assert.match(css, /@media \(min-width:\s*760px\)/);
 });

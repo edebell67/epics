@@ -29,26 +29,26 @@
       ]}
     ]
   };
-  const state = {index:0, gamePoints:0, elapsedSeconds:0, paused:false, choices:[], completion:false, timer:null, startedAt:null};
+  const state = {index:0, gamePoints:0, streak:0, elapsedSeconds:0, paused:false, choices:[], completion:false, timer:null, startedAt:null};
   const $ = id => document.getElementById(id);
   const format = total => `${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;
   const save = () => localStorage.setItem('hsrc-001', JSON.stringify({...state, timer:null}));
-  const reset = () => {clearInterval(state.timer);Object.assign(state,{index:0,gamePoints:0,elapsedSeconds:0,paused:false,choices:[],completion:false,timer:null,startedAt:Date.now()});localStorage.removeItem('hsrc-001');};
-  const renderMap = () => {$('gameMap').innerHTML=scenario.steps.map((step,i)=>{const choice=state.choices[i];const cls=i===state.index&&!state.completion?'active':choice?(choice.correct?'correct':'missed'):'';return `<div class="node ${cls}">${i+1}</div>`;}).join('');};
+  const reset = () => {clearInterval(state.timer);Object.assign(state,{index:0,gamePoints:0,streak:0,elapsedSeconds:0,paused:false,choices:[],completion:false,timer:null,startedAt:Date.now()});localStorage.removeItem('hsrc-001');};
+  const renderMap = () => {const nodes=[['◈','CASE LOCK'],['⌁','ROUTE LEDGER'],['⚠','COUNTER GATE'],['✦','VERDICT']];$('gameMap').innerHTML=scenario.steps.map((step,i)=>{const choice=state.choices[i];const cls=i===state.index&&!state.completion?'active':choice?(choice.correct?'correct':'missed'):'';return `<div class="node ${cls}" data-icon="${nodes[i][0]}">${nodes[i][1]}</div>`;}).join('');};
   const tick = () => {if(!state.paused&&!state.completion){state.elapsedSeconds+=1;$('timer').textContent=format(state.elapsedSeconds);save();}};
   const render = () => {
     const step=scenario.steps[state.index];
-    $('points').textContent=state.gamePoints;$('timer').textContent=format(state.elapsedSeconds);$('step').textContent=`${state.index} / ${scenario.steps.length}`;$('sourceLabel').textContent=`SOURCE SNAPSHOT ${sourceSnapshotDate} · ${evidenceWindow} · GAME POINTS ONLY`;
+    $('points').textContent=state.gamePoints;$('streak').textContent=`×${state.streak}`;$('timer').textContent=format(state.elapsedSeconds);$('step').textContent=`${state.index+1} / ${scenario.steps.length}`;$('missionBadge').textContent=state.streak>=2?'STREAK CHARGED':'UNLOCK THE PATH';$('sourceLabel').textContent=`FROZEN CASE FILE · ${sourceSnapshotDate} · ${evidenceWindow} · GAME POINTS ONLY`;
     renderMap();
     if(!step) return complete();
     $('mapTitle').textContent=step.title;$('prompt').textContent=step.prompt;$('context').textContent=step.context;$('feedback').textContent='';$('feedback').className='feedback';
-    $('choiceGrid').replaceChildren(...step.options.map((item,i)=>{const button=document.createElement('button');button.className='choice';button.innerHTML=`<span class="letter">${String.fromCharCode(65+i)}</span><span>${item[0]}<small>${item[2]} game points</small></span>`;button.onclick=()=>choose(i);return button;}));
+    $('choiceGrid').replaceChildren(...step.options.map((item,i)=>{const button=document.createElement('button');button.className='choice';button.innerHTML=`<span class="letter">${['◈','⌁','✦'][i]}</span><span>${item[0]}<small>${item[2]} game points</small></span>`;button.onclick=()=>choose(i);return button;}));
   };
   const choose = selected => {
     const step=scenario.steps[state.index]; const correct=selected===step.correct; const delta=correct?30:-20;
-    state.gamePoints+=delta;state.choices.push({junction:step.title,selected:step.options[selected][0],correct,delta,explanation:step.options[selected][1],at:state.elapsedSeconds});
+    state.streak=correct?state.streak+1:0;state.gamePoints+=delta;state.choices.push({junction:step.title,selected:step.options[selected][0],correct,delta,explanation:step.options[selected][1],at:state.elapsedSeconds});
     $('feedback').textContent=step.options[selected][1];$('feedback').className=`feedback ${correct?'good':'bad'}`;
-    [...$('choiceGrid').children].forEach(button=>button.disabled=true);$('points').textContent=state.gamePoints;renderMap();save();
+    [...$('choiceGrid').children].forEach(button=>button.disabled=true);$('points').textContent=state.gamePoints;$('streak').textContent=`×${state.streak}`;$('missionBadge').textContent=correct?'PATH UNLOCKED':'ROUTE DAMAGED';renderMap();save();
     setTimeout(()=>{state.index+=1;render();},750);
   };
   const complete = () => {
