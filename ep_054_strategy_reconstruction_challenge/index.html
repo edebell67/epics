@@ -4,64 +4,52 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#15211d">
-  <title>Historical Strategy Reconstruction Challenge</title>
-  <meta name="description" content="A mobile-first historical reconstruction puzzle using a fixed evidence snapshot. Game points only; no advice, execution or performance claim.">
+  <title>Strategy Echo — Historical Mimic Challenge</title>
+  <meta name="description" content="A mobile-first historical strategy-mimic game using a fixed completed dataset. Penalty points only; no advice, execution or performance claim.">
   <link rel="stylesheet" href="game.css">
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar"><a class="wordmark" href="/">THE TECH PRINCIPLE</a><span>CASE FILE 001</span></header>
-
     <section id="intro" class="cover panel">
-      <div class="cover-map" aria-hidden="true"><span class="map-start">START</span><i></i><i></i><i></i><span class="map-end">REVEAL</span></div>
-      <p class="kicker">HISTORICAL STRATEGY RECONSTRUCTION</p>
-      <div class="level-mark">01</div>
-      <h1 class="game-title">THE<br><em>SPLIT ROUTE</em></h1>
-      <p class="tagline">A four-move evidence puzzle. Choose your path on the case board. Every route is recorded. Not every route survives the reveal.</p>
-      <div class="cover-rule"><b>YOUR OBJECTIVE</b><span>Reconstruct whether “Split was higher more often” is defensible in this dated sample. Choose the next evidence that reduces uncertainty—not the blob that looks most promising.</span></div>
-      <div class="case-facts"><span>4 moves</span><span>90s grace</span><span>frozen historical case</span></div>
+      <div class="cover-map" aria-hidden="true"><span class="map-start">START</span><i></i><i></i><i></i><span class="map-end">MIMIC</span></div>
+      <p class="kicker">HISTORICAL STRATEGY MIMIC</p><div class="level-mark">01</div>
+      <h1 class="game-title">STRATEGY<br><em>ECHO</em></h1>
+      <p class="tagline">Read the frozen data. Mimic the strategy's B / S / H route. Finish with the fewest penalty points.</p>
+      <div class="cover-rule"><b>YOUR OBJECTIVE</b><span>At every moment, use the short data clue to choose <em>B</em>, <em>S</em> or <em>H</em>. Matching the strategy adds no penalty. Close choices cost less than opposite choices.</span></div>
+      <div class="case-facts"><span>4 moves</span><span>10s free / move</span><span>frozen 23 Sep 2026</span></div>
       <button id="startGame" class="primary">PLAY CASE 001 <b>→</b></button>
-      <p class="boundary">Historical reconstruction game. Game points are not money or investment outcomes. Not investment advice, trade signals, a forecast, brokerage, custody or execution.</p>
+      <p class="boundary">Historical strategy-mimic game. Penalty points are not money or investment outcomes. Not investment advice, trade signals, a forecast, brokerage, custody or execution.</p>
     </section>
-
     <section id="game" class="game" hidden aria-live="polite">
       <header class="hud">
-        <div><small>POINTS</small><b id="points">0</b></div>
-        <div><small>TIME</small><b id="timer">00:00</b></div>
-        <div><small>STREAK</small><b id="streak">0</b></div>
+        <div><small>PENALTY</small><b id="penalty">0</b></div><div><small>TIME</small><b id="timer">00:00</b></div><div><small>FREE TIME</small><b id="grace">10s</b></div>
         <button id="pauseGame" class="pause" aria-label="Pause game">Ⅱ</button>
       </header>
-
       <section class="game-board panel">
-        <div class="board-header"><div><p class="kicker">JUNCTION <span id="step">1 / 4</span></p><h2 id="mapTitle">Set the evidence boundary</h2></div><span id="missionBadge">YOUR MOVE</span></div>
-        <p id="prompt" class="board-prompt">Loading case board…</p>
-        <div id="caseObjective" class="objective-card"><b>CASE OBJECTIVE</b><p>Build a defensible answer to the dated claim: <em>“Was Split higher more often in this sample?”</em> Each move should make the reconstruction fairer, more complete or more honestly limited.</p></div>
-        <div id="gameMap" class="game-map" aria-label="Interactive reconstruction board">
+        <div class="board-header"><div><p class="kicker">MOMENT <span id="step">1 / 4</span></p><h2 id="mapTitle">Read the strategy state</h2></div><span id="missionBadge">MIMIC THE ROUTE</span></div>
+        <div id="caseObjective" class="objective-card"><b>LOWEST SCORE WINS</b><p>Same action: <em>0</em> penalty · close action: <em>10</em> · opposite action: <em>20</em>. After free time, every second adds <em>10</em>.</p></div>
+        <p id="prompt" class="board-prompt">Loading historical moment…</p><p id="context" class="data-clue"></p>
+        <div id="gameMap" class="game-map mimic-map" aria-label="Strategy route progress">
           <div class="route route-a" aria-hidden="true"></div><div class="route route-b" aria-hidden="true"></div><div class="route route-c" aria-hidden="true"></div>
-          <div id="choiceGrid" class="choice-grid"></div>
-          <div id="playerToken" class="player-token" aria-label="Player position"><span>✦</span></div>
-          <div class="board-start" aria-hidden="true">START</div><div class="board-finish" aria-hidden="true">REVEAL</div>
+          <div class="route-label route-label-a">B</div><div class="route-label route-label-b">S</div><div class="route-label route-label-c">H</div>
+          <div id="playerToken" class="player-token" aria-label="Player route position"><span>✦</span></div><div class="board-start" aria-hidden="true">START</div><div class="board-finish" aria-hidden="true">MIMIC</div>
         </div>
-        <div class="board-footer"><p id="context"></p><p id="feedback" class="feedback" aria-live="polite"></p><button id="continueGame" class="continue" hidden>NEXT JUNCTION →</button></div>
-        <p id="sourceLabel" class="source-label"></p>
+        <div id="choiceGrid" class="action-grid" aria-label="Choose strategy action">
+          <button class="action-button buy" data-action="B" aria-label="Buy action"><b>B</b><span>BUY</span></button><button class="action-button sell" data-action="S" aria-label="Sell action"><b>S</b><span>SELL</span></button><button class="action-button hold" data-action="H" aria-label="Hold action"><b>H</b><span>HOLD</span></button>
+        </div>
+        <div class="board-footer"><p id="feedback" class="feedback" aria-live="polite"></p><button id="continueGame" class="continue" hidden>NEXT MOMENT →</button></div><p id="sourceLabel" class="source-label"></p>
       </section>
     </section>
-
     <section id="result" class="result panel" hidden>
-      <p class="kicker">CASE CLOSED</p>
-      <div class="seal">CASE<br>COMPLETE</div>
-      <h2 id="resultTitle">Route reconstructed</h2>
-      <p id="resultCopy" class="lede"></p>
-      <div class="result-stats"><div><small>GAME POINTS</small><b id="finalPoints">0</b></div><div><small>TIME</small><b id="finalTime">00:00</b></div><div><small>ROUTE</small><b id="routeScore">0 / 4</b></div></div>
-      <button id="replayGame" class="primary">REPLAY THE CASE <b>▶</b></button>
-      <button id="restartGame" class="secondary">PLAY AGAIN</button>
-      <p class="boundary">This completed historical case records what occurred in the disclosed sample only. It does not establish a future result or recommendation.</p>
+      <p class="kicker">MIMIC COMPLETE</p><div class="seal">ROUTE<br>REPLAYED</div><h2 id="resultTitle">Strategy route complete</h2><p id="resultCopy" class="lede"></p>
+      <div class="result-stats"><div><small>PENALTY</small><b id="finalPoints">0</b></div><div><small>TIME</small><b id="finalTime">00:00</b></div><div><small>ZERO-PENALTY MOVES</small><b id="routeScore">0 / 4</b></div></div>
+      <button id="replayGame" class="primary">WATCH YOUR ROUTE <b>▶</b></button><button id="restartGame" class="secondary">PLAY AGAIN</button>
+      <p class="boundary">This completed historical case shows a fixed record only. It does not establish a future result or recommendation.</p>
     </section>
-
     <section id="replayPanel" class="replay panel" hidden>
-      <p class="kicker">YOUR CASE RECORD</p><h2>Decision replay</h2>
-      <div id="replaySteps" class="replay-steps"></div>
-      <p class="boundary">Source: 30 matched historical/replay tests, 23 September 2026. Buy/Sell Split was higher in 21 tests; Total Net was higher in 8; 1 tied. The result is a dated observation, not a forecast.</p>
+      <p class="kicker">YOUR ROUTE RECORD</p><h2>Action replay</h2><div id="replaySteps" class="replay-steps"></div>
+      <p class="boundary">Source: fixed historical trade records for DNA_200651, CHF, 23 September 2026, read from the local EP058 PostgreSQL tradedb API. Game data is frozen for this case.</p>
     </section>
   </main>
   <script src="game.js"></script>

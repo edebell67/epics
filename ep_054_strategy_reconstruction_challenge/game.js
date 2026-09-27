@@ -1,34 +1,106 @@
 (() => {
   'use strict';
+
   const sourceSnapshotDate = '2026-09-23';
-  const evidenceWindow = '30 matched historical/replay tests on 23 September 2026';
-  const nodeGraph = [
-    [{x:18,y:37,kind:'MATCH',label:'same set',mark:'M'},{x:50,y:22,kind:'MIX',label:'any outcomes',mark:'?'},{x:82,y:37,kind:'BLIND',label:'ignore records',mark:'×'}],
-    [{x:18,y:42,kind:'HEADLINE',label:'larger total',mark:'H'},{x:50,y:20,kind:'LEDGER',label:'closed rotations',mark:'L'},{x:82,y:42,kind:'NEW',label:'current record',mark:'N'}],
-    [{x:18,y:35,kind:'ERASE',label:'remove results',mark:'×'},{x:50,y:19,kind:'DRAMA',label:'one dramatic',mark:'!'},{x:82,y:35,kind:'COUNTER',label:'8 + 1 tie',mark:'C'}],
-    [{x:18,y:40,kind:'FORECAST',label:'will remain',mark:'F'},{x:50,y:18,kind:'DATED',label:'dated sample',mark:'D'},{x:82,y:40,kind:'SELECT',label:'select now',mark:'S'}]
-  ];
-  const scenario = { id:'HSRC-001', title:'The Split Route', graceSeconds:90, steps:[
-    {title:'Set the evidence boundary',prompt:'Start with the evidence rule that makes the comparison fair.',context:'What would make a claim about Split versus Total meaningful? Both modes must be tested on the same selected strategy basket.',correct:0,options:[['Use the same basket in both modes','WHY: a matched basket removes the selection mismatch. Now any observed difference can be inspected fairly.','+30'],['Compare any attractive outcomes','WHY NOT: the results could differ only because different items were picked.','−20'],['Ignore the selected records','WHY NOT: without the record list, the comparison cannot be reproduced.','−20']]},
-    {title:'Inspect what created the result',prompt:'Choose the evidence that tests whether a headline hides activity.',context:'A larger aggregate can be true but incomplete. Which record shows how the result was produced?',correct:1,options:[['Read only the larger aggregate','WHY NOT: this reports the outcome without checking the route that created it.','−20'],['Open the closed-rotation ledger','WHY: the ledger shows activity in each mode, so the observed difference has context.','+30'],['Pull a current-date record','WHY NOT: it is outside the frozen historical case and cannot explain this result.','−20']]},
-    {title:'Test the claim against contrary evidence',prompt:'Keep the record that prevents an overconfident conclusion.',context:'The claim is not “Split always won.” Which evidence must remain in the reconstruction?',correct:2,options:[['Remove every contrary result','WHY NOT: hiding contrary observations turns a reconstruction into a story.','−20'],['Keep only the dramatic record','WHY NOT: one striking observation does not show the full challenge to the claim.','−20'],['Keep 8 Total-higher tests and 1 tie','WHY: this shows the result was not unanimous and keeps the conclusion honest.','+30']]},
-    {title:'Reach the reveal',prompt:'Choose the statement the dated evidence can actually support.',context:'You now know the fixed sample, its route and the counter-evidence. What is the correct bounded conclusion?',correct:1,options:[['This mode will remain superior','WHY NOT: a historical sample cannot establish a future result.','−20'],['Split was higher more often in this dated sample','WHY: it says exactly what the completed evidence shows—and nothing more.','+30'],['Players should select the mode now','WHY NOT: the case does not give a current instruction or recommendation.','−20']]}
-  ]};
-  const state = {index:0,gamePoints:0,streak:0,elapsedSeconds:0,paused:false,choices:[],completion:false,timer:null,player:{x:50,y:83}};
+  const evidenceWindow = 'DNA_200651 · CHF · fixed completed trade record';
+  const graceSchedule = [10, 5, 3];
+  const nodeGraph = { B:{x:22,y:39}, S:{x:50,y:18}, H:{x:78,y:39} };
+  const scenario = {
+    id: 'HSM-001', level: 1, title: 'Strategy Echo', graceSeconds: graceSchedule[0],
+    steps: [
+      { time:'01:39', title:'Opening signal', prompt:'What action does the strategy take?', context:'CHF · flat position · TP +100 · SL −30 · strategy rule: sp_001:dna2-trade', strategyAction:'B', outcome:'+70 historical result', closeType:'Reversed' },
+      { time:'02:23', title:'First reversal', prompt:'What action does the strategy take?', context:'CHF · previous BUY closed +70 · new strategy event · TP +100 · SL −30', strategyAction:'S', outcome:'−40 historical result', closeType:'target reached' },
+      { time:'04:30', title:'Return to route', prompt:'What action does the strategy take?', context:'CHF · previous SELL closed −40 · new strategy event · TP +100 · SL −30', strategyAction:'B', outcome:'+85 historical result', closeType:'Reversed' },
+      { time:'07:59', title:'Second reversal', prompt:'What action does the strategy take?', context:'CHF · previous BUY closed +85 · new strategy event · TP +100 · SL −30', strategyAction:'S', outcome:'−40 historical result', closeType:'target reached' }
+    ]
+  };
+  const state = { index:0, gamePoints:0, penaltyPoints:0, elapsedSeconds:0, turnSeconds:0, paused:false, choices:[], completion:false, timer:null, player:{x:50,y:83} };
   const $ = id => document.getElementById(id);
-  const format = total => `${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;
-  const save = () => localStorage.setItem('hsrc-001', JSON.stringify({...state,timer:null}));
-  const reset = () => {clearInterval(state.timer);Object.assign(state,{index:0,gamePoints:0,streak:0,elapsedSeconds:0,paused:false,choices:[],completion:false,timer:null,player:{x:50,y:83}});localStorage.removeItem('hsrc-001');};
-  const movePlayer = node => {state.player={x:node.x,y:node.y};const token=$('playerToken');token.style.setProperty('--x',`${node.x}%`);token.style.setProperty('--y',`${node.y}%`);};
-  const renderChoices = step => {$('choiceGrid').replaceChildren(...step.options.map((item,i)=>{const node=nodeGraph[state.index][i];const button=document.createElement('button');button.className='map-node';button.style.setProperty('--x',`${node.x}%`);button.style.setProperty('--y',`${node.y}%`);button.innerHTML=`<span class="node-mark">${node.mark}</span><span>${node.kind}</span><small>${node.label}</small>`;button.setAttribute('aria-label',item[0]);button.onclick=()=>choose(i);return button;}));};
-  const render = () => {const step=scenario.steps[state.index];if(!step){complete();return;}$('points').textContent=state.gamePoints;$('timer').textContent=format(state.elapsedSeconds);$('streak').textContent=state.streak;$('step').textContent=`${state.index+1} / ${scenario.steps.length}`;$('mapTitle').textContent=step.title;$('prompt').textContent=step.prompt;$('context').textContent=step.context;$('missionBadge').textContent=state.streak>=2?'STREAK ACTIVE':'CHOOSE A PATH';$('feedback').textContent='';$('feedback').className='feedback';$('continueGame').hidden=true;$('sourceLabel').textContent=`FROZEN CASE FILE · ${sourceSnapshotDate} · ${evidenceWindow} · GAME POINTS ONLY`;renderChoices(step);movePlayer(state.player);};
-  const tick = () => {if(!state.paused&&!state.completion){state.elapsedSeconds+=1;$('timer').textContent=format(state.elapsedSeconds);save();}};
-  const choose = selected => {const step=scenario.steps[state.index];const node=nodeGraph[state.index][selected];const correct=selected===step.correct;const delta=correct?30:-20;state.streak=correct?state.streak+1:0;state.gamePoints+=delta;state.choices.push({junction:step.title,selected:step.options[selected][0],correct,delta,explanation:step.options[selected][1],at:state.elapsedSeconds,node:node.kind});[...$('choiceGrid').children].forEach(button=>button.disabled=true);movePlayer(node);$('points').textContent=state.gamePoints;$('streak').textContent=state.streak;$('missionBadge').textContent=correct?'PATH SECURED':'WRONG TURN';$('feedback').textContent=step.options[selected][1];$('feedback').className=`feedback ${correct?'good':'bad'}`;$('continueGame').textContent=state.index===scenario.steps.length-1?'SEE CASE RESULT →':'NEXT JUNCTION →';$('continueGame').hidden=false;save();};
-  const complete = () => {state.completion=true;clearInterval(state.timer);const penalty=Math.max(0,state.elapsedSeconds-scenario.graceSeconds);state.gamePoints-=penalty;$('game').hidden=true;$('result').hidden=false;$('resultTitle').textContent=state.gamePoints>=80?'You found the defensible route':'Case closed — inspect the wrong turns';$('resultCopy').textContent=state.gamePoints>=80?'You kept the evidence boundary, inspected the route and carried counter-evidence to the reveal.':'Your replay identifies the junctions where the reconstruction weakened.';$('finalPoints').textContent=state.gamePoints;$('finalTime').textContent=format(state.elapsedSeconds);$('routeScore').textContent=`${state.choices.filter(x=>x.correct).length} / ${scenario.steps.length}`;save();};
-  const replay = () => {$('replayPanel').hidden=false;$('replaySteps').innerHTML=state.choices.map((choice,i)=>`<article class="replay-step ${choice.correct?'good':'bad'}"><small>MOVE ${i+1} · ${choice.node} · ${format(choice.at)}</small><b>${choice.selected}</b><p>${choice.delta>0?'+':''}${choice.delta} points — ${choice.explanation}</p></article>`).join('');$('replayPanel').scrollIntoView({behavior:'smooth'});};
-  $('startGame').onclick=()=>{reset();$('intro').hidden=true;$('game').hidden=false;state.timer=setInterval(tick,1000);render();};
-  $('continueGame').onclick=()=>{state.index+=1;render();};
-  $('pauseGame').onclick=()=>{state.paused=!state.paused;$('pauseGame').textContent=state.paused?'▶':'Ⅱ';$('missionBadge').textContent=state.paused?'PAUSED':'CHOOSE A PATH';save();};
-  $('restartGame').onclick=()=>{reset();$('result').hidden=true;$('replayPanel').hidden=true;$('intro').hidden=false;};
-  $('replayGame').onclick=replay;
+  const format = total => `${String(Math.floor(total / 60)).padStart(2,'0')}:${String(total % 60).padStart(2,'0')}`;
+  const save = () => localStorage.setItem('hsm-001', JSON.stringify({...state, timer:null}));
+  const reset = () => { clearInterval(state.timer); Object.assign(state,{index:0,gamePoints:0,penaltyPoints:0,elapsedSeconds:0,turnSeconds:0,paused:false,choices:[],completion:false,timer:null,player:{x:50,y:83}}); localStorage.removeItem('hsm-001'); };
+  const movePlayer = node => { state.player={x:node.x,y:node.y}; const token=$('playerToken'); token.style.setProperty('--x',`${node.x}%`); token.style.setProperty('--y',`${node.y}%`); };
+  // same action: 0 penalty; HOLD is close to BUY/SELL; BUY versus SELL is opposite.
+  const actionPenalty = (strategyAction, playerAction) => {
+    if (strategyAction === playerAction) return 0;
+    if (strategyAction === 'H' || playerAction === 'H') return 10;
+    return 20;
+  };
+  const timePenalty = seconds => Math.max(0, seconds - scenario.graceSeconds) * 10; // +10 per second after grace
+  const buttons = () => [...document.querySelectorAll('[data-action]')];
+  const setButtons = disabled => buttons().forEach(button => { button.disabled = disabled; button.classList.remove('selected'); });
+  const render = () => {
+    const step = scenario.steps[state.index];
+    if (!step) return finish();
+    state.turnSeconds = 0;
+    $('penalty').textContent = state.penaltyPoints;
+    $('timer').textContent = format(state.elapsedSeconds);
+    $('grace').textContent = `${scenario.graceSeconds}s`;
+    $('step').textContent = `${state.index + 1} / ${scenario.steps.length}`;
+    $('mapTitle').textContent = `${step.title} · ${step.time}`;
+    $('prompt').textContent = step.prompt;
+    $('context').textContent = step.context;
+    $('missionBadge').textContent = 'MIMIC THE ROUTE';
+    $('feedback').textContent = '';
+    $('feedback').className = 'feedback';
+    $('continueGame').hidden = true;
+    $('sourceLabel').textContent = `FROZEN CASE · ${sourceSnapshotDate} · ${evidenceWindow} · LEVEL ${scenario.level}`;
+    setButtons(false);
+    movePlayer(state.player);
+  };
+  const tick = () => {
+    if (state.paused || state.completion) return;
+    state.elapsedSeconds += 1;
+    state.turnSeconds += 1;
+    $('timer').textContent = format(state.elapsedSeconds);
+    const remaining = scenario.graceSeconds - state.turnSeconds;
+    $('grace').textContent = remaining > 0 ? `${remaining}s` : `+${Math.max(0, state.turnSeconds - scenario.graceSeconds) * 10}`;
+    save();
+  };
+  const choose = playerAction => {
+    const step = scenario.steps[state.index];
+    if (!step || buttons().every(button => button.disabled)) return;
+    const mimicPenalty = actionPenalty(step.strategyAction, playerAction);
+    const delayPenalty = timePenalty(state.turnSeconds);
+    const totalPenalty = mimicPenalty + delayPenalty;
+    state.penaltyPoints += totalPenalty;
+    state.gamePoints = state.penaltyPoints;
+    state.choices.push({ time:step.time, title:step.title, playerAction, strategyAction:step.strategyAction, mimicPenalty, delayPenalty, totalPenalty, outcome:step.outcome, closeType:step.closeType, at:state.elapsedSeconds });
+    setButtons(true);
+    const selected = document.querySelector(`[data-action="${playerAction}"]`);
+    if (selected) selected.classList.add('selected');
+    movePlayer(nodeGraph[playerAction]);
+    $('penalty').textContent = state.penaltyPoints;
+    $('missionBadge').textContent = totalPenalty === 0 ? 'ROUTE ALIGNED' : 'ROUTE DRIFT';
+    const timeLine = delayPenalty ? ` · time +${delayPenalty}` : '';
+    $('feedback').textContent = `Your action: ${playerAction} · strategy route: ${step.strategyAction} · ${step.outcome} · penalty +${mimicPenalty}${timeLine}`;
+    $('feedback').className = `feedback ${totalPenalty === 0 ? 'good' : 'bad'}`;
+    $('continueGame').textContent = state.index === scenario.steps.length - 1 ? 'SEE MIMIC RESULT →' : 'NEXT MOMENT →';
+    $('continueGame').hidden = false;
+    save();
+  };
+  const finish = () => {
+    state.completion = true;
+    clearInterval(state.timer);
+    $('game').hidden = true;
+    $('result').hidden = false;
+    const zeroMoves = state.choices.filter(choice => choice.totalPenalty === 0).length;
+    $('resultTitle').textContent = state.penaltyPoints === 0 ? 'Perfect strategy echo' : 'Route replay complete';
+    $('resultCopy').textContent = state.penaltyPoints === 0 ? 'You mirrored every recorded strategy action inside the free decision time.' : 'Replay the route to see where action distance or delayed choices added penalty.';
+    $('finalPoints').textContent = state.penaltyPoints;
+    $('finalTime').textContent = format(state.elapsedSeconds);
+    $('routeScore').textContent = `${zeroMoves} / ${scenario.steps.length}`;
+    save();
+  };
+  const replay = () => {
+    $('replayPanel').hidden = false;
+    $('replaySteps').innerHTML = state.choices.map((choice,index) => `<article class="replay-step ${choice.totalPenalty === 0 ? 'good' : 'bad'}"><small>MOVE ${index + 1} · ${choice.time} · ${format(choice.at)}</small><b>YOU ${choice.playerAction} · STRATEGY ${choice.strategyAction}</b><p>${choice.outcome} · mimic +${choice.mimicPenalty} · time +${choice.delayPenalty} · total +${choice.totalPenalty}</p></article>`).join('');
+    $('replayPanel').scrollIntoView({behavior:'smooth'});
+  };
+  $('startGame').onclick = () => { reset(); $('intro').hidden = true; $('game').hidden = false; state.timer = setInterval(tick,1000); render(); };
+  $('continueGame').onclick = () => { state.index += 1; render(); };
+  buttons().forEach(button => { button.onclick = () => choose(button.dataset.action); });
+  $('pauseGame').onclick = () => { state.paused = !state.paused; $('pauseGame').textContent = state.paused ? '▶' : 'Ⅱ'; $('missionBadge').textContent = state.paused ? 'PAUSED' : 'MIMIC THE ROUTE'; save(); };
+  $('restartGame').onclick = () => { reset(); $('result').hidden = true; $('replayPanel').hidden = true; $('intro').hidden = false; };
+  $('replayGame').onclick = replay;
 })();
