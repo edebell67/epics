@@ -1,0 +1,271 @@
+<title id="pageTitle">Product Leaderboard</title>
+<meta name="description" content="Every product ranked by its best-performing scenario, with each scenario's matched strategies and their own returns.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#f4f2ee; --surface:#ffffff; --surface-2:#ebe8e2; --surface-3:#e2ded4; --border:#d9d5cb;
+    --text:#20242b; --muted:#6b7280; --amber:#a8671a; --amber-soft:#f0e2cd;
+    --gain:#0e8a5f; --gain-soft:#e2f4ec; --loss:#b3373b; --loss-soft:#fbe7e6;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0e1116; --surface:#161b22; --surface-2:#1d232c; --surface-3:#242b36; --border:#2a313d;
+      --text:#e7ecf0; --muted:#8b96a8; --amber:#e8a33d; --amber-soft:#3a2c15;
+      --gain:#3ecf8e; --gain-soft:#12261e; --loss:#f1595e; --loss-soft:#2c1518;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0e1116; --surface:#161b22; --surface-2:#1d232c; --surface-3:#242b36; --border:#2a313d;
+    --text:#e7ecf0; --muted:#8b96a8; --amber:#e8a33d; --amber-soft:#3a2c15;
+    --gain:#3ecf8e; --gain-soft:#12261e; --loss:#f1595e; --loss-soft:#2c1518;
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:"IBM Plex Sans Condensed",system-ui,sans-serif;
+    padding-inline:16px; padding-block:20px 40px;
+  }
+  .wrap{max-width:1040px; margin-inline:auto}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums}
+
+  header.top{
+    position:sticky; top:env(safe-area-inset-top,0px);
+    background:var(--bg); z-index:5; padding-block:4px 14px;
+    border-bottom:1px solid var(--border); margin-bottom:18px;
+  }
+  .eyebrow{font:600 11px/1 "IBM Plex Mono",monospace; letter-spacing:.14em; text-transform:uppercase; color:var(--amber); margin:0 0 6px}
+  h1{font-size:clamp(22px,4vw,30px); font-weight:700; margin:0 0 8px; text-wrap:balance}
+  .meta{display:flex; flex-wrap:wrap; gap:6px 14px; font-size:12.5px; color:var(--muted)}
+  .meta b{color:var(--text); font-weight:600}
+
+  .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:18px}
+  .stat{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px}
+  .stat .label{font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:5px}
+  .stat .value{font-size:19px; font-weight:600; font-family:"IBM Plex Mono",monospace}
+  .stat.hero{background:var(--amber-soft); border-color:var(--amber)}
+  .stat.hero .value{color:var(--amber); font-size:22px}
+  .stat.hero .label{color:var(--amber)}
+
+  .controls{display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap}
+  #search{flex:1; min-width:180px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 12px; color:var(--text); font:14px "IBM Plex Sans Condensed",sans-serif}
+  #search:focus{outline:2px solid var(--amber); outline-offset:-1px}
+  .toggle-all{background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 14px; color:var(--text); font:600 12.5px "IBM Plex Mono",monospace; cursor:pointer; letter-spacing:.03em}
+  .toggle-all:hover{border-color:var(--amber); color:var(--amber)}
+
+  .board{border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--surface)}
+  .prow{border-bottom:1px solid var(--border)}
+  .prow:last-child{border-bottom:none}
+  .prow-head{display:grid; grid-template-columns:34px 1fr 130px 96px 22px; align-items:center; gap:10px; padding:12px; cursor:pointer}
+  .prow-head:hover{background:var(--surface-2)}
+  .prow:nth-child(1) .rank, .prow:nth-child(2) .rank, .prow:nth-child(3) .rank{color:var(--amber)}
+  .rank{font:700 13px "IBM Plex Mono",monospace; color:var(--muted); text-align:right}
+  .pname{font-weight:700; font-size:15.5px; text-transform:uppercase}
+  .pbest{font-size:11px; color:var(--muted)}
+  .count{font-size:11.5px; color:var(--muted); text-align:right}
+  .num{font-size:14px; font-weight:700; text-align:right; white-space:nowrap}
+  .num.gain{color:var(--gain)} .num.loss{color:var(--loss)}
+  .chev{color:var(--muted); text-align:center; transition:transform .15s ease}
+  .prow.open > .prow-head .chev{transform:rotate(90deg); color:var(--amber)}
+
+  .pdetail{display:none; padding:0 12px 14px}
+  .prow.open > .pdetail{display:block}
+  .sboard{border:1px solid var(--border); border-radius:10px; overflow:hidden; background:var(--surface-2)}
+  .srow{border-bottom:1px solid var(--border)}
+  .srow:last-child{border-bottom:none}
+  .srow-head{display:grid; grid-template-columns:30px 1fr 70px 90px 90px 90px 20px; align-items:center; gap:8px; padding:8px 10px; cursor:pointer}
+  .srow-head:hover{background:var(--surface-3)}
+  .srank{font:700 11px "IBM Plex Mono",monospace; color:var(--muted); text-align:right}
+  .sname{font-weight:600; font-size:13px}
+  .stitle{font-size:10px; color:var(--muted)}
+  .scount{font-size:11px; color:var(--muted); text-align:right}
+  .snum{font-size:12.5px; font-weight:600; text-align:right; white-space:nowrap}
+  .schev{color:var(--muted); text-align:center; font-size:12px; transition:transform .15s ease}
+  .srow.open .schev{transform:rotate(90deg); color:var(--amber)}
+  .sdetail{display:none; padding:0 10px 10px}
+  .srow.open .sdetail{display:block}
+  .detail-inner{border-top:1px dashed var(--border); padding-top:8px; margin-top:2px}
+  .strat-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:6px}
+  .strat{display:grid; grid-template-columns:1fr auto; gap:2px 10px; align-items:baseline; background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:6px 9px}
+  .strat .model{font:600 11.5px "IBM Plex Mono",monospace}
+  .strat .snet{font:600 12px "IBM Plex Mono",monospace; text-align:right}
+  .strat .sub{grid-column:1/-1; font-size:9.5px; color:var(--muted); display:flex; gap:10px}
+
+  #empty{display:none; text-align:center; color:var(--muted); padding:34px 12px; font-size:13px}
+  footer{margin-top:20px; font-size:11px; color:var(--muted); line-height:1.6}
+  footer code{font-family:"IBM Plex Mono",monospace; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+
+  @media (max-width:640px){
+    .prow-head{grid-template-columns:26px 1fr 22px}
+    .prow-head .count, .prow-head .pbest{display:none}
+    .srow-head{grid-template-columns:22px 1fr 60px 20px}
+    .scount, .snum:nth-of-type(2), .snum:nth-of-type(3){display:none}
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">EP059 · Performance Loop</p>
+    <h1 id="pageH1">Product Leaderboard</h1>
+    <div class="meta">
+      <span><b id="mDate">—</b></span>
+      <span>Type <b id="mType">—</b></span>
+      <span>Return type <b id="mReturn">—</b></span>
+      <span>Generated <b id="mGen">—</b></span>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat hero">
+      <div class="label">Best product right now</div>
+      <div class="value" id="statBest">—</div>
+    </div>
+    <div class="stat">
+      <div class="label">Products compared</div>
+      <div class="value" id="statCount">—</div>
+    </div>
+    <div class="stat">
+      <div class="label">Its best scenario</div>
+      <div class="value" id="statScenario">—</div>
+    </div>
+    <div class="stat">
+      <div class="label">Top strategy there</div>
+      <div class="value" id="statStrategy">—</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <input id="search" type="text" placeholder="Filter products or scenarios…" autocomplete="off">
+    <button class="toggle-all" id="toggleAll" type="button">Expand all products</button>
+  </div>
+
+  <div class="board" id="board" role="list"></div>
+  <p id="empty">No data yet for this product type — nothing is currently trading here.</p>
+
+  <footer>
+    Snapshot from the EP058 dashboard API (<code>GET /api/live_day</code>, aggregated per product) — every scenario
+    the page's own picker offers, ranked per product from that single day's data, then by each product's best scenario.
+    Generated by <code>reports/scenario_return_monitor.py::build_product_report</code>. Not live — refreshed on a push cadence.
+    Decision support and research evidence, not financial advice.
+  </footer>
+</div>
+
+<script>
+const REPORT = {"generated_at": "2026-09-27T22:08:38+00:00", "date": "2026-09-27", "return_type": "NET", "product_type": "forex", "strategy_family": "all", "limit": 30, "min_win_rate": 0.0, "product_count": 0, "best_product": null, "best_product_return": null, "products": []};
+
+function fmt(v){
+  const n = Number(v||0);
+  return (n>=0?'+$':'-$') + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function toneClass(v){ return Number(v) > 0 ? 'gain' : Number(v) < 0 ? 'loss' : ''; }
+function badgeFor(id){
+  if (id === 'NET_RETURN' || id === 'WIN_RATE') return 'ALIAS';
+  if (id.startsWith('top5_')) return 'FAMILY TOP 5';
+  if (id.startsWith('top3_tp')) return 'TP/SL';
+  if (id === 'family_leaders_net' || id === 'family_leaders_alt') return 'CROSS-FAMILY';
+  if (id === 'touched_rank_one') return 'INTRADAY';
+  return 'SCENARIO';
+}
+function titleFor(id){
+  return id.replace(/_net$|_alt$/,'').replace(/_/g,' ').trim().replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function strategyGrid(strategies){
+  return (strategies||[]).map(st => `
+    <div class="strat">
+      <span class="model mono">${st.model}</span>
+      <span class="snet mono ${toneClass(st.net)}">${fmt(st.net)}</span>
+      <span class="sub mono"><span>buy ${fmt(st.buy)}</span><span>sell ${fmt(st.sell)}</span></span>
+    </div>`).join('') || '<span style="color:var(--muted);font-size:12px">No matched strategies.</span>';
+}
+
+function renderBoard(){
+  const board = document.getElementById('board');
+  const term = document.getElementById('search').value.trim().toLowerCase();
+  board.replaceChildren();
+  let shown = 0;
+
+  (REPORT.products||[]).forEach(p => {
+    const scenarioMatches = term ? p.scenarios.filter(s => (s.scenario + titleFor(s.scenario)).toLowerCase().includes(term)) : p.scenarios;
+    const productMatches = p.product.toLowerCase().includes(term);
+    if (term && !productMatches && !scenarioMatches.length) return;
+    shown++;
+
+    const prow = document.createElement('div');
+    prow.className = 'prow';
+    const phead = document.createElement('div');
+    phead.className = 'prow-head';
+    phead.innerHTML = `
+      <span class="rank mono">${p.rank}</span>
+      <span class="pname">${p.product}</span>
+      <span class="pbest">best: ${titleFor(p.best_scenario)}</span>
+      <span class="num mono ${toneClass(p.best_scenario_return)}">${fmt(p.best_scenario_return)}</span>
+      <span class="chev">▸</span>
+    `;
+    phead.addEventListener('click', () => prow.classList.toggle('open'));
+
+    const pdetail = document.createElement('div');
+    pdetail.className = 'pdetail';
+    const sboard = document.createElement('div');
+    sboard.className = 'sboard';
+    (term ? scenarioMatches : p.scenarios).forEach(s => {
+      const srow = document.createElement('div');
+      srow.className = 'srow';
+      const shead = document.createElement('div');
+      shead.className = 'srow-head';
+      shead.innerHTML = `
+        <span class="srank mono">${s.rank}</span>
+        <span><div class="sname">${titleFor(s.scenario)} <span class="badge" style="font-size:9px;color:var(--muted)">${badgeFor(s.scenario)}</span></div><div class="stitle mono">${s.scenario}</div></span>
+        <span class="scount mono">${s.strategy_count}</span>
+        <span class="snum mono ${toneClass(s.total_net)}">${fmt(s.total_net)}</span>
+        <span class="snum mono ${toneClass(s.total_buy)}">${fmt(s.total_buy)}</span>
+        <span class="snum mono ${toneClass(s.total_sell)}">${fmt(s.total_sell)}</span>
+        <span class="schev">▸</span>
+      `;
+      shead.addEventListener('click', () => srow.classList.toggle('open'));
+      const sdetail = document.createElement('div');
+      sdetail.className = 'sdetail';
+      sdetail.innerHTML = `<div class="detail-inner"><div class="strat-grid">${strategyGrid(s.strategies)}</div></div>`;
+      srow.append(shead, sdetail);
+      sboard.appendChild(srow);
+    });
+    pdetail.appendChild(sboard);
+    prow.append(phead, pdetail);
+    board.appendChild(prow);
+  });
+
+  document.getElementById('empty').style.display = shown ? 'none' : 'block';
+}
+
+function init(){
+  document.title = `Product Leaderboard — ${(REPORT.product_type||'').toUpperCase()}`;
+  document.getElementById('pageTitle').textContent = document.title;
+  document.getElementById('pageH1').textContent = `Product Leaderboard — ${(REPORT.product_type||'').toUpperCase()}`;
+  document.getElementById('mDate').textContent = REPORT.date;
+  document.getElementById('mType').textContent = (REPORT.product_type||'').toUpperCase();
+  document.getElementById('mReturn').textContent = REPORT.return_type;
+  document.getElementById('mGen').textContent = new Date(REPORT.generated_at).toLocaleString([], {dateStyle:'medium', timeStyle:'medium'});
+  document.getElementById('statCount').textContent = REPORT.product_count;
+  const best = (REPORT.products||[]).find(p => p.product === REPORT.best_product) || (REPORT.products||[])[0];
+  document.getElementById('statBest').textContent = (REPORT.best_product||'—').toUpperCase() + ' ' + fmt(REPORT.best_product_return);
+  document.getElementById('statScenario').textContent = best ? titleFor(best.best_scenario) : '—';
+  document.getElementById('statStrategy').textContent = best?.scenarios?.[0]?.strategies?.[0]?.model || '—';
+
+  document.getElementById('search').addEventListener('input', renderBoard);
+  const toggleBtn = document.getElementById('toggleAll');
+  let allOpen = false;
+  toggleBtn.addEventListener('click', () => {
+    allOpen = !allOpen;
+    document.querySelectorAll('.prow').forEach(r => r.classList.toggle('open', allOpen));
+    toggleBtn.textContent = allOpen ? 'Collapse all products' : 'Expand all products';
+  });
+
+  renderBoard();
+  const first = document.querySelector('.prow');
+  if (first) first.classList.add('open');
+}
+init();
+</script>
