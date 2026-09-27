@@ -1,27 +1,58 @@
 (() => {
   'use strict';
 
-  const sourceSnapshotDate = '2026-09-23';
-  const asset = 'CHF';
-  const evidenceWindow = 'DNA_200651 · CHF · fixed completed trade record';
   // Free seconds before the time penalty starts, indexed by game/level (1st..5th); level 6+ gets 0s (penalty starts immediately on load).
   const graceSchedule = [10, 5, 3, 2, 1];
   const graceForLevel = level => graceSchedule[level - 1] ?? 0;
   // Move count grows +2 per level: level 1 = 4 moves, level 2 = 6, level 3 = 8, etc.
   // Each level's steps must come from a real frozen trade record before it's added below.
   const movesForLevel = level => 4 + (level - 1) * 2;
-  const scenario = {
-    id: 'HSM-001', level: 1, title: 'Strategy Echo', graceSeconds: graceForLevel(1),
-    steps: [
-      { time:'01:39', title:'Opening signal', prompt:'What action does the strategy take?', strategyAction:'B', pnl:70, position:'flat position', tp:100, sl:-30 },
-      { time:'02:23', title:'First reversal', prompt:'What action does the strategy take?', strategyAction:'S', pnl:-40, position:'previous BUY closed +70', tp:100, sl:-30 },
-      { time:'04:30', title:'Return to route', prompt:'What action does the strategy take?', strategyAction:'B', pnl:85, position:'previous SELL closed −40', tp:100, sl:-30 },
-      { time:'07:59', title:'Second reversal', prompt:'What action does the strategy take?', strategyAction:'S', pnl:-40, position:'previous BUY closed +85', tp:100, sl:-30 }
-    ]
+  const stepTitles = ['Opening signal', 'First reversal', 'Return to route', 'Second reversal'];
+  // Every case below is a real, frozen closed-trade sequence read from the local EP058
+  // PostgreSQL tradedb (combined_trades_closed), one model/product/day per case. A new
+  // game picks a different case than the last one played, so replays don't repeat.
+  const caseLibrary = [
+    {
+      id: 'HSM-001', model: 'DNA_200651', asset: 'CHF', dateLabel: '2026-09-23', level: 1,
+      steps: [
+        { time:'01:39', strategyAction:'B', pnl:70, position:'flat position', tp:100, sl:-30 },
+        { time:'02:23', strategyAction:'S', pnl:-40, position:'previous BUY closed +70', tp:100, sl:-30 },
+        { time:'04:30', strategyAction:'B', pnl:85, position:'previous SELL closed −40', tp:100, sl:-30 },
+        { time:'07:59', strategyAction:'S', pnl:-40, position:'previous BUY closed +85', tp:100, sl:-30 }
+      ]
+    },
+    {
+      id: 'HSM-002', model: 'DNA_200018', asset: 'AUD', dateLabel: '2026-09-24', level: 1,
+      steps: [
+        { time:'00:52', strategyAction:'S', pnl:215, position:'flat position', tp:200, sl:-200 },
+        { time:'16:21', strategyAction:'S', pnl:-225, position:'previous SELL closed +215', tp:200, sl:-200 },
+        { time:'17:51', strategyAction:'S', pnl:145, position:'previous SELL closed −225', tp:200, sl:-200 },
+        { time:'22:16', strategyAction:'B', pnl:-50, position:'previous SELL closed +145', tp:200, sl:-200 }
+      ]
+    },
+    {
+      id: 'HSM-003', model: 'DNA_202273', asset: 'NZD', dateLabel: '2026-09-24', level: 1,
+      steps: [
+        { time:'01:07', strategyAction:'B', pnl:-60, position:'flat position', tp:100, sl:-200 },
+        { time:'16:05', strategyAction:'B', pnl:195, position:'previous BUY closed −60', tp:100, sl:-200 },
+        { time:'18:17', strategyAction:'B', pnl:-65, position:'previous BUY closed +195', tp:100, sl:-200 },
+        { time:'22:58', strategyAction:'S', pnl:-20, position:'previous BUY closed −65', tp:100, sl:-200 }
+      ]
+    }
+  ];
+  caseLibrary.forEach(c => c.steps.forEach((step, i) => { step.title = stepTitles[i] || `Moment ${i + 1}`; step.prompt = 'What action does the strategy take?'; }));
+  caseLibrary.forEach(c => console.assert(c.steps.length === movesForLevel(c.level), `${c.id}: level ${c.level} should have ${movesForLevel(c.level)} moves, has ${c.steps.length}`));
+  const lastCaseKey = 'hsm-last-case';
+  const pickCase = () => {
+    const lastId = localStorage.getItem(lastCaseKey);
+    const pool = caseLibrary.filter(c => c.id !== lastId);
+    const chosen = (pool.length ? pool : caseLibrary)[Math.floor(Math.random() * (pool.length ? pool.length : caseLibrary.length))];
+    localStorage.setItem(lastCaseKey, chosen.id);
+    return chosen;
   };
-  console.assert(scenario.steps.length === movesForLevel(scenario.level), `Level ${scenario.level} should have ${movesForLevel(scenario.level)} moves, has ${scenario.steps.length}`);
+  let scenario = null;
   const outcomeText = pnl => `${pnl > 0 ? '+' : ''}${pnl} historical result`;
-  const marketClue = step => `${asset} · ${step.position} · TP +${step.tp} · SL ${step.sl}`;
+  const marketClue = step => `${scenario.asset} · ${step.position} · TP +${step.tp} · SL ${step.sl}`;
   const toSeconds = time => { const [m, s] = time.split(':').map(Number); return m * 60 + s; };
   const recentWindowSeconds = 5 * 60;
   // Rolling "last 5 min" activity clue, computed from the real frozen timestamps/outcomes of trades
@@ -65,7 +96,7 @@
     $('feedback').textContent = '';
     $('feedback').className = 'feedback';
     $('continueGame').hidden = true;
-    $('sourceLabel').textContent = `FROZEN CASE · ${sourceSnapshotDate} · ${evidenceWindow} · LEVEL ${scenario.level}`;
+    $('sourceLabel').textContent = `FROZEN CASE · ${scenario.dateLabel} · ${scenario.model} · ${scenario.asset} · fixed completed trade record · LEVEL ${scenario.level}`;
     $('progressFill').style.width = `${(state.index / scenario.steps.length) * 100}%`;
     setButtons(false);
   };
@@ -121,9 +152,18 @@
   const replay = () => {
     $('replayPanel').hidden = false;
     $('replaySteps').innerHTML = state.choices.map((choice,index) => `<article class="replay-step ${choice.totalPenalty === 0 ? 'good' : 'bad'}"><small>MOVE ${index + 1} · ${choice.time} · ${format(choice.at)}</small><b>YOU ${choice.playerAction} · STRATEGY ${choice.strategyAction}</b><p>${choice.outcome} · mimic +${choice.mimicPenalty} · time +${choice.delayPenalty} · total +${choice.totalPenalty}</p></article>`).join('');
+    $('replaySource').textContent = `Source: fixed historical trade records for ${scenario.model}, ${scenario.asset}, ${scenario.dateLabel}, read from the local EP058 PostgreSQL tradedb API. Game data is frozen for this case.`;
     $('replayPanel').scrollIntoView({behavior:'smooth'});
   };
-  $('startGame').onclick = () => { reset(); $('intro').hidden = true; $('game').hidden = false; state.timer = setInterval(tick,1000); render(); };
+  $('startGame').onclick = () => {
+    scenario = pickCase();
+    scenario.graceSeconds = graceForLevel(scenario.level);
+    reset();
+    $('intro').hidden = true;
+    $('game').hidden = false;
+    state.timer = setInterval(tick, 1000);
+    render();
+  };
   buttons().forEach(button => { button.onclick = () => choose(button.dataset.action); });
   $('pauseGame').onclick = () => {
     state.paused = !state.paused;

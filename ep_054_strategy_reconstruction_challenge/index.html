@@ -17,7 +17,7 @@
       <h1 class="game-title">STRATEGY<br><em>ECHO</em></h1>
       <p class="tagline">Read the frozen data. Mimic the strategy's B / S / H route. Finish with the fewest penalty points.</p>
       <div class="cover-rule"><b>YOUR OBJECTIVE</b><span>At every moment, use the short data clue to choose <em>B</em>, <em>S</em> or <em>H</em>. Matching the strategy adds no penalty. Close choices cost less than opposite choices.</span></div>
-      <div class="case-facts"><span>4 moves</span><span>10s free / move</span><span>frozen 23 Sep 2026</span></div>
+      <div class="case-facts"><span>4 moves</span><span>10s free / move</span><span>frozen closed-trade record</span></div>
       <button id="startGame" class="primary">PLAY CASE 001 <b>→</b></button>
       <p class="boundary">Historical strategy-mimic game. Penalty points are not money or investment outcomes. Not investment advice, trade signals, a forecast, brokerage, custody or execution.</p>
     </section>
@@ -46,7 +46,7 @@
     </section>
     <section id="replayPanel" class="replay panel" hidden>
       <p class="kicker">YOUR ROUTE RECORD</p><h2>Action replay</h2><div id="replaySteps" class="replay-steps"></div>
-      <p class="boundary">Source: fixed historical trade records for DNA_200651, CHF, 23 September 2026, read from the local EP058 PostgreSQL tradedb API. Game data is frozen for this case.</p>
+      <p id="replaySource" class="boundary">Source: fixed historical trade records, read from the local EP058 PostgreSQL tradedb API. Game data is frozen for this case.</p>
     </section>
   </main>
   <script src="game.js"></script>
