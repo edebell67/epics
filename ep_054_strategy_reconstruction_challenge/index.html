@@ -25,16 +25,13 @@
       <header class="hud">
         <div><small>PENALTY</small><b id="penalty">0</b></div><div><small>TIME</small><b id="timer">00:00</b></div><div><small>FREE TIME</small><b id="grace">10s</b></div>
         <button id="pauseGame" class="pause" aria-label="Pause game">Ⅱ</button>
+        <div class="progress-track" aria-hidden="true"><div id="progressFill" class="progress-fill"></div></div>
       </header>
       <section class="game-board panel">
         <div class="board-header"><div><p class="kicker">MOMENT <span id="step">1 / 4</span></p><h2 id="mapTitle">Read the strategy state</h2></div><span id="missionBadge">MIMIC THE ROUTE</span></div>
         <div id="caseObjective" class="objective-card"><b>LOWEST SCORE WINS</b><p>Same action: <em>0</em> penalty · close action: <em>10</em> · opposite action: <em>20</em>. After free time, every second adds <em>10</em>.</p></div>
-        <p id="prompt" class="board-prompt">Loading historical moment…</p><p id="context" class="data-clue"></p>
-        <div id="gameMap" class="game-map mimic-map" aria-label="Strategy route progress">
-          <div class="route route-a" aria-hidden="true"></div><div class="route route-b" aria-hidden="true"></div><div class="route route-c" aria-hidden="true"></div>
-          <div class="route-label route-label-a">B</div><div class="route-label route-label-b">S</div><div class="route-label route-label-c">H</div>
-          <div id="playerToken" class="player-token" aria-label="Player route position"><span>✦</span></div><div class="board-start" aria-hidden="true">START</div><div class="board-finish" aria-hidden="true">MIMIC</div>
-        </div>
+        <p id="prompt" class="board-prompt">Loading historical moment…</p>
+        <div id="context" class="data-clue"></div>
         <div id="choiceGrid" class="action-grid" aria-label="Choose strategy action">
           <button class="action-button buy" data-action="B" aria-label="Buy action"><b>B</b><span>BUY</span></button><button class="action-button sell" data-action="S" aria-label="Sell action"><b>S</b><span>SELL</span></button><button class="action-button hold" data-action="H" aria-label="Hold action"><b>H</b><span>HOLD</span></button>
         </div>
