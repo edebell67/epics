@@ -53,6 +53,7 @@
   .controls{display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap}
   #search{flex:1; min-width:180px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 12px; color:var(--text); font:14px "IBM Plex Sans Condensed",sans-serif}
   #search:focus{outline:2px solid var(--amber); outline-offset:-1px}
+  #historyPicker{background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 10px; color:var(--text); font:600 12px "IBM Plex Mono",monospace; max-width:260px}
   .toggle-all{background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 14px; color:var(--text); font:600 12.5px "IBM Plex Mono",monospace; cursor:pointer; letter-spacing:.03em}
   .toggle-all:hover{border-color:var(--amber); color:var(--amber)}
 
@@ -138,9 +139,11 @@
   </div>
 
   <div class="controls">
+    <select id="historyPicker" title="View a past snapshot"></select>
     <input id="search" type="text" placeholder="Filter products or scenarios…" autocomplete="off">
     <button class="toggle-all" id="toggleAll" type="button">Expand all products</button>
   </div>
+  <p id="historyNote" style="display:none; font-size:11px; color:var(--amber); margin:-6px 0 12px"></p>
 
   <div class="board" id="board" role="list"></div>
   <p id="empty">No data yet for this product type — nothing is currently trading here.</p>
@@ -154,7 +157,8 @@
 </div>
 
 <script>
-const REPORT = {"generated_at": "2026-09-27T22:13:13+00:00", "date": "2026-09-27", "return_type": "NET", "product_type": "forex", "strategy_family": "all", "limit": 30, "min_win_rate": 0.0, "product_count": 0, "best_product": null, "best_product_return": null, "products": []};
+let REPORT = {"generated_at": "2026-09-27T22:16:06+00:00", "date": "2026-09-27", "return_type": "NET", "product_type": "forex", "strategy_family": "all", "limit": 30, "min_win_rate": 0.0, "product_count": 0, "best_product": null, "best_product_return": null, "products": []};
+const LIVE_REPORT = REPORT;
 
 function fmt(v){
   const n = Number(v||0);
@@ -240,7 +244,7 @@ function renderBoard(){
   document.getElementById('empty').style.display = shown ? 'none' : 'block';
 }
 
-function init(){
+function renderMeta(){
   document.title = `Product Leaderboard — ${(REPORT.product_type||'').toUpperCase()}`;
   document.getElementById('pageTitle').textContent = document.title;
   document.getElementById('pageH1').textContent = `Product Leaderboard — ${(REPORT.product_type||'').toUpperCase()}`;
@@ -253,19 +257,76 @@ function init(){
   document.getElementById('statBest').textContent = (REPORT.best_product||'—').toUpperCase() + ' ' + fmt(REPORT.best_product_return);
   document.getElementById('statScenario').textContent = best ? titleFor(best.best_scenario) : '—';
   document.getElementById('statStrategy').textContent = best?.scenarios?.[0]?.strategies?.[0]?.model || '—';
+}
 
-  document.getElementById('search').addEventListener('input', renderBoard);
-  const toggleBtn = document.getElementById('toggleAll');
-  let allOpen = false;
-  toggleBtn.addEventListener('click', () => {
-    allOpen = !allOpen;
-    document.querySelectorAll('.prow').forEach(r => r.classList.toggle('open', allOpen));
-    toggleBtn.textContent = allOpen ? 'Collapse all products' : 'Expand all products';
-  });
-
+function renderAll(){
+  renderMeta();
   renderBoard();
   const first = document.querySelector('.prow');
   if (first) first.classList.add('open');
 }
-init();
+
+function parseSnapshotTimestamp(ts){
+  // ts is UTC-compact, e.g. 20260927T220239Z -> ISO 2026-09-27T22:02:39Z
+  const iso = ts.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/, '$1-$2-$3T$4:$5:$6Z');
+  return new Date(iso);
+}
+
+// history/index.json lists past snapshots (history/<ts>.json), newest first - lets a past state
+// (e.g. "GBP as of 01:05") be viewed, not just the live one.
+async function loadHistoryPicker(){
+  const picker = document.getElementById('historyPicker');
+  const note = document.getElementById('historyNote');
+  let manifest = [];
+  try {
+    const res = await fetch('history/index.json', { cache: 'no-store' });
+    if (res.ok) manifest = await res.json();
+  } catch (e) { /* history not published yet (e.g. first-ever run) - Latest-only is fine */ }
+
+  picker.replaceChildren();
+  const latestOpt = document.createElement('option');
+  latestOpt.value = '';
+  latestOpt.textContent = 'Latest (live)';
+  picker.appendChild(latestOpt);
+  manifest.forEach(entry => {
+    const opt = document.createElement('option');
+    opt.value = entry.ts;
+    const when = parseSnapshotTimestamp(entry.ts);
+    const label = isNaN(when) ? entry.ts : when.toLocaleString([], {dateStyle:'short', timeStyle:'short'});
+    opt.textContent = `${label} · best ${(entry.best||'—').toUpperCase()} ${fmt(entry.best_return||0)}`;
+    picker.appendChild(opt);
+  });
+
+  picker.addEventListener('change', async () => {
+    if (!picker.value){
+      REPORT = LIVE_REPORT;
+      note.style.display = 'none';
+      renderAll();
+      return;
+    }
+    try {
+      const res = await fetch(`history/${picker.value}.json`, { cache: 'no-store' });
+      if (!res.ok) throw new Error(String(res.status));
+      REPORT = await res.json();
+      note.textContent = `Viewing a past snapshot from ${picker.selectedOptions[0].textContent} — not the current state.`;
+      note.style.display = 'block';
+      renderAll();
+    } catch (e) {
+      note.textContent = 'Could not load that snapshot.';
+      note.style.display = 'block';
+    }
+  });
+}
+
+document.getElementById('search').addEventListener('input', renderBoard);
+const toggleBtn = document.getElementById('toggleAll');
+let allOpen = false;
+toggleBtn.addEventListener('click', () => {
+  allOpen = !allOpen;
+  document.querySelectorAll('.prow').forEach(r => r.classList.toggle('open', allOpen));
+  toggleBtn.textContent = allOpen ? 'Collapse all products' : 'Expand all products';
+});
+
+renderAll();
+loadHistoryPicker();
 </script>
