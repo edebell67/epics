@@ -13,7 +13,9 @@ test('waitlist page captures consent and the source of every lead', () => {
   for (const token of ['id="waitlistForm"', 'name="email"', 'name="discoverySource"', 'name="consent"', 'name="company"']) {
     assert.match(html, new RegExp(token));
   }
+  assert.match(html, /Strategy Directory app/);
   assert.match(html, /Agentic Trading Arena/);
+  assert.match(html, /Strategy Directory and Agentic Trading Arena waitlist updates/);
   assert.match(html, /Join the waitlist/i);
   assert.match(js, /https:\/\/ep052-agentic-arena\.onrender\.com\/api\/waitlist/);
   assert.match(js, /URLSearchParams/);
