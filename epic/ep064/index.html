@@ -1,0 +1,61 @@
+<!doctype html>
+<!--
+  epics/ep_064_reddit_oppourtunity/index.html
+  — Public-ready mobile-first showcase hub for EP064 Reddit Opportunity Demos (UI_01 SiteLedger + UI_02 ApexGuard) with built-in feedback capture.
+
+  VERSION HISTORY
+  v1.0.0 · 2026-10-19 · Initial version (V20261019_0347): mobile-first landing hub linking both interactive demos and Reddit outreach copy.
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>EP064 · Reddit Pain-Point Interactive Demos</title>
+<style>
+:root{--bg:#0d1117;--card:#151b23;--ink:#e6edf3;--mut:#8b949e;--line:#2a313c;--grn:#2ea043;--blu:#388bfd;--r:14px}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);padding:16px}
+.wrap{max-width:980px;margin:0 auto}
+header{padding:16px 0 20px;border-bottom:1px solid var(--line);margin-bottom:20px}
+h1{margin:0 0 6px;font-size:22px}header p{margin:0;color:var(--mut);font-size:14px}
+.grid{display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:720px){.grid{grid-template-columns:1fr 1fr}body{padding:28px}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:12px}
+.tag{display:inline-block;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;width:fit-content}
+.t-biz{background:#122d1f;color:#3fb950;border:1px solid #245836}
+.t-trd{background:#13253e;color:#58a6ff;border:1px solid #254b80}
+.card h2{margin:0;font-size:18px}.card p{margin:0;color:var(--mut);font-size:13.5px}
+.card ul{margin:0;padding-left:18px;color:var(--ink);font-size:13.5px;line-height:1.55}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font-weight:600;padding:12px 16px;border-radius:10px;min-height:44px;margin-top:auto}
+.btn.biz{background:#1f6f5c;color:#fff}.btn.trd{background:#1f6feb;color:#fff}
+.foot{margin-top:20px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;font-size:13.5px;color:var(--mut)}
+.foot code{color:var(--ink);background:#0b0f17;padding:2px 6px;border-radius:5px}
+</style></head><body><div class="wrap">
+<header>
+  <h1>EP064 · Reddit Pain-Point Interactive Demos (Mobile-First)</h1>
+  <p>Standalone, zero-backend interactive sandboxes built directly from recurring Reddit frustrations in <code>r/smallbusiness</code>, <code>r/Contractor</code>, <code>r/FuturesTrading</code>, and <code>r/algotrading</code>.</p>
+</header>
+<div class="grid">
+  <div class="card">
+    <span class="tag t-biz">UI 01 · BUSINESS / CONTRACTORS (B1 + B2)</span>
+    <h2>SiteLedger · Quote Follow-Up &amp; Job-Cost Tracker</h2>
+    <p>Solves quote radio-silence ("ghosting") and faded supply-house receipts eating into quoted job margins.</p>
+    <ul>
+      <li>Sequential quote-to-job continuity (<code>Q-0101</code> → <code>J-0041</code>)</li>
+      <li>Day 3 / Day 7 / Day 14 ghosted-quote aging badges &amp; 1-click SMS/Email sheet</li>
+      <li>Tap-to-scan thermal receipts &amp; voice-note parser with live margin preview</li>
+    </ul>
+    <a class="btn biz" href="ui_01_siteledger_quote_jobcost/index.html">Launch SiteLedger Demo →</a>
+  </div>
+  <div class="card">
+    <span class="tag t-trd">UI 02 · PROP &amp; ALGO TRADING (T1 + T2)</span>
+    <h2>ApexGuard · Drawdown, Tilt &amp; Correlation Monitor</h2>
+    <p>Solves the Intraday High-Water-Mark trailing drawdown trap, copy-trader revenge spirals, and choppy-regime correlation spikes.</p>
+    <ul>
+      <li>Side-by-side Intraday HWM vs EOD trailing drawdown buffers across 4 accounts</li>
+      <li>Quantitative Behavioral Tilt Score (0–100) with pre-breach copier lockout</li>
+      <li>Rolling 30-bar cross-strategy correlation matrix (ρ) &amp; 1-click Auto De-Risk</li>
+    </ul>
+    <a class="btn trd" href="ui_02_trader_risk_guard/index.html">Launch ApexGuard Demo →</a>
+  </div>
+</div>
+<div class="foot">
+  <b>Reddit Outreach Playbook &amp; Copy Matrix:</b> See <code>research/reddit_outreach_and_copy_matrix.md</code> for comment-sniping search queries, "Roast My Workflow" post templates, and subreddit rules.
+</div>
+</div></body></html>

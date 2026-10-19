@@ -1,0 +1,439 @@
+<!doctype html>
+<!--
+  epics/ep_064_reddit_oppourtunity/ui_02_trader_risk_guard/index.html
+  — ApexGuard demo: Prop-Firm Trailing Drawdown & Behavioral Tilt Lockout (T2) + Multi-Strategy Correlation & Regime Monitor (T1).
+  Plan: workstream/200_inprogress/20261018_221000_ep064_997_trader_risk_guard_demo.md
+  Workflow: workstream/600_workflow/ep064/EP064_trader_risk_guard_workflow.html
+
+  VERSION HISTORY
+  v1.0.0 · 2026-10-18 · Initial version (V20261018_2300): Mobile-first interactive demo UI covering Prop Guard (multi-account EOD vs Intraday trailing DD,
+                        tilt cadence gauge, revenge-spiral lockout simulation, global flatten) and Correlation/Regime Guard (6-strategy equity curves,
+                        rolling correlation matrix, regime detector, synchronized drawdown alerts, 1-click de-risk actions).
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0d1117">
+<title>ApexGuard · Prop Drawdown &amp; Correlation Monitor (Demo)</title>
+<style>
+/* MOBILE-FIRST: base rules target 375px–430px phones; min-width 700px (tablet) and 1100px (desktop) scale up */
+:root{
+  --bg:#0b0f17;--card:#131a26;--card2:#192231;--ink:#e6edf3;--mut:#8b949e;--line:#263042;
+  --grn:#2ea043;--grn2:#122d1f;--amb:#d29922;--amb2:#2f2410;--red:#f85149;--red2:#34161b;--blu:#388bfd;--blu2:#13253e;
+  --r:12px;--navh:62px
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding-bottom:calc(var(--navh) + env(safe-area-inset-bottom))}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+input,select{background:#0e141f;border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;width:100%}
+.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums}
+/* demo strip */
+.demo-strip{background:#070a0f;border-bottom:1px solid var(--line);color:var(--mut);font-size:12px;padding:6px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.demo-strip b{color:var(--ink)}.demo-strip .hide-sm{display:none}
+.demo-strip button{background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:5px 10px;font-size:12px;min-height:32px}
+/* top header */
+.top{position:sticky;top:0;z-index:25;background:#0d131dcc;backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topin{display:flex;align-items:center;gap:8px;padding:10px 12px}
+.brand{font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px}
+.brand i{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#2ea043,#238636);display:inline-grid;place-items:center;color:#fff;font-style:normal;font-size:13px}
+.brand small{display:none;font-weight:400;color:var(--mut);font-size:12.5px}
+.sp{flex:1}
+/* bottom tab bar on mobile */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#101723;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);height:calc(var(--navh) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
+nav button{border:0;background:none;color:var(--mut);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;position:relative}
+nav button .ic{font-size:19px;line-height:1}
+nav button.on{color:#58a6ff;font-weight:600}
+nav button.on:before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:#58a6ff}
+.badge{display:inline-block;min-width:18px;padding:0 5px;border-radius:999px;background:var(--red);color:#fff;font-size:11px;line-height:18px;text-align:center;font-weight:600}
+nav .badge{position:absolute;top:5px;left:calc(50% + 8px)}
+/* buttons */
+.btn{border:1px solid var(--line);background:var(--card2);border-radius:10px;padding:10px 14px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:500}
+.btn:hover{border-color:#44536d}
+.btn.pri{background:var(--grn);border-color:var(--grn);color:#fff}
+.btn.warn{background:var(--amb2);border-color:#6e5015;color:#f0b72f}
+.btn.dan{background:var(--red2);border-color:#7d2629;color:#ff7b72}
+.btn.sm{padding:6px 10px;font-size:12.5px;min-height:36px}
+.btn.ghost{background:none;border-color:transparent;color:var(--mut)}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}.btnrow .btn{flex:1;min-width:120px}
+/* layout & cards */
+main{max-width:1320px;margin:0 auto;padding:12px}
+h2{font-size:18px;margin:4px 0 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+h3{font-size:14.5px;margin:0 0 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.grid{display:grid;gap:12px}.k4{grid-template-columns:1fr 1fr}.c2,.c3{grid-template-columns:1fr}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.kpi small{display:block;color:var(--mut);font-size:11.5px}.kpi b{display:block;font-size:20px;margin-top:2px;letter-spacing:-.02em}.kpi span{font-size:11.5px;color:var(--mut)}
+.kpi.good b{color:#3fb950}.kpi.warn b{color:#e3b341}.kpi.bad b{color:#ff7b72}
+/* pills */
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;padding:3px 9px;border-radius:999px;font-weight:600;white-space:nowrap}
+.p-ACTIVE,.p-TRENDING,.p-OK{background:var(--grn2);color:#3fb950;border:1px solid #245836}
+.p-WARNING,.p-CHOPPY{background:var(--amb2);color:#e3b341;border:1px solid #634712}
+.p-CRITICAL,.p-LOCKED,.p-VOLATILE{background:var(--red2);color:#ff7b72;border:1px solid #782528}
+.p-PAUSED{background:#1f2735;color:var(--mut);border:1px solid var(--line)}
+/* scenario chips */
+.sc-bar{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none}.sc-bar::-webkit-scrollbar{display:none}
+.sc-bar button{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 13px;font-size:12.5px;min-height:38px;white-space:nowrap}
+.sc-bar button.on{background:#1f6feb;border-color:#388bfd;color:#fff}
+/* lockout banner */
+.lock-banner{background:linear-gradient(90deg,#49171a,#2c1115);border:1px solid #8c2d32;border-radius:var(--r);padding:12px 14px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.lock-banner b{color:#ff7b72;display:block;font-size:14.5px}
+.lock-banner span{font-size:12.5px;color:#f0c3c0}
+/* progress bars */
+.bar{height:9px;border-radius:999px;background:#0b0f17;overflow:hidden;position:relative;border:1px solid var(--line)}
+.bar>i{position:absolute;inset:0 auto 0 0;background:#2ea043;border-radius:999px;transition:width .25s}
+.bar.warn>i{background:#d29922}.bar.bad>i{background:#f85149}
+/* account card */
+.acct{display:flex;flex-direction:column;gap:8px}
+.acct-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.acct-top b{font-size:15px;display:block}
+.acct-top small{color:var(--mut);font-size:12px}
+.kv2{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;font-size:12.5px;background:#0e141f;padding:10px;border-radius:8px;border:1px solid #1d2636}
+.kv2 div span{color:var(--mut);display:block;font-size:11px}.kv2 div b{font-size:13.5px}
+/* tilt gauge */
+.tilt-wrap{display:flex;align-items:center;gap:14px}
+.gauge{width:78px;height:78px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:20px;flex:none;background:conic-gradient(var(--gcol,#2ea043) calc(var(--gpct,20)*1%),#1c2536 0)}
+.gauge span{width:58px;height:58px;border-radius:50%;background:var(--card);display:grid;place-items:center}
+.f-list{flex:1;font-size:12.5px;display:grid;gap:5px}
+.f-row{display:flex;justify-content:space-between;border-bottom:1px dashed #202a3a;padding-bottom:3px}
+/* heatmap & svg chart */
+.chart-box{background:#0b0f17;border:1px solid var(--line);border-radius:10px;padding:10px;overflow:hidden}
+.hm-wrap{overflow-x:auto}
+table.hm{width:100%;border-collapse:separate;border-spacing:3px;font-size:12px}
+table.hm th{color:var(--mut);font-weight:500;padding:4px;text-align:center}
+table.hm td{text-align:center;padding:8px 4px;border-radius:6px;font-family:ui-monospace,Consolas,monospace;cursor:pointer;min-width:48px}
+/* responsive stacked tables on mobile */
+table.rt{width:100%;border-collapse:collapse}
+table.rt thead{display:none}
+table.rt tr{display:block;border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:8px;background:#0f1520}
+table.rt td{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 0;border-bottom:1px dashed #1e2736;font-size:13px}
+table.rt td:last-child{border-bottom:0}
+table.rt td:before{content:attr(data-label);color:var(--mut);font-size:12px}
+/* modal bottom sheet on mobile */
+.mask{position:fixed;inset:0;background:#0009;display:none;align-items:flex-end;justify-content:center;z-index:50}.mask.on{display:flex}
+.modal{background:var(--card);border-top:1px solid var(--line);border-radius:18px 18px 0 0;width:100%;max-height:90vh;overflow:auto;padding:10px 16px calc(18px + env(safe-area-inset-bottom))}
+.modal:before{content:"";display:block;width:40px;height:4px;border-radius:2px;background:#303d52;margin:4px auto 10px}
+.toast{position:fixed;bottom:calc(var(--navh) + 14px + env(safe-area-inset-bottom));left:12px;right:12px;background:#1f6feb;color:#fff;padding:11px 16px;border-radius:10px;opacity:0;transform:translateY(16px);transition:.25s;z-index:60;font-size:13.5px;text-align:center;pointer-events:none}
+.toast.on{opacity:1;transform:none}
+
+/* tablet ≥700px */
+@media(min-width:700px){
+  main{padding:18px}.topin{padding:10px 20px}.demo-strip{padding:6px 20px}.demo-strip .hide-sm{display:inline}
+  .brand small{display:inline}.k4{grid-template-columns:repeat(4,1fr)}.c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:repeat(2,1fr)}
+  .btnrow .btn{flex:none}
+  .mask{align-items:center;padding:20px}.modal{border:1px solid var(--line);border-radius:14px;max-width:600px}.modal:before{display:none}
+  .toast{left:50%;right:auto;transform:translateX(-50%) translateY(16px);bottom:24px}.toast.on{transform:translateX(-50%)}
+}
+/* desktop ≥1100px */
+@media(min-width:1100px){
+  body{padding-bottom:0;font-size:14px}
+  nav{position:static;display:flex;gap:6px;height:auto;border:0;padding:0;background:none}
+  nav button{flex-direction:row;font-size:13.5px;padding:7px 13px;border-radius:8px;gap:6px}
+  nav button.on{background:#1f6feb;color:#fff}nav button.on:before{display:none}nav .badge{position:static}
+  .c2{grid-template-columns:1.35fr 1fr}.c3{grid-template-columns:repeat(3,1fr)}
+  table.rt thead{display:table-header-group}
+  table.rt tr{display:table-row;border:0;padding:0;margin:0;background:none}
+  table.rt th{font-size:12px;text-align:left;color:var(--mut);padding:8px;border-bottom:1px solid var(--line)}
+  table.rt td{display:table-cell;padding:8px;border-bottom:1px solid #1c2433}table.rt td:before{display:none}
+  .btn{min-height:38px;padding:7px 12px}.btn.sm{min-height:30px;padding:4px 9px}
+}
+</style></head><body>
+<div class="demo-strip">
+  <b>APEXGUARD DEMO</b><span class="hide-sm">· Prop-Firm Trailing Drawdown &amp; Tilt Guard (T2) + Multi-Strategy Correlation &amp; Regime Monitor (T1)</span>
+  <span class="sp"></span>
+  <button data-act="walkthrough">▶ Walkthrough</button>
+  <button data-act="reset">↺ Reset</button>
+</div>
+<div class="top"><div class="topin">
+  <div class="brand"><i>AG</i>ApexGuard <small>· Real-Time Prop &amp; Portfolio Risk Engine</small></div>
+  <nav id="nav"></nav>
+  <span class="sp"></span>
+  <button class="btn dan sm" data-act="flattenAll">🛑 Flatten &amp; Lock All</button>
+</div></div>
+<main id="app"></main>
+<div class="mask" id="mask"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+'use strict';
+const KEY='ep064_apexguard_demo_v1';
+const $=s=>document.querySelector(s);
+const usd=n=>(n<0?'-$':'$')+Math.abs(Math.round(n)).toLocaleString('en-US');
+const sgn=n=>(n>=0?'+$':'-$')+Math.abs(Math.round(n)).toLocaleString('en-US');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function seed(preset='normal'){
+  const baseAccts=[
+    {id:'A1',name:'Apex-50K-Eval-01',firm:'Apex Trader',mode:'Intraday',start:50000,maxDD:2500,dailyLim:1200,eq:51420,hwm:51880,openPnl:140,dayPnl:620,trades10m:2,lossStreak:0,locked:false},
+    {id:'A2',name:'Apex-50K-Eval-02 (Copy)',firm:'Apex Trader',mode:'Intraday',start:50000,maxDD:2500,dailyLim:1200,eq:50810,hwm:51790,openPnl:-310,dayPnl:-480,trades10m:2,lossStreak:1,locked:false},
+    {id:'A3',name:'Topstep-100K-Funded',firm:'Topstep',mode:'EOD',start:100000,maxDD:3000,dailyLim:2000,eq:102450,hwm:102100,openPnl:350,dayPnl:890,trades10m:1,lossStreak:0,locked:false},
+    {id:'A4',name:'MFFU-50K-Funded',firm:'MyFundedFutures',mode:'EOD',start:50000,maxDD:2000,dailyLim:1000,eq:50380,hwm:50900,openPnl:-120,dayPnl:-240,trades10m:1,lossStreak:1,locked:false}
+  ];
+  const tilt={score:24,trades10m:3,sizeMult:1.0,lossStreak:1,reentrySec:195,lockoutUntil:null,reason:'Normal execution cadence'};
+  const strats=[
+    {id:'S1',name:'BRK_London_Open_v4',side:'BOTH',type:'Breakout',active:true,dd:-120,dayNet:840,curve:[0,180,340,290,510,690,640,840]},
+    {id:'S2',name:'BRK_NY_Momentum_v2',side:'BOTH',type:'Breakout',active:true,dd:-90,dayNet:610,curve:[0,120,260,210,390,480,520,610]},
+    {id:'S3',name:'ZONE_Dist_GBP_001',side:'SELL_ONLY',type:'MeanRev',active:true,dd:-40,dayNet:430,curve:[0,90,40,190,220,310,390,430]},
+    {id:'S4',name:'REV_VWAP_Fade_v3',side:'BUY_ONLY',type:'MeanRev',active:true,dd:-60,dayNet:290,curve:[0,-40,80,150,110,240,210,290]},
+    {id:'S5',name:'MOM_CrossSignal_Top1',side:'BOTH',type:'Momentum',active:true,dd:-180,dayNet:520,curve:[0,140,310,280,410,380,460,520]},
+    {id:'S6',name:'RANGE_Asia_Scalp',side:'BOTH',type:'MeanRev',active:true,dd:-30,dayNet:190,curve:[0,40,75,60,110,145,160,190]}
+  ];
+  let corr=[
+    [1.00,0.48,-0.22,-0.18,0.41,0.08],
+    [0.48,1.00,-0.15,-0.24,0.38,0.05],
+    [-0.22,-0.15,1.00,0.34,-0.19,0.28],
+    [-0.18,-0.24,0.34,1.00,-0.12,0.22],
+    [0.41,0.38,-0.19,-0.12,1.00,0.11],
+    [0.08,0.05,0.28,0.22,0.11,1.00]
+  ];
+  let regime={label:'TRENDING',er:0.68,volPct:44,avgCorr:0.14,syncDD:1,msg:'Healthy directional flow; cross-strategy correlation is low (0.14).'};
+  const logs=[
+    {t:'14:32:10',lvl:'OK',m:'Topstep-100K-Funded EOD floor locked at $99,100 (+$2,450 cushion).'},
+    {t:'14:28:04',lvl:'WARN',m:'Apex-50K-Eval-02 intraday HWM rose to $51,790 — trailing floor moved up to $49,290.'},
+    {t:'14:15:00',lvl:'OK',m:'Regime check: Efficiency Ratio 0.68 (Trending), pairwise ρ = 0.14.'}
+  ];
+
+  if(preset==='hwm_trap'){
+    baseAccts[0].hwm=52400; baseAccts[0].eq=50220; baseAccts[0].openPnl=-1180; baseAccts[0].dayPnl=-940;
+    baseAccts[1].hwm=52400; baseAccts[1].eq=50040; baseAccts[1].openPnl=-1360; baseAccts[1].dayPnl=-1080;
+    tilt.score=58; tilt.trades10m=6; tilt.sizeMult=1.5; tilt.lossStreak=3; tilt.reentrySec=38;
+    tilt.reason='Unrealized peak gave back $2,180 on Intraday HWM accounts; buffer < 15%!';
+    logs.unshift({t:'14:36:12',lvl:'CRIT',m:'⚠ INTRADAY HWM TRAP: Apex-50K-Eval-02 is $140 from breaching its $49,900 trailing floor!'});
+  } else if(preset==='revenge_tilt'){
+    baseAccts[1].hwm=51900; baseAccts[1].eq=49350; baseAccts[1].openPnl=0; baseAccts[1].dayPnl=-1240; baseAccts[1].locked=true;
+    baseAccts[0].hwm=51900; baseAccts[0].eq=49720; baseAccts[0].openPnl=-420; baseAccts[0].dayPnl=-1050;
+    tilt.score=88; tilt.trades10m=11; tilt.sizeMult=2.5; tilt.lossStreak=5; tilt.reentrySec=11;
+    tilt.lockoutUntil='15:05:00';
+    tilt.reason='LOCKOUT TRIGGERED: 11 orders in 10m + 2.5x size escalation + 11s re-entry after loss.';
+    logs.unshift({t:'14:37:01',lvl:'CRIT',m:'🛑 TILT LOCKOUT (88/100): Copier severed & Apex-50K-Eval-02 auto-flattened before cascading breach.'});
+  } else if(preset==='corr_spike'){
+    regime={label:'CHOPPY',er:0.19,volPct:89,avgCorr:0.84,syncDD:5,msg:'⚠ CORRELATION SPIKE (avg ρ = 0.84): 5 of 6 strategies in simultaneous drawdown during whipsaw regime!'};
+    corr=corr.map((r,i)=>r.map((v,j)=>i===j?1:+(0.76+((i+j)%3)*0.06).toFixed(2)));
+    strats.forEach((s,idx)=>{s.dd=-(420+idx*110);s.dayNet=-180-idx*65;s.curve=[0,160,290,120,-80,-210,-340,s.dayNet]});
+    logs.unshift({t:'14:38:19',lvl:'CRIT',m:'⚠ REGIME SHIFT → CHOPPY (ER 0.19, Vol 89th pct). Cross-strategy ρ spiked to 0.84.'});
+  }
+  return {preset,accts:baseAccts,tilt,strats,corr,regime,logs};
+}
+
+let S=load();
+let UI={tab:'prop',selPair:[0,1]};
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&x.accts)return x}catch(e){}return seed('normal')}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2600)}
+
+function acctMetrics(a){
+  const floor=a.mode==='Intraday'?(a.hwm-a.maxDD):Math.min(a.start,a.hwm-a.maxDD+600);
+  const dist=Math.max(0,a.eq-floor);
+  const bufPct=Math.max(0,Math.min(100,(dist/a.maxDD)*100));
+  const dailyRem=Math.max(0,a.dailyLim+Math.min(0,a.dayPnl));
+  const state=a.locked||dist<=0||dailyRem<=0?'LOCKED':(bufPct<18||dailyRem<200?'CRITICAL':(bufPct<42||dailyRem<450?'WARNING':'ACTIVE'));
+  return {floor,dist,bufPct,dailyRem,state};
+}
+
+const TABS=[
+  ['prop','🛡️','Prop Guard'],
+  ['corr','🔀','Correlation'],
+  ['tilt','🧠','Tilt & Rules'],
+  ['logs','📜','Event Log']
+];
+
+function renderNav(){
+  const crit=S.accts.filter(a=>['CRITICAL','LOCKED'].includes(acctMetrics(a).state)).length + (S.regime.avgCorr>0.65?1:0);
+  $('#nav').innerHTML=TABS.map(([k,ic,l])=>`<button class="${UI.tab===k?'on':''}" data-act="tab" data-id="${k}"><span class="ic">${ic}</span><span>${l}</span>${k==='prop'&&crit?`<span class="badge">${crit}</span>`:''}</button>`).join('');
+}
+
+function render(){
+  renderNav();
+  const sc=`<div class="sc-bar">
+    <button class="${S.preset==='normal'?'on':''}" data-act="preset" data-id="normal">🟢 Normal session</button>
+    <button class="${S.preset==='hwm_trap'?'on':''}" data-act="preset" data-id="hwm_trap">🟠 Intraday HWM trap</button>
+    <button class="${S.preset==='revenge_tilt'?'on':''}" data-act="preset" data-id="revenge_tilt">🔴 Revenge tilt lockout</button>
+    <button class="${S.preset==='corr_spike'?'on':''}" data-act="preset" data-id="corr_spike">🟣 Choppy correlation spike (ρ→0.84)</button>
+    <button data-act="simLoss">⚡ Simulate -$350 loss tick</button>
+  </div>`;
+  const lockBanner=(S.tilt.score>=75||S.accts.some(a=>acctMetrics(a).state==='LOCKED'))?`<div class="lock-banner">
+    <div><b>🛑 HARD RISK LOCKOUT ENGAGED · COPIER SEVERED</b><span>${esc(S.tilt.reason)}</span></div>
+    <button class="btn sm" data-act="unlockAll">Override / Reset Lock</button>
+  </div>`:'';
+  const body=UI.tab==='prop'?vProp():UI.tab==='corr'?vCorr():UI.tab==='tilt'?vTilt():vLogs();
+  $('#app').innerHTML=sc+lockBanner+body;
+  save();
+}
+
+function vProp(){
+  const ms=S.accts.map(a=>[a,acctMetrics(a)]);
+  const totEq=S.accts.reduce((s,a)=>s+a.eq,0);
+  const totDay=S.accts.reduce((s,a)=>s+a.dayPnl,0);
+  const minBuf=Math.min(...ms.map(([,m])=>m.dist));
+  return `<div class="grid k4">
+    <div class="card kpi"><small>Copied accounts</small><b>${S.accts.length} linked</b><span>${S.accts.filter(a=>!a.locked).length} active · ${S.accts.filter(a=>a.locked).length} locked</span></div>
+    <div class="card kpi ${totDay>=0?'good':'bad'}"><small>Combined day P&amp;L</small><b class="mono">${sgn(totDay)}</b><span>Total equity ${usd(totEq)}</span></div>
+    <div class="card kpi ${minBuf<400?'bad':minBuf<900?'warn':'good'}"><small>Tightest DD buffer</small><b class="mono">${usd(minBuf)}</b><span>nearest trailing floor</span></div>
+    <div class="card kpi ${S.tilt.score>=75?'bad':S.tilt.score>=50?'warn':'good'}"><small>Behavioral tilt score</small><b>${S.tilt.score} / 100</b><span>${S.tilt.trades10m} trades / 10m · ${S.tilt.sizeMult}x size</span></div>
+  </div>
+  <h2 style="margin-top:14px">Prop-Firm Accounts (EOD vs Intraday Trailing Drawdown)</h2>
+  <div class="grid c2">${ms.map(([a,m])=>`<div class="card acct">
+    <div class="acct-top">
+      <div><b>${esc(a.name)}</b><small>${esc(a.firm)} · <span class="mono">${a.mode} Trailing</span> · Max DD ${usd(a.maxDD)}</small></div>
+      <span class="pill p-${m.state}">${m.state}</span>
+    </div>
+    <div class="kv2">
+      <div><span>Current Equity</span><b class="mono">${usd(a.eq)}</b></div>
+      <div><span>Peak HWM (${a.mode})</span><b class="mono">${usd(a.hwm)}</b></div>
+      <div><span>Trailing Floor</span><b class="mono" style="color:#ff7b72">${usd(m.floor)}</b></div>
+      <div><span>Distance to Breach</span><b class="mono" style="color:${m.bufPct<20?'#ff7b72':m.bufPct<45?'#e3b341':'#3fb950'}">${usd(m.dist)} (${m.bufPct.toFixed(0)}%)</b></div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Drawdown cushion remaining</span><span class="mono">${m.bufPct.toFixed(0)}%</span></div>
+      <div class="bar ${m.bufPct<20?'bad':m.bufPct<45?'warn':''}"><i style="width:${m.bufPct}%"></i></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mut)">
+      <span>Day P&amp;L: <b class="mono" style="color:${a.dayPnl>=0?'#3fb950':'#ff7b72'}">${sgn(a.dayPnl)}</b> (Daily limit ${usd(a.dailyLim)})</span>
+      <span>Open: <b class="mono">${sgn(a.openPnl)}</b></span>
+    </div>
+    <div class="btnrow">
+      <button class="btn sm ${a.locked?'pri':'dan'}" data-act="toggleLock" data-id="${a.id}">${a.locked?'🔓 Unlock account':'🔒 Lock &amp; flatten'}</button>
+      <button class="btn sm" data-act="switchMode" data-id="${a.id}">Switch to ${a.mode==='Intraday'?'EOD':'Intraday'}</button>
+    </div>
+  </div>`).join('')}</div>`;
+}
+
+function vCorr(){
+  const R=S.regime;
+  const cols=['#58a6ff','#3fb950','#d29922','#f778ba','#bc8cff','#ff7b72'];
+  return `<div class="grid k4">
+    <div class="card kpi ${R.label==='TRENDING'?'good':R.label==='CHOPPY'?'warn':'bad'}"><small>Detected market regime</small><b>${R.label}</b><span>Efficiency Ratio ${R.er}</span></div>
+    <div class="card kpi ${R.avgCorr>0.6?'bad':R.avgCorr>0.35?'warn':'good'}"><small>Avg pairwise correlation</small><b class="mono">ρ = ${R.avgCorr.toFixed(2)}</b><span>${R.avgCorr>0.6?'Diversification collapsed!':'Healthy separation'}</span></div>
+    <div class="card kpi ${R.syncDD>=4?'bad':R.syncDD>=2?'warn':'good'}"><small>Strategies in sync DD</small><b>${R.syncDD} of ${S.strats.length}</b><span>simultaneous drawdown</span></div>
+    <div class="card kpi"><small>Volatility percentile</small><b>${R.volPct}th pct</b><span>rolling 30-bar ATR</span></div>
+  </div>
+  <div class="grid c2" style="margin-top:14px">
+    <div class="card">
+      <h3><span>Multi-Strategy Intraday Equity Curves</span><span class="pill p-${R.label}">${R.label}</span></h3>
+      <div class="chart-box">${svgCurves(S.strats,cols)}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:12px">
+        ${S.strats.map((s,i)=>`<span style="opacity:${s.active?1:.4}"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${cols[i]};margin-right:4px"></i>${esc(s.name)} (<span class="mono">${sgn(s.dayNet)}</span>)</span>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <h3><span>Rolling 30-Bar Correlation Matrix (ρ)</span><button class="btn sm pri" data-act="deRiskCorrelated">⚡ Auto De-Risk Cluster</button></h3>
+      <p style="margin:0 0 8px;color:var(--mut);font-size:12.5px">${esc(R.msg)}</p>
+      <div class="hm-wrap"><table class="hm"><thead><tr><th></th>${S.strats.map((_,i)=>`<th>S${i+1}</th>`).join('')}</tr></thead><tbody>
+        ${S.corr.map((row,i)=>`<tr><th>S${i+1}</th>${row.map((v,j)=>{
+          const bg=i===j?'#1c2536':v>0.65?'#6e1f24':v>0.35?'#5a3e14':v<0?'#123524':'#172234';
+          return `<td style="background:${bg}" title="${S.strats[i].name} vs ${S.strats[j].name}: ${v.toFixed(2)}">${v.toFixed(2)}</td>`;
+        }).join('')}</tr>`).join('')}
+      </tbody></table></div>
+    </div>
+  </div>
+  <h3 style="margin:14px 0 8px">Active Strategy Book &amp; Side Filters</h3>
+  <table class="rt"><thead><tr><th>ID</th><th>Strategy</th><th>Type</th><th>Side Filter</th><th>Day Net</th><th>Max DD</th><th>Status</th><th>Action</th></tr></thead><tbody>
+    ${S.strats.map(s=>`<tr>
+      <td data-label="ID" class="mono">${s.id}</td>
+      <td data-label="Strategy"><b>${esc(s.name)}</b></td>
+      <td data-label="Type">${s.type}</td>
+      <td data-label="Side Filter"><button class="btn sm" data-act="cycleSide" data-id="${s.id}">${s.side}</button></td>
+      <td data-label="Day Net" class="mono" style="color:${s.dayNet>=0?'#3fb950':'#ff7b72'}"><b>${sgn(s.dayNet)}</b></td>
+      <td data-label="Max DD" class="mono" style="color:#ff7b72">${usd(s.dd)}</td>
+      <td data-label="Status"><span class="pill p-${s.active?'ACTIVE':'PAUSED'}">${s.active?'ACTIVE':'PAUSED'}</span></td>
+      <td data-label="Action"><button class="btn sm ${s.active?'warn':'pri'}" data-act="toggleStrat" data-id="${s.id}">${s.active?'Pause sleeve':'Resume'}</button></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function svgCurves(strats,cols){
+  const W=560,H=190,pad=24;
+  const all=strats.flatMap(s=>s.curve);
+  const mn=Math.min(-100,...all),mx=Math.max(200,...all);
+  const y=v=>H-pad-((v-mn)/(mx-mn||1))*(H-pad*2);
+  const x=(i,n)=>pad+(i/(n-1))*(W-pad*2);
+  const z=y(0);
+  const paths=strats.map((s,idx)=>{
+    if(!s.active)return '';
+    const d=s.curve.map((v,i)=>`${i?'L':'M'}${x(i,s.curve.length).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+    return `<path d="${d}" fill="none" stroke="${cols[idx]}" stroke-width="2.4"/>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">
+    <line x1="${pad}" y1="${z}" x2="${W-pad}" y2="${z}" stroke="#303d52" stroke-dasharray="4 4"/>
+    <text x="4" y="${z-4}" fill="#8b949e" font-size="10">$0</text>
+    ${paths}
+  </svg>`;
+}
+
+function vTilt(){
+  const t=S.tilt;
+  const col=t.score>=75?'#f85149':t.score>=50?'#d29922':'#2ea043';
+  return `<div class="grid c2">
+    <div class="card">
+      <h3><span>Behavioral Tilt Detector</span><span class="pill p-${t.score>=75?'LOCKED':t.score>=50?'WARNING':'OK'}">Score ${t.score}/100</span></h3>
+      <div class="tilt-wrap" style="--gpct:${t.score};--gcol:${col}">
+        <div class="gauge"><span>${t.score}</span></div>
+        <div class="f-list">
+          <div class="f-row"><span>Order cadence (last 10m)</span><b class="mono">${t.trades10m} trades</b></div>
+          <div class="f-row"><span>Position size multiple vs baseline</span><b class="mono">${t.sizeMult.toFixed(1)}x</b></div>
+          <div class="f-row"><span>Consecutive losses</span><b class="mono">${t.lossStreak}</b></div>
+          <div class="f-row"><span>Fastest re-entry after loss</span><b class="mono">${t.reentrySec}s</b></div>
+        </div>
+      </div>
+      <p style="margin:12px 0 8px;color:var(--mut);font-size:13px">${esc(t.reason)}</p>
+      <div class="btnrow">
+        <button class="btn warn sm" data-act="preset" data-id="revenge_tilt">Simulate Revenge Spiral</button>
+        <button class="btn pri sm" data-act="coolDown">Reset / Cool-Down Complete</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Hard Lockout Thresholds</h3>
+      <div class="f-list">
+        <div class="f-row"><span>Auto-lock when Tilt Score ≥</span><b class="mono">75 / 100</b></div>
+        <div class="f-row"><span>Auto-flatten when DD buffer ≤</span><b class="mono">$150 (or 10%)</b></div>
+        <div class="f-row"><span>Cut copier when Correlated DD ≥</span><b class="mono">4 sleeves &amp; ρ &gt; 0.70</b></div>
+        <div class="f-row"><span>Mandatory cool-down timer</span><b class="mono">30 minutes</b></div>
+      </div>
+      <p style="margin-top:12px;font-size:12.5px;color:var(--mut)">Why traders on <code>r/FuturesTrading</code> &amp; <code>r/Daytrading</code> ask for this: traditional journals only show mistakes after the account is blown. ApexGuard enforces pre-breach lockouts across all copy-traded accounts simultaneously.</p>
+    </div>
+  </div>`;
+}
+
+function vLogs(){
+  return `<div class="card"><h3>Real-Time Risk Enforcement Log</h3>
+    <table class="rt"><thead><tr><th>Time</th><th>Level</th><th>Event</th></tr></thead><tbody>
+      ${S.logs.map(l=>`<tr><td data-label="Time" class="mono">${l.t}</td><td data-label="Level"><span class="pill p-${l.lvl==='CRIT'?'CRITICAL':l.lvl==='WARN'?'WARNING':'OK'}">${l.lvl}</span></td><td data-label="Event">${esc(l.m)}</td></tr>`).join('')}
+    </tbody></table></div>`;
+}
+
+function mWalk(){
+  $('#modal').innerHTML=`<h2>ApexGuard Demo Walkthrough <button class="btn ghost sm" data-act="close">✕</button></h2>
+  <ol style="padding-left:18px;line-height:1.6;font-size:13.5px">
+    <li><b>Prop Guard tab</b>: Compare <b>Intraday Trailing</b> (Apex) vs <b>EOD Trailing</b> (Topstep/MFFU) high-water-mark floors side-by-side.</li>
+    <li>Tap <b>🟠 Intraday HWM trap</b> in the top scenario bar to see how an unrealized profit peak raises the trailing floor and squeezes the drawdown buffer below 15%.</li>
+    <li>Tap <b>🔴 Revenge tilt lockout</b> to trigger a behavioral cadence spike (88/100) that automatically severs the copy-trader and locks the breached account.</li>
+    <li>Switch to the <b>🔀 Correlation</b> tab and tap <b>🟣 Choppy correlation spike (ρ→0.84)</b> to watch all 6 strategies fall into synchronized drawdown, then tap <b>⚡ Auto De-Risk Cluster</b> or toggle <code>BUY_ONLY</code> / <code>SELL_ONLY</code> side filters.</li>
+  </ol>`;
+  $('#mask').classList.add('on');
+}
+
+const A={
+  tab:id=>{UI.tab=id;render();scrollTo(0,0)},
+  preset:id=>{S=seed(id);if(id==='corr_spike')UI.tab='corr';render();toast('Loaded scenario: '+id.replace('_',' '))},
+  reset:()=>{localStorage.removeItem(KEY);S=seed('normal');UI.tab='prop';render();toast('Demo reset to normal session')},
+  walkthrough:mWalk,
+  close:()=>$('#mask').classList.remove('on'),
+  simLoss:()=>{
+    S.accts.forEach(a=>{if(!a.locked){a.eq-=350;a.dayPnl-=350;a.openPnl-=150;if(acctMetrics(a).dist<=120){a.locked=true;S.logs.unshift({t:'14:40:05',lvl:'CRIT',m:`🛑 Auto-locked ${a.name} — trailing floor breached!`})}}});
+    S.tilt.score=Math.min(100,S.tilt.score+16);S.tilt.lossStreak++;S.tilt.trades10m+=2;
+    render();toast('Simulated -$350 loss tick across active accounts');
+  },
+  toggleLock:id=>{const a=S.accts.find(x=>x.id===id);a.locked=!a.locked;if(a.locked)a.openPnl=0;S.logs.unshift({t:'14:41:00',lvl:a.locked?'WARN':'OK',m:`${a.name} manually ${a.locked?'locked & flattened':'unlocked'}.`});render()},
+  switchMode:id=>{const a=S.accts.find(x=>x.id===id);a.mode=a.mode==='Intraday'?'EOD':'Intraday';render();toast(`${a.name} switched to ${a.mode} trailing mode`)},
+  flattenAll:()=>{S.accts.forEach(a=>{a.locked=true;a.openPnl=0});S.logs.unshift({t:'14:42:00',lvl:'CRIT',m:'🛑 GLOBAL EMERGENCY FLATTEN: All positions closed and copier locked.'});render();toast('All accounts flattened & locked')},
+  unlockAll:()=>{S.accts.forEach(a=>a.locked=false);S.tilt.score=28;S.tilt.reason='Lockout manually cleared by trader.';render();toast('All accounts unlocked')},
+  coolDown:()=>{S.tilt.score=18;S.tilt.trades10m=1;S.tilt.sizeMult=1.0;S.tilt.lossStreak=0;S.tilt.reason='Cool-down completed; cadence normalized.';render();toast('Tilt score reset')},
+  toggleStrat:id=>{const s=S.strats.find(x=>x.id===id);s.active=!s.active;render();toast(`${s.name} ${s.active?'resumed':'paused'}`)},
+  cycleSide:id=>{const s=S.strats.find(x=>x.id===id);const order=['BOTH','BUY_ONLY','SELL_ONLY'];s.side=order[(order.indexOf(s.side)+1)%3];render();toast(`${s.name} filter → ${s.side}`)},
+  deRiskCorrelated:()=>{
+    S.strats.forEach((s,i)=>{if(i===1||i===4)s.active=false});
+    S.regime.avgCorr=0.29;S.regime.syncDD=2;S.regime.msg='De-risked highest-correlated sleeves (S2, S5 paused) → portfolio ρ dropped from 0.84 to 0.29.';
+    S.logs.unshift({t:'14:43:10',lvl:'OK',m:'⚡ Auto De-Risk paused S2 & S5; pairwise ρ reduced to 0.29.'});
+    render();toast('Paused correlated sleeves S2 & S5 — ρ reduced to 0.29');
+  }
+};
+$('#mask').addEventListener('click',e=>{if(e.target.id==='mask')$('#mask').classList.remove('on')});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;e.preventDefault();const f=A[b.dataset.act];if(f)f(b.dataset.id)});
+render();
+</script></body></html>

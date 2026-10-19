@@ -1,0 +1,459 @@
+<!doctype html>
+<!--
+  epics/ep_064_reddit_oppourtunity/ui_01_siteledger_quote_jobcost/index.html
+  — SiteLedger demo: quote follow-up engine (B1) + receipt-to-job-costing (B2), seeded demo data, offline single file.
+  Plan: workstream/200_inprogress/20261018_221000_ep064_997_siteledger_quote_jobcost_demo.md
+  Workflow: workstream/600_workflow/ep064/EP064_siteledger_quote_jobcost_workflow.html
+
+  VERSION HISTORY
+  v1.1.0 · 2026-10-18 · (V20261018_2220) Mobile-first rebuild per user request: base CSS targets phones; bottom tab bar, stacked-card tables,
+                        bottom-sheet modals, swipeable receipt strip, 44px touch targets; tablet ≥700px and desktop ≥1100px enhance. Moved to EP064.
+  v1.0.0 · 2026-10-18 · Initial version (V20261018_2210): dashboard KPIs, sequential quotes, aging/ghosted badges, follow-up sequences + templates,
+                        quote→job conversion, job margin tracking, receipt capture (sample scans + voice/text note parser), unassigned inbox, activity, reset.
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff">
+<title>SiteLedger · Quotes & Job Costs (Demo)</title>
+<style>
+/* v1.1.0 · 2026-10-18 · MOBILE-FIRST: base rules target phones (≥320px); min-width breakpoints at 700px and 1100px enhance for tablet/desktop. */
+:root{--bg:#f5f4f0;--card:#fff;--ink:#1c1c1a;--mut:#6d6b65;--line:#e4e1d9;--acc:#1f6f5c;--acc2:#e7f2ee;--amb:#b7791f;--amb2:#fdf3e1;--red:#b4433a;--red2:#fbe9e7;--blue:#2f5f9e;--blue2:#e8eff9;--r:12px;--navh:62px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0}
+body{font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:calc(var(--navh) + env(safe-area-inset-bottom))}
+button{font:inherit;cursor:pointer;color:inherit}input,select,textarea{font:16px/1.3 system-ui,sans-serif;border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:#fff;width:100%;min-height:44px}
+textarea{resize:vertical}a{color:var(--blue)}
+/* demo strip */
+.demo-strip{background:#1c1c1a;color:#e9e6dd;font-size:12px;padding:6px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}.demo-strip b{color:#fff}
+.demo-strip .hide-sm{display:none}.demo-strip button{background:none;border:1px solid #4a4943;color:#e9e6dd;border-radius:6px;padding:5px 9px;font-size:12px;min-height:30px}
+/* header */
+.top{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line)}
+.topin{display:flex;align-items:center;gap:8px;padding:10px 12px}
+.brand{font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:8px;font-size:16px}.brand i{width:30px;height:30px;border-radius:8px;background:var(--acc);display:inline-grid;place-items:center;color:#fff;font-style:normal;font-size:13px}
+.brand small{display:none;font-weight:400;color:var(--mut)}
+.sp{flex:1}.hdr-actions{display:flex;gap:6px}.hdr-actions .lbl{display:none}
+/* nav: bottom tab bar on mobile */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);height:calc(var(--navh) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
+nav button{border:0;background:none;color:var(--mut);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;position:relative}
+nav button .ic{font-size:20px;line-height:1}nav button.on{color:var(--acc);font-weight:600}nav button.on:before{content:"";position:absolute;top:0;left:25%;right:25%;height:3px;border-radius:0 0 3px 3px;background:var(--acc)}
+.badge{display:inline-block;min-width:18px;padding:0 5px;border-radius:999px;background:var(--red);color:#fff;font-size:11px;line-height:18px;text-align:center;font-weight:600}
+nav .badge{position:absolute;top:6px;left:calc(50% + 6px)}
+/* buttons (44px touch targets on mobile) */
+.btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}.btn.sm{padding:7px 11px;font-size:13px;min-height:38px}.btn.ghost{border-color:transparent;background:none;color:var(--mut)}
+.btn.warn{background:var(--amb2);border-color:#efd9ad;color:#7a4f0f}.btn.dan{background:var(--red2);border-color:#efc7c1;color:var(--red)}.btn.icon{width:44px;padding:0;font-size:18px}
+main{max-width:1280px;margin:0 auto;padding:12px}
+h2{font-size:19px;margin:4px 0 12px}h2 .sub{display:block;color:var(--mut);font-weight:400;font-size:13px;margin-top:2px}h3{font-size:15px;margin:0 0 10px}
+/* grids: single column / 2-up KPIs on mobile */
+.grid{display:grid;gap:12px}.k6{grid-template-columns:1fr 1fr}.c2,.c3{grid-template-columns:1fr}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.kpi{padding:12px}.kpi small{display:block;color:var(--mut);font-size:12px}.kpi b{display:block;font-size:21px;letter-spacing:-.02em;margin-top:2px}.kpi span{font-size:11.5px;color:var(--mut)}
+.kpi.alert b{color:var(--red)}.kpi.good b{color:var(--acc)}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:3px 9px;border-radius:999px;border:1px solid transparent;white-space:nowrap}
+.p-Draft{background:#f0efeb;color:#55534d}.p-Fresh{background:var(--blue2);color:var(--blue)}.p-Due{background:var(--amb2);color:#8a5a12}.p-Overdue{background:#fde4cf;color:#9a4a0e;border-color:#f4c9a3}
+.p-Ghosted{background:var(--red2);color:var(--red)}.p-Won{background:var(--acc2);color:var(--acc)}.p-Lost{background:#eceae4;color:#7b7870;text-decoration:line-through}.p-Waiting{background:#efeaf8;color:#5b4691}
+.p-Inprogress{background:var(--blue2);color:var(--blue)}.p-Complete{background:var(--acc2);color:var(--acc)}
+/* tables → stacked cards on mobile */
+table{width:100%;border-collapse:collapse}
+table.rt thead{display:none}table.rt tr{display:block;border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:10px;background:#fff}
+table.rt td{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0;border-bottom:1px dashed #efece5;text-align:right}
+table.rt td:last-child{border-bottom:0}table.rt td:before{content:attr(data-label);color:var(--mut);font-size:12.5px;text-align:left;flex:none}
+table.rt td.act-cell{justify-content:flex-end;flex-wrap:wrap}table.rt td.act-cell:before{display:none}
+.card.tablewrap{background:none;border:0;padding:0}
+table.plain th{font-size:12px;text-align:left;color:var(--mut);font-weight:500;padding:8px;border-bottom:1px solid var(--line)}table.plain td{padding:8px;border-bottom:1px solid #f0eee8}
+.num{text-align:right;font-variant-numeric:tabular-nums}.mono{font-family:ui-monospace,Consolas,monospace;font-size:13px}
+.dots{display:inline-flex;gap:4px}.dots i{width:9px;height:9px;border-radius:50%;background:#e2dfd7}.dots i.on{background:var(--acc)}
+/* lists: wrap actions under text on mobile */
+.list{display:flex;flex-direction:column}.li{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 0;border-bottom:1px solid #f0eee8}.li:last-child{border:0}
+.li .meta{flex:1 1 100%;min-width:0}.li .meta b{display:block;font-size:14px}.li .meta span{color:var(--mut);font-size:12.5px}.li select{flex:1;min-width:0}
+.bar{height:8px;border-radius:999px;background:#eeece6;overflow:hidden;position:relative}.bar>i{position:absolute;inset:0 auto 0 0;background:var(--acc);border-radius:999px}
+.bar.over>i{background:var(--red)}.bar.warn>i{background:var(--amb)}
+.funnel{display:flex;height:30px;border-radius:8px;overflow:hidden;margin:6px 0 10px}.funnel div{display:grid;place-items:center;color:#fff;font-size:12px;min-width:22px}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--mut)}.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.act{font-size:13px}.act time{color:var(--mut);font-size:11.5px;display:block}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin:0 -12px 12px;padding:0 12px 4px;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font-size:13px;white-space:nowrap;flex:none;min-height:36px}.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.jobcard h3{display:flex;justify-content:space-between;gap:8px;align-items:center}.jobcard .sub{color:var(--mut);font-size:12.5px;margin:-6px 0 12px}
+.row{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;margin:7px 0}.row span:first-child{color:var(--mut)}
+.alertbox{background:var(--red2);color:var(--red);border-radius:10px;padding:10px 12px;font-size:13px;margin:10px 0}
+.okbox{background:var(--acc2);color:var(--acc);border-radius:10px;padding:10px 12px;font-size:13px;margin:10px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.rcpts{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}.rcpts .row{font-size:13px}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.btnrow .btn{flex:1}
+/* receipt capture: horizontal swipe strip on mobile */
+.scans{display:grid;grid-auto-flow:column;grid-auto-columns:62%;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}
+.thermal{scroll-snap-align:start;background:#fffdf7;border:1px solid #e9e3d2;border-radius:4px;padding:10px;font:11.5px/1.4 ui-monospace,Consolas,monospace;color:#4a463c;cursor:pointer;position:relative;transition:transform .15s}
+.thermal b{display:block;text-align:center;font-size:12.5px;margin-bottom:4px}.thermal .tot{border-top:1px dashed #cfc7b0;margin-top:4px;padding-top:4px;font-weight:700}
+.thermal.used{opacity:.45;pointer-events:none}.thermal .tag{position:absolute;top:6px;right:6px;font:10px system-ui;background:#1c1c1a;color:#fff;border-radius:4px;padding:1px 5px}
+.scan{overflow:hidden}.scan:after{content:"";position:absolute;left:0;right:0;height:3px;background:var(--acc);box-shadow:0 0 12px var(--acc);animation:sc .9s linear infinite}@keyframes sc{from{top:0}to{top:100%}}
+.chips{display:flex;gap:6px;margin-top:10px;overflow-x:auto;padding-bottom:4px}.chips button{border:1px dashed #cdc8bb;background:#fff;border-radius:999px;padding:7px 12px;font-size:12.5px;color:var(--mut);white-space:nowrap;flex:none}
+.conf{display:flex;align-items:center;gap:8px;font-size:13px}.conf .bar{flex:1}
+.preview{border:1px solid var(--acc);background:#fbfefd;border-radius:var(--r);padding:14px}
+.kv{display:grid;grid-template-columns:96px 1fr;gap:6px 10px;font-size:13.5px}.kv span:nth-child(odd){color:var(--mut)}
+.empty{color:var(--mut);text-align:center;padding:22px 10px;font-size:13.5px}
+/* modal: bottom sheet on mobile */
+.mask{position:fixed;inset:0;background:#1c1c1a66;display:none;align-items:flex-end;justify-content:center;z-index:50}.mask.on{display:flex}
+.modal{background:#fff;border-radius:18px 18px 0 0;width:100%;max-height:92vh;overflow:auto;padding:8px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px #0003;animation:up .22s ease-out}
+.modal:before{content:"";display:block;width:40px;height:4px;border-radius:2px;background:#d8d4ca;margin:4px auto 10px}@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.modal h2{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.fg{display:grid;grid-template-columns:1fr;gap:0 10px}.fg label,.fl label{font-size:12.5px;color:var(--mut);display:block;margin-bottom:4px}.fl{margin-bottom:12px}
+.items .it{display:grid;grid-template-columns:1fr 1fr 44px;gap:6px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px dashed var(--line)}.items .it input[data-f=d]{grid-column:1/-1}
+.items .it button{border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--mut)}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}.seg button{flex:1;border:0;background:#fff;padding:10px 14px;min-height:44px}.seg button.on{background:var(--ink);color:#fff}
+.phone{background:#f0efeb;border-radius:14px;padding:12px;margin-top:10px}.bubble{background:var(--acc);color:#fff;border-radius:16px 16px 4px 16px;padding:10px 12px;margin-left:auto;max-width:90%;white-space:pre-wrap;font-size:13.5px}
+.tl{border-left:2px solid var(--line);margin:8px 0 0 6px;padding-left:12px}.tl div{position:relative;margin-bottom:8px;font-size:13px}.tl div:before{content:"";position:absolute;left:-18px;top:5px;width:9px;height:9px;border-radius:50%;background:var(--acc)}
+.tl time{color:var(--mut);font-size:11.5px;margin-right:6px}
+.modal-actions{display:flex;gap:8px;margin-top:14px;position:sticky;bottom:0;background:#fff;padding-top:8px}.modal-actions .btn{flex:1}
+.toast{position:fixed;bottom:calc(var(--navh) + 14px + env(safe-area-inset-bottom));left:12px;right:12px;background:#1c1c1a;color:#fff;padding:12px 16px;border-radius:12px;opacity:0;transform:translateY(16px);transition:.25s;z-index:60;font-size:13.5px;text-align:center;pointer-events:none}.toast.on{opacity:1;transform:none}
+.walk ol{padding-left:18px}.walk li{margin-bottom:9px}
+
+/* ---------- tablet ≥700px ---------- */
+@media(min-width:700px){
+ main{padding:20px}.topin{padding:10px 20px}.demo-strip{padding:6px 20px}.demo-strip .hide-sm{display:inline}
+ .k6{grid-template-columns:repeat(3,1fr)}.c3{grid-template-columns:1fr 1fr}.brand small{display:inline}.hdr-actions .lbl{display:inline}.btn.icon{width:auto;padding:0 14px;font-size:14px}
+ .scans{grid-auto-flow:row;grid-auto-columns:auto;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));overflow:visible}
+ .fg{grid-template-columns:1fr 1fr}.items .it{grid-template-columns:1fr 120px 100px 44px;border:0;padding:0;margin-bottom:6px}.items .it input[data-f=d]{grid-column:auto}
+ .mask{align-items:flex-start;padding:6vh 16px;overflow:auto}.modal{border-radius:16px;max-width:640px;max-height:none;padding:20px;animation:none}.modal:before{display:none}
+ .modal-actions{position:static;justify-content:flex-end}.modal-actions .btn{flex:none}
+ .li{flex-wrap:nowrap}.li .meta{flex:1 1 auto}.li select{flex:none;width:160px}.btnrow .btn{flex:none}
+ .toast{left:50%;right:auto;transform:translateX(-50%) translateY(16px);bottom:24px}.toast.on{transform:translateX(-50%)}
+ h2 .sub{display:inline;margin-left:6px}
+}
+/* ---------- desktop ≥1100px: top nav, real tables, two-column dashboards ---------- */
+@media(min-width:1100px){
+ body{padding-bottom:0;font-size:14px}
+ nav{position:static;display:flex;gap:4px;height:auto;border:0;padding:0;background:none;order:2}
+ nav button{flex-direction:row;font-size:14px;padding:8px 12px;border-radius:8px;gap:6px}nav button .ic{font-size:15px}
+ nav button.on{background:var(--ink);color:#fff;font-weight:500}nav button.on:before{display:none}nav .badge{position:static}
+ .brand{order:1}.sp{order:3}.hdr-actions{order:4}.topin{gap:16px}
+ .k6{grid-template-columns:repeat(6,1fr)}.c2{grid-template-columns:1.35fr 1fr}.c3{grid-template-columns:repeat(3,1fr)}
+ .card.tablewrap{background:var(--card);border:1px solid var(--line);padding:16px;overflow-x:auto}
+ table.rt thead{display:table-header-group}table.rt tr{display:table-row;border:0;padding:0;margin:0;background:none}
+ table.rt th{font-size:12px;text-align:left;color:var(--mut);font-weight:500;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+ table.rt td{display:table-cell;text-align:left;padding:9px 8px;border-bottom:1px solid #f0eee8}table.rt td:before{display:none}table.rt td.num{text-align:right}
+ table.rt tr:hover td{background:#fbfaf7}table.rt td.act-cell{white-space:nowrap}
+ input,select,textarea{font-size:14px;min-height:38px;padding:8px 10px}.btn{min-height:38px;padding:7px 12px}.btn.sm{min-height:30px;padding:4px 9px;font-size:12.5px}
+}
+</style></head><body>
+<div class="demo-strip"><b>DEMO</b><span class="hide-sm">Seeded data · demo date fixed to <b>Sat 18 Oct 2026</b> · nothing is really sent</span><span class="sp"></span>
+<button data-act="walkthrough">▶ Walkthrough</button><button data-act="reset">↺ Reset</button></div>
+<div class="top"><div class="topin">
+ <div class="brand"><i>SL</i>SiteLedger <small>· Northfield Build &amp; Renovate</small></div>
+ <nav id="nav"></nav><span class="sp"></span>
+ <div class="hdr-actions"><button class="btn icon" data-act="captureNav" aria-label="Capture receipt">📷<span class="lbl">Capture receipt</span></button><button class="btn pri icon" data-act="newQuote" aria-label="New quote">＋<span class="lbl">New quote</span></button></div>
+</div></div>
+<main id="app"></main>
+<div class="mask" id="mask"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+'use strict';
+/* ---------- helpers ---------- */
+const TODAY=new Date('2026-10-18T09:00:00');
+const iso=d=>d.toISOString().slice(0,10);
+const daysAgo=n=>{const d=new Date(TODAY);d.setDate(d.getDate()-n);return iso(d)};
+const diff=s=>s?Math.round((TODAY-new Date(s+'T09:00:00'))/864e5):null;
+const fmtD=s=>s?new Date(s+'T09:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'—';
+const gbp=n=>'£'+Number(n||0).toLocaleString('en-GB',{maximumFractionDigits:0});
+const gbp2=n=>'£'+Number(n||0).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=s=>document.querySelector(s);
+const BIZ='Northfield Build & Renovate';
+const KEY='ep056_siteledger_demo_v1';
+const STEP_NAMES=['Day {d} · Friendly nudge','Day {d} · Value reminder','Day {d} · Last call'];
+const SUPPLIERS=['Travis Perkins','Screwfix','Toolstation','City Plumbing','Wickes','Howdens','Topps Tiles','B&Q','Jewson','Selco','Victorian Plumbing','Shell','Halfords','CEF','Plumb Center'];
+
+/* ---------- seed data ---------- */
+function mkItems(mat,lab,extra){const it=[{d:'Materials & supplies',kind:'materials',amt:mat},{d:'Labour',kind:'labour',amt:lab}];if(extra)it.push(extra);return it}
+function seed(){
+ const q=(no,cust,phone,email,title,items,status,sentAgo,fu,lastAgo,extra)=>Object.assign({no,cust,phone,email,title,items,status,sentAt:sentAgo==null?null:daysAgo(sentAgo),followUps:fu||0,lastContact:lastAgo==null?null:daysAgo(lastAgo),jobNo:null,created:daysAgo((sentAgo||0)+1),hist:[]},extra||{});
+ const quotes=[
+  q('Q-0101','Sarah Smith','07700 900111','sarah.smith@example.com','Kitchen refit',mkItems(3900,4550),'Won',34,1,30,{jobNo:'J-0041'}),
+  q('Q-0102','Mark Patel','07700 900222','mark.patel@example.com','Bathroom remodel',mkItems(2300,3680),'Won',28,2,22,{jobNo:'J-0042'}),
+  q('Q-0103','Olu Adeyemi','07700 900333','olu.a@example.com','Loft boarding & hatch',mkItems(820,1530),'Sent',2,0,null),
+  q('Q-0104','Grace Hughes','07700 900444','grace.h@example.com','Garden fence (22m)',mkItems(760,1020),'Sent',4,0,null),
+  q('Q-0105','Tom Briggs','07700 900555','tom.briggs@example.com','Full rewire, 3-bed semi',mkItems(1350,3250),'Sent',9,1,6),
+  q('Q-0106','Priya Shah','07700 900666','priya.shah@example.com','Single-storey rear extension',mkItems(6400,7800),'Sent',12,1,9),
+  q('Q-0107','Daniel Reid','07700 900777','d.reid@example.com','Porcelain patio',mkItems(1450,1800),'Sent',19,3,5),
+  q('Q-0108','Helen Ford','07700 900888','helen.ford@example.com','Combi boiler swap',mkItems(1600,1350),'Sent',23,2,16),
+  q('Q-0109','James Okoro','07700 900999','j.okoro@example.com','Composite decking',mkItems(1100,1000),'Lost',26,2,18),
+  q('Q-0110','Lucy Grant','07700 901010','lucy.grant@example.com','Kitchen wall tiling',mkItems(520,1130),'Won',21,0,18,{jobNo:'J-0043'}),
+  q('Q-0111','Ahmed Khan','07700 901111','ahmed@khanstores.example','Corner shop fit-out',mkItems(5200,6700),'Won',15,1,3),
+  q('Q-0112','Chloe Martin','07700 901212','chloe.m@example.com','Hallway & stairs decoration',mkItems(240,740),'Draft',null,0,null)
+ ];
+ quotes.forEach(x=>{x.hist=[{t:x.created,m:'Quote created'}];if(x.sentAt)x.hist.push({t:x.sentAt,m:'Quote sent by email'});for(let i=0;i<x.followUps;i++)x.hist.push({t:i===x.followUps-1&&x.lastContact?x.lastContact:x.sentAt,m:'Follow-up #'+(i+1)+' sent (SMS)'});if(x.status==='Won')x.hist.push({t:x.lastContact||x.sentAt,m:'Customer accepted'});if(x.status==='Lost')x.hist.push({t:x.lastContact,m:'Customer declined – went with cheaper quote'})});
+ const jobs=[
+  {no:'J-0041',quote:'Q-0101',cust:'Sarah Smith',title:'Kitchen refit',value:8450,matBudget:3900,labourCost:2050,status:'In progress',started:daysAgo(26)},
+  {no:'J-0042',quote:'Q-0102',cust:'Mark Patel',title:'Bathroom remodel',value:5980,matBudget:2300,labourCost:1650,status:'In progress',started:daysAgo(20)},
+  {no:'J-0043',quote:'Q-0110',cust:'Lucy Grant',title:'Kitchen wall tiling',value:1650,matBudget:520,labourCost:560,status:'Complete',started:daysAgo(16)}
+ ];
+ const r=(id,supplier,amount,date,jobNo,source,items,note)=>({id,supplier,amount,vat:+(amount/6).toFixed(2),date:daysAgo(date),jobNo,source,items:items||[{d:'Goods',amt:amount}],note:note||''});
+ const receipts=[
+  r('R-201','Howdens',2640,24,'J-0041','email',[{d:'Shaker units x14',amt:2210},{d:'Plinths & panels',amt:430}]),
+  r('R-202','Travis Perkins',610,19,'J-0041','photo',[{d:'Oak worktop 3m x2',amt:560},{d:'Worktop bolts',amt:50}]),
+  r('R-203','Screwfix',84.2,12,'J-0041','voice',[{d:'Fixings, sealant',amt:84.2}],'"£84.20 Screwfix for the Smith kitchen"'),
+  r('R-204','Victorian Plumbing',1480,18,'J-0042','email',[{d:'Bathroom suite',amt:1480}]),
+  r('R-205','Topps Tiles',690,15,'J-0042','photo',[{d:'Wall & floor tiles 22m²',amt:640},{d:'Adhesive',amt:50}]),
+  r('R-206','City Plumbing',318,8,'J-0042','photo',[{d:'Concealed valve, waste kit',amt:318}]),
+  r('R-207','Topps Tiles',455,14,'J-0043','photo',[{d:'Metro tiles 9m²',amt:405},{d:'Grout & trim',amt:50}]),
+  r('R-208','Toolstation',23.98,2,null,'photo',[{d:'Misc consumables',amt:23.98}],'No job reference on receipt')
+ ];
+ const activity=[
+  {t:daysAgo(2),m:'Receipt R-208 (Toolstation £23.98) could not be matched – sent to inbox'},
+  {t:daysAgo(2),m:'Q-0103 sent to Olu Adeyemi (£2,350)'},
+  {t:daysAgo(3),m:'Ahmed Khan accepted Q-0111 (£11,900) – ready to convert to job'},
+  {t:daysAgo(5),m:'Last-call follow-up sent to Daniel Reid (Q-0107)'},
+  {t:daysAgo(8),m:'⚠ J-0042 materials passed budget (£2,488 vs £2,300)'}
+ ];
+ const sampleScans=[
+  {key:'S1',supplier:'Travis Perkins',ref:'Smith kitchen',date:0,items:[{d:'18mm MDF 2440x1220 x4',amt:96},{d:'CLS 47x100 2.4m x12',amt:58.8},{d:'Grab adhesive x2',amt:14.2}],vatInc:false},
+  {key:'S2',supplier:'Screwfix',ref:'Patel',date:0,items:[{d:'Wood screws assorted',amt:18.49},{d:'Sanitary silicone x2',amt:19.98}],vatInc:true},
+  {key:'S3',supplier:'City Plumbing',ref:'',date:0,items:[{d:'Thermostatic shower valve',amt:186}],vatInc:false},
+  {key:'S4',supplier:'Shell',ref:'',date:0,items:[{d:'Diesel 41.2L',amt:62.1}],vatInc:true},
+  {key:'S5',supplier:'Wickes',ref:'Khan shop',date:0,items:[{d:'Tile adhesive 20kg x3',amt:44.97},{d:'Grout 5kg x2',amt:29.98}],vatInc:true}
+ ];
+ return {quotes,jobs,receipts,activity,sampleScans,usedScans:[],settings:{seq:[3,7,14],templates:[
+  'Hi {first}, just checking you received quote {no} for the {title} ({value}). Happy to answer any questions – {biz}',
+  'Hi {first}, a quick follow-up on {no} ({title}). We can start within 2 weeks and the price includes all materials and clear-up. Want me to pencil in a date? – {biz}',
+  'Hi {first}, I\'ll close off quote {no} on Friday so I can plan the diary. If you\'d still like to go ahead (or need it tweaked), just reply here. Thanks – {biz}'
+ ]}};
+}
+let S=load();let UI={view:'dashboard',qfilter:'All',preview:null,scanning:null,fu:null};
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.quotes)return s}catch(e){}return seed()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function log(m){S.activity.unshift({t:iso(TODAY),m});S.activity=S.activity.slice(0,40)}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2600)}
+
+/* ---------- domain logic ---------- */
+const qVal=q=>q.items.reduce((a,i)=>a+Number(i.amt||0),0);
+const qMat=q=>q.items.filter(i=>i.kind==='materials').reduce((a,i)=>a+Number(i.amt||0),0);
+const first=n=>n.split(' ')[0];
+function qState(q){
+ if(['Draft','Won','Lost'].includes(q.status))return q.status;
+ const age=diff(q.sentAt),since=diff(q.lastContact||q.sentAt),seq=S.settings.seq;
+ if(since>=14||(q.followUps>=seq.length&&since>=3))return 'Ghosted';
+ const step=seq[q.followUps];
+ if(step===undefined)return 'Waiting';
+ if(age>=step)return age>step+3?'Overdue':'Due';
+ return 'Fresh';
+}
+function nextStepLabel(q){const i=Math.min(q.followUps,2);return STEP_NAMES[i].replace('{d}',S.settings.seq[i])}
+function fill(tpl,q){return tpl.replace(/{first}/g,first(q.cust)).replace(/{no}/g,q.no).replace(/{title}/g,q.title.toLowerCase()).replace(/{value}/g,gbp(qVal(q))).replace(/{biz}/g,BIZ)}
+function nextQuoteNo(){const m=Math.max(...S.quotes.map(q=>+q.no.slice(2)));return 'Q-'+String(m+1).padStart(4,'0')}
+function nextJobNo(){const m=Math.max(...S.jobs.map(j=>+j.no.slice(2)));return 'J-'+String(m+1).padStart(4,'0')}
+const jobRcpts=j=>S.receipts.filter(r=>r.jobNo===j.no);
+const jobMat=j=>jobRcpts(j).reduce((a,r)=>a+r.amount,0);
+const jobMargin=j=>(j.value-jobMat(j)-j.labourCost)/j.value;
+const openJobs=()=>S.jobs.filter(j=>j.status!=='Complete');
+/* match receipt text → job. surname +60, title keyword +20 each (cap 98) */
+function matchJob(text){
+ const t=(' '+String(text).toLowerCase().replace(/[^a-z0-9 ]/g,' ')+' ');let best=null;
+ openJobs().forEach(j=>{let s=0;const sur=j.cust.split(' ').slice(-1)[0].toLowerCase();if(t.includes(' '+sur+' '))s+=60;
+  const kws=j.title.toLowerCase().split(/[^a-z]+/).filter(w=>w.length>3);const syn={bathroom:['shower','basin','toilet','bath','valve'],kitchen:['worktop','cabinet','units'],shop:['fit','shelving']};
+  kws.forEach(w=>{if(t.includes(' '+w+' '))s+=20;(syn[w]||[]).forEach(x=>{if(t.includes(x))s+=22})});
+  if(!best||s>best.score)best={job:j.no,score:s}});
+ if(!best||best.score===0)return {job:null,conf:0};return {job:best.job,conf:Math.min(98,best.score+(best.score>=60?30:12))};
+}
+function parseNote(txt){
+ const s=String(txt);let amt=null;const m=s.match(/£\s?(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)/)||s.match(/(\d+(?:\.\d{1,2})?)\s?(?:quid|pounds|gbp)/i);
+ if(m)amt=parseFloat(m[1].replace(/,/g,''));
+ let supplier=SUPPLIERS.find(x=>s.toLowerCase().includes(x.toLowerCase()));
+ if(!supplier){const a=s.match(/\bat\s+([A-Z][\w&']*(?:\s+[A-Z][\w&']*)*)/);supplier=a?a[1]:'Unknown supplier'}
+ const what=(s.match(/\bfor\s+(?:the\s+)?(.+?)(?:\s+job)?[.!]?$/i)||[])[1]||'';
+ const mt=matchJob(s);
+ return {source:'voice',supplier,amount:amt,vat:amt?+(amt/6).toFixed(2):0,items:[{d:what?('For '+what):'Goods (from note)',amt:amt||0}],note:'"'+s+'"',job:mt.job,conf:amt?mt.conf:0,error:amt?null:'No amount found – include a £ value, e.g. "£140"'};
+}
+function parseScan(sc){
+ const sub=sc.items.reduce((a,i)=>a+i.amt,0);const total=sc.vatInc?sub:+(sub*1.2).toFixed(2);
+ const mt=matchJob(sc.ref+' '+sc.items.map(i=>i.d).join(' '));
+ return {source:'photo',scanKey:sc.key,supplier:sc.supplier,amount:+total.toFixed(2),vat:+(total/6).toFixed(2),items:sc.items,note:sc.ref?('Ref on receipt: "'+sc.ref+'"'):'No job reference on receipt',job:mt.job,conf:mt.conf};
+}
+
+/* ---------- rendering ---------- */
+const VIEWS=[['dashboard','📊','Home'],['quotes','📋','Quotes'],['jobs','🔨','Jobs'],['receipts','🧾','Receipts'],['settings','⚙️','Rules']];
+function renderNav(){const un=S.receipts.filter(r=>!r.jobNo).length,due=S.quotes.filter(q=>['Due','Overdue'].includes(qState(q))).length;
+ $('#nav').innerHTML=VIEWS.map(([k,ic,l])=>`<button class="${UI.view===k?'on':''}" data-act="view" data-id="${k}"><span class="ic">${ic}</span><span>${l}</span>${k==='receipts'&&un?`<span class="badge">${un}</span>`:''}${k==='quotes'&&due?`<span class="badge" style="background:var(--amb)">${due}</span>`:''}</button>`).join('')}
+function pill(s){return `<span class="pill p-${s.replace(/\s/g,'')}">${s==='Ghosted'?'👻 ':''}${s}</span>`}
+function dots(n){return `<span class="dots" title="${n} of ${S.settings.seq.length} follow-ups sent">${S.settings.seq.map((_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`}
+function render(){renderNav();const v=UI.view;$('#app').innerHTML=v==='dashboard'?vDash():v==='quotes'?vQuotes():v==='jobs'?vJobs():v==='receipts'?vReceipts():vSettings();save()}
+
+function kpis(){const st=S.quotes.map(q=>[q,qState(q)]);const sum=f=>st.filter(([q,s])=>f(s)).reduce((a,[q])=>a+qVal(q),0);
+ const won=st.filter(([,s])=>s==='Won').length,lost=st.filter(([,s])=>s==='Lost').length,gh=st.filter(([,s])=>s==='Ghosted').length;
+ const m=S.jobs.map(jobMargin);return {open:sum(s=>['Fresh','Due','Overdue','Waiting'].includes(s)),due:st.filter(([,s])=>['Due','Overdue'].includes(s)).length,ghost:sum(s=>s==='Ghosted'),ghostN:gh,
+  win:won/Math.max(1,won+lost+gh),avgM:m.reduce((a,b)=>a+b,0)/Math.max(1,m.length),un:S.receipts.filter(r=>!r.jobNo).length,jobsIP:S.jobs.filter(j=>j.status!=='Complete').length}}
+function vDash(){const k=kpis();
+ const fq=S.quotes.map(q=>[q,qState(q)]).filter(([,s])=>['Due','Overdue'].includes(s)).sort((a,b)=>(b[1]==='Overdue')-(a[1]==='Overdue')||diff(b[0].sentAt)-diff(a[0].sentAt));
+ const gq=S.quotes.filter(q=>qState(q)==='Ghosted');
+ const order=[['Draft','#a9a59b'],['Fresh','#2f5f9e'],['Due','#c98a26'],['Overdue','#d0682a'],['Waiting','#6b54a8'],['Ghosted','#b4433a'],['Won','#1f6f5c'],['Lost','#8d8a82']];
+ const cnt={};S.quotes.forEach(q=>{const s=qState(q);cnt[s]=(cnt[s]||0)+1});
+ const wonUnconv=S.quotes.filter(q=>q.status==='Won'&&!q.jobNo);
+ return `<div class="grid k6">
+  <div class="card kpi"><small>Open pipeline</small><b>${gbp(k.open)}</b><span>quotes awaiting decision</span></div>
+  <div class="card kpi ${k.due?'alert':''}"><small>Follow-ups due today</small><b>${k.due}</b><span>sequence steps reached</span></div>
+  <div class="card kpi alert"><small>Ghosted value at risk</small><b>${gbp(k.ghost)}</b><span>${k.ghostN} quotes gone quiet</span></div>
+  <div class="card kpi good"><small>Win rate</small><b>${Math.round(k.win*100)}%</b><span>won ÷ decided + ghosted</span></div>
+  <div class="card kpi ${k.avgM<.25?'alert':'good'}"><small>Avg job margin</small><b>${(k.avgM*100).toFixed(1)}%</b><span>actual, from receipts</span></div>
+  <div class="card kpi ${k.un?'alert':''}"><small>Unassigned receipts</small><b>${k.un}</b><span>need a job</span></div>
+ </div>
+ <div class="grid c2" style="margin-top:14px">
+  <div class="grid">
+   <div class="card"><h3>Today's follow-ups <span style="color:var(--mut);font-weight:400">· ${fq.length} due</span></h3>
+    <div class="list">${fq.length?fq.map(([q,s])=>`<div class="li"><div class="meta"><b>${esc(q.cust)} · ${esc(q.title)}</b><span class="mono">${q.no}</span> <span>· ${gbp(qVal(q))} · sent ${diff(q.sentAt)}d ago · next: ${nextStepLabel(q)}</span></div>${pill(s)}${dots(q.followUps)}<button class="btn sm pri" data-act="followUp" data-id="${q.no}">Follow up</button></div>`).join(''):'<div class="empty">✅ All caught up – no follow-ups due.</div>'}</div></div>
+   <div class="card"><h3>👻 Revive ghosted quotes</h3>
+    <div class="list">${gq.length?gq.map(q=>`<div class="li"><div class="meta"><b>${esc(q.cust)} · ${esc(q.title)}</b><span class="mono">${q.no}</span> <span>· ${gbp(qVal(q))} · last contact ${diff(q.lastContact||q.sentAt)}d ago</span></div>${dots(q.followUps)}<button class="btn sm warn" data-act="followUp" data-id="${q.no}">Send revival</button><button class="btn sm ghost" data-act="markLost" data-id="${q.no}">Close as lost</button></div>`).join(''):'<div class="empty">No ghosted quotes.</div>'}</div></div>
+  </div>
+  <div class="grid">
+   <div class="card"><h3>Quote pipeline</h3><div class="funnel">${order.filter(([s])=>cnt[s]).map(([s,c])=>`<div style="flex:${cnt[s]};background:${c}" title="${s}: ${cnt[s]}">${cnt[s]}</div>`).join('')}</div>
+    <div class="legend">${order.filter(([s])=>cnt[s]).map(([s,c])=>`<span><i style="background:${c}"></i>${s}</span>`).join('')}</div>
+    ${wonUnconv.map(q=>`<div class="okbox"><span>🎉 <b>${q.no}</b> ${esc(q.cust)} accepted (${gbp(qVal(q))}).</span><button class="btn sm pri" data-act="convert" data-id="${q.no}">Convert to job</button></div>`).join('')}</div>
+   <div class="card"><h3>Job margins · quoted vs actual</h3>${S.jobs.map(jobMini).join('')}</div>
+   <div class="card"><h3>Recent activity</h3><div class="list">${S.activity.slice(0,7).map(a=>`<div class="li act"><div class="meta">${esc(a.m)}<time>${fmtD(a.t)}</time></div></div>`).join('')}</div></div>
+  </div></div>`}
+function jobMini(j){const mat=jobMat(j),m=jobMargin(j),pct=Math.min(100,mat/j.matBudget*100);const cls=mat>j.matBudget?'over':pct>85?'warn':'';
+ return `<div style="margin:10px 0"><div class="row"><span><span class="mono">${j.no}</span> ${esc(j.cust)} · ${esc(j.title)}</span><b style="color:${m<.25?'var(--red)':'var(--acc)'}">${(m*100).toFixed(1)}%</b></div>
+ <div class="bar ${cls}"><i style="width:${pct}%"></i></div><div class="row" style="font-size:12px"><span>Materials ${gbp(mat)} of ${gbp(j.matBudget)} budget</span><span>${pill(j.status==='Complete'?'Complete':'In progress')}</span></div></div>`}
+
+function vQuotes(){const F=['All','Draft','Fresh','Due','Overdue','Waiting','Ghosted','Won','Lost'];
+ const rows=S.quotes.map(q=>[q,qState(q)]).filter(([,s])=>UI.qfilter==='All'||s===UI.qfilter||(UI.qfilter==='Due'&&s==='Overdue')).sort((a,b)=>b[0].no.localeCompare(a[0].no));
+ return `<h2>Quotes <span class="sub">· sequential numbering, next is <span class="mono">${nextQuoteNo()}</span></span></h2>
+ <div class="tabs">${F.map(f=>`<button class="${UI.qfilter===f?'on':''}" data-act="qfilter" data-id="${f}">${f}</button>`).join('')}</div>
+ <div class="card tablewrap"><table class="rt"><thead><tr><th>No.</th><th>Customer</th><th>Job</th><th class="num">Value</th><th>Sent</th><th>Age</th><th>Status</th><th>Follow-ups</th><th>Actions</th></tr></thead><tbody>
+ ${rows.map(([q,s])=>`<tr><td data-label="Quote" class="mono"><a href="#" data-act="openQuote" data-id="${q.no}">${q.no}</a></td><td data-label="Customer">${esc(q.cust)}</td><td data-label="Job">${esc(q.title)}${q.jobNo?` <span class="mono" style="color:var(--acc)">→ ${q.jobNo}</span>`:''}</td><td data-label="Value" class="num"><b>${gbp(qVal(q))}</b></td>
+ <td data-label="Sent">${fmtD(q.sentAt)}</td><td data-label="Age">${q.sentAt?diff(q.sentAt)+'d':'—'}</td><td data-label="Status">${pill(s)}</td><td data-label="Follow-ups">${q.sentAt?dots(q.followUps):'—'}</td><td class="act-cell">${qActions(q,s)}</td></tr>`).join('')||'<tr><td colspan="9" class="empty">No quotes in this view.</td></tr>'}
+ </tbody></table></div>`}
+function qActions(q,s){if(s==='Draft')return `<button class="btn sm pri" data-act="sendQuote" data-id="${q.no}">Send</button>`;
+ if(s==='Won')return q.jobNo?`<button class="btn sm" data-act="view" data-id="jobs">View ${q.jobNo}</button>`:`<button class="btn sm pri" data-act="convert" data-id="${q.no}">Convert to job</button>`;
+ if(s==='Lost')return '<span style="color:var(--mut);font-size:12px">closed</span>';
+ return `<button class="btn sm ${s==='Ghosted'?'warn':['Due','Overdue'].includes(s)?'pri':''}" data-act="followUp" data-id="${q.no}">${s==='Ghosted'?'Revive':'Follow up'}</button> <button class="btn sm" data-act="markWon" data-id="${q.no}">Won</button> <button class="btn sm ghost" data-act="markLost" data-id="${q.no}">Lost</button>`}
+
+function vJobs(){return `<h2>Jobs <span class="sub">· live margin from captured receipts</span></h2><div class="grid c3">${S.jobs.slice().reverse().map(j=>{const mat=jobMat(j),m=jobMargin(j),over=mat-j.matBudget,pct=Math.min(100,mat/j.matBudget*100);
+ return `<div class="card jobcard"><h3><span><span class="mono">${j.no}</span> ${esc(j.title)}</span>${pill(j.status==='Complete'?'Complete':'In progress')}</h3><div class="sub">${esc(j.cust)} · from <span class="mono">${j.quote}</span> · started ${fmtD(j.started)}</div>
+ <div class="row"><span>Quote value</span><b>${gbp(j.value)}</b></div><div class="row"><span>Materials (actual / budget)</span><b>${gbp2(mat)} / ${gbp(j.matBudget)}</b></div>
+ <div class="bar ${over>0?'over':pct>85?'warn':''}"><i style="width:${pct}%"></i></div>
+ <div class="row"><span>Labour cost</span><b>${gbp(j.labourCost)}</b></div><div class="row"><span>Profit</span><b>${gbp2(j.value-mat-j.labourCost)}</b></div>
+ <div class="row"><span>Margin</span><b style="font-size:18px;color:${m<.25?'var(--red)':'var(--acc)'}">${(m*100).toFixed(1)}%</b></div>
+ ${over>0?`<div class="alertbox">⚠ Materials ${gbp2(over)} over quoted budget – consider a variation order.</div>`:pct>85?`<div class="alertbox" style="background:var(--amb2);color:#8a5a12">Materials at ${pct.toFixed(0)}% of budget.</div>`:''}
+ <div class="rcpts"><b style="font-size:12.5px">Receipts (${jobRcpts(j).length})</b>${jobRcpts(j).map(r=>`<div class="row"><span>${srcIcon(r.source)} ${esc(r.supplier)} · ${fmtD(r.date)}</span><span>${gbp2(r.amount)}</span></div>`).join('')}</div>
+ <div class="btnrow">${j.status!=='Complete'?`<button class="btn sm" data-act="captureNav">+ Add receipt</button><button class="btn sm" data-act="completeJob" data-id="${j.no}">Mark complete</button>`:''}</div></div>`}).join('')}</div>`}
+const srcIcon=s=>s==='photo'?'📷':s==='voice'?'🎙':'✉️';
+
+function vReceipts(){const un=S.receipts.filter(r=>!r.jobNo);const P=UI.preview;
+ return `<h2>Receipts &amp; supplier invoices</h2><div class="grid c2">
+ <div class="grid">
+  <div class="card"><h3>📷 Scan a receipt / supplier invoice <span style="color:var(--mut);font-weight:400">· tap a sample to "photograph" it</span></h3>
+   <div class="scans">${S.sampleScans.map(sc=>{const sub=sc.items.reduce((a,i)=>a+i.amt,0),tot=sc.vatInc?sub:sub*1.2;const used=S.usedScans.includes(sc.key);
+    return `<div class="thermal ${used?'used':''} ${UI.scanning===sc.key?'scan':''}" data-act="scan" data-id="${sc.key}">${used?'<span class="tag">captured</span>':''}<b>${esc(sc.supplier.toUpperCase())}</b>${fmtD(iso(TODAY))} 08:${sc.key.slice(1)}4<br>${sc.items.map(i=>`${esc(i.d.slice(0,20))}<br>&nbsp;&nbsp;${i.amt.toFixed(2)}`).join('<br>')}${sc.ref?`<br>REF: ${esc(sc.ref.toUpperCase())}`:''}<div class="tot">TOTAL £${tot.toFixed(2)}${sc.vatInc?'':' (inc VAT)'}</div></div>`}).join('')}</div></div>
+  <div class="card"><h3>🎙 Voice or text note</h3><p style="margin:0 0 8px;color:var(--mut);font-size:12.5px">Say it at the counter – SiteLedger pulls out amount, supplier and job.</p>
+   <textarea id="note" rows="2" placeholder='e.g. "£140 at Travis Perkins for the Smith kitchen job"'></textarea>
+   <div class="btnrow"><button class="btn" data-act="dictate">🎙 Dictate</button><button class="btn pri" data-act="parseNote">Parse note</button></div>
+   <div class="chips">${['£140 at Travis Perkins for the Smith kitchen job','£36.50 Screwfix for Patel bathroom','£212 at Jewson for the Khan shop fit-out','Spent 45 quid at B&Q on bits'].map(x=>`<button data-act="example" data-id="${esc(x)}">${esc(x)}</button>`).join('')}</div></div>
+ </div>
+ <div class="grid">
+  <div class="card">${P?vPreview(P):`<h3>Parse preview</h3><div class="empty">${UI.scanning?'🔍 Reading receipt…':'Scan a sample receipt or parse a note to see the extracted data and suggested job.'}</div>`}</div>
+  <div class="card"><h3>Unassigned inbox ${un.length?`<span class="badge">${un.length}</span>`:''}</h3>
+   <div class="list">${un.length?un.map(r=>`<div class="li"><div class="meta"><b>${srcIcon(r.source)} ${esc(r.supplier)} · ${gbp2(r.amount)}</b><span>${fmtD(r.date)} · ${esc(r.note||r.items.map(i=>i.d).join(', '))}</span></div>
+    <select id="as_${r.id}"><option value="">Assign to…</option>${openJobs().map(j=>`<option value="${j.no}">${j.no} ${esc(j.cust.split(' ').pop())}</option>`).join('')}<option value="__overhead">Business overhead</option></select><button class="btn sm pri" data-act="assign" data-id="${r.id}">Save</button></div>`).join(''):'<div class="empty">Inbox zero 🎉</div>'}</div></div>
+ </div></div>
+ <h3 style="margin:18px 0 8px">All receipts</h3><div class="card tablewrap"><table class="rt"><thead><tr><th>ID</th><th>Date</th><th>Source</th><th>Supplier</th><th>Items</th><th class="num">VAT</th><th class="num">Total</th><th>Job</th></tr></thead><tbody>
+ ${S.receipts.slice().reverse().map(r=>`<tr><td data-label="Receipt" class="mono">${r.id}</td><td data-label="Date">${fmtD(r.date)}</td><td data-label="Source">${srcIcon(r.source)} ${r.source}</td><td data-label="Supplier"><b>${esc(r.supplier)}</b></td><td data-label="Items" style="color:var(--mut);font-size:12.5px">${esc(r.items.map(i=>i.d).join(', '))}</td><td data-label="VAT" class="num">${gbp2(r.vat)}</td><td data-label="Total" class="num"><b>${gbp2(r.amount)}</b></td><td data-label="Job" class="mono">${r.jobNo==='__overhead'?'Overhead':r.jobNo||'<span class="pill p-Ghosted">unassigned</span>'}</td></tr>`).join('')}</tbody></table></div>`}
+function vPreview(P){if(P.error)return `<h3>Parse preview</h3><div class="alertbox">${esc(P.error)}</div><div class="kv"><span>Note</span><span>${esc(P.note)}</span></div>`;
+ const j=S.jobs.find(x=>x.no===P.job);const after=j?(j.value-jobMat(j)-P.amount-j.labourCost)/j.value:null;
+ return `<div class="preview"><h3>${srcIcon(P.source)} Extracted ${P.source==='photo'?'from receipt scan':'from note'}</h3>
+ <div class="kv"><span>Supplier</span><span><b>${esc(P.supplier)}</b></span><span>Total</span><span><b>${gbp2(P.amount)}</b> <span style="color:var(--mut)">(VAT ${gbp2(P.vat)})</span></span>
+ <span>Line items</span><span>${P.items.map(i=>`${esc(i.d)} – ${gbp2(i.amt)}`).join('<br>')}</span><span>Evidence</span><span style="color:var(--mut)">${esc(P.note)}</span>
+ <span>Suggested job</span><span>${j?`<b class="mono">${j.no}</b> ${esc(j.cust)} · ${esc(j.title)}`:'<span style="color:var(--red)">No confident match</span>'}</span>
+ <span>Confidence</span><span class="conf"><span class="bar ${P.conf<50?'over':P.conf<75?'warn':''}"><i style="width:${P.conf}%"></i></span>${P.conf}%</span></div>
+ ${j?`<div class="${after<.25?'alertbox':'okbox'}">Margin impact on ${j.no}: ${(jobMargin(j)*100).toFixed(1)}% → <b>${(after*100).toFixed(1)}%</b>${jobMat(j)+P.amount>j.matBudget?' · materials will exceed budget':''}</div>`:`<div class="alertbox">Below 50% confidence – will go to the Unassigned inbox unless you pick a job.</div>`}
+ <div class="fl" style="margin-top:10px"><label>Allocate to</label><select id="pvJob"><option value="">— Unassigned inbox —</option>${openJobs().map(x=>`<option value="${x.no}" ${x.no===P.job&&P.conf>=50?'selected':''}>${x.no} · ${esc(x.cust)} · ${esc(x.title)}</option>`).join('')}</select></div>
+ <div class="btnrow"><button class="btn pri" data-act="confirmReceipt">Confirm &amp; save</button><button class="btn ghost" data-act="discardPreview">Discard</button></div></div>`}
+
+function vSettings(){const s=S.settings;return `<h2>Follow-up rules</h2><div class="grid c2"><div class="card"><h3>Sequence</h3>
+ <p style="color:var(--mut);margin-top:0;font-size:13px">A quote becomes <b>Due</b> when it reaches the next step day (counted from the send date), <b>Overdue</b> 3+ days after that, and <b>Ghosted</b> after the last step with no reply for 3 days, or 14 days of silence.</p>
+ ${s.seq.map((d,i)=>`<div class="fl"><label>${STEP_NAMES[i].replace('Day {d} · ','Step '+(i+1)+' · ')} – day after sending</label><input type="number" min="1" max="60" value="${d}" id="seq${i}"></div><div class="fl"><label>Template</label><textarea rows="3" id="tpl${i}">${esc(s.templates[i])}</textarea></div>`).join('')}
+ <button class="btn pri" data-act="saveSettings">Save rules</button></div>
+ <div class="card"><h3>Placeholders</h3><div class="kv"><span>{first}</span><span>Customer first name</span><span>{no}</span><span>Quote number</span><span>{title}</span><span>Job title</span><span>{value}</span><span>Quote total</span><span>{biz}</span><span>Your business name</span></div>
+ <h3 style="margin-top:18px">Preview (Grace Hughes, step 1)</h3><div class="phone"><div class="bubble">${esc(fill(s.templates[0],S.quotes.find(q=>q.no==='Q-0104')||S.quotes[0]))}</div></div></div></div>`}
+
+/* ---------- modals ---------- */
+function openModal(h){$('#modal').innerHTML=h;$('#mask').classList.add('on')}
+function closeModal(){$('#mask').classList.remove('on');UI.fu=null}
+$('#mask').addEventListener('click',e=>{if(e.target.id==='mask')closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+function mFollowUp(no){const q=S.quotes.find(x=>x.no===no);const i=Math.min(q.followUps,2);UI.fu=UI.fu&&UI.fu.no===no?UI.fu:{no,ch:'SMS',txt:fill(S.settings.templates[i],q)};const f=UI.fu;
+ openModal(`<h2>Follow up ${q.no} <button class="btn ghost" data-act="close">✕</button></h2>
+ <div class="row"><span>${esc(q.cust)} · ${esc(q.title)} · ${gbp(qVal(q))}</span>${pill(qState(q))}</div><div class="row"><span>Template</span><b>${qState(q)==='Ghosted'?'Revival · ':''}${nextStepLabel(q)}</b></div>
+ <div style="margin:10px 0" class="seg">${['SMS','Email'].map(c=>`<button class="${f.ch===c?'on':''}" data-act="fuCh" data-id="${c}">${c==='SMS'?'💬 SMS':'✉️ Email'}</button>`).join('')}</div>
+ <div style="color:var(--mut);font-size:12.5px">To: ${f.ch==='SMS'?esc(q.phone):esc(q.email)}</div>
+ <textarea id="fuTxt" rows="4" style="margin-top:6px">${esc(f.txt)}</textarea>
+ <div class="phone"><div class="bubble" id="fuPrev">${esc(f.txt)}</div></div>
+ <div class="modal-actions"><button class="btn ghost" data-act="close">Cancel</button><button class="btn pri" data-act="sendFu" data-id="${q.no}">Send ${f.ch} (demo)</button></div>`);
+ $('#fuTxt').addEventListener('input',e=>{UI.fu.txt=e.target.value;$('#fuPrev').textContent=e.target.value})}
+function mQuote(no){const q=S.quotes.find(x=>x.no===no);const s=qState(q);
+ openModal(`<h2><span><span class="mono">${q.no}</span> · ${esc(q.title)}</span><button class="btn ghost" data-act="close">✕</button></h2>
+ <div class="row"><span>${esc(q.cust)} · ${esc(q.phone)} · ${esc(q.email)}</span>${pill(s)}</div>
+ <table class="plain" style="margin:10px 0"><thead><tr><th>Item</th><th>Type</th><th class="num">Amount</th></tr></thead><tbody>${q.items.map(i=>`<tr><td>${esc(i.d)}</td><td>${i.kind}</td><td class="num">${gbp(i.amt)}</td></tr>`).join('')}<tr><td colspan="2"><b>Total</b></td><td class="num"><b>${gbp(qVal(q))}</b></td></tr></tbody></table>
+ <h3>Timeline</h3><div class="tl">${q.hist.map(h=>`<div><time>${fmtD(h.t)}</time>${esc(h.m)}</div>`).join('')}</div>
+ ${['Fresh','Due','Overdue','Waiting','Ghosted'].includes(s)?`<h3 style="margin-top:12px">Simulate customer response</h3><div class="btnrow"><button class="btn pri" data-act="markWon" data-id="${q.no}">✔ Accepted</button><button class="btn dan" data-act="markLost" data-id="${q.no}">✖ Declined</button><button class="btn" data-act="followUp" data-id="${q.no}">Follow up</button></div>`:''}
+ ${s==='Won'&&!q.jobNo?`<div class="modal-actions"><button class="btn pri" data-act="convert" data-id="${q.no}">Convert to job</button></div>`:''}`)}
+function mNewQuote(){UI.nq=UI.nq||{items:[{d:'Materials & supplies',kind:'materials',amt:''},{d:'Labour',kind:'labour',amt:''}]};const n=UI.nq;
+ openModal(`<h2><span>New quote <span class="mono" style="font-size:13px;color:var(--acc)">${nextQuoteNo()}</span></span><button class="btn ghost" data-act="close">✕</button></h2>
+ <div class="fg"><div class="fl"><label>Customer name *</label><input id="nqC" value="${esc(n.c||'')}" placeholder="e.g. Ben Carter"></div><div class="fl"><label>Job title *</label><input id="nqT" value="${esc(n.t||'')}" placeholder="e.g. Garage conversion"></div>
+ <div class="fl"><label>Mobile</label><input id="nqP" value="${esc(n.p||'')}" placeholder="07700 900000"></div><div class="fl"><label>Email</label><input id="nqE" value="${esc(n.e||'')}" placeholder="name@example.com"></div></div>
+ <label style="font-size:12px;color:var(--mut)">Line items *</label><div class="items" id="nqItems">${n.items.map((it,i)=>`<div class="it"><input data-i="${i}" data-f="d" value="${esc(it.d)}" placeholder="Description"><select data-i="${i}" data-f="kind"><option ${it.kind==='materials'?'selected':''}>materials</option><option ${it.kind==='labour'?'selected':''}>labour</option></select><input data-i="${i}" data-f="amt" type="number" min="0" value="${it.amt}" placeholder="£"><button data-act="nqDel" data-id="${i}" title="Remove">✕</button></div>`).join('')}</div>
+ <button class="btn sm" data-act="nqAdd">+ Add line</button> <span style="float:right">Total <b id="nqTot">${gbp(n.items.reduce((a,i)=>a+Number(i.amt||0),0))}</b></span>
+ <div id="nqErr" style="color:var(--red);font-size:12.5px;min-height:18px;margin-top:8px"></div>
+ <div class="modal-actions"><button class="btn" data-act="nqSave" data-id="draft">Save draft</button><button class="btn pri" data-act="nqSave" data-id="send">Save &amp; send</button></div>`);
+ const sync=()=>{n.c=$('#nqC').value;n.t=$('#nqT').value;n.p=$('#nqP').value;n.e=$('#nqE').value;document.querySelectorAll('#nqItems [data-f]').forEach(el=>{n.items[+el.dataset.i][el.dataset.f]=el.value});$('#nqTot').textContent=gbp(n.items.reduce((a,i)=>a+Number(i.amt||0),0))};
+ $('#modal').oninput=sync;$('#modal').onchange=sync}
+function mWalk(){openModal(`<h2>Demo walkthrough (≈3 min)<button class="btn ghost" data-act="close">✕</button></h2><div class="walk"><ol>
+ <li><b>Dashboard</b> – KPIs show open pipeline, follow-ups due, ghosted £ at risk and live job margin.</li>
+ <li><b>Follow up Grace Hughes (Q-0104)</b> – Day-3 nudge template is pre-filled; switch SMS/Email; send. The quote leaves today's list and its follow-up dots advance.</li>
+ <li><b>Revive Helen Ford (Q-0108)</b> – a ghosted £2,950 quote; send the last-call revival.</li>
+ <li><b>Convert Ahmed Khan's accepted quote (Q-0111)</b> into job <span class="mono">J-0044</span> – numbering and budgets carry over.</li>
+ <li><b>Receipts → scan the Travis Perkins receipt</b> – supplier, VAT, items and job (J-0041 Smith kitchen) are matched with confidence and the margin impact is previewed. Confirm.</li>
+ <li><b>Parse a voice note</b> – "£212 at Jewson for the Khan shop fit-out" → allocates to the new J-0044.</li>
+ <li><b>Scan the Shell fuel receipt</b> – no job match → goes to the Unassigned inbox; assign it as overhead.</li>
+ <li><b>Jobs</b> – J-0042 Patel bathroom shows a materials overrun alert; margin drops below target.</li>
+ <li><b>New quote</b> – gets the next sequential number automatically (Q-0113).</li>
+ <li><b>Follow-up rules</b> – change the sequence days/templates and watch statuses recalculate.</li></ol>
+ <p style="color:var(--mut);font-size:12.5px">Use "Reset demo data" in the black strip to start again.</p></div>`)}
+
+/* ---------- actions ---------- */
+const A={
+ view:id=>{UI.view=id;closeModal();render();scrollTo(0,0)},
+ qfilter:id=>{UI.qfilter=id;render()},
+ close:closeModal,walkthrough:mWalk,
+ reset:()=>{if(confirm('Reset all demo data?')){localStorage.removeItem(KEY);S=seed();UI={view:'dashboard',qfilter:'All',preview:null,scanning:null,fu:null};render();toast('Demo data reset')}},
+ newQuote:()=>{UI.nq=null;mNewQuote()},
+ nqAdd:()=>{UI.nq.items.push({d:'',kind:'materials',amt:''});mNewQuote()},
+ nqDel:id=>{UI.nq.items.splice(+id,1);mNewQuote()},
+ nqSave:mode=>{const n=UI.nq;const items=n.items.filter(i=>i.d&&Number(i.amt)>0).map(i=>({d:i.d,kind:i.kind,amt:Number(i.amt)}));
+  if(!n.c||!n.t||!items.length){$('#nqErr').textContent='Customer, job title and at least one priced line item are required.';return}
+  const no=nextQuoteNo();const q={no,cust:n.c,phone:n.p||'—',email:n.e||'—',title:n.t,items,status:mode==='send'?'Sent':'Draft',sentAt:mode==='send'?iso(TODAY):null,followUps:0,lastContact:null,jobNo:null,created:iso(TODAY),hist:[{t:iso(TODAY),m:'Quote created'}]};
+  if(mode==='send')q.hist.push({t:iso(TODAY),m:'Quote sent by email'});S.quotes.push(q);log(`${no} ${mode==='send'?'sent to':'drafted for'} ${n.c} (${gbp(qVal(q))})`);UI.nq=null;closeModal();UI.view='quotes';UI.qfilter='All';render();toast(`${no} ${mode==='send'?'sent':'saved'} – aging clock ${mode==='send'?'started':'not started'}`)},
+ openQuote:id=>mQuote(id),
+ sendQuote:id=>{const q=S.quotes.find(x=>x.no===id);q.status='Sent';q.sentAt=iso(TODAY);q.hist.push({t:iso(TODAY),m:'Quote sent by email'});log(`${q.no} sent to ${q.cust} (${gbp(qVal(q))})`);render();toast(q.no+' sent')},
+ followUp:id=>{UI.fu=null;mFollowUp(id)},
+ fuCh:c=>{UI.fu.ch=c;mFollowUp(UI.fu.no)},
+ sendFu:id=>{const q=S.quotes.find(x=>x.no===id);const wasG=qState(q)==='Ghosted';q.followUps=Math.min(q.followUps+1,S.settings.seq.length);q.lastContact=iso(TODAY);
+  q.hist.push({t:iso(TODAY),m:`${wasG?'Revival':'Follow-up #'+q.followUps} sent (${UI.fu.ch})`});log(`${wasG?'Revival':'Follow-up'} ${UI.fu.ch} sent to ${q.cust} (${q.no})`);closeModal();render();toast(`${UI.fu?UI.fu.ch:'Message'} sent to ${first(q.cust)} – status now ${qState(q)}`)},
+ markWon:id=>{const q=S.quotes.find(x=>x.no===id);q.status='Won';q.lastContact=iso(TODAY);q.hist.push({t:iso(TODAY),m:'Customer accepted'});log(`🎉 ${q.cust} accepted ${q.no} (${gbp(qVal(q))})`);closeModal();render();toast(q.no+' marked Won – convert it to a job')},
+ markLost:id=>{const q=S.quotes.find(x=>x.no===id);q.status='Lost';q.hist.push({t:iso(TODAY),m:'Closed as lost'});log(`${q.no} closed as lost`);closeModal();render();toast(q.no+' closed')},
+ convert:id=>{const q=S.quotes.find(x=>x.no===id);if(q.jobNo)return;const no=nextJobNo();const lab=q.items.filter(i=>i.kind==='labour').reduce((a,i)=>a+i.amt,0);
+  S.jobs.push({no,quote:q.no,cust:q.cust,title:q.title,value:qVal(q),matBudget:qMat(q),labourCost:Math.round(lab*.45),status:'In progress',started:iso(TODAY)});q.jobNo=no;q.hist.push({t:iso(TODAY),m:'Converted to job '+no});
+  log(`${q.no} converted to job ${no} (${q.cust})`);closeModal();UI.view='jobs';render();toast(`Job ${no} created from ${q.no}`)},
+ completeJob:id=>{const j=S.jobs.find(x=>x.no===id);j.status='Complete';log(`${j.no} completed – final margin ${(jobMargin(j)*100).toFixed(1)}%`);render();toast(j.no+' completed')},
+ captureNav:()=>{UI.view='receipts';closeModal();render();scrollTo(0,0)},
+ scan:id=>{if(UI.scanning)return;UI.scanning=id;UI.preview=null;render();setTimeout(()=>{UI.preview=parseScan(S.sampleScans.find(s=>s.key===id));UI.scanning=null;render()},900)},
+ example:t=>{$('#note').value=t},
+ parseNote:()=>{const v=$('#note').value.trim();if(!v){toast('Type or dictate a note first');return}UI.preview=parseNote(v);render()},
+ dictate:()=>{const text='£212 at Jewson for the Khan shop fit-out';const el=$('#note');const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const sim=()=>{el.value='';let i=0;toast('🎙 Demo dictation…');const h=setInterval(()=>{el.value=text.slice(0,++i);if(i>=text.length)clearInterval(h)},28)};
+  if(!SR||location.protocol==='file:'){sim();return}try{const r=new SR();r.lang='en-GB';r.onresult=e=>{el.value=e.results[0][0].transcript};r.onerror=sim;r.start();toast('🎙 Listening…')}catch(e){sim()}},
+ discardPreview:()=>{UI.preview=null;render()},
+ confirmReceipt:()=>{const P=UI.preview;const job=$('#pvJob').value||null;const id='R-'+(Math.max(...S.receipts.map(r=>+r.id.slice(2)))+1);
+  S.receipts.push({id,supplier:P.supplier,amount:P.amount,vat:P.vat,date:iso(TODAY),jobNo:job,source:P.source,items:P.items,note:P.note});if(P.scanKey)S.usedScans.push(P.scanKey);
+  const j=S.jobs.find(x=>x.no===job);log(job?`Receipt ${id} ${P.supplier} ${gbp2(P.amount)} → ${job} (margin now ${(jobMargin(j)*100).toFixed(1)}%)`:`Receipt ${id} ${P.supplier} ${gbp2(P.amount)} sent to inbox`);
+  UI.preview=null;render();toast(job?`Allocated to ${job} – margin ${(jobMargin(j)*100).toFixed(1)}%`:'Saved to Unassigned inbox')},
+ assign:id=>{const v=$('#as_'+id).value;if(!v){toast('Pick a job first');return}const r=S.receipts.find(x=>x.id===id);r.jobNo=v;log(`Receipt ${id} assigned to ${v==='__overhead'?'overhead':v}`);render();toast('Receipt assigned')},
+ saveSettings:()=>{const seq=[0,1,2].map(i=>Math.max(1,parseInt($('#seq'+i).value)||1));if(!(seq[0]<seq[1]&&seq[1]<seq[2])){toast('Step days must increase (e.g. 3, 7, 14)');return}
+  S.settings.seq=seq;S.settings.templates=[0,1,2].map(i=>$('#tpl'+i).value);log(`Follow-up sequence updated to days ${seq.join(', ')}`);render();toast('Rules saved – statuses recalculated')}
+};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;e.preventDefault();const f=A[b.dataset.act];if(f)f(b.dataset.id,b)});
+render();
+</script></body></html>

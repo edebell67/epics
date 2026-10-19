@@ -1,0 +1,14 @@
+{
+  "epic_slug": "ep_064_reddit_oppourtunity",
+  "epic_name": "Reddit Pain-Point Build Opportunities (Business & Trading Mobile-First Demos)",
+  "source_epic_path": "workstream/300_complete/20261018_214800_discovery_999_reddit_business_trading_pain_points.md",
+  "decomposition_timestamp": "2026-10-18T23:05:00+01:00",
+  "workstreams": [
+    "ui_01_siteledger_quote_jobcost",
+    "ui_02_trader_risk_guard"
+  ],
+  "tasks": [
+    "20261018_221000_ep064_997_siteledger_quote_jobcost_demo.md",
+    "20261018_221000_ep064_997_trader_risk_guard_demo.md"
+  ]
+}
