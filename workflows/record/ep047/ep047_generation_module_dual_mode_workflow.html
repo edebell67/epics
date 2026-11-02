@@ -1,0 +1,119 @@
+<!doctype html>
+<!--
+  ep047_generation_module_dual_mode_workflow.html — supersedes the hosted-only
+  view in ep047_generation_module_workflow.html with the agreed two-mode design.
+
+  VERSION HISTORY
+  v1.0.0 · 2026-07-30 · Initial version: GENERATION_MODE flag ("local" | "hosted")
+    decides which of two mutually-exclusive paths actually runs. local reuses the
+    existing 30-minute deploying agent (Claude subscription, no per-call API cost)
+    to run the ep044_group skills itself; hosted uses the Render cron + LLM-API
+    loop already built in lib/generation/. Both converge on the same three
+    internal endpoints (queue/complete/notify) and the same GitHub output
+    location, so nothing downstream needs to know which mode produced a site.
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EP047 — Generation module: local vs hosted mode</title>
+<style>
+:root{--ink:#14201a;--muted:#66736b;--paper:#f7faf7;--line:#d7e2da;--green:#087443;--green2:#dff5e8;--blue:#1e5c91;--blue2:#e8f3ff;--amber:#9a5d00;--amber2:#fff1d7;--red:#a33333;--red2:#ffebeb;--purple:#5b3fa0;--purple2:#ece3fa}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 Inter,ui-sans-serif,system-ui,sans-serif}
+header{padding:28px max(24px,calc((100vw - 1180px)/2));background:#10271c;color:white}
+h1{margin:0;font:700 28px/1.15 Georgia,serif}
+header p{max-width:900px;margin:10px 0 0;color:#d3e5d9}
+.flagbar{max-width:1240px;margin:20px auto 0;padding:0 20px;display:flex;gap:10px;align-items:center}
+.flagbar b{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.flagbar button{border:1px solid var(--line);background:white;border-radius:999px;padding:9px 16px;cursor:pointer;font:700 13px/1 inherit}
+.flagbar button.active.local{background:var(--blue);color:white;border-color:var(--blue)}
+.flagbar button.active.hosted{background:var(--purple);color:white;border-color:var(--purple)}
+.layout{max-width:1240px;margin:16px auto 24px;padding:0 20px}
+.lane{position:relative;padding:16px 12px 20px;border-radius:12px;margin-bottom:14px}
+.lane.local-lane{background:var(--blue2);border:1px solid #bcdcf4}
+.lane.hosted-lane{background:var(--purple2);border:1px solid #d6c8f0}
+.lane.shared-lane{background:#f8fcf8;border:1px solid #dbeadf}
+.lane h2{margin:0 0 4px;font-size:14px}
+.lane p.sub{margin:0 0 13px;font-size:12px;color:var(--muted)}
+.flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}
+.arrow{align-self:center;color:#7a887f;font-size:22px}
+.node{width:170px;min-height:110px;border:1px solid var(--line);border-radius:12px;background:white;padding:11px;box-shadow:0 2px 7px #1833240d}
+.node h3{font-size:13px;line-height:1.2;margin:0 0 6px}
+.node p{font-size:11.5px;color:var(--muted);margin:0}
+.node code{display:block;margin-top:7px;font:10.5px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;color:#3b6b52;background:#eef7f1;border-radius:6px;padding:3px 6px;word-break:break-all}
+.node.new{border:2px solid var(--amber);background:#fffdf5}
+.dim{opacity:.28;filter:grayscale(.4)}
+.flagnode{width:220px;border:2px dashed var(--ink);background:#fff}
+.flagnode h3{font-size:14px}
+.notice{max-width:1240px;margin:0 auto 24px;padding:0 20px}
+.notice .box{border-left:4px solid var(--green);padding:12px 14px;background:white;font-size:13px;border-radius:0 8px 8px 0;border:1px solid var(--line);border-left:4px solid var(--green)}
+@media(max-width:900px){.lane{min-width:0}}
+</style></head><body>
+
+<header>
+<h1>Generation module — local (subscription) vs hosted (API) mode</h1>
+<p>One env flag, <code>GENERATION_MODE</code>, decides which path actually runs. <b>local</b> reuses the same automated agent already deploying this app every 30 minutes — it runs the <code>ep044_group</code> skills itself, using your Claude subscription, at no per-call cost. <b>hosted</b> is the Render cron + LLM-API loop already built in <code>lib/generation/</code>. Only one path is ever active; both produce identical output at the same GitHub location and both hand back to the same three endpoints, so the rest of the pipeline never needs to know which mode built a given site.</p>
+</header>
+
+<div class="flagbar">
+<b>GENERATION_MODE =</b>
+<button class="active local" data-mode="local">local</button>
+<button class="hosted" data-mode="hosted">hosted</button>
+<span style="font-size:12px;color:#66736b;margin-left:8px">click to preview each path — this toggle is illustrative only, the real flag lives in .env / Render env vars</span>
+</div>
+
+<div class="layout">
+
+<div class="lane shared-lane"><h2>Shared trigger — same for both modes</h2><p class="sub">A business enters the queue the moment claim approval fires (already built).</p>
+<div class="flow">
+<article class="node"><h3>Claim approved</h3><p>Business stage set to <code>awaiting_site_generation</code> in the same transaction as approval.</p><code>claims-approval.ts</code></article>
+<span class="arrow">→</span>
+<article class="node"><h3>Queue readable</h3><p>Any consumer — local agent or hosted cron — can see it.</p><code>GET …/queue</code></article>
+<span class="arrow">→</span>
+<article class="node flagnode" id="flagGate"><h3>GENERATION_MODE?</h3><p id="flagGateText">local → left path runs, hosted path is inert.</p></article>
+</div></div>
+
+<div class="lane local-lane" data-path="local"><h2>local mode — subscription-driven, no per-call cost</h2><p class="sub">The same agent already redeploying this app every 30 minutes also runs this loop on its own cycle.</p>
+<div class="flow">
+<article class="node new"><h3>Agent checks queue</h3><p>Its normal 30-min pass now also calls the queue endpoint.</p><code>GET …/queue</code></article>
+<span class="arrow">→</span>
+<article class="node new"><h3>Picks category → skill</h3><p>Same normalize-and-match this session already built for the hosted path.</p><code>lib/generation/skill-loader.ts</code></article>
+<span class="arrow">→</span>
+<article class="node new"><h3>Agent runs the skill itself</h3><p>No LLM API call — the agent <i>is</i> the model, reasoning directly against SKILL.md + business data + images, under your existing subscription.</p><code>skills/ep044_group/…</code></article>
+<span class="arrow">→</span>
+<article class="node new"><h3>Commit &amp; push</h3><p>Same output location the hosted path would use — GitHub Pages serves either identically.</p><code>epics/ep_006_website_rebuilds/redesigns/&lt;slug&gt;/</code></article>
+<span class="arrow">→</span>
+<article class="node"><h3>Report complete</h3><p>Already built — advances the pipeline stage.</p><code>POST …/complete</code></article>
+<span class="arrow">→</span>
+<article class="node"><h3>Notify owner</h3><p>Already built — preview-ready email.</p><code>POST …/notify</code></article>
+</div></div>
+
+<div class="lane hosted-lane" data-path="hosted"><h2>hosted mode — Render cron + LLM API (built this session, dormant until a key + this flag exist)</h2><p class="sub">Same skill and image inputs, but the model call goes over HTTP with metered billing — the path for once there are paying clients and no one's watching a subscription session.</p>
+<div class="flow">
+<article class="node"><h3>Render cron fires</h3><p>Every 15 minutes, independent of any local session.</p><code>render.yaml → ep047-site-generation</code></article>
+<span class="arrow">→</span>
+<article class="node"><h3>Checks queue + config</h3><p>No-ops cleanly if <code>LLM_PROVIDER</code>/key unset.</p><code>lib/generation/config.ts</code></article>
+<span class="arrow">→</span>
+<article class="node"><h3>Calls Anthropic or OpenAI</h3><p>One prompt, one structured JSON-files response — no tool-use loop yet.</p><code>lib/generation/llm-client.ts</code></article>
+<span class="arrow">→</span>
+<article class="node"><h3>Writes files (not pushed)</h3><p>Deliberately not auto-committed/pushed — left as a confirmed step.</p><code>run-generation.ts</code></article>
+<span class="arrow">→</span>
+<article class="node"><h3>Report complete</h3><p>Same seam as local mode.</p><code>POST …/complete</code></article>
+<span class="arrow">→</span>
+<article class="node"><h3>Notify owner</h3><p>Same seam as local mode.</p><code>POST …/notify</code></article>
+</div></div>
+
+</div>
+
+<div class="notice"><div class="box"><b>Why one flag, not both running:</b> both paths call the same <code>complete</code> endpoint, which advances the pipeline stage — if both ran against the same queue at once, a business could get double-generated (or the second run's completion call could silently overwrite the first). <code>GENERATION_MODE</code> is a hard either/or switch, not a preference; whichever path is <i>not</i> selected must exit immediately without touching the queue at all.</div></div>
+
+<script>
+const btns=document.querySelectorAll('.flagbar button');
+const lanes={local:document.querySelector('[data-path="local"]'),hosted:document.querySelector('[data-path="hosted"]')};
+const flagGateText=document.getElementById('flagGateText');
+function setMode(mode){
+  btns.forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+  lanes.local.classList.toggle('dim',mode!=='local');
+  lanes.hosted.classList.toggle('dim',mode!=='hosted');
+  flagGateText.textContent = mode==='local' ? 'local → left path runs, hosted path is inert.' : 'hosted → right path runs, local path is inert.';
+}
+btns.forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+</script>
+</body></html>

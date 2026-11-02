@@ -1,0 +1,25 @@
+<!doctype html>
+<!--
+workstream/600_workflow/ep050/EP050_discovery_branch_implementation_checklist.html — Delivery checklist for EP050 Discovery 00A–00F.
+
+VERSION HISTORY
+v1.1.0 · 2026-08-21 · Records technical delivery and leaves only explicit user verification pending.
+v1.0.0 · 2026-08-21 · Initial pre-implementation delivery checklist.
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EP050 Discovery Branch — Implementation Checklist</title>
+<style>:root{--ink:#14201a;--paper:#f4f6f2;--card:#fff;--line:#d9e2db;--green:#087443;--amber:#956000}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.5 system-ui,sans-serif}header,main{max-width:1050px;margin:auto;padding:26px}h1{font:700 32px Georgia,serif}.summary{display:flex;gap:10px;flex-wrap:wrap}.pill{border-radius:99px;padding:5px 10px;background:#fff;border:1px solid var(--line)}.pill strong{color:var(--green)}section{background:var(--card);border:1px solid var(--line);border-radius:13px;margin:14px 0;overflow:hidden}button{width:100%;border:0;background:none;padding:16px;text-align:left;display:flex;justify-content:space-between;cursor:pointer;font:inherit}.status{font:700 11px ui-monospace,monospace;color:var(--green)}.pending{color:var(--amber)}.detail{display:none;padding:0 16px 16px;color:#58655d}.open .detail{display:block}.open button{background:#edf4ef}@media(max-width:600px){header,main{padding:16px}h1{font-size:26px}}</style></head>
+<body><header><p>EP050 / Discovery branch</p><h1>Implementation checklist</h1><div class="summary"><span class="pill">Technical delivery: <strong>Passed</strong></span><span class="pill">Merge: <strong>Node 15 verified</strong></span><span class="pill">Acceptance: <strong>Awaiting user</strong></span></div></header><main id="items"></main>
+<script>
+const checklist=[
+ ['Schema & persistence','Passed','Brief, signals, clusters, scores, offer, validation evidence and canonical contract persist as versioned JSON.'],
+ ['Discovery engine 00A–00F','Passed','Evidence thresholds, rejection, hypothesis labels and commitment gates are enforced.'],
+ ['API & concurrency','Passed','CRUD, automatic collection, evidence import, evaluation and merge routes; ten global search slots and three searches per brief.'],
+ ['Node 15 merge','Passed','validated_opportunity_offer_contract.v1 materializes ordinary Node 01–05/11 records and enters the existing Node 15 handler.'],
+ ['Discovery Lab UI','Passed','Persistent brief, real controls, evidence import, status, validation and merge actions.'],
+ ['Security & authorization','Passed','No synthetic demand, silent publishing, outreach, spend or lead creation; live fetch remains opt-in.'],
+ ['Automated tests','Passed','113 tests passed; JavaScript syntax passed.'],
+ ['Browser verification','Passed','Created brief, imported evidence, observed validation hold, added commitments and merged to Node 15 with zero console errors.'],
+ ['User verification','Not started','User must confirm the visible flow and terminology before final lifecycle completion.']
+];
+const root=document.querySelector('#items');checklist.forEach(([name,status,detail])=>{const s=document.createElement('section');s.innerHTML=`<button><b>${name}</b><span class="status ${status==='Not started'?'pending':''}">${status}</span></button><div class="detail">${detail}</div>`;s.querySelector('button').onclick=()=>s.classList.toggle('open');root.append(s)});
+</script></body></html>

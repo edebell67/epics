@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP047 — CRM Business Targeting & Outreach Workflow</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#152022;color:#e2dcd3;font:14px/1.5 system-ui,sans-serif;padding:20px}
+h1{font:600 18px system-ui,sans-serif;margin-bottom:10px;color:#c8f250}
+h1 small{font-weight:400;font-size:12px;color:#88928e;display:block;margin-top:2px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;font-size:11px;color:#aeb8b4}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.filter-bar{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.filter-bar button{padding:6px 12px;border:1px solid #3d494e;background:transparent;color:#aeb8b4;border-radius:6px;cursor:pointer;font-size:11px;transition:.15s}
+.filter-bar button.on{background:#c8f250;color:#152022;border-color:#c8f250;font-weight:600}
+.filter-bar button:hover:not(.on){border-color:#88928e}
+.lanes{display:flex;flex-direction:column;gap:20px}
+.lane{border:1px solid #2a353a;border-radius:10px;padding:16px;background:#1d2a2e}
+.lane h2{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#c8f250;margin-bottom:3px}
+.lane .actor{font-size:10px;color:#88928e;margin-bottom:12px}
+.flow{display:flex;flex-wrap:wrap;gap:10px}
+.node{background:#263237;border:1px solid #3d494e;border-radius:8px;padding:12px 14px;cursor:pointer;transition:.15s;width:100%;max-width:280px;font-size:12px;line-height:1.4;position:relative}
+.node:hover{border-color:#c8f250;background:#2e3a40}
+.node .badge{display:inline-block;background:#152022;color:#c8f250;font-size:9px;padding:2px 6px;border-radius:4px;margin-bottom:5px;font-weight:600;letter-spacing:.06em}
+.node .title{color:#e2dcd3;font-weight:600;margin-bottom:3px}
+.node .desc{color:#88928e;font-size:11px}
+.node .meta{display:flex;gap:8px;margin-top:6px;font-size:9px;color:#5d6b6f;text-transform:uppercase;letter-spacing:.06em}
+.node .sub-link{display:inline-block;margin-top:6px;font-size:10px;color:#c8f250;text-decoration:underline;cursor:pointer}
+/* side panel */
+#side{position:fixed;right:0;top:0;bottom:0;width:380px;max-width:90vw;background:#1d2a2e;border-left:1px solid #3d494e;padding:24px;overflow-y:auto;transform:translateX(100%);transition:transform .25s;z-index:100}
+#side.open{transform:translateX(0)}
+#side .close{position:absolute;top:12px;right:12px;background:transparent;border:0;color:#88928e;font-size:20px;cursor:pointer}
+#side h2{font-size:14px;color:#c8f250;margin-bottom:4px}
+#side .tag{font-size:10px;color:#88928e;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+#side .steps{margin:12px 0;padding:0;list-style:none}
+#side .steps li{padding:6px 0;border-bottom:1px solid #2a353a;font-size:12px;color:#cbd5d8}
+#side .steps li::before{content:"→ ";color:#c8f250;font-weight:700}
+#side .test{background:#152022;padding:10px 12px;border-radius:6px;margin:10px 0;font-size:11px;color:#aeb8b4;border-left:3px solid #c8f250}
+#side .test strong{color:#c8f250;display:block;margin-bottom:3px}
+#side .ev{background:#1a2328;padding:10px 12px;border-radius:6px;margin:10px 0;font-size:10px;color:#88928e;border-left:3px solid #5d6b6f}
+#side .ev strong{color:#cbd5d8;display:block;margin-bottom:3px}
+#side .dep{font-size:11px;color:#5d6b6f;margin-top:8px}
+#side .dep a{color:#c8f250;text-decoration:underline;cursor:pointer}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.on{opacity:1;pointer-events:auto}
+@media(max-width:640px){
+body{padding:12px}
+.node{max-width:100%}
+#side{width:100vw;max-width:100vw}
+}
+@media(min-width:900px){
+.node{max-width:240px}
+}
+</style>
+</head>
+<body>
+
+<h1>EP047 · CRM Business Targeting &amp; Outreach<small>Business → Batch → Message → Interaction → Status → Next Action → Outcome → Learning</small></h1>
+
+<div class="legend">
+<span><i style="background:#c8f250"></i> Required setup</span>
+<span><i style="background:#4a9eff"></i> Outreach activity</span>
+<span><i style="background:#f5a623"></i> Interaction &amp; status</span>
+<span><i style="background:#e85347"></i> Outcome</span>
+<span><i style="background:#7b61ff"></i> Learning &amp; analytics</span>
+<span><i style="background:#50c878"></i> Configuration</span>
+</div>
+
+<div class="filter-bar">
+<button class="on" data-filter="all">All</button>
+<button data-filter="setup">Setup</button>
+<button data-filter="outreach">Outreach</button>
+<button data-filter="status">Status</button>
+<button data-filter="outcome">Outcome</button>
+<button data-filter="learn">Learning</button>
+</div>
+
+<div class="lanes" id="lanes"></div>
+
+<!-- Side panel -->
+<div class="overlay" id="overlay"></div>
+<aside id="side"><button class="close" id="side-close">✕</button><div id="side-content"></div></aside>
+
+<script>
+const D = {
+// ── Lane 1: Business (setup) ──
+identify:{s:'setup (1.1) · Business identified & recorded',a:'setup',c:'Identify target business from directory data. Record: business ID, name, category, location, website status, contact details. Link to existing directory record.',
+steps:['Select business from directory import','Verify contact info (email, phone, social profiles)','Set initial status: Identified','Assign priority','Link directory listing URL','Record existing website URL if available'],
+test:'Business record exists with: directory listing link, contact email, category, location. Status = Identified.',
+ev:'Business row in CRM DB with all identity fields populated and linked to directory record.',
+dep:'Requires: directory data imported → businesses loaded into CRM'},
+import_batch:{s:'setup (1.2) · Batch imported and initialised',a:'setup',c:'Select ~25 businesses from those in Identified status. Create batch record.',
+steps:['Query businesses in Identified status','Select 25 target businesses','Create Batch record with ID, name, date','Assign each business → batch membership','Set batch status: Ready for outreach'],
+test:'Batch record created. 25 businesses assigned. Batch status = Ready for outreach.',
+ev:'Batch table: new row with 25 BatchMembership rows linked.',
+dep:'Requires: at least 25 identified businesses'},
+
+// ── Lane 2: Batch & Message (outreach) ──
+msg_version:{s:'outreach (2.1) · Message version created',a:'outreach',c:'Create or select message template version. Never overwrite — create V1, V2, V3 for each template.',
+steps:['Open message template library','Select template type (claim, follow-up, preview)','Create new version (N+1) if changing copy','Write subject line + body','Set date introduced','Link to campaign/experiment reference'],
+test:'MessageVersion row exists with: template name, version number, subject, body, date introduced.',
+ev:'MessageVersion table: new frozen version record.',
+dep:'May reuse existing version for first batch'},
+assign_msg:{s:'outreach (2.2) · Message assigned to batch',a:'outreach',c:'Assign message version and outreach channel to the batch. Prepare tracking.',
+steps:['Select batch','Select message template + version','Set outreach channel (email default)','Generate tracking reference for batch-message pair','Set sender identity','Confirm batch readiness'],
+test:'Batch record shows assigned message_version_id and channel.',
+ev:'Batch row updated with message_version_id, campaign_id, channel.',
+dep:'Requires: batch created + message version exists'},
+
+// ── Lane 3: Interaction (outreach) ──
+email_sent:{s:'interaction (3.1) · Email sent to batch',a:'outreach',c:'Send outreach email to all businesses in batch. Record every communication.',
+steps:['Load batch businesses','Generate email content (personalised per business)','Send email','Record Communication row per business','Update business status → Email sent / Awaiting response','Record batch: outreach started date'],
+test:'Communication rows exist for each batch business with: direction=outbound, channel=email, date/time, template version sent.',
+ev:'Communication table: N rows (one per business). Business status updated.',
+dep:'Requires: batch assigned message version'},
+response:{s:'interaction (3.2) · Response received & classified',a:'interaction',c:'Inbound response tracked. Classify response type. Link to communication history.',
+steps:['Receive reply','Record as Communication (inbound)','Classify response type (Positive, Interested, Not interested, etc.)','Preserve original response content','Link to batch, business, message version','Trigger status change based on classification'],
+test:'Communication row exists for inbound response. Response classification recorded. Business status updated.',
+ev:'Communication row with direction=inbound, response_type, original_content. Status updated.',
+dep:'Requires: email sent, reply received'},
+
+// ── Lane 4: Status pipeline (status) ──
+status_config:{s:'status (4.1) · Statuses configured',a:'status',c:'Define available status values. Configurable — not hard-coded. Can add/reorder at any time.',
+steps:['Open status configuration','Define status name + description','Set sort order','Mark as terminal (true/false)','Define allowed transitions (optional)','Activate'],
+test:'Status configuration table has entries. At minimum: Identified, Ready for outreach, Email sent, Awaiting response, Responded, Follow-up, Claimed, Website created, Website activated, Not interested, Disqualified.',
+ev:'Status table rows: id, name, description, sort_order, is_terminal.',
+dep:'Should be seeded before data entry'},
+status_change:{s:'status (4.2) · Business status changed',a:'status',c:'Move business to new status. Record as StatusHistory event — never overwrite previous state.',
+steps:['Select business','Select new status','Record: previous_status, new_status, timestamp, user, reason','Link to related Communication if any','Set next action + due date if applicable','Trigger notification if business stalled beyond threshold'],
+test:'StatusHistory row created. Business.current_status updated. No previous status lost.',
+ev:'StatusHistory INSERT. Business UPDATE current_status=, status_entered_at=.',
+dep:'Requires: statuses configured, business record exists'},
+
+// ── Lane 5: Follow-up (status) ──
+follow_up:{s:'status (5.1) · Follow-up action created & tracked',a:'status',c:'Create follow-up task. Assign type, due date, owner. Track completion.',
+steps:['Review businesses needing follow-up (no response >X days)','Select business','Create Task: type, due date, notes, assigned to','Set business status → Follow-up required','Record next action + due date on business'],
+test:'Task row exists. Business shows next_action + next_action_due_date.',
+ev:'Task table INSERT. Business UPDATE next_action, next_action_due_date.',
+dep:'Requires: business at Awaiting response > threshold'},
+
+// ── Lane 6: Conversion pipeline (outcome) ──
+claim:{s:'outcome (6.1) · Listing claimed',a:'outcome',c:'Business owner confirms listing claim. Record claim timestamp.',
+steps:['Receive claim confirmation','Update business: listing_claimed=true, claimed_at','Create CommercialOpportunity row','Set status → Listing claimed','Proceed to website creation workflow'],
+test:'Business.listing_claimed = true. CommercialOpportunity created.',
+ev:'Business UPDATE. CommercialOpportunity INSERT.',
+dep:'Requires: positive response from business'},
+preview_sent:{s:'outcome (6.2) · Website preview sent & viewed',a:'outcome',c:'Send website preview link to owner. Track when viewed. Link to EP044 website integration.',
+steps:['Create website preview (or link existing EP044 site)','Send preview email with review link','Record Communication (outbound, preview_sent)','Set status → Website preview sent','Monitor view status (owner preview page visited)','When viewed: update status → Website preview viewed'],
+test:'Communication row with type=website_preview. Business status updated. View timestamp recorded if available.',
+ev:'Communication INSERT. Business status updated. Preview viewed_at timestamp.',
+dep:'Requires: website created for business (EP044 pipeline)'},
+activate:{s:'outcome (6.3) · Website activated (paid)',a:'outcome',c:'Business activates paid website. Record pricing, revenue, subscription details.',
+steps:['Receive activation confirmation','Update CommercialOpportunity: value, status=won','Set business: website_activated=true','Update status → Website activated','Create recurring service record if applicable'],
+test:'Business.website_activated = true. CommercialOpportunity.status = won. Opportunity value recorded.',
+ev:'Business UPDATE. CommercialOpportunity UPDATE. Recurring Service record if applicable.',
+dep:'Requires: preview viewed, owner agrees pricing'},
+lead_service:{s:'outcome (6.4) · Social / lead-gen service sold',a:'outcome',c:'Offer and sell ongoing social-media or lead-generation service to activated client.',
+steps:['Present social/lead-gen service offer','If accepted: create service subscription record','Set business: service_active=true','Update status → Converted','Record recurring revenue value','Link lead-delivery workflow'],
+test:'Business.service_active = true. Recurring revenue recorded. Status = Converted.',
+ev:'Business UPDATE. Service Subscription INSERT. CommercialOpportunity revenue value updated.',
+dep:'Requires: website activated'},
+
+// ── Lane 7: Re-engagement (outcome) ──
+reengage:{s:'outcome (7.1) · Business re-engaged from historical batch',a:'outcome',c:'Revisit previous no-response or stale businesses. Apply improved messaging.',
+steps:['Filter businesses: No response >X days','Review historical batch + message version they received','Select subset for re-engagement','Create new message version if revised','Assign to new or existing batch','Send re-engagement outreach','Record as new Communication + status update'],
+test:'Re-engagement Communication row linked to original batch + business. New status update recorded.',
+ev:'Communication INSERT. BatchMembership (or re-engagement tag). Status updated.',
+dep:'Requires: businesses with No response or stale status'},
+
+// ── Lane 8: Analytics & learning (learning) ──
+batch_metrics:{s:'learning (8.1) · Batch performance metrics',a:'learn',c:'Compute and display batch-level KPIs. Enable batch-to-batch comparison.',
+steps:['For each batch: compute sent count','Compute response count + rate','Compute positive response rate','Compute claim rate, activation rate','Compute conversion rate, revenue','Display in table/card view','Enable side-by-side comparison'],
+test:'Batch metrics dashboard shows: sent, responses, response%, positive%, claim%, activation%, conversion%, revenue.',
+ev:'Aggregated from Communication, StatusHistory, CommercialOpportunity. No dedicated table needed.',
+dep:'Requires: ≥1 completed batch with data'},
+msg_metrics:{s:'learning (8.2) · Message version performance',a:'learn',c:'Compare message versions by response rate, conversion rate. Identify best-performing copy.',
+steps:['Group Communications by message_version_id','Compute response rate per version','Compute conversion rate (→ Website activated)','Compare subject line A vs B','Flag highest-performing version','Update campaign record with findings'],
+test:'Per-message-version metrics: sent count, response count, response rate, conversion count, conversion rate.',
+ev:'Grouped on MessageVersion from Communication + StatusHistory joins.',
+dep:'Requires: ≥2 message versions with data'},
+pipeline_metrics:{s:'learning (8.3) · Pipeline velocity & drop-off',a:'learn',c:'Measure time between stages. Identify where businesses stall most. Flag stalled businesses.',
+steps:['From StatusHistory: compute average days per status','Identify stages with highest average duration','Compute stage-to-stage conversion rates','Identify drop-off stages','Flag businesses exceeding expected time +2 stddev','Show stalled businesses list','Calculate overall first-contact → conversion time'],
+test:'Dashboard shows: avg days per status, stage conversion rates, stalled businesses list, total pipeline time.',
+ev:'Computed from StatusHistory using LEAD() (previous → current status diff) aggregated.',
+dep:'Requires: StatusHistory with sufficient data'},
+
+// ── Side panel open functions ──
+};
+let activeFilter = 'all';
+const F = (n)=>{let r=D[n];if(!r)return;let s=document.getElementById('side-content'),o=document.getElementById('side'),v=document.getElementById('overlay');
+s.innerHTML='<h2>'+r.s+'</h2><p class="tag">'+r.c+'</p>'+'<ul class="steps">'+r.steps.map(x=>'<li>'+x+'</li>').join('')+'</ul>'+'<div class="test"><strong>⛁ Completion test</strong>'+r.test+'</div>'+'<div class="ev"><strong>↗ Evidence</strong>'+r.ev+'</div>'+(r.dep?'<div class="dep">⛮ <strong>Depends on:</strong> '+r.dep+'</div>':'');
+o.classList.add('open');v.classList.add('on');};
+document.addEventListener('DOMContentLoaded',()=>{
+const lanes = [
+{id:'setup',name:'Setup — Business & Batch',actor:'CRM user imports data from directory',style:'#c8f250',nodes:['identify','import_batch']},
+{id:'outreach',name:'Outreach — Message & Batch Prep',actor:'CRM user creates message version + assigns to batch',style:'#4a9eff',nodes:['msg_version','assign_msg']},
+{id:'interaction',name:'Interaction — Send & Receive',actor:'System sends + user classifies responses',style:'#f5a623',nodes:['email_sent','response']},
+{id:'status',name:'Status Pipeline — Track & Move',actor:'CRM user configures statuses + moves businesses',style:'#7b61ff',nodes:['status_config','status_change','follow_up']},
+{id:'outcome',name:'Conversion — Claim → Activate → Service',actor:'Sales + system track commercial outcome',style:'#e85347',nodes:['claim','preview_sent','activate','lead_service','reengage']},
+{id:'learn',name:'Learning — Analytics & Optimisation',actor:'System computes KPIs; user compares batches/messages',style:'#50c878',nodes:['batch_metrics','msg_metrics','pipeline_metrics']},
+];
+document.getElementById('lanes').innerHTML = lanes.map(l=>{
+let nodes = l.nodes.map(k=>{
+let n = D[k];
+let color = l.style;
+if(!n) return '';
+return '<div class="node" data-filter="'+n.a+'" onclick="F(\''+k+'\')"><div class="badge" style="background:'+color+'22;color:'+color+'">'+n.a+' · '+k.replace(/_/g,' ')+'</div><div class="title">'+n.s+'</div><div class="desc">'+n.c.slice(0,80)+'…</div><div class="meta">'+(n.dep?'⛮ dep':'')+'</div></div>';
+}).join('');
+return '<div class="lane"><h2 style="color:'+l.style+'">'+l.name+'</h2><p class="actor">'+l.actor+'</p><div class="flow">'+nodes+'</div></div>';
+}).join('');
+// Filter buttons
+document.querySelectorAll('.filter-bar button').forEach(btn=>{
+btn.addEventListener('click',()=>{
+document.querySelectorAll('.filter-bar button').forEach(b=>b.classList.remove('on'));
+btn.classList.add('on');
+activeFilter = btn.dataset.filter;
+document.querySelectorAll('.node').forEach(n=>{
+if(activeFilter==='all'){n.style.display='';return}
+n.style.display = n.dataset.filter===activeFilter?'':'none';
+});});});
+// Side close
+document.getElementById('side-close').addEventListener('click',()=>{
+document.getElementById('side').classList.remove('open');
+document.getElementById('overlay').classList.remove('on');});
+document.getElementById('overlay').addEventListener('click',()=>{
+document.getElementById('side').classList.remove('open');
+document.getElementById('overlay').classList.remove('on');});
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!doctype html>
+<!--
+ * EP057_strategy_card_comments_implementation_checklist.html — Delivery gates for compact strategy card comments.
+ *
+ * VERSION HISTORY
+ * v1.1.0 · 2026-10-09 · Records browser proof for compact cards and notes modal while leaving user acceptance open.
+ * v1.0.0 · 2026-10-09 · Establishes visible implementation and verification gates before code changes begin.
+ -->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EP057 · Card comments delivery checklist</title>
+<style>:root{color-scheme:dark;--bg:#080c17;--panel:#111a2b;--line:#273650;--text:#e5edf9;--muted:#93a4bf;--cyan:#37c9f2;--amber:#f5c84c;--lime:#c8fa3c}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 "Cascadia Code",Consolas,monospace}main{max-width:920px;margin:40px auto;padding:0 22px}.tag{color:var(--cyan);text-transform:uppercase;letter-spacing:.17em;font-size:11px}h1{font-size:34px;margin:7px 0}p{color:var(--muted)}.item{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;padding:17px;margin:10px 0;border:1px solid var(--line);border-radius:10px;background:var(--panel)}.item strong{display:block}.item small{color:var(--muted)}select{background:#080e1c;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:7px;font:inherit}.status{font-weight:700;color:var(--amber)}.status[data-state="Passed"]{color:var(--lime)}.status[data-state="Failed"],.status[data-state="Blocked"]{color:#fb7185}@media(max-width:600px){.item{grid-template-columns:1fr}}
+</style></head><body><main><div class="tag">EP057 · delivery status</div><h1>Strategy card comments modal</h1><p>Each gate remains visible until its required evidence has been captured. “Passed” requires the behavior-level proof listed with that gate.</p>
+<div class="item"><div><strong>1 · Interaction workflow documented</strong><small>Clickable steps and actor filters are browser-verified before implementation.</small></div><span class="status" data-state="Passed">Passed · workflow browser report 20261009_132900</span></div>
+<div class="item"><div><strong>2 · Compact card and comments link</strong><small>Keep strategy identity/metrics compact; move full selected rank/time notes into a modal.</small></div><span class="status" data-state="Passed">Passed · compact Notes link, 107 px card</span></div>
+<div class="item"><div><strong>3 · Modal content and behavior</strong><small>Strategy identity and rank/time content; close button, Escape, and card height.</small></div><span class="status" data-state="Passed">Passed · modal identity/content, close, Escape</span></div>
+<div class="item"><div><strong>4 · Browser visual verification</strong><small>Timestamped browser report and screenshots for compact card and open modal.</small></div><span class="status" data-state="Passed">Passed · Test Results/ep057/20261009_132855...</span></div>
+<div class="item"><div><strong>5 · User verification</strong><small>Final acceptance of card height and notes readability remains with the user.</small></div><span class="status" data-state="In progress">Awaiting user visual acceptance</span></div>
+</main></body></html>
+
+

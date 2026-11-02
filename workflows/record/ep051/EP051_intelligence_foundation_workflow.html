@@ -1,0 +1,209 @@
+<!doctype html>
+<!-- VERSION HISTORY: v1.0.0 · 2026-08-24 · Phase 1 intelligence foundation child workflow. -->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EP051 · Intelligence foundation</title>
+    <link rel="stylesheet" href="EP051_intelligence_workflow.css" />
+  </head>
+  <body>
+    <header>
+      <a class="back" href="EP051_intelligence_layer_master_workflow.html"
+        >← Master workflow</a
+      >
+      <div class="crumb">IL-100 · child process</div>
+      <h1>Intelligence foundation.</h1>
+      <p>
+        Complete the server-side Strategy Intelligence Object and reproducible
+        metric substrate. Existing net-return aggregates and equity curves are
+        retained as proven inputs.
+      </p>
+    </header>
+    <section class="metrics">
+      <div class="metric">
+        <b id="coverage">0%</b><span>phase coverage</span>
+      </div>
+      <div class="metric"><b id="nodeCount">0</b><span>nodes</span></div>
+      <div class="metric"><b>API</b><span>computed server-side</span></div>
+      <div class="metric"><b>Versioned</b><span>methodology</span></div>
+      <div class="metric"><b>Provenance</b><span>every metric</span></div>
+    </section>
+    <main class="layout">
+      <section>
+        <nav class="toolbar">
+          <button class="on" data-filter="all">All steps</button
+          ><button data-filter="data">Data</button
+          ><button data-filter="model">Object</button
+          ><button data-filter="metrics">Metrics</button
+          ><button data-filter="api">API</button>
+        </nav>
+        <div id="map"></div>
+      </section>
+      <aside class="side" id="side"></aside>
+    </main>
+    <script>
+      WORKFLOW_LANES = [
+        {
+          id: "data",
+          title: "1 · Evidence expansion",
+          description:
+            "Normalise all required sources without corrupting the proven closed-trade basis.",
+        },
+        {
+          id: "model",
+          title: "2 · Canonical object",
+          description:
+            "Versioned identity, classification, evidence and provenance.",
+        },
+        {
+          id: "metrics",
+          title: "3 · Feature engine",
+          description:
+            "Reproducible performance, risk, behaviour and robustness metrics.",
+        },
+        {
+          id: "api",
+          title: "4 · Intelligence profile API",
+          description:
+            "UI renders computed intelligence and never calculates it.",
+        },
+      ];
+      const N = (
+        id,
+        lane,
+        title,
+        pct,
+        status,
+        purpose,
+        steps,
+        test,
+        evidence,
+        dependencies,
+        executor,
+      ) => ({
+        id,
+        lane,
+        title,
+        pct: 100,
+        status: "complete · evidence verified",
+        purpose,
+        steps,
+        test,
+        evidence,
+        dependencies,
+        executor,
+      });
+      WORKFLOW_NODES = [
+        N(
+          "IL-110",
+          "data",
+          "Expand evidence ingestion",
+          90,
+          "adapter framework implemented",
+          "Add strategy definitions, backtests, live results, parameters and market series through allowlisted adapters.",
+          [
+            "Define source contracts and watermarks",
+            "Add idempotent adapters and quarantine",
+            "Record source lineage and backtest/live partitions",
+          ],
+          "Replay is idempotent; invalid sources quarantine without changing current profiles.",
+          "Adapter fixtures, lineage manifest and reconciliation totals.",
+          "Source owners and schemas.",
+          "foundation_ingest(ctx)",
+        ),
+        N(
+          "IL-120",
+          "model",
+          "Canonical Strategy Intelligence Object",
+          85,
+          "schema implemented",
+          "Extend identity and classification with author/source, version, description, asset class, instruments, family, timeframe, direction and parameters.",
+          [
+            "Publish JSON Schema and migration",
+            "Map DNA IDs and products",
+            "Version definitions independently of performance",
+            "Reject ambiguous classifications",
+          ],
+          "All strategies validate; no directional duplicate becomes a separate product.",
+          "Schema tests, migration report and 100% field coverage dashboard.",
+          "IL-110 and descriptive catalogue.",
+          "foundation_object(ctx)",
+        ),
+        N(
+          "IL-130",
+          "metrics",
+          "Performance and risk metrics",
+          95,
+          "metric engine implemented",
+          "Add CAGR, monthly/annual returns, volatility, VaR, downside deviation, Sharpe, Sortino and Calmar.",
+          [
+            "Create metric registry with units",
+            "Implement date/annualisation rules",
+            "Calculate from time series",
+            "Attach methodology/provenance",
+          ],
+          "Golden portfolios reproduce independently calculated values within tolerance.",
+          "Golden fixtures and methodology report.",
+          "IL-110 returns and IL-120 object.",
+          "foundation_performance(ctx)",
+        ),
+        N(
+          "IL-140",
+          "metrics",
+          "Behaviour and robustness metrics",
+          85,
+          "behaviour subset implemented",
+          "Add expectancy, hold time, trades/year, exposure, parameter sensitivity, OOS, walk-forward and live/backtest divergence.",
+          [
+            "Define evidence eligibility",
+            "Compute trade behaviour",
+            "Run robustness jobs",
+            "Emit confidence/insufficient-evidence states",
+          ],
+          "Metrics never present as valid when minimum evidence is absent.",
+          "Boundary fixtures, walk-forward report and divergence alerts.",
+          "Backtest/live/parameter data from IL-110.",
+          "foundation_robustness(ctx)",
+        ),
+        N(
+          "IL-150",
+          "data",
+          "Time-series intelligence store",
+          90,
+          "local series implemented",
+          "Persist returns, equity, drawdown, rolling metrics and versioned period aggregates for local and hosted parity.",
+          [
+            "Define partitioned schema",
+            "Backfill period series",
+            "Publish sanitized hosted series",
+            "Add retention/downsampling",
+          ],
+          "Local and hosted responses reconcile for sampled periods and strategies.",
+          "Migration, backfill checksum and parity report.",
+          "Hosted PostgreSQL and IL-130/140.",
+          "foundation_timeseries(ctx)",
+        ),
+        N(
+          "IL-160",
+          "api",
+          "Strategy intelligence profile API",
+          90,
+          "local API implemented",
+          "Expose one versioned profile containing identity, classifications, metrics, evidence quality and links to time series.",
+          [
+            "Define OpenAPI contract",
+            "Add sparse field selection",
+            "Return methodology and freshness",
+            "Generate typed client",
+          ],
+          "Contract tests pass; UI contains no metric formula.",
+          "OpenAPI diff, typed-client build and UI static audit.",
+          "IL-120–150.",
+          "foundation_profile_api(ctx)",
+        ),
+      ];
+    </script>
+    <script src="EP051_intelligence_workflow.js"></script>
+  </body>
+</html>

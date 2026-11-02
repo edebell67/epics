@@ -1,0 +1,27 @@
+<!doctype html>
+<!--
+ * EP057_live_mode_replay_portfolio_implementation_checklist.html — Delivery gates for portfolio-scoped Live Mode
+ *
+ * VERSION HISTORY
+ * v1.0.1 · 2026-10-09 · Records the mocked arm/disarm, lock, refresh, reload, and failure checks; keeps live server verification and user acceptance pending.
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EP057 Live Mode Delivery Checklist</title>
+<style>body{max-width:1000px;margin:30px auto;padding:0 20px;background:#07111f;color:#dce8f7;font:15px/1.5 system-ui}h1{color:#67e8f9}.item{background:#0d1b2c;border:1px solid #29445d;border-radius:10px;padding:14px;margin:10px 0}.status{font-weight:700;color:#facc15}.status[data-state=Passed]{color:#34d399}.status[data-state=Failed],.status[data-state=Blocked]{color:#fb7185}.evidence{color:#9db2c8;font-size:13px}</style></head><body>
+<h1>EP057 Live Mode: implementation checklist</h1><p>Live trading stays disarmed during development and browser verification. Each status requires the evidence listed for that item.</p>
+<div id="items"></div>
+<script>
+const checks=[
+['Workflow map before implementation','Passed','Interactive workflow exists and browser interaction is verified.','~/eds/workstream/Test Results\\EP057\\20261009_152300_live_mode_workflow_interaction_passed\\workflow.png; run_report.md'],
+['Portfolio-specific arm/disarm state','Passed','Only the selected LIVE or LIVE_ALT portfolio changes; UI reflects server-confirmed status.','mocked API request and response assertions'],
+['Live mode enforces chart lock','Passed','Manual replay, baseline, date, scenario, filters and portfolio scope cannot change while armed.','browser control-state screenshot'],
+['Chart follows incoming live data','Passed','Fresh live snapshot and server-selected strategy update the chart/head while interaction remains locked.','mocked refresh sequence and chart-head assertion'],
+['Replay-derived monitoring remains visible','Partially verified','Live chart keeps overlay trades, B/X signals, P&L, trade list and target-reached marker current.','browser screenshot and calculated sample state'],
+['PostgreSQL transition safety','Not run','Arm/disarm calls existing mirror path; combined_trades_open remains untouched; test order export is stubbed.','mock adapter assertions; zero actual order-file writes'],
+['Failure behavior','Partially verified','Missing rules/setup or rejected transition never appears armed and existing config remains intact.','mocked 4xx/5xx/error screenshots and response report'],
+['Chart-lock and portfolio-persistence regression','Passed','Each portfolio restores its own lock state after disarm, switch and page reload.','reload and two-portfolio browser report'],
+['Live server verification','Not run','A separately authorized, operator-controlled verification is completed; never use local tests to arm existing runtime.','user-confirmed live screen check'],
+['User acceptance','Pending user','User confirms Live toggle, forced lock, continued live refresh and disarm behavior.','user feedback in task file']
+];
+document.getElementById('items').innerHTML=checks.map(([name,state,expected,evidence],i)=>'<section class="item"><strong>'+(i+1)+'. '+name+'</strong><div class="status" data-state="'+state+'">Status: '+state+'</div><div>'+expected+'</div><div class="evidence">Evidence: '+evidence+'</div></section>').join('');
+</script></body></html>
+

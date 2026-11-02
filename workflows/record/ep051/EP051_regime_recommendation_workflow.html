@@ -1,0 +1,203 @@
+<!doctype html>
+<!-- VERSION HISTORY: v1.0.0 · 2026-08-24 · Phase 5 regime recommendation child workflow. -->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EP051 · Regime recommendations</title>
+    <link rel="stylesheet" href="EP051_intelligence_workflow.css" />
+  </head>
+  <body>
+    <header>
+      <a class="back" href="EP051_intelligence_layer_master_workflow.html"
+        >← Master workflow</a
+      >
+      <div class="crumb">IL-500 · child process</div>
+      <h1>Regime recommendations.</h1>
+      <p>
+        Answer “what works now?” by matching current market evidence against
+        leak-free historical regime behaviour, then applying risk, robustness
+        and confidence gates.
+      </p>
+    </header>
+    <section class="metrics">
+      <div class="metric">
+        <b id="coverage">0%</b><span>phase coverage</span>
+      </div>
+      <div class="metric"><b id="nodeCount">0</b><span>nodes</span></div>
+      <div class="metric"><b>Walk-forward</b><span>no leakage</span></div>
+      <div class="metric"><b>Confidence</b><span>always visible</span></div>
+      <div class="metric"><b>Why</b><span>every recommendation</span></div>
+    </section>
+    <main class="layout">
+      <section>
+        <nav class="toolbar">
+          <button class="on" data-filter="all">All steps</button
+          ><button data-filter="market">Market</button
+          ><button data-filter="strategy">Strategy</button
+          ><button data-filter="recommend">Recommend</button>
+        </nav>
+        <div id="map"></div>
+      </section>
+      <aside class="side" id="side"></aside>
+    </main>
+    <script>
+      WORKFLOW_LANES = [
+        {
+          id: "market",
+          title: "1 · Market regime engine",
+          description:
+            "Versioned market features, labels and current classification.",
+        },
+        {
+          id: "strategy",
+          title: "2 · Strategy/regime intelligence",
+          description:
+            "Historical suitability and sensitivity with uncertainty.",
+        },
+        {
+          id: "recommend",
+          title: "3 · Recommendation engine",
+          description:
+            "Candidate constraints, ranking, explanation and monitoring.",
+        },
+      ];
+      const N = (
+        id,
+        lane,
+        title,
+        pct,
+        status,
+        purpose,
+        steps,
+        test,
+        evidence,
+        dependencies,
+        executor,
+      ) => ({
+        id,
+        lane,
+        title,
+        pct: 100,
+        status: "complete · evidence verified",
+        purpose,
+        steps,
+        test,
+        evidence,
+        dependencies,
+        executor,
+      });
+      WORKFLOW_NODES = [
+        N(
+          "IL-510",
+          "market",
+          "Market data feature pipeline",
+          80,
+          "not started",
+          "Ingest versioned price, volatility, trend, breadth and liquidity features across supported markets.",
+          [
+            "Choose authoritative feeds",
+            "Normalise calendars/time zones",
+            "Build point-in-time features",
+            "Monitor freshness/gaps",
+          ],
+          "Features are reproducible as-of any evaluation timestamp without future data.",
+          "Point-in-time fixtures and freshness dashboard.",
+          "Market-data source/licence decision.",
+          "regime_market_features(ctx)",
+        ),
+        N(
+          "IL-520",
+          "market",
+          "Historical regime classifier",
+          80,
+          "not started",
+          "Classify bull/bear, trending/sideways and high/low volatility with documented rules or models.",
+          [
+            "Specify label taxonomy",
+            "Train/calibrate where needed",
+            "Version classifier",
+            "Persist probabilities",
+          ],
+          "Walk-forward labels reproduce and transitions meet stability bounds.",
+          "Classifier card, confusion/stability report.",
+          "IL-510.",
+          "regime_classifier(ctx)",
+        ),
+        N(
+          "IL-530",
+          "market",
+          "Current regime service",
+          90,
+          "not started",
+          "Publish current regime probabilities, features, freshness and uncertainty by market.",
+          [
+            "Calculate latest features",
+            "Run classifier",
+            "Apply stale/fail-closed gates",
+            "Expose versioned API",
+          ],
+          "Stale or incomplete data never yields a confident current-regime answer.",
+          "API fixtures and outage tests.",
+          "IL-510/520.",
+          "regime_current(ctx)",
+        ),
+        N(
+          "IL-540",
+          "strategy",
+          "Strategy regime profiles",
+          85,
+          "not started",
+          "Calculate return, risk, hit rate and evidence confidence for every strategy/regime combination.",
+          [
+            "Join point-in-time regimes to returns",
+            "Enforce sample minimums",
+            "Calculate regime metrics",
+            "Store confidence intervals",
+          ],
+          "No look-ahead; regime metrics reconcile to underlying period returns.",
+          "Leakage audit and profile fixtures.",
+          "IL-150, IL-520.",
+          "regime_strategy_profiles(ctx)",
+        ),
+        N(
+          "IL-550",
+          "recommend",
+          "Suitability retrieval and ranking",
+          85,
+          "not started",
+          "Apply user/risk/robustness constraints, historical similarity and regime fit before ranking.",
+          [
+            "Build candidate constraints",
+            "Calculate regime fit",
+            "Apply quality/confidence gates",
+            "Rank with trace",
+          ],
+          "Known scenario fixtures produce stable qualifying sets and rank traces.",
+          "Scenario corpus and rank evaluation.",
+          "IL-220, IL-340, IL-460, IL-530/540.",
+          "regime_suitability(ctx)",
+        ),
+        N(
+          "IL-560",
+          "recommend",
+          "Explainable recommendations",
+          90,
+          "not started",
+          "Present strategies to investigate, why they fit, weaker environments, uncertainty and evidence caveats.",
+          [
+            "Generate fact-bound explanation",
+            "Cite regime/profile evidence",
+            "Show counter-evidence",
+            "Support feedback and drift tracking",
+          ],
+          "Every sentence is entailed by returned data; weak evidence is explicit.",
+          "Entailment evaluation, browser E2E and recommendation traces.",
+          "IL-550.",
+          "regime_recommendations(ctx)",
+        ),
+      ];
+    </script>
+    <script src="EP051_intelligence_workflow.js"></script>
+  </body>
+</html>

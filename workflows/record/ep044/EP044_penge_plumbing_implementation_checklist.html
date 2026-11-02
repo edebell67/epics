@@ -1,0 +1,219 @@
+<!doctype html>
+<!--
+  EP044_penge_plumbing_implementation_checklist.html — Detailed delivery-status checklist for Penge Plumbing site implementation.
+
+  VERSION HISTORY
+  v1.0.0 · 2026-08-01 · Initial version: breaks down the plumbers demo site delivery into verification gates with real-time status.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EP044 — Penge Plumbing Implementation Checklist</title>
+  <style>
+    :root {
+      --ink: #0f172a;
+      --muted: #64748b;
+      --paper: #f8fafc;
+      --line: #e2e8f0;
+      --blue: #0284c7;
+      --blue-light: #e0f2fe;
+      --green: #10b981;
+      --green-light: #d1fae5;
+      --amber: #f59e0b;
+      --amber-light: #fef3c7;
+      --red: #ef4444;
+      --red-light: #fee2e2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 15px/1.45 Outfit, ui-sans-serif, system-ui, sans-serif;
+    }
+    header {
+      padding: 28px max(24px, calc((100vw - 1180px)/2));
+      background: #0f172a;
+      color: white;
+      border-bottom: 4px solid var(--blue);
+    }
+    h1 { margin: 0; font: 700 30px/1.15 Cormorant Garamond, Georgia, serif; }
+    header p { max-width: 860px; margin: 10px 0 0; color: #94a3b8; }
+    .layout {
+      max-width: 1000px;
+      margin: 24px auto;
+      padding: 0 20px;
+    }
+    .card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 7px rgba(15, 23, 42, 0.05);
+    }
+    .card h2 {
+      margin: 0 0 16px;
+      font: 600 20px/1.2 Cormorant Garamond, Georgia, serif;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+      color: #0369a1;
+    }
+    .check-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--line);
+    }
+    .check-item:last-child { border-bottom: none; }
+    .check-label {
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .check-desc {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      text-align: center;
+      min-width: 100px;
+    }
+    .status-todo { background: #f1f5f9; color: #475569; }
+    .status-inprogress { background: var(--amber-light); color: var(--amber); }
+    .status-passed { background: var(--green-light); color: #065f46; }
+    .status-failed { background: var(--red-light); color: #991b1b; }
+    .evidence-log {
+      font-family: monospace;
+      font-size: 11px;
+      background: #f8fafc;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+      max-width: 300px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Penge Plumbing — Implementation &amp; Verification Checklist</h1>
+    <p>Tracks the technical verification gate statuses for the plumbers demo site. Verified locally before git push.</p>
+  </header>
+  <main class="layout">
+    
+    <!-- Section 1: Pre-generation & Configuration -->
+    <div class="card">
+      <h2>1. Configuration &amp; Registry</h2>
+      
+      <div class="check-item">
+        <div>
+          <span class="check-label">Constants.py VERSION</span>
+          <span class="check-desc">Increment version string to V20260801_0300</span>
+        </div>
+        <span class="status-badge status-passed" id="status-constants">Passed</span>
+      </div>
+
+      <div class="check-item">
+        <div>
+          <span class="check-label">Palette Registry Entry</span>
+          <span class="check-desc">Append penge-plumbing with slate/sky-blue palette to PALETTE_REGISTRY.md</span>
+        </div>
+        <span class="status-badge status-passed" id="status-palette">Passed</span>
+      </div>
+
+      <div class="check-item">
+        <div>
+          <span class="check-label">Interactive Diagram Artifacts</span>
+          <span class="check-desc">Create workflow &amp; checklist HTML files in workstream/600_workflow/</span>
+        </div>
+        <span class="status-badge status-passed" id="status-diagrams">Passed</span>
+      </div>
+    </div>
+
+    <!-- Section 2: Code Implementation -->
+    <div class="card">
+      <h2>2. Code &amp; Static Site Assets</h2>
+      
+      <div class="check-item">
+        <div>
+          <span class="check-label">styles.css implementation</span>
+          <span class="check-desc">Shared layout tokens, relative modular type scale, and hover states</span>
+        </div>
+        <span class="status-badge status-inprogress" id="status-css">In Progress</span>
+      </div>
+
+      <div class="check-item">
+        <div>
+          <span class="check-label">index.html implementation</span>
+          <span class="check-desc">Homepage hero, priced services menu, triage stepper, trust indicators, reviews, CTAs</span>
+        </div>
+        <span class="status-badge status-todo" id="status-index">Not Started</span>
+      </div>
+
+      <div class="check-item">
+        <div>
+          <span class="check-label">gallery.html implementation</span>
+          <span class="check-desc">Editorial column-count masonry grid with category filters and captioned photos</span>
+        </div>
+        <span class="status-badge status-todo" id="status-gallery">Not Started</span>
+      </div>
+
+      <div class="check-item">
+        <div>
+          <span class="check-label">reveal.js &amp; assistant-embed.js</span>
+          <span class="check-desc">IntersectionObserver script and Render-hosted AI assistant embed script</span>
+        </div>
+        <span class="status-badge status-todo" id="status-scripts">Not Started</span>
+      </div>
+    </div>
+
+    <!-- Section 3: Verification Gates -->
+    <div class="card">
+      <h2>3. Quality Verification Gates</h2>
+      
+      <div class="check-item">
+        <div>
+          <span class="check-label">Image Load Verification</span>
+          <span class="check-desc">Ensure all 17 Unsplash images return 200 and load successfully (complete: true)</span>
+        </div>
+        <span class="status-badge status-todo" id="status-images">Not Started</span>
+      </div>
+
+      <div class="check-item">
+        <div>
+          <span class="check-label">Layout Edge Alignment</span>
+          <span class="check-desc">Verify logo, navigation, grids, and footer share one left page edge gutter</span>
+        </div>
+        <span class="status-badge status-todo" id="status-alignment">Not Started</span>
+      </div>
+
+      <div class="check-item">
+        <div>
+          <span class="check-label">Progressive Fallback</span>
+          <span class="check-desc">Ensure site navigation and pricing lists remain fully usable when JS is disabled</span>
+        </div>
+        <span class="status-badge status-todo" id="status-fallback">Not Started</span>
+      </div>
+
+      <div class="check-item">
+        <div>
+          <span class="check-label">AI native Tenant Verification</span>
+          <span class="check-desc">Confirm public config resolves tenant and client chat session connects</span>
+        </div>
+        <span class="status-badge status-todo" id="status-ai">Not Started</span>
+      </div>
+    </div>
+
+  </main>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<!--
+workstream/600_workflow/EP000_youtube_channel_operations_implementation_checklist.html — Delivery status for the YouTube operations skill.
+
+VERSION HISTORY
+v1.0.0 · 2026-08-04 · Initial version: records pre-implementation scope, validation gates, and evidence status.
+-->
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>YouTube Skill Delivery Checklist</title>
+<style>body{font:16px/1.5 Segoe UI,sans-serif;background:#101714;color:#eef5ef;margin:0;padding:32px;max-width:1000px;margin:auto}h1{font-size:clamp(2rem,5vw,3.6rem);line-height:1}.meta{color:#9eaaa2}.item{display:grid;grid-template-columns:150px 1fr;gap:18px;border-top:1px solid #35423a;padding:18px 0}.status{font-weight:700;color:#f1ba60}.passed{color:#79d39f}.evidence{color:#a8b6ad;font-size:.9rem}button{background:#eef5ef;border:0;border-radius:8px;padding:9px 12px;cursor:pointer}@media(max-width:620px){.item{grid-template-columns:1fr}}</style></head>
+<body><p class="meta">EP000 · Updated 2026-08-04 21:16 BST</p><h1>Implementation checklist</h1><p>Install the supplied Markdown as a discoverable, validated personal Codex skill without losing its operating gates.</p><button id="toggle">Show evidence</button>
+<div class="item"><div class="status passed">Passed</div><div><b>Source and instructions</b><p>Read the supplied specification, skill-creator guidance, lifecycle rules, and Obsidian mirror process.</p><p class="evidence">Source: ~/Downloads/YouTube_Channel_Operations_Skill.md</p></div></div>
+<div class="item"><div class="status passed">Passed</div><div><b>Workflow design</b><p>Map all nine stages, actors, evidence gates, pass rules, and stop conditions before implementation.</p><p class="evidence">EP000_youtube_channel_operations_workflow.html</p></div></div>
+<div class="item"><div class="status">In progress</div><div><b>Skill package</b><p>Initialize `youtube-channel-operations`, install the complete instructions, and generate UI metadata.</p><p class="evidence">Pending: ~/.codex/skills/youtube-channel-operations</p></div></div>
+<div class="item"><div class="status">Not started</div><div><b>Structural validation</b><p>Run the official quick validator and scan for placeholders, invalid metadata, and missing stages.</p><p class="evidence">Pending validator output.</p></div></div>
+<div class="item"><div class="status">Not started</div><div><b>Lifecycle completion</b><p>Capture evidence, move the task to complete, and synchronize Obsidian indexes and counts.</p><p class="evidence">Pending completed lifecycle record.</p></div></div>
+<script>const b=document.querySelector('#toggle'),es=[...document.querySelectorAll('.evidence')];let show=true;b.onclick=()=>{show=!show;es.forEach(e=>e.hidden=!show);b.textContent=show?'Hide evidence':'Show evidence'};</script></body></html>

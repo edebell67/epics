@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EP047 Hyperlocal News Engagement — Implementation Status</title>
+  <style>
+    :root{--ink:#152022;--paper:#f6f3ed;--card:#fffdf8;--line:#d6d2c9;--accent:#0d746a;--muted:#667174;--warn:#b26a11;--todo:#879092}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 Arial,sans-serif}.wrap{max-width:1080px;margin:auto;padding:38px 22px 60px}h1{font:700 clamp(30px,5vw,54px)/1.02 Georgia,serif;letter-spacing:-.04em;margin:7px 0 10px}.eyebrow,.meta,.status{font:700 11px/1.2 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase}.eyebrow{color:var(--accent)}.intro{max-width:760px;color:var(--muted);margin:0 0 25px}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}.metric{background:var(--card);border:1px solid var(--line);padding:16px}.metric strong{display:block;font:700 29px Georgia,serif}.filters{display:flex;flex-wrap:wrap;gap:8px;border-top:1px solid var(--line);padding:17px 0}.filters button{border:1px solid var(--line);background:var(--card);padding:8px 11px;cursor:pointer;border-radius:99px;font-weight:700}.filters button.active{background:var(--ink);color:#fff;border-color:var(--ink)}table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line)}th,td{padding:14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.status{display:inline-block;padding:5px 7px;border-radius:99px;background:#e5e8e8;color:#445}.status.in-progress{background:#fff0cf;color:#82500a}.status.passed{background:#dff1eb;color:#07544d}.status.not-started{background:#eceeef;color:#596164}.evidence{color:var(--muted);font-size:13px}.note{margin-top:24px;border-left:4px solid var(--accent);padding:12px 15px;background:#e6f1ed;color:#304143}@media(max-width:700px){.summary{grid-template-columns:repeat(2,1fr)}table,thead,tbody,tr,th,td{display:block}thead{display:none}tr{padding:10px 0}td{border:0;padding:6px 14px}td:before{content:attr(data-label);display:block;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="eyebrow">EP047 · live feature delivery</div>
+    <h1>Hyperlocal News Engagement</h1>
+    <p class="intro">Status of the full live system: verified local news, transparent editorial analysis, moderated community responses, business claiming, and website-activation hand-off.</p>
+    <section class="summary" aria-label="Delivery summary">
+      <div class="metric"><strong id="total">0</strong><span>Delivery items</span></div>
+      <div class="metric"><strong id="progress">0</strong><span>In progress</span></div>
+      <div class="metric"><strong id="passed">0</strong><span>Passed</span></div>
+      <div class="metric"><strong id="todo">0</strong><span>Not started</span></div>
+    </section>
+    <div class="filters" aria-label="Filter delivery status">
+      <button class="active" data-filter="all">All</button><button data-filter="in-progress">In progress</button><button data-filter="passed">Passed</button><button data-filter="not-started">Not started</button>
+    </div>
+    <table>
+      <thead><tr><th>Area</th><th>Delivery item</th><th>Status</th><th>Evidence / next check</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p class="note"><strong>Current gate:</strong> The Penge front-page prototype and strategy are complete. The live platform build is in architecture and integration discovery; no live public deployment, business claiming, or response collection has been enabled yet.</p>
+  </main>
+  <script>
+    const items=[
+      ['Strategy','News-to-engagement strategy captured','passed','EP047 strategy document in workstream Hold backlog.'],
+      ['Prototype','Five-story Penge SE20 source-linked front page','passed','Static prototype updated and script-validated.'],
+      ['Architecture','Inspect and select integration path with existing directory and verification apps','in-progress','Public-visibility and database-backed-news task started 2026-07-28; routing remains a later decision.'],
+      ['Data','Local news-source, article, editorial-analysis and audit schema','in-progress','Task 20260728_100000_ep047_997_public_visibility_and_news_storage: schema discovery is active.'],
+      ['Visibility','Admin controls for enabled public towns and business categories','in-progress','Interactive workflow and detailed checklist created; implementation has not yet changed public data.'],
+      ['Editorial','Source review, factual/article-analysis separation and publication workflow','not-started','Build staff review screens and audit trail.'],
+      ['Community','Public response submission, moderation queue and anti-spam controls','not-started','Build server-side validation, rate limits and moderation states.'],
+      ['Business','Contributor identity, directory verification and voluntary profile claim hand-off','not-started','Integrate with the EP047 directory claim model.'],
+      ['Activation','Website-activation opportunity and auditable lead/status trail','not-started','Define post-claim activation workflow without coupling it to editorial access.'],
+      ['Admin','Staff roles, source review, publishing and moderation control centre','not-started','Reuse or extend EP047 admin authentication and roles.'],
+      ['Validation','Automated tests, browser verification and user review','not-started','Run after implementation; retain evidence in this checklist.'],
+      ['Deployment','Production readiness, privacy review and public release','not-started','Do not deploy without explicit approval.']
+    ];
+    const labels={'in-progress':'In progress',passed:'Passed','not-started':'Not started'};
+    function render(filter='all'){const shown=items.filter(x=>filter==='all'||x[2]===filter);document.querySelector('#rows').innerHTML=shown.map(x=>`<tr><td data-label="Area">${x[0]}</td><td data-label="Delivery item">${x[1]}</td><td data-label="Status"><span class="status ${x[2]}">${labels[x[2]]}</span></td><td data-label="Evidence / next check" class="evidence">${x[3]}</td></tr>`).join('');document.querySelector('#total').textContent=items.length;document.querySelector('#progress').textContent=items.filter(x=>x[2]==='in-progress').length;document.querySelector('#passed').textContent=items.filter(x=>x[2]==='passed').length;document.querySelector('#todo').textContent=items.filter(x=>x[2]==='not-started').length}
+    document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-filter]').forEach(x=>x.classList.remove('active'));b.classList.add('active');render(b.dataset.filter)}));render();
+  </script>
+</body>
+</html>

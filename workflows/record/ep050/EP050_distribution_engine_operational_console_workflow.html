@@ -1,0 +1,58 @@
+<!doctype html>
+<!--
+workstream/600_workflow/ep050/EP050_distribution_engine_operational_console_workflow.html — Operational Console Architecture & 7-Phase Master-Workflow Flow.
+
+VERSION HISTORY
+v1.2.0 · 2026-08-16 · Dual-experience design: Primary 7-Phase End-to-End Operational Run + Secondary Preserved 21-Node Delivery Matrix.
+v1.0.0 · 2026-08-16 · Initial interactive workflow map for EP050 Operational Console.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP050 — Operational Console Workflow</title>
+<style>
+:root{--ink:#14201a;--muted:#64716a;--paper:#f7faf7;--line:#d7e2da;--green:#087443;--blue:#12609a;--amber:#9a5d00;--red:#b3261e}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,sans-serif}
+header{background:#10271c;color:#fff;padding:24px 32px}
+h1{margin:0;font:700 28px/1.1 Georgia,serif}
+.layout{max-width:1200px;margin:24px auto;padding:0 24px;display:grid;grid-template-columns:1fr 360px;gap:24px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:16px}
+.tag{display:inline-block;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:bold;background:#edf1ee;color:#45554b}
+h3{margin:10px 0 6px}
+p{margin:0 0 10px;font-size:13.5px;color:var(--muted)}
+.flow-step{display:flex;gap:12px;margin:12px 0;align-items:flex-start}
+.num{width:28px;height:28px;border-radius:50%;background:#10271c;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:13px;flex-shrink:0}
+code{background:#edf1ee;padding:2px 5px;border-radius:4px;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+<h1>EP050 Operational Console — Architecture & 7-Phase Master Workflow</h1>
+<p style="margin:6px 0 0;color:#d3e5d9">Authoritative operator flow across all seven distribution engine phases with preserved delivery matrix.</p>
+</header>
+<main class="layout">
+<section>
+<div class="card">
+<span class="tag">SEVEN-PHASE OPERATIONAL RUN</span>
+<h3>End-to-End Operational Pipeline</h3>
+<div class="flow-step"><div class="num">1</div><div><strong>Phase 1 — Product/Market Ingestion:</strong> Operates Node 01 Target Registration (<code>tgt_boiler_repair_blackheath</code>) and Node 02/03/04 context.</div></div>
+<div class="flow-step"><div class="num">2</div><div><strong>Phase 2 — Demand Intelligence:</strong> Ingests curated search query demand signals (Node 05 fixture).</div></div>
+<div class="flow-step"><div class="num">3</div><div><strong>Phase 3 — Strategy & Path Intelligence:</strong> Operates Node 11 Intent Classification live; calculates DOS score (Node 12).</div></div>
+<div class="flow-step"><div class="num">4</div><div><strong>Phase 4 — Content & Assets:</strong> Knowledge store validation and FAQ/CTA asset generation (Node 16/17/19).</div></div>
+<div class="flow-step"><div class="num">5</div><div><strong>Phase 5 — Distribution & Conversion:</strong> Mock scheduler and placement plan with <code>external_action=false</code>.</div></div>
+<div class="flow-step"><div class="num">6</div><div><strong>Phase 6 — Lead Lifecycle:</strong> Structured lead capture, attribution preservation, and local qualification.</div></div>
+<div class="flow-step"><div class="num">7</div><div><strong>Phase 7 — Learning & Optimization:</strong> Provenance-backed outcome feedback loop.</div></div>
+</div>
+</section>
+<aside>
+<div class="card">
+<span class="tag">DUAL EXPERIENCE</span>
+<h3>Operator Views</h3>
+<p><strong>1. Operational Run:</strong> Stepper across all 7 phases with live execution, run ID lineage, and audit trail.</p>
+<p><strong>2. Delivery Dashboard:</strong> Preserved 21-node status board with owner, class (14A/7B), and evidence links.</p>
+</div>
+</aside>
+</main>
+</body>
+</html>

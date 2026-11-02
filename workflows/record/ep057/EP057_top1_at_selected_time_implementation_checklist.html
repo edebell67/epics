@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<!--
+ * EP057_top1_at_selected_time_implementation_checklist.html — Delivery and evidence status for the point-in-time #1 scenario.
+ * VERSION HISTORY
+ * v1.1.0 · 2026-10-05 · Records passing Net/Alt Net browser checks and the blocked file-URL preview.
+ * v1.0.0 · 2026-10-05 · Adds review gates for scenario mapping, filters, comparison retention and live verification.
+ -->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EP057 #1 at Selected Time Checklist</title><style>:root{color-scheme:dark}body{margin:0;background:#07101d;color:#e2e8f0;font:15px system-ui;padding:24px}main{max-width:900px;margin:auto}li{margin:12px 0;padding:16px;background:#0d192a;border-left:4px solid #64748b;border-radius:6px}.status{font-weight:bold;color:#fbbf24}code{color:#7dd3fc}</style></head><body><main><h1>#1 at Selected Time · delivery status</h1><ol>
+<li>Interactive workflow documented before implementation. <span class="status" style="color:#34d399">Passed</span><br><code>EP057_top1_at_selected_time_workflow.html</code></li>
+<li>Scenario card added to the selector and initialized in criteria data. <span class="status" style="color:#34d399">Passed</span></li>
+<li>Replay time maps to a top_net/top_alt_net lookup and renders only the #1 strategy. <span class="status" style="color:#34d399">Passed</span><br>Browser: Net at 20:58 → DNA_201717; Alt Net at 20:52 → DNA_201819.</li>
+<li>Exact searched model remains pinned beside the selected-time leader through scenario and return-mode changes. <span class="status" style="color:#34d399">Passed</span><br>Browser showed DNA_201821 with the leader; search status reported one scenario model.</li>
+<li>Current product, family, date and win-rate filters reach the point-in-time API. <span class="status" style="color:#34d399">Passed</span><br>API verified with Forex GBP/EUR at 14:15 and 20:58.</li>
+<li>JavaScript syntax check. <span class="status" style="color:#34d399">Passed</span><br><code>node --check work/top10_inline.js</code></li>
+<li>Live browser verification of replay-time change, Net/Alt Net ranking and retained comparison. <span class="status" style="color:#34d399">Passed</span><br><code>workstream/Test Results/ep_057/20261005_212000_top1_at_selected_time_net_alt_compare_passed/report.md</code></li>
+<li>Browser preview of the separate interactive workflow HTML. <span class="status">Blocked</span><br>Browser security policy blocks <code>file://</code> and explicitly prohibits a serving workaround.</li>
+<li>User confirms the interaction on their page. <span class="status">In progress</span><br>Awaiting user verification.</li>
+</ol><p>Live verification remains pending until the page and API are exercised together.</p></main></body></html>

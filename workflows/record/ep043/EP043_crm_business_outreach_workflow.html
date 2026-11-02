@@ -1,0 +1,535 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/ep043/EP043_crm_business_outreach_workflow.html
+
+  v1.2.0 · 2026-08-10 · Corrected scope again: pipeline status movement already
+    handled by existing process. CRM is a REPORTING + OPPORTUNITY INTELLIGENCE
+    layer — reads existing pipeline data, segregates batches, computes response
+    metrics, identifies opportunities, compares performance, and surfaces
+    improvement levers.
+  v1.1.0 · 2026-08-09 · Corrected scope: Lanes 1–2 existing process.
+  v1.0.0 · 2026-08-09 · Initial version.
+--><html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP043 — CRM: Reporting & Opportunity Intelligence</title>
+<style>
+:root{--ink:#14201a;--muted:#64716a;--paper:#f7faf7;--line:#d7e2da;--green:#087443;--blue:#12609a;--amber:#9a5d00;--red:#b3261e;--purple:#5f3c91}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,sans-serif}
+header{background:#10271c;color:white;padding:30px max(22px,calc((100vw - 1240px)/2))}
+h1{margin:0;font:700 32px/1.1 Georgia,serif}
+header p{max-width:920px;color:#d3e5d9;margin:10px 0 0}
+header code{background:rgba(255,255,255,.14);padding:2px 5px;border-radius:4px}
+.layout{max-width:1240px;margin:24px auto;display:grid;grid-template-columns:1fr 410px;gap:20px;padding:0 20px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.toolbar button{cursor:pointer;border:1px solid var(--line);background:white;border-radius:999px;padding:8px 12px;font:inherit}
+.toolbar button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lane{background:white;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:18px}
+.lane h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 4px;color:var(--muted)}
+.lane .who{font-size:12px;color:var(--muted);margin:0 0 14px}
+.flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}
+.arrow{align-self:center;font-size:22px;color:#76867d}
+.node{width:224px;min-height:158px;border:1px solid var(--line);border-radius:10px;background:white;padding:13px;box-shadow:0 2px 7px rgba(24,51,36,.05);cursor:pointer;text-align:left;font:inherit;color:inherit;display:flex;flex-direction:column}
+.node:hover,.node.sel{outline:3px solid #b9dfd0}
+.node h3{font-size:15px;line-height:1.2;margin:7px 0}
+.node p{font-size:12.5px;color:var(--muted);margin:0}
+.tag{display:inline-block;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:700;background:#edf1ee;color:#45554b;width:max-content}
+.stage{display:block;margin-top:auto;padding-top:8px;font:11px/1.3 ui-monospace,monospace;color:var(--muted)}
+.progress{display:block;max-width:100%;border-radius:6px;padding:4px 6px;font:700 10px ui-monospace,monospace;margin-top:8px;border:1px solid;line-height:1.35}
+.existing{background:#f0f9ff;color:#06558b;border-color:#aacbfa}
+.scope{background:#f4f0fa;color:#4b2f74;border-color:#d3c2ea}
+.pctbar{display:block;height:5px;border-radius:3px;background:#e7ede9;margin-top:6px;overflow:hidden}
+.pctbar i{display:block;height:100%;font-style:normal;background:var(--green)}
+.pctbar i.zero{background:var(--line)}
+.side{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;position:sticky;top:18px;max-height:calc(100vh - 40px);overflow-y:auto}
+.side h2{font:700 20px Georgia,serif;margin:0 0 4px}
+.side .sub{font:11px/1.3 ui-monospace,monospace;color:var(--muted);margin:0 0 12px}
+.side .contract{font-size:13.5px;color:var(--ink);margin:0 0 4px}
+.side h4{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px;padding-top:12px;border-top:1px solid var(--line)}
+.side ol{margin:0;padding-left:19px}
+.side ol li{font-size:13px;margin:7px 0}
+.side .box{font-size:13px;padding:9px 11px;border-radius:8px;margin:0}
+.box.test{background:#f2f8f4;border-left:3px solid var(--green)}
+.box.ev{background:#f5f9ff;border-left:3px solid var(--blue)}
+.box.dep{background:#faf7f2;border-left:3px solid var(--amber)}
+.detail{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:18px}
+.detail h3{font-size:15px;margin:0 0 8px}
+.detail ul{margin:0;padding-left:20px}
+.detail li{margin:6px 0;font-size:13.5px}
+code{background:#edf1ee;padding:2px 5px;border-radius:4px;font-size:12px}
+.callout{border-left:4px solid var(--amber);background:#fffaf0;padding:11px 14px;border-radius:0 8px 8px 0;margin:14px 0;font-size:13.5px}
+.callout.good{border-left-color:var(--green);background:#f2f8f4}
+.callout.bad{border-left-color:var(--red);background:#fff7f6}
+@media(max-width:960px){.layout{grid-template-columns:1fr}.side{position:static;max-height:none}.node{width:100%}.arrow{display:none}}
+</style>
+</head>
+<body>
+<header>
+<h1>CRM — reporting &amp; opportunity intelligence</h1>
+<p>The CRM is a <strong>read-intensive reporting and opportunity intelligence layer</strong> placed on top of existing business outreach processes. Businesses are already imported, batched, messaged, moved through pipeline statuses, and sent outbound communications. The CRM <strong>does not manage pipeline movement</strong> — it reads the data produced by existing processes and provides reporting, comparison, opportunity detection, and performance insight to improve future batches.</p>
+<p style="margin-top:12px"><strong>Core responsibility:</strong> Segregate batches · Report pipeline status per batch · Compute response % · Identify opportunities from response data · Compare batches and messages · Surface performance levers · Drive improvement in future cycles.</p>
+</header>
+
+<main class="layout">
+<section>
+
+<div class="toolbar">
+  <button class="on" data-f="all">All lanes</button>
+  <button data-f="existing">Existing</button>
+  <button data-f="report">Reporting</button>
+  <button data-f="opportunity">Opportunity</button>
+  <button data-f="compare">Comparison</button>
+  <button data-f="improve">Improvement</button>
+</div>
+<p style="font-size:12px;color:var(--muted);margin:0 0 14px">Click any node for its detailed plan. Lanes marked <span class="progress existing" style="display:inline-block;margin:0">Existing</span> are handled by existing processes — the CRM reads from this data but does not manage it.</p>
+
+<div class="lane" data-lane="existing">
+<h2>Lane 1 — Existing Processes (data sources)</h2>
+<p class="who">Actor: existing systems · CRM reads from these, does not manage them</p>
+<div class="flow">
+  <button class="node" data-id="existing_biz"><span class="tag">Read-only</span><h3>Business &amp; batch data</h3><p>Businesses identified, imported, batched into 25-business groups by existing EP047 directory/outreach process.</p><code class="stage">existing (1.1)</code><span class="progress existing">Existing</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="existing_msg"><span class="tag">Read-only</span><h3>Message &amp; outbound data</h3><p>Message versions created, assigned to batches, and sent by existing email system. CRM reads Communication records.</p><code class="stage">existing (1.2)</code><span class="progress existing">Existing</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="existing_pipe"><span class="tag">Read-only</span><h3>Pipeline status data</h3><p>Businesses moved through pipeline statuses (Identified → Email sent → Responded → Claimed → Activated etc.) by existing process.</p><code class="stage">existing (1.3)</code><span class="progress existing">Existing</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="existing_resp"><span class="tag">Read-only</span><h3>Inbound response data</h3><p>Responses arrive at the tracked inbox. Existing process or CRM captures them as Communication records with classification.</p><code class="stage">existing (1.4)</code><span class="progress existing">Existing</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="report">
+<h2>Lane 2 — Batch Segmentation &amp; Reporting</h2>
+<p class="who">Actor: CRM · segregate businesses, report pipeline status, compute response metrics per batch</p>
+<div class="flow">
+  <button class="node" data-id="batch_seg"><span class="tag">Segregate</span><h3>Segregate businesses into batches</h3><p>Read batch membership data. Display all businesses grouped by batch. Open any batch to see its contents.</p><code class="stage">report (2.1)</code><span class="progress scope">Design</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="batch_pipe"><span class="tag">Report</span><h3>Pipeline status per batch</h3><p>For a selected batch: bar chart or table of how many businesses are at each pipeline status. Color-coded funnel.</p><code class="stage">report (2.2)</code><span class="progress scope">Design</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="batch_resp"><span class="tag">Report</span><h3>Response % per batch</h3><p>Total sent vs responses received. Response rate. Positive response rate. Breakdown by response classification.</p><code class="stage">report (2.3)</code><span class="progress scope">Design</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="batch_drill"><span class="tag">Drill</span><h3>Drill into individual businesses</h3><p>From any batch report, click a business to see: full pipeline timeline, communication history, response detail, status progression.</p><code class="stage">report (2.4)</code><span class="progress scope">Design</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="opportunity">
+<h2>Lane 3 — Opportunity Identification</h2>
+<p class="who">Actor: CRM · scans response data to surface commercial opportunities</p>
+<div class="flow">
+  <button class="node" data-id="warm_leads"><span class="tag">Leads</span><h3>Warm lead detection</h3><p>Businesses with positive/interested responses. Display with contact info, response detail, batch, message version.</p><code class="stage">opportunity (3.1)</code><span class="progress scope">Design</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="stalled"><span class="tag">Stalled</span><h3>Stalled business detection</h3><p>Businesses that have not moved in pipeline beyond expected time at their current status. Need re-engagement.</p><code class="stage">opportunity (3.2)</code><span class="progress scope">Design</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="preview_need"><span class="tag">Preview</span><h3>Preview-needed businesses</h3><p>Claimed listings that have not yet had a website preview created. Surface for EP044/EP047 pipeline.</p><code class="stage">opportunity (3.3)</code><span class="progress scope">Design</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="activate_need"><span class="tag">Activate</span><h3>Activation-ready businesses</h3><p>Preview sent/viewed but not yet activated. Ready for sales follow-up.</p><code class="stage">opportunity (3.4)</code><span class="progress scope">Design</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="upgrade_cand"><span class="tag">Upgrade</span><h3>Upgrade/cross-sell candidates</h3><p>Activated businesses eligible for social/lead-gen add-on. Based on time since activation + engagement signals.</p><code class="stage">opportunity (3.5)</code><span class="progress scope">Design</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="compare">
+<h2>Lane 4 — Response Comparison</h2>
+<p class="who">Actor: CRM · compare batches, messages, and time periods to find what works</p>
+<div class="flow">
+  <button class="node" data-id="batch_compare"><span class="tag">Compare</span><h3>Batch-to-batch comparison</h3><p>Side-by-side: Batch 001 vs 002 vs 003. Response rate, positive rate, claim rate, conversion rate. Visual diff.</p><code class="stage">compare (4.1)</code><span class="progress scope">Design</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="msg_compare"><span class="tag">Compare</span><h3>Message version comparison</h3><p>Message V1 vs V2 vs V3. Which subject line + body gets highest response? Which converts best?</p><code class="stage">compare (4.2)</code><span class="progress scope">Design</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="period_compare"><span class="tag">Compare</span><h3>Time period comparison</h3><p>This month vs last month. Q1 vs Q2. Compare response patterns across different outreach windows.</p><code class="stage">compare (4.3)</code><span class="progress scope">Design</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="channel_compare"><span class="tag">Compare</span><h3>Channel / audience comparison</h3><p>Which category responds best? Which town? Which outreach channel? Segment to find winning combinations.</p><code class="stage">compare (4.4)</code><span class="progress scope">Design</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="improve">
+<h2>Lane 5 — Performance Metrics &amp; Improvement Levers</h2>
+<p class="who">Actor: CRM · surface metrics and what to change to improve the next batch</p>
+<div class="flow">
+  <button class="node" data-id="key_metrics"><span class="tag">Metrics</span><h3>Key performance metrics</h3><p>Response rate. Positive rate. Claim rate. Activation rate. Conversion rate. Avg days in pipeline. Revenue per batch.</p><code class="stage">improve (5.1)</code><span class="progress scope">Design</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="bottleneck"><span class="tag">Bottleneck</span><h3>Bottleneck identification</h3><p>Where does it slow down? Which status has highest average dwell time? Highest drop-off rate? Where are businesses getting stuck?</p><code class="stage">improve (5.2)</code><span class="progress scope">Design</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="what_if"><span class="tag">What-If</span><h3>What-if &amp; improvement modelling</h3><p>If response rate increases from 12% to 18%, what is the projected impact on claims, activations and revenue? Tune variables and see projected outcome.</p><code class="stage">improve (5.3)</code><span class="progress scope">Design</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="recommend"><span class="tag">Recommend</span><h3>Recommendations for next batch</h3><p>Based on all data: which message version should Batch N+1 use? Which category or town to target? What to change from Batch N?</p><code class="stage">improve (5.4)</code><span class="progress scope">Design</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="opp_value"><span class="tag">Value</span><h3>Opportunity pipeline value</h3><p>Warm lead value. Preview pipeline. Activation pipeline. Upgrade potential. Total projected revenue from current pipeline.</p><code class="stage">improve (5.5)</code><span class="progress scope">Design</span></button>
+</div>
+</div>
+
+<div class="detail">
+<h3>What the CRM does</h3>
+<div class="callout good" style="margin-bottom:10px"><strong>Reads existing data and reports on it:</strong> Segregate businesses into batch views · Report pipeline status per batch · Compute response % per batch · Drill into individual business history · Compare batches, messages, time periods, channels · Identify warm leads, stalled businesses, preview-needed, activation-ready, upgrade candidates · Compute performance metrics · Model what-if improvements · Recommend changes for next batch.</div>
+
+<div class="callout bad"><strong>Does NOT do:</strong> Move businesses through pipeline statuses (already handled) · Create or send outbound messages (already handled) · Create or manage batches (already handled) · Generate websites or process payments (EP044/EP047).</div>
+</div>
+
+<div class="detail">
+<h3>Statuses the CRM reports on</h3>
+<p style="font-size:13.5px;color:var(--muted);margin:0 0 10px">The CRM does not manage these — it reports on them as a read-only view of pipeline data from existing processes.</p>
+<ul>
+<li><strong>Active pipeline:</strong> Identified → Ready for outreach → Email sent → Awaiting response → Responded (positive) → Responded (interested) → Follow-up required → Listing claim started → Listing claimed → Website preview sent → Website preview viewed → Activation pending → Website activated → Social lead service offered → Converted</li>
+<li><strong>Terminal:</strong> Not interested · No response · Follow up later · Disqualified</li>
+</ul>
+</div>
+
+<div class="detail">
+<h3>What-If modelling concept</h3>
+<p style="font-size:13.5px;color:var(--muted);margin:0 0 10px">The CRM should allow tuning key variables and seeing the projected impact on downstream outcomes:</p>
+<ul>
+<li><strong>Response rate slider:</strong> "If we improve response rate from 12% to 18%, how many more claims would we get from a batch of 25?"</li>
+<li><strong>Positive rate slider:</strong> "If we improve positive rate from 40% of responses to 55%, how many more activations?"</li>
+<li><strong>Conversion rate slider:</strong> "If we improve preview→activation conversion from 30% to 45%?"</li>
+<li><strong>Batch size tuner:</strong> "If we increase batch size from 25 to 50?"</li>
+<li><strong>Display:</strong> Projected claims, activated sites, revenue per batch and cumulative</li>
+</ul>
+</div>
+
+<div class="detail">
+<h3>Key metrics definitions</h3>
+<h4 style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:14px 0 8px">Per batch</h4>
+<p style="font-size:13.5px;color:var(--ink);margin:0 0 10px">Emails sent · Responses received · Response rate (%) · Positive responses · Positive rate (%) · Claims → Preview viewed → Activated → Converted · Per-status counts · Revenue generated · Avg days in pipeline · Time to first response</p>
+<h4 style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:14px 0 8px">Per message version</h4>
+<p style="font-size:13.5px;color:var(--ink);margin:0 0 10px">Sent · Response rate · Positive rate · Claim rate · Activation rate · Revenue · Rank vs other versions</p>
+<h4 style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:14px 0 8px">Pipeline health</h4>
+<p style="font-size:13.5px;color:var(--ink);margin:0">Count per status · Avg dwell time per status · Stage drop-off rate · Stalled businesses · Bottleneck stages · Total pipeline time</p>
+</div>
+
+</section>
+
+<aside class="side">
+<h2 id="t">Select a node</h2>
+<p class="sub" id="s">—</p>
+<p class="contract" id="pct" style="font-weight:700"></p>
+<p class="contract" id="c">Click any node for its detailed plan: implementation steps, the exact completion test, the evidence that proves it, and what it depends on.</p>
+<div id="plan"></div>
+</aside>
+</main>
+
+<script>
+const D={
+existing_biz:{pct:100,s:'existing (1.1) · Business & batch data',
+c:'Businesses are identified, imported from the EP047 directory, and grouped into 25-business batches by the existing outreach process. The CRM reads this data but does not create or manage it.',
+steps:['Businesses imported by EP047 directory process','Batch records created by existing outreach process','BatchMembership links businesses to batches','CRM reads batch data to display batch-segmented views','CRM does NOT create batches or assign businesses'],
+test:'CRM can display a list of all batches and the businesses in each batch.',
+ev:'Batch records and BatchMembership records readable from CRM data source.',
+dep:'EP047 directory + outreach system — businesses and batches created there'},
+
+existing_msg:{pct:100,s:'existing (1.2) · Message & outbound data',
+c:'Message templates are versioned and batch sends executed by the existing email system. The CRM reads Communication records to know what was sent to which business, when, and with which message version.',
+steps:['Message versions created by existing outreach system','Batch sends executed by existing email system','Communication records created for each outbound send','CRM reads Communication records for reporting','CRM does NOT create messages or send emails'],
+test:'CRM can display, for any business: what message was sent, when, which version, which batch.',
+ev:'Communication records with message_version_id, batch_id, sent_at available to CRM reads.',
+dep:'EP047 outreach/email system — messages sent there'},
+
+existing_pipe:{pct:100,s:'existing (1.3) · Pipeline status data',
+c:'Businesses are moved through pipeline statuses by the existing process. StatusHistory records every movement. The CRM reads this data to produce pipeline reports but does not move businesses itself.',
+steps:['Statuses defined and businesses moved by existing process','StatusHistory records each change (previous → new, timestamp, user, reason)','CRM reads StatusHistory + business.current_status for reporting','CRM does NOT change any business status'],
+test:'CRM can display pipeline status counts, per-business timeline, and per-status dwell times.',
+ev:'StatusHistory rows readable for reporting queries. Business.current_status readable.',
+dep:'Existing pipeline system — statuses defined and businesses moved there'},
+
+existing_resp:{pct:100,s:'existing (1.4) · Inbound response data',
+c:'Responses arrive at the tracked inbox. They may be captured by the existing process or by the CRM itself. Either way, inbound Communication records with classification are the data source for response reporting.',
+steps:['Inbound replies captured from tracked inbox','Communication records created: direction=inbound, original_body, classification','CRM reads inbound Communications for response % and opportunity detection','CRM may capture these itself or read them from existing process data'],
+test:'CRM can display, per batch: how many responses received, their classifications, and their linked businesses.',
+ev:'Inbound Communication records with classification available to CRM reads.',
+dep:'Either existing process captures responses OR CRM captures them itself'},
+
+batch_seg:{pct:90,s:'report (2.1) · Segregate businesses into batches',
+c:'Display all businesses grouped by the batch they belong to. Open any batch to see its full contents: which businesses, their current status, response history, and link to individual drill-down.',
+steps:['Query Batch table for all batches ordered by creation date','For each batch: query BatchMembership to get linked businesses','Display batch list with: batch ID, name, date created, number of businesses, status, owner','Click a batch → show batch detail view with full business list','Each business row shows: name, current status, responded (yes/no), last communication date'],
+test:'CRM displays all batches. Clicking a batch shows its businesses with status and response indicator.',
+ev:'Batch + BatchMembership JOIN query rendered as interactive batch list.',
+dep:'Requires: Batch and BatchMembership data from existing process'},
+
+batch_pipe:{pct:90,s:'report (2.2) · Pipeline status per batch',
+c:'For a selected batch: show how many businesses are at each pipeline status. Visual funnel or bar chart. Color-coded so you can immediately see where businesses are concentrated and where the pipeline is healthy vs stuck.',
+steps:[
+  'Select batch from batch list',
+  'Group businesses in batch by current_status',
+  'Count per status: X businesses at Email sent, Y at Responded, Z at Claimed, etc.',
+  'Render bar chart or funnel: status label (X-axis) vs count (Y-axis)',
+  'Color code: green for forward-moving statuses, amber for awaiting, red for stuck/terminal',
+  'Show total count at bottom + response rate for this batch',
+  'Include date range filter (all time / last 30 days / last 7 days)'
+],
+test:'For any batch, pipeline distribution chart renders correctly. Counts sum to batch size. Colour coding applied.',
+ev:'COUNT + GROUP BY on current_status filtered by batch_id. Rendered as chart.',
+dep:'Requires: batch_seg (2.1) implemented, StatusHistory data'},
+
+batch_resp:{pct:90,s:'report (2.3) · Response % per batch',
+c:'For a selected batch: show how many emails were sent, how many responses came back, and the response rate. Breakdown by classification type (positive, interested, not interested, etc.).',
+steps:[
+  'Select batch',
+  'Count outbound Communications for this batch (direction=outbound) = sent',
+  'Count inbound Communications for this batch (direction=inbound) = responses',
+  'Compute: response rate = responses / sent * 100',
+  'Group inbound by classification: count per type',
+  'Compute: positive response rate = positive+interested / responses * 100',
+  'Render: sent count, response count, response rate (%), classification breakdown (pie or bars), positive rate (%)'
+],
+test:'Batch response report shows: sent, responses, response%, classification breakdown, positive%. Numbers match raw data.',
+ev:'COUNT + GROUP BY on Communication filtered by batch_id and direction. Rendered as report cards + chart.',
+dep:'Requires: Communication data with direction and classification'},
+
+batch_drill:{pct:90,s:'report (2.4) · Drill into individual businesses',
+c:'From any batch report, click a business to see its full record: status progression timeline, all communications (outbound and inbound), response content, pipeline dwell times, notes.',
+steps:[
+  'Click business in batch detail view',
+  'Query StatusHistory for this business → render status timeline with timestamps',
+  'Query Communication for this business → render outbound + inbound history',
+  'Show: first outreach date, last activity date, total days in pipeline',
+  'Show: response content (if any), classification, linked batch and message version',
+  'Show: current status, status entered date, days at current status',
+  'Optionally: export business record as CSV/PDF'
+],
+test:'Business drill-down shows: status timeline, communication history, response content, dates, and current status.',
+ev:'StatusHistory + Communication filtered by business_id, rendered as merged timeline view.',
+dep:'Requires: batch_seg (2.1) implemented, StatusHistory + Communication data'},
+
+warm_leads:{pct:0,s:'opportunity (3.1) · Warm lead detection',
+c:'Automatically surface businesses that responded positively or expressed interest. These are the highest-priority commercial opportunities and need immediate attention.',
+steps:[
+  'Query: businesses with classification = Positive or Interested in most recent inbound Communication',
+  'Group by batch, ordered by response timestamp (newest first)',
+  'Display: business name, contact info, response classification, original response text (or summary), batch, message version, days since response',
+  'Render as "Warm leads" queue: sortable by date, batch, classification',
+  'Optionally: export queue as CSV for sales follow-up'
+],
+test:'Warm leads queue shows all businesses with positive/interested classifications. Contact info and response detail visible.',
+ev:'Communication filtered by classification IN (Positive, Interested) grouped by business_id, latest response first.',
+dep:'Requires: Communication data with classification populated'},
+
+stalled:{pct:0,s:'opportunity (3.2) · Stalled business detection',
+c:'Businesses that have not moved in the pipeline beyond the expected dwell time at their current status. CRM reads from StatusHistory to compute expected times and flag outliers.',
+steps:[
+  'Compute average dwell time per status from StatusHistory (all businesses)',
+  'Identify businesses where days_at_current_status > avg + 2 standard deviations',
+  'Also flag businesses at Awaiting response > X days even if within 2 sigma (configurable threshold)',
+  'Group stalled businesses by current status: which status has most stalls?',
+  'Display: business name, current status, days at status, expected threshold, suggested next action',
+  'Render as "Stalled" queue with age indicator (red = way overdue, amber = approaching)'
+],
+test:'Stalled queue shows businesses exceeding expected dwell time at their current status. Configurable threshold.',
+ev:'Computed: avg dwell time per status from StatusHistory; current dwell from business.status_entered_at. Flagged outliers.',
+dep:'Requires: StatusHistory data, business.status_entered_at populated'},
+
+preview_need:{pct:0,s:'opportunity (3.3) · Preview-needed businesses',
+c:'Businesses that have claimed their listing but do not yet have a website preview. CRM surfaces them so they can be handed to the EP044/EP047 website generation pipeline.',
+steps:[
+  'Query: businesses with status = Listing claimed or Website creation required',
+  'Display: business name, claim date, category, contact info, days since claim',
+  'Render as "Preview-ready" queue ordered by claim date (oldest first)',
+  'Optionally: auto-create hand-off record to EP044 site generation',
+  'When preview is created: update status via existing process (CRM reads updated status)'
+],
+test:'Preview-needed queue shows all businesses that claimed listing but have not advanced past that status.',
+ev:'Business filtered by current_status IN (Listing claimed, Website creation required). Presented as queue.',
+dep:'Requires: pipeline status data from existing process'},
+
+activate_need:{pct:0,s:'opportunity (3.4) · Activation-ready businesses',
+c:'Businesses that have viewed their website preview and expressed interest but have not yet activated their site. These are closest to revenue generation.',
+steps:[
+  'Query: businesses with status = Website preview viewed or Activation pending or Interested',
+  'Display: business name, preview sent date, preview viewed date, days since view, contact info, category',
+  'Sort by days since preview viewed (oldest first = highest priority)',
+  'Render as "Activation-ready" queue with priority indicator',
+  'Optionally: export for sales team outbound call list'
+],
+test:'Activation-ready queue shows businesses that viewed preview but did not activate. Ordered by priority.',
+ev:'Business filtered by current_status IN (Website preview viewed, Activation pending, Interested). Queue rendered.',
+dep:'Requires: pipeline status data with preview viewed status'},
+
+upgrade_cand:{pct:0,s:'opportunity (3.5) · Upgrade/cross-sell candidates',
+c:'Businesses that have already activated their website and may be ready for social-media management or lead-generation add-on services.',
+steps:[
+  'Query: businesses with status = Website activated, time since activation > X days (configurable)',
+  'Filter by engagement signals if available (page views, inquiry volume)',
+  'Display: business name, activation date, days since activation, category, existing revenue',
+  'Render as "Upgrade candidates" queue',
+  'Show upgrade types available: social media, lead generation, both'
+],
+test:'Upgrade queue shows activated businesses eligible for cross-sell. Time since activation displayed.',
+ev:'Business filtered by current_status = Website activated and activation_date > threshold.',
+dep:'Requires: businesses at Website activated status, upgrade offers defined'},
+
+batch_compare:{pct:0,s:'compare (4.1) · Batch-to-batch comparison',
+c:'Compare any two or more batches side by side. Which batch had the best response rate? Best conversion rate? Best revenue? Visual diff to spot trends.',
+steps:[
+  'Select 2+ batches from batch list',
+  'For each batch: compute sent, responses, response rate, positive rate, claim rate, activation rate, conversion rate, revenue',
+  'Render side-by-side columns: metric per row, batch values per column',
+  'Highlight the winning batch for each metric with green indicator',
+  'Show sparkline trend if batches are sequential (Batch 1 → 2 → 3: is response rate trending up?)',
+  'Optionally: export comparison as report'
+],
+test:'Side-by-side batch comparison shows all key metrics. Winning batch highlighted per metric. Sparkline for sequential trends.',
+ev:'Per-batch aggregated metrics from Communication + StatusHistory + (optional) revenue data. Rendered comparison table.',
+dep:'Requires: batch resp (2.3) metrics computed, >=2 batches with data'},
+
+msg_compare:{pct:0,s:'compare (4.2) · Message version comparison',
+c:'Compare different message versions head-to-head. Which subject line + body copy gets the highest response rate? Which converts best? Determines which version the next batch should use.',
+steps:[
+  'Group Communication (outbound) by message_version_id',
+  'Join with inbound Communications linked via same batch or business chain',
+  'Compute per version: sent count, response count, response rate, positive count, positive rate',
+  'Trace to conversion via StatusHistory: claims, activations per version',
+  'Compute conversion rate per version',
+  'Rank versions by: response rate, positive rate, conversion rate',
+  'Flag winning version overall',
+  'Render comparison table: version name across columns, metrics down rows'
+],
+test:'Message version comparison shows: sent, responses, response%, positive%, claim%, activation%, conversion% per version. Winner flagged.',
+ev:'Communication grouped by message_version_id, joined with inbound Communications and StatusHistory. Rendered as comparison table.',
+dep:'Requires: >=2 message versions with sent data, Communication records linkable to versions'},
+
+period_compare:{pct:0,s:'compare (4.3) · Time period comparison',
+c:'Compare response patterns across different outreach windows. This month vs last month. Quarter over quarter. Identify seasonal patterns and long-term trends.',
+steps:[
+  'Select two time periods: date range A and date range B',
+  'For each period: compute sent, responses, response rate, positive rate, claim rate over batches started in that period',
+  'Render side-by-side comparison: metric per row, periods per column',
+  'Show delta: percentage change period-over-period',
+  'Sparkline for monthly trend over last 6-12 months'
+],
+test:'Time period comparison shows period-over-period metrics with delta %. Monthly trend sparkline renders.',
+ev:'Batch data filtered by batch.created_at within date ranges. Aggregated metrics compared.',
+dep:'Requires: batch data spanning multiple time periods'},
+
+channel_compare:{pct:0,s:'compare (4.4) · Channel / audience comparison',
+c:'Segment response data by audience characteristics to find winning combinations. Which business category responds best? Which town? Which outreach channel? Which message version for which audience?',
+steps:[
+  'Query: group responses by category (from business data)',
+  'Query: group responses by town (from business data)',
+  'Query: group responses by outreach channel (from batch/message data)',
+  'Compute per segment: sent, responses, response rate, positive rate',
+  'Render comparison: segment categories vs metrics',
+  'Identify: "Plumbing businesses in Milton Keynes with Message V2 have 28% response rate"',
+  'Flag top-performing segments for targeting in next batch'
+],
+test:'Response metrics shown segmented by category, town, and channel. Top-performing segments highlighted.',
+ev:'Communication + Business + Batch JOINs. Grouped by business.category, business.town, batch.channel.',
+dep:'Requires: Communication data with business and batch linkage, varied audience characteristics'},
+
+key_metrics:{pct:0,s:'improve (5.1) · Key performance metrics',
+c:'Dashboard of the most important numbers. Single view that answers: how is the overall pipeline performing right now?',
+steps:[
+  'Compute overall (all batches): total sent, total responses, overall response rate',
+  'Compute overall positive rate, claim rate, activation rate, conversion rate',
+  'Compute overall revenue (actual + projected from current pipeline)',
+  'Compute average pipeline time: first outreach → converted for converted businesses',
+  'Compute businesses currently in pipeline: count per status',
+  'Render as KPI cards: big numbers with delta arrows (up/down vs last period)',
+  'Include date range filter (all time / year / quarter / month)'
+],
+test:'KPI dashboard renders: response rate, positive rate, claim rate, activation rate, conversion rate, revenue, pipeline time, active pipeline count. Delta arrows work.',
+ev:'Aggregated metrics from Communication, StatusHistory, Business. No dedicated tables needed.',
+dep:'Requires: data in Communication + StatusHistory + Business tables'},
+
+bottleneck:{pct:0,s:'improve (5.2) · Bottleneck identification',
+c:'Find exactly where the pipeline slows down. Which status has the highest average dwell time? Which stage loses the most businesses? Answers "where should we focus our improvement effort?"',
+steps:[
+  'From StatusHistory: for each non-terminal status, compute average dwell time (hours/days) between entry and next status transition',
+  'Compute stage-to-stage conversion rate: how many businesses move from Status A to Status B vs falling off?',
+  'Identify stage with highest average dwell = primary bottleneck',
+  'Identify stage with highest drop-off before next status = leak stage',
+  'Render: bar chart of avg dwell per status, funnel chart of stage conversion rates',
+  'Show trend over last N batches: is the bottleneck improving or worsening?'
+],
+test:'Bottleneck dashboard shows: avg dwell per status (bar chart), stage conversion rates (funnel), trend over batches.',
+ev:'StatusHistory LEAD() or self-join to pair consecutive statuses per business. Aggregated averages and rates.',
+dep:'Requires: StatusHistory data across multiple stages per business'},
+
+what_if:{pct:0,s:'improve (5.3) · What-if & improvement modelling',
+c:'Tune key variables and see projected impact on downstream outcomes. Answers "what would happen if we improved X by Y%?" before making changes.',
+steps:[
+  'Define baseline values (from real data): response rate, positive rate, claim rate, activation rate, conversion rate, average revenue per activated business',
+  'Expose sliders/inputs for: response rate (%), positive rate (%), claim rate (%), activation rate (%), batch size (number)',
+  'Project: for a batch of N businesses, how many would reach each stage? claims = N * response_rate * positive_rate; activations = claims * activation_rate; revenue = activations * avg_revenue',
+  'Show current (baseline) projection vs tuned projection side by side',
+  'Show cumulative projection for N batches (e.g. "over the next 10 batches")',
+  'Optionally: highlight which lever has the highest impact (elasticity analysis)'
+],
+test:'What-if sliders change projected outcomes. Current vs tuned displayed side by side. Cumulative batch projection works.',
+ev:'Computed from user-tuned variables × baseline conversion rates from real data. No API calls.',
+dep:'Requires: baseline metrics from real data (5.1)'},
+
+recommend:{pct:0,s:'improve (5.4) · Recommendations for next batch',
+c:'Based on aggregated data from all completed batches, surface actionable recommendations for what to do differently in the next batch.',
+steps:[
+  'Check: which message version has highest response rate? recommend that version',
+  'Check: which audience segment (category, town) has highest response rate? recommend targeting',
+  'Check: which batch characteristics correlate with higher response (day of week, time of day, sender name)?',
+  'Check: which statuses have the longest bottlenecks? recommend improvement focus',
+  'Check: are response rates trending up or down over sequential batches?',
+  'Render recommendation cards: "Use Message V3 (28% higher response)" or "Target plumbing businesses in Milton Keynes (34% response rate)"',
+  'Include confidence indicator: based on how many data points'
+],
+test:'Dashboard shows actionable recommendations with data backing. e.g. "Use Message V2: 22% response vs 12% for V1".',
+ev:'Computed from message_compare (4.2), channel_compare (4.4), bottleneck (5.2). Rendered as recommendation cards.',
+dep:'Requires: message_compare, channel_compare, bottleneck data'},
+
+opp_value:{pct:0,s:'improve (5.5) · Opportunity pipeline value',
+c:'Convert the opportunity queues into projected revenue. Gives a commercial view of what the response data means in business terms. Answers "what is the pipeline worth right now?"',
+steps:[
+  'Count warm leads × assumed activation rate × avg website price = warm lead pipeline value',
+  'Count preview-needed × activation rate × avg website price = preview pipeline value',
+  'Count activation-ready × assumed close rate × avg website price = activation pipeline value',
+  'Count upgrade candidates × assumed take rate × avg service price = upgrade pipeline value',
+  'Sum: total opportunity pipeline value = warm + preview + activation + upgrade',
+  'Render KPI cards: each queue value + total. Show assumptions/configurable rates.',
+  'Track over time: pipeline value trend (increasing/decreasing?)'
+],
+test:'Opportunity pipeline value dashboard shows: warm lead value, preview value, activation value, upgrade value, total. Configurable assumption rates.',
+ev:'Opportunity queue counts (3.1–3.5) × configured rates and prices. Computed client-side or via simple query.',
+dep:'Requires: opportunity queues populated (3.1–3.5), average prices configured'}
+};
+
+document.addEventListener('DOMContentLoaded',()=>{
+const N = (id)=>{
+let n = D[id];
+if(!n) return;
+document.getElementById('t').textContent = n.s;
+document.getElementById('s').textContent = n.c;
+document.getElementById('pct').textContent = n.pct+'% complete';
+let h = '<ol>'+n.steps.map(x=>'<li>'+x+'</li>').join('')+'</ol>'
+  +'<div class="box test"><strong>Completion test</strong><br>'+n.test+'</div>'
+  +'<div class="box ev"><strong>Evidence</strong><br>'+n.ev+'</div>';
+if(n.dep) h += '<div class="box dep"><strong>Depends on</strong><br>'+n.dep+'</div>';
+document.getElementById('plan').innerHTML = h;
+};
+document.querySelectorAll('.node').forEach(b=>{
+const n = D[b.dataset.id];
+if(n && n.pct!==undefined){
+const badge = b.querySelector('.progress');
+if(badge) badge.textContent += ' · '+n.pct+'%';
+const bar = document.createElement('span');
+bar.className = 'pctbar';
+bar.innerHTML = '<i class="'+(n.pct===0?'zero':'')+'" style="width:'+n.pct+'%"></i>';
+b.appendChild(bar);
+}
+b.addEventListener('click',()=>{
+document.querySelectorAll('.node').forEach(x=>x.classList.remove('sel'));
+b.classList.add('sel');
+N(b.dataset.id);
+});
+});
+document.querySelectorAll('.toolbar button').forEach(btn=>{
+btn.addEventListener('click',()=>{
+document.querySelectorAll('.toolbar button').forEach(b=>b.classList.remove('on'));
+btn.classList.add('on');
+let f = btn.dataset.f;
+document.querySelectorAll('.lane').forEach(l=>{
+if(f==='all'){l.style.display='';return}
+l.style.display = l.dataset.lane===f ? '' : 'none';
+});
+});
+});
+N('batch_seg');
+});
+</script>
+</body>
+</html>

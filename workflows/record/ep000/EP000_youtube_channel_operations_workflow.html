@@ -1,0 +1,36 @@
+<!--
+workstream/600_workflow/EP000_youtube_channel_operations_workflow.html — Interactive review map for the YouTube operations skill installation.
+
+VERSION HISTORY
+v1.0.0 · 2026-08-04 · Initial version: defines the nine-stage skill workflow and its evidence gates before implementation.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YouTube Channel Operations Workflow</title>
+<style>
+:root{font-family:Inter,Segoe UI,sans-serif;color:#17221d;background:#f4f1e8}body{margin:0;padding:32px;max-width:1180px;margin:auto}h1{font:700 clamp(2rem,5vw,4rem)/.95 Georgia,serif;margin:.2em 0}.lede{max-width:760px;color:#4c5a52}.controls{display:flex;gap:8px;flex-wrap:wrap;margin:24px 0}.controls button,.step{border:1px solid #a8b0a9;background:#fffdf7;border-radius:10px;padding:10px 14px;cursor:pointer}.controls button.active{background:#173f32;color:white}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.step{text-align:left;min-height:135px;transition:transform .15s}.step:hover{transform:translateY(-3px)}.step b{display:block;font-size:1.05rem;margin-bottom:7px}.tag{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:#8a4e2c}.detail{margin-top:22px;border-left:5px solid #d06f34;background:#fffdf7;padding:20px;min-height:110px}.gate{color:#1d6b49;font-weight:700}.fail{color:#a13f2d;font-weight:700}@media(max-width:600px){body{padding:20px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<p class="tag">EP000 · Reviewable workflow</p><h1>YouTube channel operations</h1>
+<p class="lede">Treat channels as portfolios of disposable experiments. Advance one evidence-backed decision at a time; never protect a niche because effort has already been spent.</p>
+<div class="controls"><button class="active" data-filter="all">All stages</button><button data-filter="validate">Validation</button><button data-filter="execute">Execution</button><button data-filter="decide">Decision & scale</button></div>
+<main class="grid" id="steps"></main><section class="detail" id="detail"><strong>Select a stage</strong><p>Each stage exposes its required evidence, pass gate, and stop condition.</p></section>
+<script>
+const stages=[
+['validate','1. Validate viewer demand','Audience','Prove repeated recent demand across multiple independent channels.','Pass: 10+ recent relevant videos, multiple formats, no one-off explanation.','Fail: one personality, stale/event-only success, or no repeatable pattern.'],
+['validate','2. Validate monetisation','Commercial','Identify at least three independent revenue routes and real counterparties.','Pass: 3+ routes, one pre-ad route, and 10+ relevant offers/buyers.','Fail: ads only, one fragile partner, or offers misaligned with intent.'],
+['validate','3. Confirm 100-video inventory','Editorial','Build 100 distinct propositions across at least five pillars.','Pass: 100 screened ideas; ≥60% evergreen/recurring; no pillar >40%.','Fail: repetition after 20–30 ideas or dependence on inaccessible material.'],
+['validate','4. Prove lawful production','Production','Run two timed dry-runs with rights, quality, cost, and capacity controls.','Pass: documented rights, measured unit cost, repeatable quality, practical capacity.','Fail: unclear licences, rescue-heavy work, poor economics, or degraded originality.'],
+['execute','5. Specify controlled test','Experiment','Write one falsifiable hypothesis and freeze batch, budget, cadence, variables, and metrics.','Pass: fixed elements separated from intentional variables; register ready.','Fail: vague hypothesis, changing many variables, or post-result criteria.'],
+['execute','6. Publish fixed batch','Release','Publish consistently with release checks, audit records, and logged deviations.','Pass: complete batch, maintained cadence, complete records, observation point reached.','Fail: recurring compliance issues, format drift, missing records, or reactive changes.'],
+['decide','7. Measure performance','Analytics','Compare equal-age snapshots across discovery, clicks, retention, audience, and economics.','Pass: comparable segmented data identifies repeatable patterns and primary bottlenecks.','Fail: views-only analysis, outlier dependence, missing cost/tracking, or incomparable ages.'],
+['decide','8. Scale, revise once, or kill','Allocation','Apply numerical gates fixed before review.','Pass: scale only repeatable economics; revise only one isolated bottleneck.','Fail: kill when no repeatable pattern, several gates miss, or revision also fails.'],
+['decide','9. Automate proven stages','Systems','Automate deterministic work; retain human approval for judgement, rights, claims, and packaging.','Pass: parallel comparison preserves quality and creates a recoverable audit trail.','Fail: hidden failures/cost/provenance, repeated rescue work, or review capacity exceeded.']];
+const grid=document.querySelector('#steps'),detail=document.querySelector('#detail');
+function render(filter='all'){grid.innerHTML='';stages.filter(s=>filter==='all'||s[0]===filter).forEach((s,i)=>{const b=document.createElement('button');b.className='step';b.innerHTML=`<span class="tag">${s[2]}</span><b>${s[1]}</b><span>${s[3]}</span>`;b.onclick=()=>detail.innerHTML=`<span class="tag">${s[2]}</span><h2>${s[1]}</h2><p>${s[3]}</p><p class="gate">${s[4]}</p><p class="fail">${s[5]}</p>`;grid.appendChild(b)})}
+document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-filter]').forEach(x=>x.classList.remove('active'));b.classList.add('active');render(b.dataset.filter)});render();
+</script>
+</body></html>

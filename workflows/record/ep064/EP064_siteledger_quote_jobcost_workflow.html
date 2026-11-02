@@ -1,0 +1,61 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/ep056/EP056_quote_followup_jobcost_workflow.html — Interactive workflow for the Quote Follow-Up & Job-Cost demo.
+  Plan: workstream/200_inprogress/20261018_221000_ep056_997_quote_followup_jobcost_demo.md
+
+  VERSION HISTORY
+  v1.0.0 · 2026-10-18 · Initial version: actor-by-actor clickable workflow with actor/stage filters (created before implementation per lifecycle rule).
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP056 · Quote Follow-Up & Job-Cost — Workflow</title>
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--ink:#1d1d1b;--mut:#6b6a66;--line:#e3e1db;--acc:#1f6f5c}
+*{box-sizing:border-box}body{margin:0;font:14px/1.45 system-ui,Segoe UI,sans-serif;background:var(--bg);color:var(--ink)}
+header{padding:20px 24px;border-bottom:1px solid var(--line);background:#fff}h1{margin:0;font-size:20px}header p{margin:4px 0 0;color:var(--mut)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 24px}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;cursor:pointer}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+main{display:grid;grid-template-columns:1fr 360px;gap:16px;padding:0 24px 24px}@media(max-width:860px){main{grid-template-columns:1fr}}
+.lanes{display:flex;flex-direction:column;gap:14px}.lane{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+.lane h3{margin:0 0 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.steps{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.node{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fbfaf8;cursor:pointer;max-width:210px}
+.node:hover,.node.sel{border-color:var(--acc);box-shadow:0 0 0 2px #1f6f5c22}.node b{display:block;font-size:13px}.node small{color:var(--mut)}
+.node.gate{border-style:dashed}.node.exc{background:#fff4f2;border-color:#f0c9c1}.node.out{background:#eef7f3;border-color:#bfe0d2}
+.arrow{color:var(--mut)}.dim{opacity:.18}
+aside{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;position:sticky;top:12px;align-self:start}
+aside h2{margin:0 0 6px;font-size:16px}.kv{display:grid;grid-template-columns:90px 1fr;gap:4px 10px;font-size:13px}.kv span:nth-child(odd){color:var(--mut)}
+.legend{display:flex;gap:12px;padding:0 24px 12px;color:var(--mut);font-size:12px}
+</style></head><body>
+<header><h1>EP056 · Quote Follow-Up & Job-Cost Tracker — Feature Workflow</h1>
+<p>Reddit pain points B1 (quote ghosting / follow-up fatigue) + B2 (receipt → job-costing). Click a step for detail; filter by actor or stage.</p></header>
+<div class="bar" id="actors"></div><div class="bar" id="stages"></div>
+<div class="legend"><span>▭ step</span><span>┄ gate/validation</span><span style="color:#b4553f">■ exception</span><span style="color:#1f6f5c">■ outcome</span></div>
+<main><div class="lanes" id="lanes"></div><aside id="detail"><h2>Select a step</h2><p style="color:var(--mut)">Each node lists inputs, validation, state change and outcome.</p></aside></main>
+<script>
+const N=[
+ // stage: quote
+ {id:'q1',a:'Owner',s:'Quote',t:'Create quote',d:'Owner enters customer, job title, line items.',i:'Customer, job, items, VAT flag',v:'Customer + ≥1 line item required',sc:'Quote number allocated Q-#### (sequential, never reused)',o:'Quote saved as Draft'},
+ {id:'q2',a:'System',s:'Quote',t:'Sequential numbering',k:'gate',d:'Next number = max existing + 1.',i:'Quote store',v:'Gap/duplicate check',sc:'Counter advanced',o:'Unique Q-number'},
+ {id:'q3',a:'Owner',s:'Quote',t:'Send quote',d:'Mark Sent (demo: simulated send).',i:'Draft quote',v:'Status must be Draft',sc:'Draft → Sent, sentAt stamped',o:'Aging clock starts'},
+ {id:'f1',a:'System',s:'Follow-up',t:'Age & classify',d:'Daily aging: 0–3d Fresh, 4–7d Due, 8–13d Overdue, ≥14d & no reply → Ghosted.',i:'sentAt, lastContact, reply flag',v:'Only Sent/Viewed quotes aged',sc:'Badge recalculated',o:'Follow-up queue sorted by urgency'},
+ {id:'f2',a:'System',s:'Follow-up',t:'Sequence rule hit',k:'gate',d:'Configurable sequence: Day 3 nudge, Day 7 value reminder, Day 14 last-call.',i:'Sequence settings',v:'Step not already sent',sc:'Quote flagged "Follow-up due"',o:'Appears in Today\'s follow-ups'},
+ {id:'f3',a:'Owner',s:'Follow-up',t:'1-click follow-up',d:'Template pre-filled with name, quote no., value; choose SMS or Email.',i:'Template + quote',v:'Channel contact present',sc:'lastContact stamped, followUps++ , timeline entry',o:'Aging resets to Due window'},
+ {id:'f4',a:'Customer',s:'Follow-up',t:'Customer responds',d:'Accepts, declines, or stays silent.',i:'Follow-up message',v:'—',sc:'Owner records outcome',o:'Won / Lost / still Ghosted'},
+ {id:'fx',a:'System',s:'Follow-up',t:'Sequence exhausted',k:'exc',d:'After Day-14 last-call with no reply the quote is Ghosted and parked.',i:'followUps ≥ 3',v:'—',sc:'Status → Ghosted',o:'Excluded from active pipeline value'},
+ {id:'j1',a:'Owner',s:'Job',t:'Convert Won → Job',d:'Won quote converts to Job J-#### linked to its quote.',i:'Won quote',v:'Not already converted',sc:'Job created, quoted cost/revenue copied',o:'Job In progress'},
+ {id:'r1',a:'Owner',s:'Receipt',t:'Capture receipt',d:'Upload photo/PDF (demo samples) or type/speak a note: "£140 at Travis Perkins for the Smith kitchen".',i:'Image/PDF or text note',v:'Amount detectable',sc:'Draft receipt',o:'Parse preview'},
+ {id:'r2',a:'System',s:'Receipt',t:'Parse & match job',k:'gate',d:'Extract amount, supplier, VAT; match job by customer surname / job keyword.',i:'Draft receipt + open jobs',v:'Confidence ≥ match threshold',sc:'Suggested job attached',o:'Preview with confidence'},
+ {id:'rx',a:'System',s:'Receipt',t:'No confident match',k:'exc',d:'Receipt lands in Unassigned inbox for manual allocation.',i:'Low-confidence parse',v:'—',sc:'status=Unassigned',o:'Inbox badge count +1'},
+ {id:'r3',a:'Owner',s:'Receipt',t:'Confirm allocation',d:'Owner confirms or changes job.',i:'Preview',v:'Job must be open',sc:'Receipt attached to job, actual cost += amount',o:'Margin recalculated live'},
+ {id:'m1',a:'System',s:'Margin',t:'Quoted vs actual margin',k:'out',d:'Margin = (quote value − actual costs) / quote value. Alerts when actual materials exceed quoted materials.',i:'Job quote + receipts',v:'—',sc:'Margin bar + alert state',o:'Dashboard KPIs update'},
+ {id:'m2',a:'Owner',s:'Margin',t:'Close job',k:'out',d:'Job marked Complete; final margin locked into win/margin stats.',i:'Job',v:'—',sc:'status=Complete',o:'Avg margin KPI updated'}
+];
+const actors=['All',...new Set(N.map(n=>n.a))],stages=['All',...new Set(N.map(n=>n.s))];let fa='All',fs='All';
+function chips(el,list,get,set){el.innerHTML='';list.forEach(x=>{const b=document.createElement('button');b.className='chip'+(get()===x?' on':'');b.textContent=(el.id==='actors'?'Actor: ':'Stage: ')+x;b.onclick=()=>{set(x);render()};el.appendChild(b)})}
+function render(){chips(actors_,actors,()=>fa,v=>fa=v);chips(stages_,stages,()=>fs,v=>fs=v);const L=document.getElementById('lanes');L.innerHTML='';
+ stages.slice(1).forEach(s=>{const lane=document.createElement('div');lane.className='lane';lane.innerHTML='<h3>'+s+'</h3>';const st=document.createElement('div');st.className='steps';
+  N.filter(n=>n.s===s).forEach((n,i)=>{if(i)st.insertAdjacentHTML('beforeend','<span class="arrow">→</span>');const d=document.createElement('div');d.className='node '+(n.k||'');d.dataset.id=n.id;
+   d.innerHTML='<b>'+n.t+'</b><small>'+n.a+'</small>';if((fa!=='All'&&n.a!==fa)||(fs!=='All'&&n.s!==fs))d.classList.add('dim');d.onclick=()=>show(n);st.appendChild(d)});lane.appendChild(st);L.appendChild(lane)})}
+function show(n){document.querySelectorAll('.node').forEach(x=>x.classList.toggle('sel',x.dataset.id===n.id));
+ document.getElementById('detail').innerHTML='<h2>'+n.t+'</h2><p>'+n.d+'</p><div class="kv"><span>Actor</span><span>'+n.a+'</span><span>Stage</span><span>'+n.s+'</span><span>Inputs</span><span>'+n.i+'</span><span>Validation</span><span>'+n.v+'</span><span>State change</span><span>'+n.sc+'</span><span>Outcome</span><span>'+n.o+'</span></div>'}
+const actors_=document.getElementById('actors'),stages_=document.getElementById('stages');render();
+</script></body></html>

@@ -1,0 +1,18 @@
+<!doctype html>
+<!--
+workstream/600_workflow/ep000/EP000_agent_message_board_implementation_checklist.html — Delivery status for the standalone agent board.
+
+VERSION HISTORY
+v1.3.0 · 2026-08-12 · Records the user's visual pass so every delivery and verification gate is complete.
+v1.2.0 · 2026-08-12 · Marks implementation and technical verification passed; records the remaining user visual-verification gate.
+v1.1.0 · 2026-08-12 · Records lifecycle-skill checkpoint integration so every participating CLI receives common board guidance.
+v1.0.0 · 2026-08-11 · Initial version: records pre-implementation delivery state and evidence requirements.
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Agent Board Delivery</title><style>body{margin:0;background:#f2efe7;color:#17352b;font:15px system-ui}header{background:#123d31;color:white;padding:28px}main{max-width:900px;margin:auto;padding:22px}.item{background:white;border:1px solid #cad4cc;border-radius:14px;padding:18px;margin:12px 0}.state{display:inline-block;border-radius:8px;padding:5px 9px;background:#fff0d6;color:#794b0b;font-weight:700}.pass{background:#e4f4ea;color:#155c3f}code{word-break:break-word}</style></head><body><header><h1>EP000 Agent Message Board · implementation checklist</h1><p>Current delivery status and concrete proof.</p></header><main>
+<section class="item"><span class="state pass">Passed</span><h2>Workflow designed first</h2><p>Interactive workflow: <code>workstream/600_workflow/ep000/EP000_agent_message_board_workflow.html</code>.</p></section>
+<section class="item"><span class="state pass">Passed</span><h2>Append-only CLI</h2><p>Post, read, acknowledge, assess, claim, release, thread, status, and explicit archive commands implemented.</p></section>
+<section class="item"><span class="state pass">Passed</span><h2>Agent operating guidance</h2><p>The mandatory lifecycle skill defines four checkpoints and <code>skills/agent-message-board/SKILL.md</code> supplies exact commands.</p></section>
+<section class="item"><span class="state pass">Passed</span><h2>Concurrency and relevance tests</h2><p>11 tests pass, including 40 concurrent Windows appends, independent cursors, relevance, timestamps, claims, threads, and retention.</p></section>
+<section class="item"><span class="state pass">Passed</span><h2>Isolation validation</h2><p><code>workstream/run_agent.py</code> has no task-authored diff and the board has no workstream mutation path.</p></section>
+<section class="item"><span class="state pass">Passed</span><h2>User visual verification</h2><p>User replied <code>pass</code> on 2026-08-12 after checking filters, clickable node inspector, and layout/readability.</p></section>
+</main></body></html>

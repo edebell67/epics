@@ -1,0 +1,126 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/EP066_frontpage_dashboard_workflow.html — interactive workflow map for EP066 Front-Page Executive Dashboard & Light/Dark Mode.
+
+  VERSION HISTORY
+  v1.0.0 · 2026-10-26 · Initial version: maps user, frontend UI, and EP058 in-memory store workflow before implementation [V20261026_1700].
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP066 Front-Page Dashboard — Workflow</title>
+<style>
+  :root { color-scheme: dark; --bg: #0d1014; --card: #141920; --line: #262e3a; --ink: #e6e9ee; --muted: #8892a0; --accent: #4fb3ff; --pos: #3ecf8e; --warn: #ffb84d; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 Inter, system-ui, sans-serif; }
+  .wrap { max-width: 1080px; margin: auto; padding: 28px 20px 56px; }
+  .eyebrow { text-transform: uppercase; letter-spacing: .12em; color: var(--accent); font-weight: 700; font-size: 12px; }
+  h1 { margin: 8px 0 6px; font-size: 28px; }
+  p { margin: 4px 0; color: var(--muted); }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; }
+  .filters button, .node { border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--ink); cursor: pointer; font: inherit; }
+  .filters button { padding: 8px 14px; font-weight: 600; font-size: 13px; }
+  .filters button[aria-pressed="true"] { background: var(--accent); color: #04121f; border-color: var(--accent); }
+  .flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+  .node { padding: 14px; text-align: left; min-height: 112px; transition: transform .15s, border-color .15s; }
+  .node:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .node[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: #1a222d; }
+  .node small { display: block; color: var(--accent); font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+  .node strong { font-size: 15px; }
+  .detail { margin-top: 16px; border: 1px solid var(--line); background: var(--card); border-radius: 12px; padding: 18px; }
+  .detail .actor { color: var(--pos); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+  .detail h2 { margin: 4px 0 8px; font-size: 19px; }
+  .detail ul { margin: 8px 0; padding-left: 20px; }
+  .detail li { margin: 5px 0; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="eyebrow">EP066 · Feature Workflow · V20261026_1700</div>
+  <h1>EP066 Front-Page Executive Dashboard &amp; Theme Switcher</h1>
+  <p>Interactive actor-by-actor flow for the Top-Left Sidebar Dashboard entry, `/api/ep066/overview` in-memory computation, 6 summary panels, drill-down links, and Light/Dark Mode toggle.</p>
+
+  <div class="filters" role="group" aria-label="Filter by actor">
+    <button data-filter="all" aria-pressed="true">All actors</button>
+    <button data-filter="User" aria-pressed="false">User</button>
+    <button data-filter="Frontend UI" aria-pressed="false">Frontend UI</button>
+    <button data-filter="EP058 Backend" aria-pressed="false">EP058 Backend</button>
+  </div>
+
+  <section class="flow" aria-label="Workflow steps">
+    <button class="node" data-actor="User" data-step="0" aria-pressed="true"><small>Step 1 · User</small><strong>Click Dashboard at Top of Left Sidebar</strong></button>
+    <button class="node" data-actor="Frontend UI" data-step="1" aria-pressed="false"><small>Step 2 · Frontend UI</small><strong>Request Scope Overview &amp; Sync Filters</strong></button>
+    <button class="node" data-actor="EP058 Backend" data-step="2" aria-pressed="false"><small>Step 3 · EP058 Backend</small><strong>Aggregate In-Memory Store (/api/ep066/overview)</strong></button>
+    <button class="node" data-actor="Frontend UI" data-step="3" aria-pressed="false"><small>Step 4 · Frontend UI</small><strong>Render 6 Executive Dashboard Sections</strong></button>
+    <button class="node" data-actor="User" data-step="4" aria-pressed="false"><small>Step 5 · User</small><strong>Toggle Light / Dark Theme</strong></button>
+    <button class="node" data-actor="User" data-step="5" aria-pressed="false"><small>Step 6 · User</small><strong>Click Any Card to Drill Into Scenario Explorer</strong></button>
+  </section>
+
+  <section class="detail" id="detail" aria-live="polite"></section>
+</main>
+<script>
+const steps = [
+  {
+    title: 'Click Dashboard at Top of Left Sidebar (or open ?view=dashboard)',
+    actor: 'User',
+    body: [
+      'A prominent "⚡ Dashboard (Overview)" link sits at the very top of the left-hand navigation column in strategy_explorer.html.',
+      'Users can also switch to it anytime from any scenario (e.g. ?view=top_net&product_type=forex&strategy_family=breakout) while preserving their selected Product Type, Period, Date, Product, Family, and Metric.'
+    ]
+  },
+  {
+    title: 'Request Scope Overview & Sync Filters',
+    actor: 'Frontend UI',
+    body: [
+      'When Dashboard view is active (or as a top summary bar), the page calls GET /api/ep066/overview with date, period (day|week|month), product_type, product, and strategy_family.',
+      'In static snapshot mode (window.EP066_SNAPSHOT), the page derives the overview metrics from embedded curves and window rows.'
+    ]
+  },
+  {
+    title: 'Aggregate In-Memory Store (/api/ep066/overview)',
+    actor: 'EP058 Backend',
+    body: [
+      'ep066_store.overview() computes in-memory (< 50ms): (1) Strategy total count & profit %, (2) Buy/Sell cumulative & recent 60m breakdown, (3) Family breakdown (breakout, breakout_r, breakout_rev, breakout_r_rev), (4) Net vs Alt_Net comparison, and (5) Last 5m, 30m, 60m, 180m (3hr) window profitability with Buy/Sell split.',
+      'For Week and Month periods, ep066_explorer.build_overview() aggregates across the period days.'
+    ]
+  },
+  {
+    title: 'Render 6 Executive Dashboard Sections',
+    actor: 'Frontend UI',
+    body: [
+      'Renders Card 1 (Strategy Total Count & Profit %), Card 2 (Buy/Sell Breakdown - Recent Profits), Card 3 (Breakdown by Family & Profitability cards + table), Card 4 (Report by Net vs Alt_Net), Card 5 (Profitability in Last 5min, 30min, 60min, 3hr with Buy/Sell split), and Card 6 (Notification Summary synced with watch rules & alerts).'
+    ]
+  },
+  {
+    title: 'Toggle Light / Dark Theme',
+    actor: 'User',
+    body: [
+      'Clicking the Light / Dark button in the top control bar toggles html[data-theme="light"|"dark"] and saves the preference to localStorage (ep066Theme).',
+      'Both the Executive Dashboard and the 24-Scenario Canvas/Table Explorer adapt seamlessly to Light and Dark themes.'
+    ]
+  },
+  {
+    title: 'Click Any Card to Drill Into Scenario Explorer',
+    actor: 'User',
+    body: [
+      'Clicking a 5m/30m/60m/3hr horizon card selects "Top 3 in last X" with that exact window.',
+      'Clicking a Family card or table row selects "Top 5 · Family" (or filters to that family) and switches to the chart + table explorer view.'
+    ]
+  }
+];
+const nodes = [...document.querySelectorAll('.node')], detail = document.getElementById('detail');
+function show(i) {
+  nodes.forEach((n, j) => n.setAttribute('aria-pressed', String(i === j)));
+  const s = steps[i];
+  detail.innerHTML = `<div class="actor">${s.actor}</div><h2>${s.title}</h2><ul>${s.body.map(x => `<li>${x}</li>`).join('')}</ul>`;
+}
+nodes.forEach((n, i) => n.addEventListener('click', () => show(i)));
+document.querySelectorAll('[data-filter]').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('[data-filter]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  nodes.forEach(n => n.hidden = b.dataset.filter !== 'all' && n.dataset.actor !== b.dataset.filter);
+}));
+show(0);
+</script>
+</body>
+</html>

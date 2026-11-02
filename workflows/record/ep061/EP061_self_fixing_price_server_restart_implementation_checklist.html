@@ -1,0 +1,104 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/EP061_self_fixing_price_server_restart_implementation_checklist.html — Delivery status checklist for EP061 self-fixing price server restart
+
+  VERSION HISTORY
+  v1.0.0 · 2026-10-27 · Initial version: detailed implementation and verification checklist for EP061 self-fixing price server restart on stale (>2m) endpoints.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EP061 · Self-Fixing Price Server Restart Implementation Checklist</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --ok: #2ea043;
+      --warn: #d29922;
+      --info: #58a6ff;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.5 system-ui, -apple-system, Segoe UI, sans-serif;
+      max-width: 1000px;
+      margin-inline: auto;
+    }
+    h1 { margin: 0 0 6px; font-size: 20px; }
+    .sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+    table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; font-size: 13px; }
+    th { background: #1f242c; color: var(--muted); text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
+    .pill { padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; display: inline-block; }
+    .pill.not-started { background: #30363d; color: #e6edf3; }
+    .pill.in-progress { background: #1f6feb; color: #fff; }
+    .pill.passed { background: var(--ok); color: #fff; }
+    code { font-family: Consolas, monospace; font-size: 12px; color: #79c0ff; }
+  </style>
+</head>
+<body>
+  <h1>EP061 · Self-Fixing Price Server Restart Implementation Checklist</h1>
+  <div class="sub">Task: <code>20261027_023000_ep061_997_V20261027_0230_self_fixing_price_server_restart.md</code> · Version: <code>V20261027_0230</code></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Component / Check Item</th>
+        <th>Status</th>
+        <th>Evidence / Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Interactive Workflow & Checklist HTML Artifacts</td>
+        <td><span class="pill passed">Passed</span></td>
+        <td>Created in <code>workstream/600_workflow/</code></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Configuration: 2-minute (<code>120s</code>) endpoint threshold & batch command in <code>config.json</code></td>
+        <td><span class="pill passed">Passed</span></td>
+        <td><code>endpoint_stale_s: 120</code>, <code>start_cmds.market_prices</code> &amp; <code>market_prices_bat</code> set to <code>api_live_02_start_api_server_8002.bat</code></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Backend Rule: <code>c_endpoints()</code> triggers <code>restart_market_prices</code> when Forex or Crypto endpoint is &gt;120s old or stale</td>
+        <td><span class="pill passed">Passed</span></td>
+        <td>Verified in <code>epics/ep_061_full_trading_workflow/monitor.py</code> via <code>GET /api/status</code></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Self-Fixing Execution: <code>fix("restart_market_prices")</code> & <code>autofix_step()</code> execute <code>api_live_02_start_api_server_8002.bat</code></td>
+        <td><span class="pill passed">Passed</span></td>
+        <td>Implemented in <code>_restart_market_prices_via_bat()</code>, <code>autofix_step()</code>, and <code>fix()</code></td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Row-Level Endpoint Test Buttons: <code>GET /api/test_endpoint/{fx|crypto}</code> & buttons on <code>endpoint_fx</code> and <code>endpoint_crypto</code> rows in <code>index.html</code></td>
+        <td><span class="pill passed">Passed</span></td>
+        <td>Verified HTTP 200 on <code>/api/test_endpoint/fx</code> (9.2 ms) and <code>/api/test_endpoint/crypto</code> (6.2 ms)</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Version Bump in <code>TradeApps/breakout/fs/constants.py</code> to <code>V20261027_0230</code></td>
+        <td><span class="pill passed">Passed</span></td>
+        <td>Updated <code>VERSION = 'V20261027_0230'</code> in <code>constants.py</code></td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Live Verification on <code>http://127.0.0.1:8061/</code></td>
+        <td><span class="pill in-progress">In progress</span></td>
+        <td>Awaiting user verification on <code>http://127.0.0.1:8061/</code></td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>

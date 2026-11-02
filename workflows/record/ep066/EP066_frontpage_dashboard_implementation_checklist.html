@@ -1,0 +1,70 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/EP066_frontpage_dashboard_implementation_checklist.html — delivery status checklist for EP066 Front-Page Executive Dashboard & Light/Dark Mode.
+
+  VERSION HISTORY
+  v1.2.0 · 2026-10-26 · Adds Gate 6 for Live Portfolio Trades (`LIVE` | `LIVE_ALT` / `live_net` trades `cum_net` | `cum_alt_net` from `trading_log.html`) [V20261026_1920].
+  v1.1.0 · 2026-10-26 · Marks gates 1–5 Passed after live verification on :8150; gate 6 awaiting user verification [V20261026_1700].
+  v1.0.0 · 2026-10-26 · Initial version: defines independently verifiable gates for EP066 Front-Page Dashboard [V20261026_1700].
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP066 Front-Page Dashboard — Delivery Checklist</title>
+<style>
+  :root { color-scheme: dark; --bg: #0d1014; --panel: #141920; --line: #262e3a; --ink: #e6e9ee; --muted: #8892a0; --accent: #4fb3ff; --pos: #3ecf8e; --warn: #ffb84d; --neg: #ff6b6b; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 Inter, system-ui, sans-serif; }
+  .wrap { max-width: 920px; margin: auto; padding: 26px 20px 56px; }
+  .eyebrow { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); }
+  h1 { margin: 8px 0 6px; font-size: 26px; }
+  .progress { margin: 16px 0; padding: 12px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; color: var(--accent); font-weight: 600; }
+  .list { display: grid; gap: 10px; }
+  .item { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; grid-template-columns: 1fr auto; gap: 8px 14px; }
+  .item h2 { font-size: 15px; margin: 0; }
+  .item p { color: var(--muted); margin: 4px 0; font-size: 13.5px; }
+  .state { align-self: start; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 12px; cursor: pointer; background: #0d1014; color: var(--ink); }
+  .state[data-status="Passed"] { background: rgba(62,207,142,.18); color: var(--pos); border-color: var(--pos); }
+  .state[data-status="In progress"] { background: rgba(79,179,255,.18); color: var(--accent); border-color: var(--accent); }
+  .state[data-status="Failed"] { background: rgba(255,107,107,.18); color: var(--neg); border-color: var(--neg); }
+  .state[data-status="Blocked"] { background: rgba(255,184,77,.18); color: var(--warn); border-color: var(--warn); }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="eyebrow">EP066 · Delivery Checklist · V20261026_1920</div>
+  <h1>EP066 Executive Front-Page Dashboard &amp; Light/Dark Mode</h1>
+  <div class="progress" id="summary">Loading…</div>
+  <section class="list" id="list"></section>
+</main>
+<script>
+const checks = [
+  ['Workflow & Checklist HTML Artifacts', 'Interactive workflow and checklist HTML created in workstream/600_workflow/ prior to code edits.', 'workstream/600_workflow/EP066_frontpage_dashboard_workflow.html', 'Passed'],
+  ['In-Memory Overview Store (ep066_store.py)', 'Computes Strategy Total Count & Profit %, Buy/Sell breakdown, Net vs Alt_Net, Family breakdown, and 5m/30m/60m/3hr (180m) Buy/Sell window deltas.', 'epics/ep_058_strategy_intelligence_pg/hosted_directory/app/ep066_store.py', 'Passed'],
+  ['Overview API Endpoint (GET /api/ep066/overview)', 'Exposes fast overview JSON for day, week, and month periods with product_type, product, and strategy_family filters.', 'epics/ep_058_strategy_intelligence_pg/hosted_directory/app/ep066_explorer.py', 'Passed'],
+  ['Left-Hand Column Top Dashboard Link & 6 Dashboard Sections', 'Adds Dashboard link at the top of the left-hand nav column and renders all 6 required sections with interactive drill-downs.', 'epics/ep_066_strategy_explorer/strategy_explorer.html', 'Passed'],
+  ['Light / Dark Mode Support', 'Theme toggle button in header with high-contrast Light & Dark CSS variables and canvas adaptation.', 'epics/ep_066_strategy_explorer/strategy_explorer.html', 'Passed'],
+  ['Live | Live_Alt (live_net) Trades Cum Net | Cum Alt_Net Card', 'Integrates LIVE and LIVE_ALT open/closed trade counts, running cum_net & cum_alt_net, and recent executions from combined_trade_live (trading_log.html).', 'epics/ep_058_strategy_intelligence_pg/hosted_directory/app/ep066_explorer.py & epics/ep_066_strategy_explorer/strategy_explorer.html', 'Passed'],
+  ['Live Verification on Port 8150 & User Verification', 'Verified on http://127.0.0.1:8150/ep066_strategy_explorer.html?view=top_net&product_type=forex&strategy_family=breakout; confirmed by user on 2026-10-26.', 'http://127.0.0.1:8150/ep066_strategy_explorer.html', 'Passed']
+];
+const labels = ['Not started', 'In progress', 'Passed', 'Failed', 'Blocked'];
+let statuses = checks.map(c => c[3]);
+function render() {
+  document.getElementById('list').innerHTML = checks.map((c, i) => `
+    <article class="item">
+      <div><h2>${i + 1}. ${c[0]}</h2><p>${c[1]}</p><p><code>${c[2]}</code></p></div>
+      <button class="state" data-i="${i}" data-status="${statuses[i]}">${statuses[i]}</button>
+    </article>`).join('');
+  document.querySelectorAll('.state').forEach(b => b.onclick = () => {
+    const i = +b.dataset.i;
+    statuses[i] = labels[(labels.indexOf(statuses[i]) + 1) % labels.length];
+    render();
+  });
+  const passed = statuses.filter(s => s === 'Passed').length;
+  document.getElementById('summary').textContent = `${passed} of ${checks.length} delivery gates marked Passed.`;
+}
+render();
+</script>
+</body>
+</html>

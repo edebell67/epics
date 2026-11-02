@@ -1,0 +1,16 @@
+<!doctype html>
+<!--
+workstream/600_workflow/ep058/EP058_crypto_json_loader_workflow.html — Interactive crypto quote ingestion workflow.
+
+VERSION HISTORY
+v1.0.0 · 2026-09-22 · Initial workflow for loading crypto JSON alongside forex before trade creation.
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EP058 Crypto JSON Loader</title>
+<style>body{font:16px system-ui;background:#101827;color:#e7edf7;margin:2rem;max-width:900px}button{display:block;width:100%;text-align:left;margin:.7rem 0;padding:1rem;border:1px solid #46617f;border-radius:10px;background:#17263a;color:inherit}button:hover,button:focus{border-color:#60d4ff}.detail{display:none;padding:.2rem 1rem 1rem;color:#b9c8da}.open+.detail{display:block}.ok{color:#62e6a7}</style></head>
+<body><h1>Crypto quote ingestion</h1><p>Existing Windows Python runner; one ordered tick.</p>
+<button>1. Read forex JSON</button><div class="detail">Read the mapped forex file, parse forex and synthetic quotes, refresh <code>fx_quotes</code>.</div>
+<button>2. Read crypto JSON</button><div class="detail">Read the mapped crypto file and pass its complete JSON text to <code>sp_000_import_crypto_prices</code>, which refreshes <code>crypto_quotes</code>.</div>
+<button>3. Commit quote refresh</button><div class="detail">Both quote-table updates share the tick transaction. Any failure rolls the tick back and is logged.</div>
+<button>4. Create trades</button><div class="detail">Invoke the existing PostgreSQL trade-loop entry point only after both price sources load.</div>
+<button>5. Log outcome</button><div class="detail"><span class="ok">Success</span> records separate forex and crypto counts/timestamps; failure records exception type without credentials.</div>
+<script>for(const b of document.querySelectorAll('button'))b.onclick=()=>b.classList.toggle('open')</script></body></html>

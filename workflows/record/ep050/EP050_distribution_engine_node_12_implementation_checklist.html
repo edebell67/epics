@@ -1,0 +1,39 @@
+<!doctype html>
+<!--
+workstream/600_workflow/ep050/EP050_distribution_engine_node_12_implementation_checklist.html — Delivery status for EP050 Node 12 (Opportunity Scoring).
+
+VERSION HISTORY
+v1.0.0 · 2026-08-17 · Initial version: records implementation, test, evidence, and lifecycle gates for Node 12 Opportunity Scoring.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP050 Node 12 Status</title>
+<style>
+body{font:16px Arial,sans-serif;max-width:920px;margin:40px auto;padding:0 20px;background:#f7f4ec;color:#143129}
+li{margin:14px 0;padding:14px;background:white;border-left:5px solid #b7791f}
+.passed{border-color:#168568}
+.pending{border-color:#9a5d00}
+.status{font-weight:bold}
+code{background:#edf1ee;padding:2px 5px;border-radius:4px;font-size:14px}
+</style>
+</head>
+<body>
+<h1>EP050 Node 12 (Opportunity Scoring) — Delivery Status Checklist</h1>
+<ul>
+<li class="passed"><span class="status">Passed</span> · Interaction specification & workflow map pre-dates implementation: <code>EP050_distribution_engine_node_12_workflow.html</code>.</li>
+<li class="passed"><span class="status">Passed</span> · Core module implemented: <code>epics/ep_050_distribution_engine/implementation/node_12/opportunity_scoring.py</code>.</li>
+<li class="passed"><span class="status">Passed</span> · Deterministic Demand Opportunity Score (DOS v1.0) calculation with explainable component breakdown (Urgency, Commercial Intent, Service Alignment, Locality Match).</li>
+<li class="passed"><span class="status">Passed</span> · Priority tiering implemented (TIER_1_IMMEDIATE, TIER_2_HIGH, TIER_3_MODERATE, TIER_4_LOW).</li>
+<li class="passed"><span class="status">Passed</span> · Real integration test consuming Node 11 <code>IntentClassificationResult</code> directly without mocks.</li>
+<li class="passed"><span class="status">Passed</span> · Deterministic ID hashing (<code>opp_</code> + SHA-256) and lineage preservation (<code>target_id</code>, <code>signal_id</code>, <code>classification_id</code>).</li>
+<li class="passed"><span class="status">Passed</span> · Fail-closed validation on missing fields, out-of-range weights, and malformed inputs.</li>
+<li class="passed"><span class="status">Passed</span> · Unit and integration test suite passing: <code>test_opportunity_scoring.py</code>.</li>
+<li class="passed"><span class="status">Passed</span> · Timestamped evidence bundle: <code>epics/ep_050_distribution_engine/evidence/node_12/</code>.</li>
+<li class="passed"><span class="status">Passed</span> · Reusable regression procedure in Test Library: <code>workstream/Test Library/ep050/EP050_node_12_opportunity_scoring_regression_procedure.md</code>.</li>
+<li class="pending"><span class="status">Pending</span> · Stage 2 upstream integration gate: Node 12 held at 75% pending Node 05 completion and live Node 11 contract integration.</li>
+</ul>
+<p><strong>Safety boundary:</strong> 100% offline local loop, zero network telemetry, zero production datastore mutations, zero real PII.</p>
+</body>
+</html>

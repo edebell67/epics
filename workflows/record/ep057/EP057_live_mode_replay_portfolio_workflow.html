@@ -1,0 +1,65 @@
+<!doctype html>
+<!--
+ * EP057_live_mode_replay_portfolio_workflow.html — Portfolio-scoped replay-to-live trading workflow
+ *
+ * VERSION HISTORY
+ * v1.0.1 · 2026-10-09 · Provides an inline favicon so offline workflow review has no missing-resource request.
+ * v1.0.0 · 2026-10-09 · Maps guarded Live Mode, incoming chart refresh, saved switch rules and PostgreSQL order mirroring before implementation.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,">
+<title>EP057 Live Mode Portfolio Workflow</title>
+<style>
+:root{color-scheme:dark;font:15px/1.5 system-ui,sans-serif;background:#07111f;color:#dbe7f5}
+body{max-width:1120px;margin:28px auto;padding:0 20px}h1{margin:0;color:#6ee7f9;font-size:28px}p{color:#a8bbd1}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 12px}.toolbar button,.node{font:inherit;color:inherit;background:#0d1b2c;border:1px solid #29445d;border-radius:10px;cursor:pointer}.toolbar button{padding:8px 13px}.toolbar button[aria-pressed=true],.node[aria-selected=true]{border-color:#38bdf8;background:#10283e}
+.layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.9fr);gap:16px}.nodes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-content:start}.node{text-align:left;padding:14px;min-height:112px}.node strong{display:block;color:#67e8f9;margin-bottom:5px}.node small{color:#9db2c8}.detail{background:#0d1b2c;border:1px solid #29445d;border-radius:12px;padding:18px;min-height:270px}.detail h2{margin:0 0 12px;color:#a78bfa;font-size:19px}.actor{display:inline-block;padding:3px 8px;margin:0 6px 8px 0;border-radius:99px;background:#172a40;color:#facc15;font-size:12px}.gate{border-left:3px solid #facc15;padding:8px 12px;margin-top:10px;background:#101d30}.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;color:#93a8c0;font-size:12px}.status{color:#fb7185;font-weight:700}@media(max-width:760px){.layout{grid-template-columns:1fr}.nodes{grid-template-columns:1fr}.detail{min-height:190px}}
+</style>
+</head>
+<body>
+<h1>Portfolio Live Mode</h1>
+<p>Historical replay becomes a live-following, portfolio-scoped process only after the user arms it. The portfolio’s saved server rules drive strategy changes; the chart is locked against manual scope/time edits while fresh market data and server decisions continue to refresh it.</p>
+<div class="toolbar" aria-label="Workflow actor filter">
+<button type="button" data-actor="all" aria-pressed="true">All actors</button>
+<button type="button" data-actor="operator" aria-pressed="false">Operator</button>
+<button type="button" data-actor="dashboard" aria-pressed="false">Dashboard</button>
+<button type="button" data-actor="policy" aria-pressed="false">Live policy service</button>
+<button type="button" data-actor="postgres" aria-pressed="false">PostgreSQL / order folder</button>
+</div>
+<div class="layout">
+<nav class="nodes" role="tablist" aria-label="Live trading workflow steps">
+<button class="node" role="tab" aria-selected="true" data-step="select" data-actors="operator,dashboard"><strong>1 · Select LIVE portfolio</strong><small>Open LIVE or LIVE_ALT on the current live date.</small></button>
+<button class="node" role="tab" aria-selected="false" data-step="preflight" data-actors="dashboard,policy"><strong>2 · Check saved setup</strong><small>Load that portfolio’s rules, eligibility filters, active model and order readiness.</small></button>
+<button class="node" role="tab" aria-selected="false" data-step="arm" data-actors="operator,dashboard,policy"><strong>3 · Arm Live Mode</strong><small>User explicitly enables timed selection and PostgreSQL execution for this portfolio.</small></button>
+<button class="node" role="tab" aria-selected="false" data-step="lock" data-actors="dashboard"><strong>4 · Lock the view</strong><small>Freeze manual replay and scope controls while armed; continue automatic live refresh.</small></button>
+<button class="node" role="tab" aria-selected="false" data-step="evaluate" data-actors="policy,postgres"><strong>5 · Evaluate live snapshots</strong><small>Apply the portfolio’s saved selection rules to the latest available five-minute snapshot.</small></button>
+<button class="node" role="tab" aria-selected="false" data-step="switch" data-actors="policy,postgres"><strong>6 · Mirror a strategy switch</strong><small>PostgreSQL exits the old portfolio copy and mirrors eligible open trades for the new strategy.</small></button>
+<button class="node" role="tab" aria-selected="false" data-step="refresh" data-actors="dashboard,policy"><strong>7 · Keep the chart current</strong><small>Refresh incoming curves, active strategy, B/X overlay, P&amp;L and target marker.</small></button>
+<button class="node" role="tab" aria-selected="false" data-step="disarm" data-actors="operator,dashboard,postgres"><strong>8 · Disarm or fail safely</strong><small>Turn execution off, close that portfolio’s live copies, restore the previous chart-lock preference.</small></button>
+</nav>
+<section class="detail" role="tabpanel" aria-live="polite" id="detail">
+<span class="actor">Operator</span><span class="actor">Dashboard</span><h2>Select LIVE portfolio</h2>
+<p>Choose LIVE or LIVE_ALT and the current live date. The dashboard loads that portfolio’s own chart/view settings and server-confirmed live policy state. Historical dates and the general Scenario tab cannot arm orders.</p>
+<div class="gate"><b>Gate:</b> No order action occurs from selecting or viewing a portfolio.</div>
+</section>
+</div>
+<div class="legend"><span>Default: disarmed</span><span>Arming requires saved valid rules and PostgreSQL order setup</span><span class="status">Any failed arm must remain visibly disarmed</span><span>Testing uses mocked endpoints; no orders emitted</span></div>
+<script>
+const descriptions={
+select:{title:'Select LIVE portfolio',actors:['Operator','Dashboard'],text:'Choose LIVE or LIVE_ALT and the current live date. The dashboard loads that portfolio’s own chart/view settings and server-confirmed live policy state. Historical dates and the general Scenario tab cannot arm orders.',gate:'No order action occurs from selecting or viewing a portfolio.'},
+preflight:{title:'Check saved setup',actors:['Dashboard','Live policy service'],text:'The dashboard reads the selected portfolio’s saved server config. The config must contain a valid interval, at least one selection rule, its side/eligibility settings, and an initial or current strategy. PostgreSQL order export settings and the destination folder must be ready.',gate:'If anything is missing, keep Live Mode off, leave the current server config unchanged, and show the actionable error.'},
+arm:{title:'Arm Live Mode',actors:['Operator','Dashboard','Live policy service'],text:'The user’s explicit toggle request sends that portfolio’s saved config with active=true and execute_orders=true. The UI waits for a successful server response before showing the armed state.',gate:'Do not optimistically show Live. A rejected request must leave the toggle off; the other portfolio’s config is untouched.'},
+lock:{title:'Lock the view',actors:['Dashboard'],text:'After server confirmation, save the user’s pre-live chart-lock preference and force chartLocked=true for this portfolio. Disable date, scenario, product/family, metric, baseline, scrubber and replay controls that could alter the live scope.',gate:'Live polling, chart rendering, overlay calculations and server-selected model updates remain enabled. Do not pause the market refresh loop.'},
+evaluate:{title:'Evaluate live snapshots',actors:['Live policy service','PostgreSQL'],text:'The existing background service periodically reads current-day, point-in-time candidates for this portfolio and applies its saved rules. LIVE and LIVE_ALT keep their established ranking, eligibility, side filtering and flip_trade behavior.',gate:'Only server policy evaluations use wall-clock/live snapshots. Historical replay controls never become order instructions.'},
+switch:{title:'Mirror a strategy switch',actors:['Live policy service','PostgreSQL / order folder'],text:'When the saved policy selects a different strategy, the existing PostgreSQL switch function closes only this portfolio’s combined_trade_live copies and copies eligible tradeable open rows for the new strategy. LIVE_ALT sets flip_trade on the live copies. JSON export happens through the existing database trigger and configured destination.',gate:'combined_trades_open remains untouched. Any PostgreSQL error is surfaced and must not be labelled as a successful live transition.'},
+refresh:{title:'Keep the chart current',actors:['Dashboard','Live policy service'],text:'The dashboard continues periodic live-day fetches and portfolio-state polling while locked. At each refresh, move the chart head to the newest available frame, load the currently active strategy, redraw the chart, overlay trade list, B/X signals, P&L and target-reached marker.',gate:'A locked chart must follow newly arriving frames; lock prevents manual changes, not automatic refresh.'},
+disarm:{title:'Disarm or fail safely',actors:['Operator','Dashboard','PostgreSQL / order folder'],text:'The user turns Live Mode off for this portfolio. Save active=false and execute_orders=false. The existing PostgreSQL switch-out path closes this portfolio’s live copies and emits close JSON as configured. Restore the chart-lock state saved before arming.',gate:'Do not alter combined_trades_open or the other LIVE portfolio. If disarm fails, continue displaying the server-confirmed state and alert the user; never claim it is off.'}
+};
+const actorNames={operator:'Operator',dashboard:'Dashboard',policy:'Live policy service',postgres:'PostgreSQL / order folder'};
+function selectStep(button){document.querySelectorAll('.node').forEach(node=>node.setAttribute('aria-selected',String(node===button)));const item=descriptions[button.dataset.step];document.getElementById('detail').innerHTML=item.actors.map(a=>'<span class="actor">'+a+'</span>').join('')+'<h2></h2><p></p><div class="gate"><b>Gate:</b> <span></span></div>';const panel=document.getElementById('detail');panel.querySelector('h2').textContent=item.title;panel.querySelector('p').textContent=item.text;panel.querySelector('.gate span').textContent=item.gate}
+document.querySelectorAll('.node').forEach(node=>node.addEventListener('click',()=>selectStep(node)));
+document.querySelectorAll('[data-actor]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-actor]').forEach(x=>x.setAttribute('aria-pressed',String(x===button)));const actor=button.dataset.actor;document.querySelectorAll('.node').forEach(node=>node.hidden=actor!=='all'&&!node.dataset.actors.split(',').includes(actor));const selected=document.querySelector('.node[aria-selected=true]');if(selected?.hidden){const next=[...document.querySelectorAll('.node')].find(node=>!node.hidden);if(next)selectStep(next)}}));
+</script>
+</body>
+</html>

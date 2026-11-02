@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-labelledby="title desc">
+<title id="title">Scenario Engine snapshot preview</title><desc id="desc">Dark interface preview with ranked strategy equity curves and a replay timeline.</desc>
+<defs><linearGradient id="bg" x2="0" y2="1"><stop stop-color="#0d1820"/><stop offset="1" stop-color="#101f27"/></linearGradient><linearGradient id="fill" x2="0" y2="1"><stop stop-color="#45d5bd" stop-opacity=".24"/><stop offset="1" stop-color="#45d5bd" stop-opacity="0"/></linearGradient></defs>
+<rect width="640" height="400" fill="url(#bg)"/><rect x="22" y="20" width="596" height="360" rx="14" fill="#111e26" stroke="#29404a"/>
+<text x="44" y="54" fill="#dff4ef" font-family="Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="2">TTP / SCENARIO ENGINE</text><text x="44" y="91" fill="#f1f5f2" font-family="Arial,sans-serif" font-size="23" font-weight="700">Five-minute strategy replay</text><text x="44" y="113" fill="#8da6aa" font-family="Arial,sans-serif" font-size="11">23 OCT 2026 · OFFLINE SNAPSHOT</text>
+<rect x="44" y="136" width="552" height="190" rx="8" fill="#0b151b" stroke="#253a42"/>
+<g stroke="#20333a" stroke-width="1"><path d="M60 174H580M60 214H580M60 254H580M60 294H580"/><path d="M160 151V309M260 151V309M360 151V309M460 151V309M560 151V309"/></g>
+<path d="M60 282 C115 268 121 248 168 254 S244 228 274 230 S338 191 372 205 S435 183 466 171 S526 150 580 163 L580 306H60Z" fill="url(#fill)"/>
+<path d="M60 282 C115 268 121 248 168 254 S244 228 274 230 S338 191 372 205 S435 183 466 171 S526 150 580 163" fill="none" stroke="#45d5bd" stroke-width="3"/>
+<path d="M60 270 C112 275 133 245 168 260 S232 254 274 220 S324 216 372 226 S425 193 466 190 S531 172 580 183" fill="none" stroke="#edb66a" stroke-width="2"/><path d="M60 295 C111 278 133 286 168 269 S232 275 274 258 S331 234 372 244 S424 233 466 216 S532 211 580 198" fill="none" stroke="#8e9aff" stroke-width="2"/>
+<g font-family="Arial,sans-serif" font-size="9" fill="#81999e"><text x="58" y="319">00:00</text><text x="230" y="319">08:00</text><text x="404" y="319">16:00</text><text x="552" y="319">24:00</text></g>
+<rect x="44" y="342" width="82" height="23" rx="5" fill="#163c3c"/><text x="85" y="357" fill="#70e2cd" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" font-weight="700">NET VIEW</text><rect x="137" y="352" width="429" height="4" rx="2" fill="#334b51"/><rect x="137" y="352" width="236" height="4" rx="2" fill="#45d5bd"/><circle cx="373" cy="354" r="7" fill="#e2f7f2" stroke="#45d5bd" stroke-width="3"/><text x="580" y="358" fill="#a6b8b8" text-anchor="end" font-family="Arial,sans-serif" font-size="10">▶ REPLAY</text>
+</svg>

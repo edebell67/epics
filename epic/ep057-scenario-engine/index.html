@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1113"><meta name="description" content="Explore the Scenario Engine with an offline replay of captured strategy curves."><title>Scenario Engine · Snapshot</title><style>
+:root{color-scheme:dark;--bg:#0b1113;--panel:#111b1e;--panel2:#172428;--line:#26383b;--ink:#eaf1ed;--muted:#8ea39d;--lime:#d8ff3f;--cyan:#62d6d1;--pos:#61d6a1;--neg:#ff7e74;--amber:#ffc66d;--mono:ui-monospace,"Cascadia Code",Consolas,monospace;font:14px/1.45 Inter,"Segoe UI",system-ui,sans-serif}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% -20%,#31514555,transparent 45rem),var(--bg);color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer;color:inherit}a{color:inherit}.shell{max-width:1500px;margin:auto;padding:0 26px 50px}.top{min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid var(--line)}.brand{font:800 12px var(--mono);letter-spacing:.1em;text-decoration:none}.brand b{color:var(--lime)}.toplinks{display:flex;align-items:center;gap:17px;font-size:12px}.toplinks a{text-decoration:none;color:var(--muted)}.toplinks a:hover{color:var(--lime)}.wait{padding:9px 13px;border-radius:999px;background:var(--lime);color:#101713!important;font-weight:800}.hero{padding:28px 0 18px;display:flex;justify-content:space-between;align-items:end;gap:20px}.eyebrow{font:10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--cyan)}h1{font-size:clamp(30px,4vw,50px);letter-spacing:-.055em;margin:7px 0}.hero p{max-width:720px;margin:0;color:var(--muted);font-size:13px;line-height:1.6}.tag{padding:8px 11px;border:1px solid #546b40;border-radius:999px;color:var(--lime);font:10px var(--mono);white-space:nowrap}.snapshot-note{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#17221e;border:1px solid #334739;border-radius:10px;padding:10px 13px;color:#c5d0c8;font:10px var(--mono);margin:5px 0 14px}.toolbar{display:flex;align-items:end;gap:10px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:12px;margin-bottom:14px}.control{display:flex;flex-direction:column;gap:5px;font:9px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}select,input[type=search]{min-width:120px;padding:9px 10px;background:#0b1417;border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12px;letter-spacing:0;text-transform:none}.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.seg button{background:#0b1417;border:0;padding:8px 12px;color:var(--muted);font-size:11px}.seg button.on{background:#31504a;color:#eaffeb;font-weight:800}.toolbar .grow{flex:1}.small-btn{background:#1b2d2b;border:1px solid #36534b;padding:8px 11px;border-radius:8px;font-size:11px}.small-btn:hover{border-color:var(--lime)}.workspace{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px;align-items:start}.maincol{display:grid;gap:13px;min-width:0}.panel{background:linear-gradient(145deg,#131e21,#0f181a);border:1px solid var(--line);border-radius:14px;padding:14px;min-width:0}.panel-head{display:flex;justify-content:space-between;align-items:start;gap:12px;flex-wrap:wrap}.panel h2{font-size:14px;margin:0}.muted{color:var(--muted);font-size:11px}.chartbox{height:430px;position:relative;margin-top:8px}.chartbox canvas{width:100%;height:100%;display:block}.tip{position:absolute;display:none;z-index:3;pointer-events:none;background:#0b1113ee;border:1px solid #506468;border-radius:8px;padding:8px 10px;font:10px var(--mono);box-shadow:0 8px 24px #0008}.replay{display:grid;grid-template-columns:auto auto minmax(120px,1fr) auto auto;gap:9px;align-items:center;margin-top:10px}.replay button{border:1px solid #3a554f;background:#172825;border-radius:8px;padding:8px 12px;font-size:11px}.replay input{width:100%;accent-color:var(--lime)}.time{font:11px var(--mono);color:var(--lime);white-space:nowrap}.replay select{min-width:62px;padding:7px}.switches{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.switches label{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:6px 9px;color:var(--muted);font-size:10px}.switches input{accent-color:var(--lime)}.sidepanel{position:sticky;top:10px;display:grid;gap:12px}.models{display:grid;gap:7px;max-height:520px;overflow:auto;margin-top:10px}.model{display:grid;grid-template-columns:20px 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:9px;background:#0c1517;padding:9px;cursor:pointer}.model:hover,.model.active{border-color:#668b79}.model input{accent-color:var(--lime)}.model b{display:block;font:11px var(--mono)}.model small{display:block;color:var(--muted);font-size:9px;overflow-wrap:anywhere}.model .value{font:10px var(--mono);text-align:right}.cards{display:grid;gap:7px;max-height:520px;overflow:auto;margin-top:9px}.rankcard{display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:center;border-top:1px solid var(--line);padding:9px 2px;cursor:pointer}.rankcard:hover{background:#182427}.rank{font:700 12px var(--mono);color:var(--lime)}.rankcard b{display:block;font-size:11px}.rankcard small{display:block;color:var(--muted);font-size:9px}.rankval{font:11px var(--mono);white-space:nowrap}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.metric{background:#0d1719;border:1px solid var(--line);border-radius:9px;padding:9px}.metric span{display:block;font:9px var(--mono);color:var(--muted);text-transform:uppercase}.metric b{font:14px var(--mono);display:block;margin-top:4px}.pos{color:var(--pos)}.neg{color:var(--neg)}.note{margin-top:12px;color:var(--muted);font-size:10px;line-height:1.6}.ruleline{height:1px;background:var(--line);margin:12px 0}.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#263831;border:1px solid #82996e;color:white;padding:10px 14px;border-radius:999px;font-size:11px;display:none;z-index:5}.toast.show{display:block}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--lime);outline-offset:2px}@media(max-width:980px){.workspace{grid-template-columns:1fr}.sidepanel{position:static;grid-template-columns:1fr 1fr}.models,.cards{max-height:390px}}@media(max-width:640px){.shell{padding:0 13px 30px}.top{min-height:58px}.toplinks{gap:10px}.toplinks a{font-size:10px}.hero{display:block;padding:22px 0 14px}.tag{display:inline-flex;margin-top:12px}.toolbar{gap:8px;padding:10px}.control{flex:1 1 115px}.control input[type=search],.control select{width:100%;min-width:0}.seg button{flex:1;padding:9px 10px}.workspace{display:block}.maincol{margin-bottom:12px}.panel{padding:11px}.chartbox{height:300px}.replay{grid-template-columns:auto 1fr auto;gap:7px}.replay input{grid-column:1/-1;grid-row:2}.replay .time{grid-column:1/2}.replay select{grid-column:3}.sidepanel{display:grid;grid-template-columns:1fr}.models,.cards{max-height:340px}.metrics{grid-template-columns:repeat(2,1fr)}.snapshot-note{font-size:9px}.switches label{font-size:9px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style><style>.overlay-controls{display:flex;align-items:end;gap:9px;flex-wrap:wrap;margin-top:12px;padding:11px;border:1px solid #514331;background:#241e15;border-radius:10px}.overlay-controls label{display:flex;align-items:center;gap:6px;color:#e6cfaa;font-size:10px}.overlay-controls select,.overlay-controls input[type=number]{min-width:92px;padding:7px 8px;background:#0b1417;border:1px solid #514331;border-radius:7px;color:#f3ead9;font-size:11px}.overlay-controls input[type=checkbox]{accent-color:#ffc66d}.overlay-legend{color:#c2aa82;font:9px var(--mono);margin-left:auto}.overlay-log{display:grid;gap:5px;margin-top:8px}.overlay-row{display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:8px;padding:7px 9px;border-radius:7px;background:#0d1719;color:var(--muted);font:10px var(--mono)}.overlay-row strong{color:var(--ink)}.signal{display:grid;place-items:center;width:19px;height:19px;border-radius:5px;color:#111;font-weight:900}.signal-b{background:var(--pos)}.signal-x{background:var(--neg)}.signal-t{background:var(--amber)}@media(max-width:640px){.overlay-controls{align-items:stretch}.overlay-controls label{flex:1 1 130px}.overlay-legend{width:100%;margin:0}}</style></head><body><div class="shell">
+<header class="top"><a class="brand" href="../../index.html">TTP <b>/</b> SCENARIO ENGINE</a><nav class="toplinks"><a href="../../index.html">Product suite</a><a class="wait" href="https://thetechprinciple.com/waitlist/">Request live access ↗</a></nav></header>
+<section class="hero"><div><div class="eyebrow">EP057 · FIVE-MINUTE STRATEGY REPLAY</div><h1>Scenario Engine</h1><p>Rank the captured leader cohort at any point in the trading day, compare Net, Alt Net, Buy and Sell curves, and inspect how the strategy ranking changes as the replay moves.</p></div><span class="tag">OFFLINE SNAPSHOT</span></section>
+<div class="snapshot-note"><span>DATED SCENARIO SNAPSHOT · <b id="snapshotDate">2026-10-23</b> · <span id="snapshotCount">— strategies</span></span><span>Curves and controls run locally · no live connection</span></div>
+<section class="toolbar" aria-label="Scenario controls"><label class="control">Rank cohort<select id="rankMode"><option value="net">Net leaders</option><option value="alt">Alt Net leaders</option><option value="buy">Buy leaders</option><option value="sell">Sell leaders</option><option value="win">Win rate leaders</option></select></label><label class="control">Product type<select id="type"><option value="all">All markets</option><option value="forex">Forex</option><option value="crypto">Crypto</option></select></label><label class="control">Product<select id="product"><option value="all">All products</option></select></label><label class="control">Strategy family<select id="family"><option value="all">All families</option></select></label><label class="control">Show<select id="limit"><option>5</option><option selected>10</option><option>15</option><option>20</option></select></label><label class="control grow">Find model<input id="search" type="search" placeholder="ID or strategy"></label><div><div class="control">Curve basis</div><div class="seg" id="basis"><button data-basis="net" class="on">Net</button><button data-basis="alt">Alt</button><button data-basis="buy">Buy</button><button data-basis="sell">Sell</button></div></div></section>
+<div class="workspace"><main class="maincol"><section class="panel"><div class="panel-head"><div><div class="eyebrow">CUMULATIVE EQUITY · 5 MIN SNAPSHOTS</div><h2 id="chartTitle">Replay curves</h2></div><span id="rankInfo" class="muted">Ranked within embedded sample</span></div><div class="chartbox"><canvas id="chart" aria-label="Strategy equity curves through the replay day"></canvas><div class="tip" id="tip"></div></div><div class="replay"><button id="play" type="button">▶ Play</button><button id="step" type="button">Step +5m</button><input id="scrubber" type="range" min="0" max="0" value="0" aria-label="Replay time"><span id="clock" class="time">00:00</span><select id="speed" aria-label="Replay speed"><option value="1500">1×</option><option value="700">2×</option><option value="350">4×</option></select></div><div class="switches"><label><input id="baselineToggle" type="checkbox"> Rebase curves at cursor</label><label><input id="deltaToggle" type="checkbox"> Show change since prior snapshot</label><button class="small-btn" id="resetBaseline" type="button">Reset baseline</button></div><div class="overlay-controls"><label><input id="overlayEnabled" type="checkbox"> Show strategy rotation overlay (B / X)</label><label>Hold while rank ≤ <select id="overlayHoldRank"><option>1</option><option selected>3</option><option>5</option><option>10</option></select></label><label>Exit below <select id="overlayExitThreshold"><option value="0">$0</option><option value="-25">−$25</option><option value="-50" selected>−$50</option><option value="-100">−$100</option></select></label><label>Daily target <input id="overlayDailyTarget" type="number" value="500" min="0" step="50" aria-label="Daily overlay P&amp;L target"></label><span class="overlay-legend">Amber line: cumulative overlay P&amp;L · B: enter · X: exit / rotate · T: target</span></div><div class="metrics" id="metrics"></div><div class="metrics" id="overlaySummary"></div><div id="overlayLog" class="overlay-log"></div><p class="note">Overlay replay uses the visible filter cohort, enters a positive leader, holds through the selected rank band, and rotates when a challenger leads. Negative crosses and the selected loss threshold close a position. It is a historical simulation, not live trading. No live connection or strategy execution.</p><p class="note">Replay position controls the ranking and chart marker. Rebase subtracts each visible strategy’s value at the selected time. “Change” overlays the five-minute move. Historical sample only; no live trading, strategy execution or investment advice.</p></section>
+<section class="panel"><div class="panel-head"><div><div class="eyebrow">RANKED AT REPLAY TIME</div><h2 id="rankTitle">Scenario results</h2></div><span class="muted" id="rankAsOf"></span></div><div class="cards" id="rankCards"></div></section></main>
+<aside class="sidepanel"><section class="panel"><div class="panel-head"><div><div class="eyebrow">CURVE VISIBILITY</div><h2>Included strategies</h2></div><button class="small-btn" id="toggleAll" type="button">Hide all</button></div><div class="models" id="models"></div><p class="note">Toggle a strategy to show or hide its curve. Ranking cards remain available for inspection.</p></section><section class="panel"><div class="eyebrow">SNAPSHOT COVERAGE</div><h2>Captured cohort</h2><div id="coverage" class="note"></div><div class="ruleline"></div><div class="eyebrow">QUICK ACTIONS</div><div class="switches"><button id="topNet" class="small-btn" type="button">Net view</button><button id="topAlt" class="small-btn" type="button">Alt Net view</button><button id="copyLink" class="small-btn" type="button">Copy this view</button></div><p class="note">Rankings outside this embedded leader sample are not included. Change the replay cursor to see the captured cohort reorder over the day.</p></section></aside></div></div><div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>window.SCENARIO_SNAPSHOT={"date":"2026-10-23","captured_at":"02:15","models":[{"model":"DNA_204397","rank":1,"product":"eurchf_c","product_type":"forex","strategy":"breakout_R_2_tp20_sl5","trades":8,"wins":0,"win_rate":0.0,"cum_net":-525.0,"cum_alt_net":-10.0,"buy_net":-175.0,"sell_net":-350.0,"series":[["00:00",0.0,0.0,0.0,0.0],["00:05",0.0,0.0,0.0,0.0],["00:10",0.0,0.0,0.0,0.0],["00:15",0.0,0.0,0.0,0.0],["00:20",0.0,0.0,0.0,0.0],["00:25",195.0,-260.0,0.0,195.0],["00:30",190.0,-255.0,0.0,190.0],["00:35",195.0,-260.0,0.0,195.0],["00:40",195.0,-260.0,0.0,195.0],["00:45",195.0,-260.0,0.0,195.0],["00:50",195.0,-260.0,0.0,195.0],["00:55",195.0,-260.0,0.0,195.0],["01:00",195.0,-260.0,0.0,195.0],["01:05",195.0,-260.0,0.0,195.0],["01:10",195.0,-260.0,0.0,195.0],["01:15",195.0,-260.0,0.0,195.0],["01:20",195.0,-260.0,0.0,195.0],["01:25",195.0,-260.0,0.0,195.0],["01:30",195.0,-260.0,0.0,195.0],["01:35",195.0,-260.0,0.0,195.0],["01:40",-35.0,-35.0,0.0,-35.0],["01:45",-35.0,-35.0,0.0,-35.0],["01:50",-30.0,-40.0,0.0,-30.0],["01:55",-50.0,-20.0,0.0,-50.0],["02:00",-50.0,-20.0,0.0,-50.0],["02:05",-50.0,-20.0,0.0,-50.0],["02:10",-50.0,-20.0,0.0,-50.0],["02:15",-25.0,-45.0,0.0,-25.0],["02:20",-25.0,-45.0,0.0,-25.0],["02:25",-25.0,-45.0,0.0,-25.0],["02:30",-25.0,-45.0,0.0,-25.0],["02:35",-25.0,-45.0,0.0,-25.0],["02:40",-25.0,-45.0,0.0,-25.0],["02:45",-20.0,-45.0,0.0,-20.0],["02:50",-20.0,-45.0,0.0,-20.0],["02:55",-20.0,-45.0,0.0,-20.0],["03:00",-20.0,-45.0,0.0,-20.0],["03:05",-20.0,-45.0,0.0,-20.0],["03:10",-20.0,-45.0,0.0,-20.0],["03:15",-20.0,-45.0,0.0,-20.0],["03:20",-20.0,-45.0,0.0,-20.0],["03:25",-20.0,-45.0,0.0,-20.0],["03:30",-20.0,-45.0,0.0,-20.0],["03:35",-20.0,-45.0,0.0,-20.0],["03:40",-20.0,-45.0,0.0,-20.0],["03:45",-20.0,-45.0,0.0,-20.0],["03:50",-20.0,-45.0,0.0,-20.0],["03:55",-105.0,-30.0,0.0,-105.0],["04:00",-105.0,-25.0,0.0,-105.0],["04:05",-100.0,-40.0,0.0,-100.0],["04:10",-100.0,-40.0,0.0,-100.0],["04:15",-100.0,-40.0,0.0,-100.0],["04:20",-100.0,-40.0,0.0,-100.0],["04:25",-100.0,-40.0,0.0,-100.0],["04:30",-100.0,-40.0,0.0,-100.0],["04:35",-105.0,-25.0,0.0,-105.0],["04:40",-110.0,-25.0,0.0,-110.0],["04:45",-110.0,-25.0,0.0,-110.0],["04:50",-110.0,-25.0,0.0,-110.0],["04:55",-110.0,-25.0,0.0,-110.0],["05:00",-110.0,-25.0,0.0,-110.0],["05:05",-110.0,-25.0,0.0,-110.0],["05:10",-110.0,-25.0,0.0,-110.0],["05:15",-110.0,-25.0,0.0,-110.0],["05:20",-110.0,-25.0,0.0,-110.0],["05:25",-110.0,-25.0,0.0,-110.0],["05:30",-110.0,-25.0,0.0,-110.0],["05:35",-110.0,-25.0,0.0,-110.0],["05:40",-110.0,-25.0,0.0,-110.0],["05:45",-110.0,-25.0,0.0,-110.0],["05:50",-110.0,-25.0,0.0,-110.0],["05:55",-110.0,-25.0,0.0,-110.0],["06:00",-110.0,-25.0,0.0,-110.0],["06:05",-110.0,-25.0,0.0,-110.0],["06:10",-110.0,-25.0,0.0,-110.0],["06:15",-110.0,-25.0,0.0,-110.0],["06:20",-110.0,-25.0,0.0,-110.0],["06:25",-110.0,-25.0,0.0,-110.0],["06:30",-110.0,-25.0,0.0,-110.0],["06:35",-110.0,-25.0,0.0,-110.0],["06:40",-110.0,-25.0,0.0,-110.0],["06:45",-110.0,-25.0,0.0,-110.0],["06:50",-110.0,-25.0,0.0,-110.0],["06:55",-110.0,-25.0,0.0,-110.0],["07:00",-110.0,-25.0,0.0,-110.0],["07:05",-110.0,-25.0,0.0,-110.0],["07:10",-110.0,-25.0,0.0,-110.0],["07:15",-110.0,-25.0,0.0,-110.0],["07:20",-110.0,-25.0,0.0,-110.0],["07:25",-110.0,-25.0,0.0,-110.0],["07:30",-110.0,-25.0,0.0,-110.0],["07:35",-145.0,-30.0,0.0,-145.0],["07:40",-145.0,-30.0,0.0,-145.0],["07:45",-145.0,-60.0,0.0,-145.0],["07:50",-145.0,-60.0,0.0,-145.0],["07:55",-145.0,-60.0,0.0,-145.0],["08:00",-145.0,-60.0,0.0,-145.0],["08:05",-135.0,-65.0,0.0,-135.0],["08:10",-180.0,-20.0,0.0,-180.0],["08:15",-220.0,-20.0,-40.0,-180.0],["08:20",-220.0,-20.0,-40.0,-180.0],["08:25",-220.0,-20.0,-40.0,-180.0],["08:30",-220.0,-20.0,-40.0,-180.0],["08:35",-220.0,-20.0,-40.0,-180.0],["08:40",-220.0,-20.0,-40.0,-180.0],["08:45",-220.0,-20.0,-40.0,-180.0],["08:50",-220.0,-20.0,-40.0,-180.0],["08:55",-220.0,-20.0,-40.0,-180.0],["09:00",-220.0,-20.0,-40.0,-180.0],["09:05",-220.0,-20.0,-40.0,-180.0],["09:10",-220.0,-20.0,-40.0,-180.0],["09:15",-210.0,-60.0,-30.0,-180.0],["09:20",-320.0,5.0,-110.0,-210.0],["09:25",-325.0,-10.0,-110.0,-215.0],["09:30",-340.0,0.0,-110.0,-230.0],["09:35",-295.0,-40.0,-110.0,-185.0],["09:40",-295.0,-40.0,-110.0,-185.0],["09:45",-275.0,-65.0,-110.0,-165.0],["09:50",-230.0,-105.0,-110.0,-120.0],["09:55",-230.0,-105.0,-110.0,-120.0],["10:00",-260.0,-80.0,-110.0,-150.0],["10:05",-260.0,-80.0,-110.0,-150.0],["10:10",-260.0,-80.0,-110.0,-150.0],["10:15",-260.0,-80.0,-110.0,-150.0],["10:20",-260.0,-80.0,-110.0,-150.0],["10:25",-260.0,-80.0,-110.0,-150.0],["10:30",-260.0,-80.0,-110.0,-150.0],["10:35",-260.0,-80.0,-110.0,-150.0],["10:40",-240.0,-105.0,-110.0,-130.0],["10:45",-205.0,-130.0,-110.0,-95.0],["10:50",-140.0,-195.0,-110.0,-30.0],["10:55",-140.0,-195.0,-110.0,-30.0],["11:00",-195.0,-140.0,-110.0,-85.0],["11:05",-235.0,-100.0,-110.0,-125.0],["11:10",-235.0,-100.0,-110.0,-125.0],["11:15",-275.0,-60.0,-110.0,-165.0],["11:20",-275.0,-60.0,-110.0,-165.0],["11:25",-260.0,-80.0,-110.0,-150.0],["11:30",-295.0,-40.0,-110.0,-185.0],["11:35",-260.0,-75.0,-110.0,-150.0],["11:40",-260.0,-80.0,-110.0,-150.0],["11:45",-255.0,-85.0,-110.0,-145.0],["11:50",-260.0,-75.0,-110.0,-150.0],["11:55",-295.0,-45.0,-110.0,-185.0],["12:00",-310.0,-30.0,-110.0,-200.0],["12:05",-305.0,-30.0,-110.0,-195.0],["12:10",-325.0,-10.0,-110.0,-215.0],["12:15",-355.0,20.0,-110.0,-245.0],["12:20",-355.0,20.0,-110.0,-245.0],["12:25",-355.0,20.0,-110.0,-245.0],["12:30",-355.0,20.0,-110.0,-245.0],["12:35",-355.0,20.0,-110.0,-245.0],["12:40",-355.0,20.0,-110.0,-245.0],["12:45",-355.0,20.0,-110.0,-245.0],["12:50",-385.0,10.0,-140.0,-245.0],["12:55",-385.0,-10.0,-140.0,-245.0],["13:00",-390.0,-5.0,-145.0,-245.0],["13:05",-405.0,10.0,-160.0,-245.0],["13:10",-455.0,20.0,-175.0,-280.0],["13:15",-455.0,-10.0,-175.0,-280.0],["13:20",-440.0,-20.0,-175.0,-265.0],["13:25",-440.0,-20.0,-175.0,-265.0],["13:30",-440.0,-20.0,-175.0,-265.0],["13:35",-440.0,-20.0,-175.0,-265.0],["13:40",-440.0,-20.0,-175.0,-265.0],["13:45",-440.0,-20.0,-175.0,-265.0],["13:50",-440.0,-20.0,-175.0,-265.0],["13:55",-440.0,-20.0,-175.0,-265.0],["14:00",-440.0,-20.0,-175.0,-265.0],["14:05",-450.0,-10.0,-175.0,-275.0],["14:10",-410.0,-50.0,-175.0,-235.0],["14:15",-365.0,-95.0,-175.0,-190.0],["14:20",-355.0,-105.0,-175.0,-180.0],["14:25",-355.0,-105.0,-175.0,-180.0],["14:30",-370.0,-90.0,-175.0,-195.0],["14:35",-385.0,-75.0,-175.0,-210.0],["14:40",-385.0,-75.0,-175.0,-210.0],["14:45",-390.0,-70.0,-175.0,-215.0],["14:50",-420.0,-40.0,-175.0,-245.0],["14:55",-415.0,-45.0,-175.0,-240.0],["15:00",-435.0,-25.0,-175.0,-260.0],["15:05",-435.0,-25.0,-175.0,-260.0],["15:10",-460.0,0.0,-175.0,-285.0],["15:15",-490.0,25.0,-175.0,-315.0],["15:20",-495.0,-35.0,-175.0,-320.0],["15:25",-515.0,-15.0,-175.0,-340.0],["15:30",-470.0,-60.0,-175.0,-295.0],["15:35",-480.0,-50.0,-175.0,-305.0],["15:40",-480.0,-50.0,-175.0,-305.0],["15:45",-480.0,-50.0,-175.0,-305.0],["15:50",-485.0,-45.0,-175.0,-310.0],["15:55",-490.0,-40.0,-175.0,-315.0],["16:00",-490.0,-40.0,-175.0,-315.0],["16:05",-490.0,-40.0,-175.0,-315.0],["16:10",-495.0,-35.0,-175.0,-320.0],["16:15",-490.0,-40.0,-175.0,-315.0],["16:20",-485.0,-45.0,-175.0,-310.0],["16:25",-475.0,-55.0,-175.0,-300.0],["16:30",-480.0,-50.0,-175.0,-305.0],["16:35",-480.0,-50.0,-175.0,-305.0],["16:40",-480.0,-50.0,-175.0,-305.0],["16:45",-480.0,-50.0,-175.0,-305.0],["16:50",-480.0,-50.0,-175.0,-305.0],["16:55",-480.0,-50.0,-175.0,-305.0],["17:00",-480.0,-50.0,-175.0,-305.0],["17:05",-480.0,-50.0,-175.0,-305.0],["17:10",-480.0,-50.0,-175.0,-305.0],["17:15",-480.0,-50.0,-175.0,-305.0],["17:20",-480.0,-50.0,-175.0,-305.0],["17:25",-480.0,-50.0,-175.0,-305.0],["17:30",-480.0,-50.0,-175.0,-305.0],["17:35",-480.0,-50.0,-175.0,-305.0],["17:40",-480.0,-50.0,-175.0,-305.0],["17:45",-480.0,-50.0,-175.0,-305.0],["17:50",-480.0,-50.0,-175.0,-305.0],["17:55",-480.0,-50.0,-175.0,-305.0],["18:00",-480.0,-50.0,-175.0,-305.0],["18:05",-480.0,-50.0,-175.0,-305.0],["18:10",-480.0,-50.0,-175.0,-305.0],["18:15",-480.0,-50.0,-175.0,-305.0],["18:20",-480.0,-50.0,-175.0,-305.0],["18:25",-480.0,-50.0,-175.0,-305.0],["18:30",-480.0,-50.0,-175.0,-305.0],["18:35",-480.0,-50.0,-175.0,-305.0],["18:40",-480.0,-50.0,-175.0,-305.0],["18:45",-480.0,-50.0,-175.0,-305.0],["18:50",-480.0,-50.0,-175.0,-305.0],["18:55",-480.0,-50.0,-175.0,-305.0],["19:00",-480.0,-50.0,-175.0,-305.0],["19:05",-480.0,-50.0,-175.0,-305.0],["19:10",-480.0,-50.0,-175.0,-305.0],["19:15",-480.0,-50.0,-175.0,-305.0],["19:20",-480.0,-50.0,-175.0,-305.0],["19:25",-480.0,-50.0,-175.0,-305.0],["19:30",-480.0,-50.0,-175.0,-305.0],["19:35",-480.0,-50.0,-175.0,-305.0],["19:40",-480.0,-50.0,-175.0,-305.0],["19:45",-480.0,-50.0,-175.0,-305.0],["19:50",-480.0,-50.0,-175.0,-305.0],["19:55",-480.0,-50.0,-175.0,-305.0],["20:00",-480.0,-50.0,-175.0,-305.0],["20:05",-480.0,-50.0,-175.0,-305.0],["20:10",-480.0,-50.0,-175.0,-305.0],["20:15",-480.0,-50.0,-175.0,-305.0],["20:20",-480.0,-50.0,-175.0,-305.0],["20:25",-490.0,-40.0,-175.0,-315.0],["20:30",-490.0,-40.0,-175.0,-315.0],["20:35",-490.0,-40.0,-175.0,-315.0],["20:40",-490.0,-40.0,-175.0,-315.0],["20:45",-490.0,-40.0,-175.0,-315.0],["20:50",-490.0,-40.0,-175.0,-315.0],["20:55",-490.0,-40.0,-175.0,-315.0],["21:00",-490.0,-45.0,-175.0,-315.0],["21:05",-485.0,-45.0,-175.0,-310.0],["21:10",-485.0,-45.0,-175.0,-310.0],["21:15",-490.0,-45.0,-175.0,-315.0],["21:20",-485.0,-45.0,-175.0,-310.0],["21:25",-485.0,-45.0,-175.0,-310.0],["21:30",-475.0,-55.0,-175.0,-300.0],["21:35",-480.0,-50.0,-175.0,-305.0],["21:40",-485.0,-50.0,-175.0,-310.0],["21:45",-485.0,-50.0,-175.0,-310.0],["21:50",-485.0,-50.0,-175.0,-310.0],["21:55",-500.0,-30.0,-175.0,-325.0],["22:00",-525.0,-10.0,-175.0,-350.0],["22:05",-525.0,-10.0,-175.0,-350.0],["22:10",-525.0,-10.0,-175.0,-350.0],["22:15",-525.0,-10.0,-175.0,-350.0],["22:20",-525.0,-10.0,-175.0,-350.0],["22:25",-525.0,-10.0,-175.0,-350.0],["22:30",-525.0,-10.0,-175.0,-350.0],["22:35",-525.0,-10.0,-175.0,-350.0],["22:40",-525.0,-10.0,-175.0,-350.0],["22:45",-525.0,-10.0,-175.0,-350.0],["22:50",-525.0,-10.0,-175.0,-350.0],["22:55",-525.0,-10.0,-175.0,-350.0],["23:00",-525.0,-10.0,-175.0,-350.0],["23:05",-525.0,-10.0,-175.0,-350.0],["23:10",-525.0,-10.0,-175.0,-350.0],["23:15",-525.0,-10.0,-175.0,-350.0]]},{"model":"DNA_204396","rank":2,"product":"eurchf_c","product_type":"forex","strategy":"breakout_R_2_tp20_sl3","trades":13,"wins":0,"win_rate":0.0,"cum_net":-560.0,"cum_alt_net":-265.0,"buy_net":-155.0,"sell_net":-405.0,"series":[["00:25",185.0,-250.0,0.0,185.0],["00:30",180.0,-245.0,0.0,180.0],["00:35",185.0,-250.0,0.0,185.0],["00:40",185.0,-250.0,0.0,185.0],["00:45",185.0,-250.0,0.0,185.0],["00:50",190.0,-255.0,0.0,190.0],["00:55",190.0,-255.0,0.0,190.0],["01:00",200.0,-265.0,0.0,200.0],["01:05",190.0,-255.0,0.0,190.0],["01:10",190.0,-255.0,0.0,190.0],["01:15",190.0,-255.0,0.0,190.0],["01:20",190.0,-255.0,0.0,190.0],["01:25",190.0,-255.0,0.0,190.0],["01:30",160.0,-225.0,0.0,160.0],["01:35",190.0,-255.0,0.0,190.0],["01:40",170.0,-235.0,0.0,170.0],["01:45",170.0,-235.0,0.0,170.0],["01:50",175.0,-240.0,0.0,175.0],["02:15",180.0,-245.0,0.0,180.0],["02:20",180.0,-245.0,0.0,180.0],["02:25",180.0,-245.0,0.0,180.0],["02:30",180.0,-245.0,0.0,180.0],["02:35",180.0,-245.0,0.0,180.0],["02:40",180.0,-245.0,0.0,180.0],["02:45",185.0,-245.0,0.0,185.0],["02:50",185.0,-245.0,0.0,185.0],["02:55",185.0,-245.0,0.0,185.0],["03:00",185.0,-245.0,0.0,185.0],["03:05",185.0,-245.0,0.0,185.0],["03:10",185.0,-245.0,0.0,185.0],["03:15",185.0,-245.0,0.0,185.0],["03:20",185.0,-245.0,0.0,185.0],["03:25",185.0,-245.0,0.0,185.0],["03:30",185.0,-245.0,0.0,185.0],["03:35",185.0,-245.0,0.0,185.0],["03:40",185.0,-245.0,0.0,185.0],["03:45",185.0,-245.0,0.0,185.0],["03:50",185.0,-245.0,0.0,185.0],["23:15",-560.0,-265.0,-155.0,-405.0]]},{"model":"DNA_204416","rank":3,"product":"eurchf_c","product_type":"forex","strategy":"breakout_R_3_tp20_sl3","trades":11,"wins":0,"win_rate":0.0,"cum_net":-480.0,"cum_alt_net":-215.0,"buy_net":-75.0,"sell_net":-405.0,"series":[["00:25",185.0,-250.0,0.0,185.0],["00:30",180.0,-245.0,0.0,180.0],["00:35",185.0,-250.0,0.0,185.0],["00:40",185.0,-250.0,0.0,185.0],["00:45",185.0,-250.0,0.0,185.0],["00:50",190.0,-255.0,0.0,190.0],["00:55",190.0,-255.0,0.0,190.0],["01:00",200.0,-265.0,0.0,200.0],["01:05",190.0,-255.0,0.0,190.0],["01:10",190.0,-255.0,0.0,190.0],["01:15",190.0,-255.0,0.0,190.0],["01:20",190.0,-255.0,0.0,190.0],["01:25",190.0,-255.0,0.0,190.0],["01:30",160.0,-225.0,0.0,160.0],["01:40",170.0,-235.0,0.0,170.0],["01:45",170.0,-235.0,0.0,170.0],["01:50",175.0,-240.0,0.0,175.0],["02:20",180.0,-245.0,0.0,180.0],["02:25",180.0,-245.0,0.0,180.0],["02:30",180.0,-245.0,0.0,180.0],["02:35",180.0,-245.0,0.0,180.0],["02:40",180.0,-245.0,0.0,180.0],["02:45",185.0,-245.0,0.0,185.0],["02:50",185.0,-245.0,0.0,185.0],["02:55",185.0,-245.0,0.0,185.0],["03:00",185.0,-245.0,0.0,185.0],["03:05",185.0,-245.0,0.0,185.0],["03:10",185.0,-245.0,0.0,185.0],["03:15",185.0,-245.0,0.0,185.0],["03:20",185.0,-245.0,0.0,185.0],["03:25",185.0,-245.0,0.0,185.0],["03:30",185.0,-245.0,0.0,185.0],["03:35",185.0,-245.0,0.0,185.0],["03:40",185.0,-245.0,0.0,185.0],["03:45",185.0,-245.0,0.0,185.0],["03:50",185.0,-245.0,0.0,185.0],["23:15",-480.0,-215.0,-75.0,-405.0]]},{"model":"DNA_204337","rank":4,"product":"eurchf_c","product_type":"forex","strategy":"breakout_2_tp20_sl5","trades":6,"wins":1,"win_rate":16.7,"cum_net":-100.0,"cum_alt_net":-295.0,"buy_net":-45.0,"sell_net":-55.0,"series":[["00:25",170.0,-240.0,0.0,170.0],["00:35",170.0,-240.0,0.0,170.0],["00:40",170.0,-240.0,0.0,170.0],["00:45",170.0,-240.0,0.0,170.0],["00:50",175.0,-245.0,0.0,175.0],["00:55",175.0,-245.0,0.0,175.0],["01:00",185.0,-255.0,0.0,185.0],["01:05",175.0,-245.0,0.0,175.0],["01:10",175.0,-245.0,0.0,175.0],["01:15",175.0,-245.0,0.0,175.0],["01:20",175.0,-245.0,0.0,175.0],["01:25",175.0,-245.0,0.0,175.0],["01:30",145.0,-215.0,0.0,145.0],["01:40",155.0,-225.0,0.0,155.0],["01:50",160.0,-230.0,0.0,160.0],["23:15",-100.0,-295.0,-45.0,-55.0]]},{"model":"DNA_203638","rank":5,"product":"nzdchf_c","product_type":"forex","strategy":"breakout_3_tp20_sl20","trades":4,"wins":2,"win_rate":50.0,"cum_net":-90.0,"cum_alt_net":-175.0,"buy_net":310.0,"sell_net":-400.0,"series":[["00:25",160.0,-230.0,0.0,160.0],["23:15",-90.0,-175.0,310.0,-400.0]]},{"model":"DNA_203658","rank":6,"product":"nzdchf_c","product_type":"forex","strategy":"breakout_4_tp20_sl20","trades":4,"wins":2,"win_rate":50.0,"cum_net":-125.0,"cum_alt_net":-140.0,"buy_net":310.0,"sell_net":-435.0,"series":[["00:25",160.0,-230.0,0.0,160.0],["23:15",-125.0,-140.0,310.0,-435.0]]},{"model":"DNA_211538","rank":7,"product":"nzdchf_c","product_type":"forex","strategy":"breakout_5_tp20_sl20","trades":4,"wins":2,"win_rate":50.0,"cum_net":-155.0,"cum_alt_net":-120.0,"buy_net":310.0,"sell_net":-465.0,"series":[["00:25",160.0,-230.0,0.0,160.0],["23:15",-155.0,-120.0,310.0,-465.0]]},{"model":"DNA_202918","rank":8,"product":"nzdcad_c","product_type":"forex","strategy":"breakout_3_tp20_sl20","trades":4,"wins":2,"win_rate":50.0,"cum_net":-125.0,"cum_alt_net":-155.0,"buy_net":10.0,"sell_net":-135.0,"series":[["00:25",155.0,-230.0,0.0,155.0],["23:15",-125.0,-155.0,10.0,-135.0]]},{"model":"DNA_202919","rank":9,"product":"nzdcad_c","product_type":"forex","strategy":"breakout_3_tp20_sl30","trades":2,"wins":0,"win_rate":0.0,"cum_net":-365.0,"cum_alt_net":185.0,"buy_net":-60.0,"sell_net":-305.0,"series":[["00:25",155.0,-230.0,0.0,155.0],["23:15",-365.0,185.0,-60.0,-305.0]]},{"model":"DNA_208917","rank":10,"product":"gbpeur_s","product_type":"forex","strategy":"breakout_R_10_tp20_sl5","trades":1,"wins":1,"win_rate":100.0,"cum_net":160.0,"cum_alt_net":-225.0,"buy_net":0.0,"sell_net":160.0,"series":[["00:25",155.0,-220.0,155.0,0.0],["23:15",160.0,-225.0,0.0,160.0]]},{"model":"DNA_209939","rank":11,"product":"audcad_c","product_type":"forex","strategy":"breakout_5_tp20_sl30","trades":2,"wins":0,"win_rate":0.0,"cum_net":-430.0,"cum_alt_net":315.0,"buy_net":0.0,"sell_net":-430.0,"series":[["00:30",200.0,-270.0,0.0,200.0],["23:15",-430.0,315.0,0.0,-430.0]]},{"model":"DNA_210098","rank":12,"product":"audcad_c","product_type":"forex","strategy":"breakout_10_tp20_sl20","trades":4,"wins":2,"win_rate":50.0,"cum_net":275.0,"cum_alt_net":-555.0,"buy_net":220.0,"sell_net":55.0,"series":[["00:30",200.0,-270.0,0.0,200.0],["23:15",275.0,-555.0,220.0,55.0]]},{"model":"DNA_202998","rank":13,"product":"nzdcad_c","product_type":"forex","strategy":"breakout_R_4_tp20_sl20","trades":2,"wins":1,"win_rate":50.0,"cum_net":195.0,"cum_alt_net":-340.0,"buy_net":275.0,"sell_net":-80.0,"series":[["00:30",180.0,-255.0,0.0,180.0],["00:35",170.0,-245.0,0.0,170.0],["00:40",170.0,-245.0,0.0,170.0],["00:45",170.0,-245.0,0.0,170.0],["00:50",165.0,-240.0,0.0,165.0],["00:55",170.0,-245.0,0.0,170.0],["01:00",170.0,-240.0,0.0,170.0],["01:05",165.0,-240.0,0.0,165.0],["01:10",165.0,-240.0,0.0,165.0],["01:15",165.0,-240.0,0.0,165.0],["01:20",165.0,-240.0,0.0,165.0],["01:25",165.0,-240.0,0.0,165.0],["01:30",200.0,-275.0,0.0,200.0],["01:35",165.0,-230.0,0.0,165.0],["01:45",170.0,-245.0,0.0,170.0],["01:50",180.0,-255.0,0.0,180.0],["23:15",195.0,-340.0,275.0,-80.0]]},{"model":"DNA_203238","rank":14,"product":"audchf_c","product_type":"forex","strategy":"breakout_R_4_tp20_sl20","trades":5,"wins":2,"win_rate":40.0,"cum_net":-40.0,"cum_alt_net":-285.0,"buy_net":400.0,"sell_net":-440.0,"series":[["00:30",170.0,-235.0,0.0,170.0],["00:35",170.0,-235.0,0.0,170.0],["00:40",170.0,-235.0,0.0,170.0],["00:45",170.0,-235.0,0.0,170.0],["00:50",165.0,-230.0,0.0,165.0],["01:00",165.0,-230.0,0.0,165.0],["01:35",165.0,-235.0,0.0,165.0],["23:15",-40.0,-285.0,400.0,-440.0]]}]};</script><script>(() => {
+  'use strict';
+  const data = window.SCENARIO_SNAPSHOT;
+  const rows = data.models || [];
+  const colors = ['#d8ff3f','#62d6d1','#60a5fa','#fb8c74','#c4a4ff','#f0bd62','#59d295','#f08fce','#b9d28b','#75a9b0','#f37751','#8899ff','#57c0a5','#e6c84e'];
+  const $ = id => document.getElementById(id);
+  const timeline = [...new Set(rows.flatMap(m => m.series.map(p => p[0])))].sort();
+  const timelineIndex = new Map(timeline.map((time, i) => [time, i]));
+  const basisIndex = {net: 1, alt: 2, buy: 3, sell: 4};
+  const state = {basis: 'net', cursor: 0, playing: false, timer: null, baseline: null, focus: null, visible: new Set(rows.map(m => m.model))};
+  const fmt = n => `${n < 0 ? '−' : ''}$${Math.abs(Number(n) || 0).toLocaleString('en-GB', {maximumFractionDigits: 2})}`;
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const sampleValue = (model, cursor, basis = state.basis) => {
+    const targetTime = timeline[cursor];
+    const col = basisIndex[basis] || basisIndex.net;
+    let value = 0;
+    for (const point of model.series) {
+      if (point[0] > targetTime) break;
+      value = Number(point[col] || 0);
+    }
+    return value;
+  };
+  const family = model => (model.strategy || '').toLowerCase().split(/[_\s]/)[0] || 'other';
+  const notify = message => {
+    const node = $('toast');
+    node.textContent = message;
+    node.classList.add('show');
+    setTimeout(() => node.classList.remove('show'), 1900);
+  };
+
+  $('snapshotDate').textContent = data.date;
+  $('snapshotCount').textContent = `${rows.length} embedded curves · ${timeline.length} five-minute timestamps`;
+  $('scrubber').max = Math.max(0, timeline.length - 1);
+  $('coverage').textContent = `${rows.length} captured leader curves from ${data.date}. The ranking modes re-order this sample at the replay cursor. The original engine’s broader directory is not embedded.`;
+
+  const availableTypes = new Set(rows.map(model => model.product_type));
+  [...$('type').options].forEach(option => {
+    if (option.value !== 'all') option.hidden = !availableTypes.has(option.value);
+  });
+  [...new Set(rows.map(model => model.product))].sort().forEach(product => {
+    const option = document.createElement('option');
+    option.value = product;
+    option.textContent = product.toUpperCase();
+    $('product').append(option);
+  });
+  [...new Set(rows.map(family))].sort().forEach(name => {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name.replaceAll('_', ' ');
+    $('family').append(option);
+  });
+
+  function filtered() {
+    const type = $('type').value, product = $('product').value, selectedFamily = $('family').value;
+    const query = $('search').value.trim().toLowerCase();
+    return rows.filter(model => (type === 'all' || model.product_type === type)
+      && (product === 'all' || model.product === product)
+      && (selectedFamily === 'all' || family(model) === selectedFamily)
+      && (!query || model.model.toLowerCase().includes(query) || (model.strategy || '').toLowerCase().includes(query)));
+  }
+  function rankValue(model) {
+    const mode = $('rankMode').value;
+    return mode === 'win' ? Number(model.win_rate || 0) : sampleValue(model, state.cursor, mode);
+  }
+  function ranked() {
+    return filtered().slice().sort((a, b) => rankValue(b) - rankValue(a)).slice(0, Number($('limit').value));
+  }
+
+  // Compact replay of the main app's strategy B/X rotation overlay. Entries
+  // follow the selected leader metric; an incumbent is held through the
+  // configured rank band and exits on a negative cross or the loss threshold.
+  function overlayReplay() {
+    if (!$('overlayEnabled').checked) return null;
+    const metric = $('rankMode').value === 'win' ? state.basis : $('rankMode').value;
+    const holdRank = Number($('overlayHoldRank').value) || 1;
+    const exitThreshold = Number($('overlayExitThreshold').value) || 0;
+    const dailyTarget = Math.max(0, Number($('overlayDailyTarget').value) || 0);
+    const candidates = filtered().filter(model => state.visible.has(model.model));
+    const baseline = new Map(candidates.map(model => [model.model, sampleValue(model, 0, metric)]));
+    const delta = (model, index) => sampleValue(model, index, metric) - (baseline.get(model.model) || 0);
+    const curve = [], signals = [], trades = [];
+    let position = null, realised = 0, targetHit = false;
+    const close = (index, value, rotated = false) => {
+      if (!position) return;
+      const pnl = value - position.entryValue;
+      realised += pnl;
+      trades.push({model: position.model, entry: position.entry, exit: index, pnl, rotated});
+      signals.push({index, type: 'X', model: position.model, pnl});
+      position = null;
+    };
+    for (let index = 0; index <= state.cursor; index++) {
+      const leaderboard = candidates.map(model => ({model, value: delta(model, index)}))
+        .sort((a, b) => b.value - a.value).slice(0, Number($('limit').value));
+      const leader = leaderboard[0]?.value > 0 ? leaderboard[0] : null;
+      if (!position) {
+        if (leader) {
+          position = {model: leader.model, entry: index, entryValue: leader.value, previous: leader.value};
+          signals.push({index, type: 'B', model: leader.model, pnl: 0});
+        }
+      } else {
+        const heldValue = delta(position.model, index);
+        const heldRankIndex = leaderboard.findIndex(item => item.model.model === position.model.model);
+        const heldRank = heldRankIndex < 0 ? Infinity : heldRankIndex + 1;
+        const negativeCross = heldValue < 0 && position.previous >= 0;
+        const thresholdExit = exitThreshold < 0 && heldValue <= exitThreshold;
+        if (negativeCross || thresholdExit) {
+          const oldModel = position.model;
+          close(index, heldValue);
+          if (leader && leader.model.model !== oldModel.model) {
+            position = {model: leader.model, entry: index, entryValue: leader.value, previous: leader.value};
+            signals.push({index, type: 'B', model: leader.model, pnl: 0});
+          }
+        } else if (leader && leader.model.model !== position.model.model && heldRank > holdRank
+          && leader.value - heldValue > Math.abs(exitThreshold)) {
+          close(index, heldValue, true);
+          position = {model: leader.model, entry: index, entryValue: leader.value, previous: leader.value};
+          signals.push({index, type: 'B', model: leader.model, pnl: 0});
+        } else {
+          position.previous = heldValue;
+        }
+      }
+      const openPnl = position ? delta(position.model, index) - position.entryValue : 0;
+      const equity = realised + openPnl;
+      curve.push({index, equity});
+      if (!targetHit && dailyTarget > 0 && equity >= dailyTarget) {
+        targetHit = true;
+        signals.push({index, type: 'T', model: position?.model || null, pnl: equity});
+      }
+    }
+    const openPnl = position ? delta(position.model, state.cursor) - position.entryValue : 0;
+    return {metric, curve, signals, trades, realised, openPnl, totalPnl: realised + openPnl, position, targetHit};
+  }
+
+  function renderMetrics(visible) {
+    const net = visible.reduce((sum, model) => sum + sampleValue(model, state.cursor, 'net'), 0);
+    const alt = visible.reduce((sum, model) => sum + sampleValue(model, state.cursor, 'alt'), 0);
+    const leader = ranked()[0];
+    $('metrics').innerHTML = [
+      ['VISIBLE CURVES', visible.length], ['NET AT CURSOR', fmt(net)],
+      ['ALT NET AT CURSOR', fmt(alt)], ['SAMPLE LEADER', leader?.model || '—'],
+    ].map(([label, value]) => `<div class="metric"><span>${label}</span><b>${value}</b></div>`).join('');
+  }
+
+  function renderOverlay(overlay) {
+    const summary = $('overlaySummary'), log = $('overlayLog');
+    if (!overlay) {
+      summary.innerHTML = '<span>Rotation overlay is off. Enable it to replay leader entries, exits and strategy switches.</span>';
+      log.innerHTML = '';
+      return;
+    }
+    const wins = overlay.trades.filter(trade => trade.pnl > 0).length;
+    summary.innerHTML = [
+      ['OVERLAY P&L', fmt(overlay.totalPnl)], ['CLOSED TRADES', overlay.trades.length],
+      ['WINNING TRADES', `${wins}/${overlay.trades.length}`], ['CURRENT HOLD', overlay.position?.model.model || 'FLAT'],
+      ['DAILY TARGET', overlay.targetHit ? 'HIT' : '—'],
+    ].map(([label, value]) => `<div class="metric"><span>${label}</span><b>${value}</b></div>`).join('');
+    const recent = overlay.signals.slice().reverse().slice(0, 8);
+    log.innerHTML = recent.map(signal => `<div class="overlay-row"><b class="signal signal-${signal.type.toLowerCase()}">${signal.type}</b><span>${timeline[signal.index]} · ${esc(signal.model?.model || 'Daily target')}</span><strong>${signal.type === 'X' ? fmt(signal.pnl) : signal.type === 'T' ? fmt(signal.pnl) : 'ENTRY'}</strong></div>`).join('')
+      || '<p class="note">No overlay entries yet. Move the replay forward to begin.</p>';
+  }
+
+  function draw() {
+    const canvas = $('chart'), rect = canvas.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+    const width = Math.max(320, rect.width), height = Math.max(240, rect.height);
+    canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
+    const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr); ctx.clearRect(0, 0, width, height);
+    const pad = {left: 68, right: 16, top: 18, bottom: 32}, plotW = width - pad.left - pad.right, plotH = height - pad.top - pad.bottom;
+    const visible = ranked().filter(model => state.visible.has(model.model));
+    const overlay = overlayReplay();
+    const mode = $('deltaToggle').checked ? 'delta' : state.basis;
+    const series = visible.map((model, index) => {
+      const points = model.series.map((point, pointIndex) => {
+        const position = timelineIndex.get(point[0]);
+        if (position === undefined || position > state.cursor) return null;
+        const raw = Number(point[basisIndex[state.basis]] || 0);
+        let val = state.baseline === null ? raw : raw - sampleValue(model, state.baseline, state.basis);
+        if (mode === 'delta') val = pointIndex ? Number(point[basisIndex[state.basis]] || 0) - Number(model.series[pointIndex - 1][basisIndex[state.basis]] || 0) : 0;
+        return {position, val};
+      }).filter(Boolean);
+      return {model, index, points};
+    });
+    const values = series.flatMap(item => item.points.map(point => point.val));
+    for (const item of series) values.push(mode === 'delta' ? 0 : (state.baseline === null ? sampleValue(item.model, state.cursor, state.basis) : sampleValue(item.model, state.cursor, state.basis) - sampleValue(item.model, state.baseline, state.basis)));
+    if (overlay) values.push(...overlay.curve.map(point => point.equity), 0);
+    let min = values.length ? Math.min(...values) : 0, max = values.length ? Math.max(...values) : 1;
+    if (min === max) { min -= 1; max += 1; }
+    const margin = (max - min) * .12; min -= margin; max += margin;
+    const x = position => pad.left + position / Math.max(1, timeline.length - 1) * plotW;
+    const y = value => pad.top + (max - value) / (max - min) * plotH;
+    ctx.font = '10px ui-monospace,monospace'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    for (let k = 0; k <= 4; k++) {
+      const yy = pad.top + plotH * k / 4, value = max - (max - min) * k / 4;
+      ctx.strokeStyle = '#26383b'; ctx.beginPath(); ctx.moveTo(pad.left, yy); ctx.lineTo(width - pad.right, yy); ctx.stroke();
+      ctx.fillStyle = '#8ea39d'; ctx.fillText(fmt(value), pad.left - 8, yy);
+    }
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (let k = 0; k <= 4; k++) {
+      const index = Math.round((timeline.length - 1) * k / 4);
+      ctx.fillStyle = '#8ea39d'; ctx.fillText(timeline[index] || '', x(index), height - pad.bottom + 8);
+    }
+    series.forEach(item => {
+      if (!item.points.length) return;
+      const color = colors[rows.indexOf(item.model) % colors.length];
+      ctx.beginPath(); item.points.forEach((point, index) => index ? ctx.lineTo(x(point.position), y(point.val)) : ctx.moveTo(x(point.position), y(point.val)));
+      ctx.strokeStyle = color; ctx.lineWidth = item.model.model === state.focus ? 3 : 1.8; ctx.globalAlpha = .9; ctx.stroke(); ctx.globalAlpha = 1;
+      const current = state.baseline === null ? sampleValue(item.model, state.cursor, state.basis) : sampleValue(item.model, state.cursor, state.basis) - sampleValue(item.model, state.baseline, state.basis);
+      ctx.beginPath(); ctx.arc(x(state.cursor), y(mode === 'delta' ? 0 : current), 3.2, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
+    });
+    if (overlay) {
+      ctx.beginPath();
+      overlay.curve.forEach((point, index) => index ? ctx.lineTo(x(point.index), y(point.equity)) : ctx.moveTo(x(point.index), y(point.equity)));
+      ctx.strokeStyle = '#ffc66d'; ctx.lineWidth = 3; ctx.setLineDash([7, 4]); ctx.stroke(); ctx.setLineDash([]);
+      overlay.signals.forEach(signal => {
+        const equity = overlay.curve[signal.index]?.equity || 0;
+        const px = x(signal.index), py = y(equity);
+        ctx.fillStyle = signal.type === 'B' ? '#61d6a1' : signal.type === 'X' ? '#ff7e74' : '#ffc66d';
+        ctx.fillRect(px - 7, py - 7, 14, 14);
+        ctx.fillStyle = '#101713'; ctx.font = 'bold 8px ui-monospace,monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(signal.type, px, py);
+      });
+    }
+    ctx.strokeStyle = '#ffffff70'; ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(x(state.cursor), pad.top); ctx.lineTo(x(state.cursor), height - pad.bottom); ctx.stroke(); ctx.setLineDash([]);
+    $('clock').textContent = timeline[state.cursor] || '—';
+    $('rankAsOf').textContent = `${data.date} · ${$('clock').textContent} · ${visible.length} curves visible`;
+    $('chartTitle').textContent = `${$('basis').querySelector('.on')?.textContent || 'Net'} curves · ${$('type').selectedOptions[0].textContent}`;
+    renderMetrics(visible);
+    renderOverlay(overlay);
+  }
+
+  function render() {
+    const cohort = ranked(), matches = filtered();
+    $('rankTitle').textContent = `${$('rankMode').selectedOptions[0].textContent} · ${cohort.length} results`;
+    $('rankInfo').textContent = `Re-ranked at ${timeline[state.cursor] || '—'} inside the captured leader cohort (${matches.length} matches)`;
+    $('rankCards').innerHTML = cohort.map((model, index) => {
+      const score = rankValue(model), win = Number(model.win_rate || 0).toFixed(1);
+      return `<div class="rankcard" data-id="${esc(model.model)}"><span class="rank">#${index + 1}</span><div><b>${esc(model.model)} · ${esc(model.product.toUpperCase())}</b><small>${esc(model.strategy)} · ${model.trades} trades · ${win}% win</small></div><span class="rankval ${score >= 0 ? 'pos' : 'neg'}">${$('rankMode').value === 'win' ? `${win}%` : fmt(score)}</span></div>`;
+    }).join('') || '<p class="note">No embedded strategies match these filters.</p>';
+    $('models').innerHTML = matches.map(model => `<label class="model ${state.visible.has(model.model) ? 'active' : ''}"><input type="checkbox" data-visible="${esc(model.model)}" ${state.visible.has(model.model) ? 'checked' : ''}><span><b>${esc(model.model)}</b><small>${esc(model.product.toUpperCase())} · ${esc(model.strategy)}</small></span><span class="value">${fmt(sampleValue(model, state.cursor))}</span></label>`).join('') || '<p class="note">No matching sample curves.</p>';
+    document.querySelectorAll('[data-visible]').forEach(box => box.onchange = () => { box.checked ? state.visible.add(box.dataset.visible) : state.visible.delete(box.dataset.visible); draw(); });
+    document.querySelectorAll('.rankcard').forEach(card => card.onclick = () => { state.focus = card.dataset.id; state.visible.add(card.dataset.id); draw(); });
+    $('toggleAll').textContent = matches.length && matches.every(model => state.visible.has(model.model)) ? 'Hide all' : 'Show all';
+    draw();
+  }
+
+  function setBasis(basis) {
+    state.basis = basis;
+    document.querySelectorAll('[data-basis]').forEach(button => button.classList.toggle('on', button.dataset.basis === basis));
+    draw();
+  }
+  document.querySelectorAll('[data-basis]').forEach(button => button.onclick = () => setBasis(button.dataset.basis));
+  ['rankMode','type','product','family','limit','search'].forEach(id => $(id).addEventListener(id === 'search' ? 'input' : 'change', () => render()));
+  $('scrubber').oninput = () => { state.cursor = Number($('scrubber').value); render(); };
+  $('play').onclick = () => {
+    state.playing = !state.playing; $('play').textContent = state.playing ? 'Ⅱ Pause' : '▶ Play'; clearInterval(state.timer);
+    if (state.playing) state.timer = setInterval(() => {
+      if (state.cursor >= Number($('scrubber').max)) { state.playing = false; clearInterval(state.timer); $('play').textContent = '▶ Play'; return; }
+      state.cursor++; $('scrubber').value = state.cursor; render();
+    }, Number($('speed').value));
+  };
+  $('speed').onchange = () => { if (state.playing) { $('play').click(); $('play').click(); } };
+  $('step').onclick = () => { state.cursor = Math.min(Number($('scrubber').max), state.cursor + 1); $('scrubber').value = state.cursor; render(); };
+  $('baselineToggle').onchange = () => { state.baseline = $('baselineToggle').checked ? state.cursor : null; draw(); };
+  $('resetBaseline').onclick = () => { $('baselineToggle').checked = false; state.baseline = null; draw(); };
+  $('deltaToggle').onchange = draw;
+  ['overlayEnabled','overlayHoldRank','overlayExitThreshold','overlayDailyTarget'].forEach(id => $(id).addEventListener('change', draw));
+  $('toggleAll').onclick = () => { const matches = filtered(); if (matches.length && matches.every(model => state.visible.has(model.model))) matches.forEach(model => state.visible.delete(model.model)); else matches.forEach(model => state.visible.add(model.model)); render(); };
+  $('topNet').onclick = () => { $('rankMode').value = 'net'; setBasis('net'); render(); };
+  $('topAlt').onclick = () => { $('rankMode').value = 'alt'; setBasis('alt'); render(); };
+  $('copyLink').onclick = async () => { try { await navigator.clipboard.writeText(location.href); notify('Snapshot link copied'); } catch { notify('Copy the address-bar link to share this view'); } };
+  const tip = $('tip');
+  $('chart').onpointermove = event => {
+    const rect = $('chart').getBoundingClientRect(), index = Math.round((event.clientX - rect.left - 68) / (rect.width - 84) * Math.max(1, timeline.length - 1));
+    if (index < 0 || index >= timeline.length) { tip.style.display = 'none'; return; }
+    const overlay = overlayReplay();
+    tip.innerHTML = `<b>${timeline[index]}</b><br>` + ranked().filter(model => state.visible.has(model.model)).slice(0, 6).map(model => `${esc(model.model)}: ${fmt(sampleValue(model, index))}`).join('<br>')
+      + (overlay ? `<br><b style="color:#ffc66d">Overlay P&amp;L: ${fmt(overlay.curve[index]?.equity || 0)}</b>` : '');
+    tip.style.display = 'block'; tip.style.left = Math.min(rect.width - 190, event.clientX - rect.left + 10) + 'px'; tip.style.top = Math.max(4, event.clientY - rect.top - 20) + 'px';
+  };
+  $('chart').onpointerleave = () => { tip.style.display = 'none'; };
+  window.addEventListener('resize', draw);
+  render();
+})();
+
+</script></body></html>

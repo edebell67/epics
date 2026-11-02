@@ -1,0 +1,57 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/ep017/EP017_trader_risk_guard_workflow.html — Interactive workflow for the Trader Risk Guard demo.
+  Plan: workstream/200_inprogress/20261018_221000_ep017_997_trader_risk_guard_demo.md
+
+  VERSION HISTORY
+  v1.0.0 · 2026-10-18 · Initial version: clickable workflow for prop-firm drawdown/tilt guard and correlation/regime monitor (created before implementation).
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP017 · Trader Risk Guard — Workflow</title>
+<style>
+:root{--bg:#0d1117;--card:#151b23;--ink:#e6edf3;--mut:#8b949e;--line:#2a313c;--acc:#3fb950}
+*{box-sizing:border-box}body{margin:0;font:14px/1.45 system-ui,Segoe UI,sans-serif;background:var(--bg);color:var(--ink)}
+header{padding:20px 24px;border-bottom:1px solid var(--line)}h1{margin:0;font-size:20px}header p{margin:4px 0 0;color:var(--mut)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 24px 0}.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
+.chip.on{background:var(--ink);color:#000}
+main{display:grid;grid-template-columns:1fr 360px;gap:16px;padding:16px 24px}@media(max-width:860px){main{grid-template-columns:1fr}}
+.lanes{display:flex;flex-direction:column;gap:14px}.lane{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+.lane h3{margin:0 0 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.steps{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.node{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#0f141b;cursor:pointer;max-width:220px}
+.node:hover,.node.sel{border-color:var(--acc)}.node b{display:block;font-size:13px}.node small{color:var(--mut)}
+.node.gate{border-style:dashed}.node.exc{background:#2a1215;border-color:#6e2a30}.node.out{background:#11261a;border-color:#2e6b3f}
+.arrow{color:var(--mut)}.dim{opacity:.18}
+aside{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;position:sticky;top:12px;align-self:start}
+aside h2{margin:0 0 6px;font-size:16px}.kv{display:grid;grid-template-columns:90px 1fr;gap:4px 10px;font-size:13px}.kv span:nth-child(odd){color:var(--mut)}
+</style></head><body>
+<header><h1>EP017 · Trader Risk Guard — Feature Workflow</h1>
+<p>T2 prop-firm trailing drawdown & tilt lockout + T1 multi-strategy correlation & regime monitor. Click a step for detail.</p></header>
+<div class="bar" id="actors"></div><div class="bar" id="stages"></div>
+<main><div class="lanes" id="lanes"></div><aside id="detail"><h2>Select a step</h2><p style="color:var(--mut)">Inputs, validation, state change, outcome.</p></aside></main>
+<script>
+const N=[
+ {id:'a1',a:'Trader',s:'Prop Guard',t:'Configure accounts & rules',d:'Add funded/eval accounts with firm rules: start balance, max trailing DD, mode (EOD vs Intraday), daily loss limit, profit target.',i:'Firm template or manual',v:'DD > 0, limit < DD',sc:'Account rule set stored',o:'Accounts monitored'},
+ {id:'a2',a:'Feed',s:'Prop Guard',t:'Fill / P&L tick',d:'Each fill or mark-to-market tick updates equity for every copied account.',i:'Trade fills, prices',v:'Account not locked',sc:'Equity, open P&L updated',o:'Risk engine evaluates'},
+ {id:'a3',a:'System',s:'Prop Guard',t:'Trailing threshold',k:'gate',d:'Intraday: HWM tracks peak equity incl. unrealised. EOD: HWM updates only at session close. Threshold = HWM − maxDD (capped at start balance once locked).',i:'Equity history, mode',v:'—',sc:'Threshold + distance-to-breach',o:'Buffer % shown per account'},
+ {id:'a4',a:'System',s:'Prop Guard',t:'Warn / critical bands',k:'gate',d:'Buffer < 40% → Warning, < 15% → Critical; daily loss ≥ 80% of limit → Warning.',i:'Buffer, daily P&L',v:'—',sc:'Account state colour',o:'Alert in event log'},
+ {id:'ax',a:'System',s:'Prop Guard',t:'Breach / daily limit hit',k:'exc',d:'Breach of trailing threshold or daily loss limit → auto-flatten and lock account for session.',i:'Threshold crossed',v:'—',sc:'Account LOCKED',o:'Copier link cut for that account'},
+ {id:'t1',a:'System',s:'Tilt',t:'Behaviour features',d:'Rolling: trades in last 10 min, size multiple vs baseline, consecutive losses, re-entry within 60s after a loss.',i:'Trade log',v:'—',sc:'Feature vector',o:'Tilt score 0–100'},
+ {id:'t2',a:'System',s:'Tilt',t:'Tilt threshold',k:'gate',d:'Score ≥ 50 → cool-down warning; ≥ 75 → mandatory lockout before limits are reached.',i:'Tilt score',v:'—',sc:'Guard state',o:'Banner + timer'},
+ {id:'t3',a:'Trader',s:'Tilt',t:'Flatten all / acknowledge',k:'out',d:'Trader can flatten all accounts in one action; lockout timer prevents new entries.',i:'Lockout',v:'Timer active',sc:'All positions flat',o:'Session protected'},
+ {id:'c1',a:'Feed',s:'Correlation',t:'Strategy returns',d:'Per-strategy P&L series (e.g. breakout models) sampled per bar.',i:'Closed + open P&L',v:'≥ window bars',sc:'Return matrix',o:'Rolling window ready'},
+ {id:'c2',a:'System',s:'Correlation',t:'Rolling correlation',d:'Pearson correlation over a user window (e.g. 30 bars) for every strategy pair; average pairwise correlation tracked.',i:'Return matrix',v:'—',sc:'Heatmap + avg ρ',o:'Diversification score'},
+ {id:'c3',a:'System',s:'Correlation',t:'Regime classifier',k:'gate',d:'Efficiency ratio + volatility percentile → Trending / Choppy / Volatile.',i:'Reference price',v:'—',sc:'Regime label',o:'Regime timeline'},
+ {id:'cx',a:'System',s:'Correlation',t:'Correlation spike / sync DD',k:'exc',d:'Avg ρ above threshold or ≥ N strategies in drawdown together → alert.',i:'ρ, DD per strategy',v:'—',sc:'Alert raised',o:'Recommendations generated'},
+ {id:'c4',a:'Trader',s:'Correlation',t:'Apply recommendation',k:'out',d:'Reduce size, pause most-correlated cluster, or restrict side (buy/sell only) for regime.',i:'Recommendation',v:'—',sc:'Strategy toggled (demo)',o:'Portfolio risk reduced'}
+];
+const actors=['All',...new Set(N.map(n=>n.a))],stages=['All',...new Set(N.map(n=>n.s))];let fa='All',fs='All';
+const A=document.getElementById('actors'),S=document.getElementById('stages');
+function chips(el,list,get,set,p){el.innerHTML='';list.forEach(x=>{const b=document.createElement('button');b.className='chip'+(get()===x?' on':'');b.textContent=p+x;b.onclick=()=>{set(x);render()};el.appendChild(b)})}
+function render(){chips(A,actors,()=>fa,v=>fa=v,'Actor: ');chips(S,stages,()=>fs,v=>fs=v,'Stage: ');const L=document.getElementById('lanes');L.innerHTML='';
+ stages.slice(1).forEach(s=>{const lane=document.createElement('div');lane.className='lane';lane.innerHTML='<h3>'+s+'</h3>';const st=document.createElement('div');st.className='steps';
+  N.filter(n=>n.s===s).forEach((n,i)=>{if(i)st.insertAdjacentHTML('beforeend','<span class="arrow">→</span>');const d=document.createElement('div');d.className='node '+(n.k||'');d.dataset.id=n.id;
+   d.innerHTML='<b>'+n.t+'</b><small>'+n.a+'</small>';if((fa!=='All'&&n.a!==fa)||(fs!=='All'&&n.s!==fs))d.classList.add('dim');d.onclick=()=>show(n);st.appendChild(d)});lane.appendChild(st);L.appendChild(lane)})}
+function show(n){document.querySelectorAll('.node').forEach(x=>x.classList.toggle('sel',x.dataset.id===n.id));
+ document.getElementById('detail').innerHTML='<h2>'+n.t+'</h2><p>'+n.d+'</p><div class="kv"><span>Actor</span><span>'+n.a+'</span><span>Stage</span><span>'+n.s+'</span><span>Inputs</span><span>'+n.i+'</span><span>Validation</span><span>'+n.v+'</span><span>State change</span><span>'+n.sc+'</span><span>Outcome</span><span>'+n.o+'</span></div>'}
+render();
+</script></body></html>

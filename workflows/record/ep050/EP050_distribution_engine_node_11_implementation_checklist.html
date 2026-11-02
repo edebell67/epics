@@ -1,0 +1,35 @@
+﻿<!doctype html>
+<!--
+workstream/600_workflow/ep050/EP050_distribution_engine_node_11_implementation_checklist.html — Delivery status for EP050 Node 11 (Intent Classification).
+
+VERSION HISTORY
+v1.0.0 · 2026-08-16 · Initial version: records implementation, test, evidence, and lifecycle gates for Node 11 Intent Classification.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP050 Node 11 Status</title>
+<style>
+body{font:16px Arial,sans-serif;max-width:920px;margin:40px auto;padding:0 20px;background:#f7f4ec;color:#143129}
+li{margin:14px 0;padding:14px;background:white;border-left:5px solid #b7791f}
+.passed{border-color:#168568}
+.pending{border-color:#9a5d00}
+.status{font-weight:bold}
+code{background:#edf1ee;padding:2px 5px;border-radius:4px;font-size:14px}
+</style>
+</head>
+<body>
+<h1>EP050 Node 11 — Intent Classification — delivery status</h1>
+<ul>
+<li class="passed"><span class="status">Passed</span> · Interactive workflow map pre-dates implementation: <code>EP050_distribution_engine_strategy_workflow.html</code>.</li>
+<li class="passed"><span class="status">Passed</span> · Deterministic, offline, fail-closed intent classification contract implemented: <code>epics/ep_050_distribution_engine/implementation/node_11/intent_classification.py</code>.</li>
+<li class="passed"><span class="status">Passed</span> · Full required test suite covering positive, negative, schema contract, lineage preservation, and no-network assertion: <code>epics/ep_050_distribution_engine/implementation/node_11/test_intent_classification.py</code>.</li>
+<li class="passed"><span class="status">Passed</span> · Timestamped evidence bundle: <code>epics/ep_050_distribution_engine/evidence/node_11/</code>.</li>
+<li class="passed"><span class="status">Passed</span> · Reusable regression procedure in Test Library: <code>workstream/Test Library/ep050/EP050_node_11_intent_classification_regression_procedure.md</code>, with EP050-root reference copy.</li>
+<li class="passed"><span class="status">Passed</span> · Lifecycle record with Plan/Evidence/Implementation Log/Validation, mirrored byte-identical to EP050 root and Obsidian: <code>workstream/200_inprogress/gemini/20260816_232500_ep050_997_node_11_implementation.md</code>.</li>
+<li class="pending"><span class="status">Pending</span> · Canonical contract promotion of Node 05->11 contract and upstream Node 05 live producer integration. Node held at 75% per orchestrator dependency rule until these gates clear.</li>
+</ul>
+<p><strong>Safety boundary:</strong> 100% offline, fixture-only, no network calls, no external side effects; only the confirmed synthetic target (<code>service=boiler_repair</code>, <code>geography=Blackheath, London, UK</code>) is processed.</p>
+</body>
+</html>

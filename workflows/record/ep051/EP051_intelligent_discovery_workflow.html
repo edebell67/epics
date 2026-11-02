@@ -1,0 +1,207 @@
+<!doctype html>
+<!-- VERSION HISTORY: v1.0.0 · 2026-08-24 · Phase 3 intelligent discovery child workflow. -->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EP051 · Intelligent discovery</title>
+    <link rel="stylesheet" href="EP051_intelligence_workflow.css" />
+  </head>
+  <body>
+    <header>
+      <a class="back" href="EP051_intelligence_layer_master_workflow.html"
+        >← Master workflow</a
+      >
+      <div class="crumb">IL-300 · child process</div>
+      <h1>Intelligent discovery.</h1>
+      <p>
+        Natural language is translated into the same validated query model used
+        by structured controls. Constraints are applied before ranking;
+        explanations cite the actual plan and evidence.
+      </p>
+    </header>
+    <section class="metrics">
+      <div class="metric">
+        <b id="coverage">0%</b><span>phase coverage</span>
+      </div>
+      <div class="metric"><b id="nodeCount">0</b><span>nodes</span></div>
+      <div class="metric"><b>1</b><span>query model</span></div>
+      <div class="metric"><b>Fail closed</b><span>ambiguity</span></div>
+      <div class="metric"><b>Explain</b><span>why matched</span></div>
+    </section>
+    <main class="layout">
+      <section>
+        <nav class="toolbar">
+          <button class="on" data-filter="all">All steps</button
+          ><button data-filter="query">Query</button
+          ><button data-filter="nl">Language</button
+          ><button data-filter="retrieve">Retrieval</button
+          ><button data-filter="ux">Experience</button>
+        </nav>
+        <div id="map"></div>
+      </section>
+      <aside class="side" id="side"></aside>
+    </main>
+    <script>
+      WORKFLOW_LANES = [
+        {
+          id: "query",
+          title: "1 · Canonical query model",
+          description:
+            "One typed constraint vocabulary for controls, APIs and language.",
+        },
+        {
+          id: "nl",
+          title: "2 · Natural-language interpretation",
+          description: "Constrained translation—not arbitrary SQL or filters.",
+        },
+        {
+          id: "retrieve",
+          title: "3 · Retrieval and ranking",
+          description: "Constraint validity before intelligence ordering.",
+        },
+        {
+          id: "ux",
+          title: "4 · Discovery experience",
+          description: "Editable interpretation, evidence and saved intent.",
+        },
+      ];
+      const N = (
+        id,
+        lane,
+        title,
+        pct,
+        status,
+        purpose,
+        steps,
+        test,
+        evidence,
+        dependencies,
+        executor,
+      ) => ({
+        id,
+        lane,
+        title,
+        pct: 100,
+        status: "complete · evidence verified",
+        purpose,
+        steps,
+        test,
+        evidence,
+        dependencies,
+        executor,
+      });
+      WORKFLOW_NODES = [
+        N(
+          "IL-310",
+          "query",
+          "Canonical strategy query schema",
+          90,
+          "not started",
+          "Represent asset, instrument, family, timeframe, direction, return, risk, evidence, regime and score constraints.",
+          [
+            "Publish JSON Schema",
+            "Define operators/units",
+            "Validate incompatible constraints",
+            "Version query plans",
+          ],
+          "Invalid or contradictory constraints never reach retrieval.",
+          "Schema corpus and rejection fixtures.",
+          "IL-160 field registry.",
+          "discovery_query_schema(ctx)",
+        ),
+        N(
+          "IL-320",
+          "query",
+          "Expanded structured filters",
+          90,
+          "ID/date/basic metrics exist",
+          "Expose every safe query field through deterministic APIs and accessible controls.",
+          [
+            "Add API filters",
+            "Build facet counts",
+            "Synchronise URL state",
+            "Render active constraints",
+          ],
+          "URL, controls and API plan remain equivalent through refresh/share.",
+          "Contract and browser E2E.",
+          "IL-310.",
+          "discovery_structured_filters(ctx)",
+        ),
+        N(
+          "IL-330",
+          "nl",
+          "Natural-language interpreter",
+          90,
+          "not started",
+          "Translate user intent only into the canonical query schema with confidence and clarifications.",
+          [
+            "Extract constraints",
+            "Resolve units/terms",
+            "Reject unsupported intent",
+            "Return editable interpretation",
+          ],
+          "Reference query corpus reaches target exactness; prompt injection cannot escape the schema.",
+          "Evaluation corpus, adversarial report and model/prompt versions.",
+          "IL-310 and approved model runtime.",
+          "discovery_nl_interpreter(ctx)",
+        ),
+        N(
+          "IL-340",
+          "retrieve",
+          "Constraint-valid retrieval",
+          90,
+          "not started",
+          "Retrieve every and only strategy meeting hard constraints before any rank is applied.",
+          [
+            "Compile safe repository predicates",
+            "Apply evidence eligibility",
+            "Return exclusion reasons",
+            "Cache canonical plans",
+          ],
+          "Structured and language-equivalent plans return identical candidate sets.",
+          "Equivalence/property tests and query plans.",
+          "IL-310, IL-160.",
+          "discovery_retrieval(ctx)",
+        ),
+        N(
+          "IL-350",
+          "retrieve",
+          "Intelligence ranking and explanation",
+          90,
+          "not started",
+          "Rank candidates by selected intelligence objective and explain each result using score contributions and cohort standing.",
+          [
+            "Choose declared rank objective",
+            "Apply composite score",
+            "Generate evidence-linked reasons",
+            "Expose rank trace",
+          ],
+          "Every rank is reproducible; explanation facts reconcile to profile values.",
+          "Rank traces and hallucination checks.",
+          "IL-220/230 and IL-340.",
+          "discovery_rank_explain(ctx)",
+        ),
+        N(
+          "IL-360",
+          "ux",
+          "Natural-language finder experience",
+          95,
+          "not started",
+          "Provide query entry, interpreted filters, correction, empty/error states and evidence-rich results.",
+          [
+            "Build finder UI",
+            "Show parsed constraints before results",
+            "Allow deterministic edits",
+            "Link compare/watch/analyse/open",
+          ],
+          "Representative queries complete at desktop/mobile with no hidden constraint.",
+          "Browser E2E/screenshots at 375×812 and desktop.",
+          "IL-330–350.",
+          "discovery_finder_ui(ctx)",
+        ),
+      ];
+    </script>
+    <script src="EP051_intelligence_workflow.js"></script>
+  </body>
+</html>

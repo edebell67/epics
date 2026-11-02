@@ -1,0 +1,45 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/EP066_date_navigation_arrows_workflow.html — Interactive workflow for EP066 date < > navigation.
+  VERSION HISTORY
+  v1.0.0 · 2026-10-27 · [V20261027_1155] Initial version: actor-by-actor flow of the Date < > buttons (Day/Week/Month step, future guard, refresh).
+  Task: workstream/200_inprogress/20261027_115500_ep066_997_V20261027_1155_date_navigation_arrows.md
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP066 date navigation arrows - workflow</title>
+<style>
+body{font:14px system-ui,Segoe UI,sans-serif;background:#0d1014;color:#e6e9ee;margin:0;padding:20px}
+h1{font-size:18px;margin:0 0 4px}p.s{color:#8892a0;margin:0 0 14px}
+.bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.bar button{background:#1a2029;color:#e6e9ee;border:1px solid #262e3a;border-radius:6px;padding:6px 12px;cursor:pointer}
+.bar button.on{background:#4fb3ff;color:#04121f;font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 360px;gap:16px}
+.flow{display:flex;flex-direction:column;gap:8px}
+.node{background:#141920;border:1px solid #262e3a;border-left:4px solid #4fb3ff;border-radius:8px;padding:10px 12px;cursor:pointer}
+.node[data-actor=code]{border-left-color:#3ecf8e}.node[data-actor=api]{border-left-color:#ffb84d}
+.node.sel{background:#222b38;border-color:#4fb3ff}.node.dim{opacity:.25}
+.node b{display:block}.node small{color:#8892a0}
+#detail{background:#141920;border:1px solid #262e3a;border-radius:8px;padding:14px;position:sticky;top:12px;align-self:start}
+#detail h3{margin:0 0 6px;font-size:15px}#detail p{margin:6px 0;color:#c7ced8}
+code{background:#1a2029;padding:1px 5px;border-radius:4px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+</style></head><body>
+<h1>EP066 Strategy Explorer - Date &lt; &gt; navigation</h1>
+<p class="s">Click a step for detail. Filter by actor. Source of truth for the feature flow; task V20261027_1155.</p>
+<div class="bar" id="bar"><button class="on" data-a="all">All actors</button><button data-a="user">User</button><button data-a="code">Page code</button><button data-a="api">EP058 API (unchanged)</button></div>
+<div class="grid"><div class="flow" id="flow"></div><div id="detail"><h3>Select a step</h3><p>Details appear here.</p></div></div>
+<script>
+const steps=[
+{a:'user',t:'1. User clicks < or >',s:'Date control in header',d:'Entry point. Buttons sit either side of the date input and are hidden in public snapshot mode (live-only). Clicking the word "Date" focuses the date input (label has for="date"), not a button.'},
+{a:'code',t:'2. Read selected Period',s:'state.period = day | week | month',d:'Day = 1 day, Week = 7 days, Month = 1 calendar month. Month keeps the day-of-month but clamps it (31 Jan -> 28 Feb, 31 Mar -> 28/29 Feb).'},
+{a:'code',t:'3. Compute shifted date',s:'shiftedDate(dir)',d:'Parses state.date as a LOCAL date (no UTC drift), applies the step, returns an ISO yyyy-mm-dd string, or null when the move is not allowed.'},
+{a:'code',t:'4. Future guard',s:'never enter a period starting after today',d:'For > : if the start of the shifted period (the day, the Monday, or the 1st of month) is after today -> null and the > button is disabled. If the shifted date is after today but its period contains today -> date is clamped to today.'},
+{a:'code',t:'5. Apply',s:'state.date, #date.value, syncDateNav(), select(view)',d:'Same path as the date picker onchange: select() reloads the current view, rewrites the URL (date param) and refreshes the dashboard / charts.'},
+{a:'api',t:'6. API resolves the period',s:'GET /api/ep066/overview|period?date=...',d:'Unchanged. period_bounds() returns the calendar week (Mon-Sun) or month containing date, capped at today. So stepping the date by 1 week / 1 month always lands in the previous / next period.'},
+{a:'user',t:'7. Outcome',s:'data for the new day / week / month',d:'Exceptions: > disabled on the current period; arrows do nothing in snapshot mode; switching Day/Week/Month keeps the date and refreshes the arrow tooltips and enabled state.'}];
+const flow=document.getElementById('flow'),det=document.getElementById('detail');
+steps.forEach((x,i)=>{const n=document.createElement('div');n.className='node';n.dataset.actor=x.a;n.innerHTML='<b>'+x.t+'</b><small>'+x.s+'</small>';
+n.onclick=()=>{document.querySelectorAll('.node').forEach(e=>e.classList.remove('sel'));n.classList.add('sel');det.innerHTML='<h3>'+x.t+'</h3><p>'+x.d+'</p><p><small>Actor: '+({user:'User',code:'Page code',api:'EP058 API'}[x.a])+'</small></p>'};flow.appendChild(n)});
+document.querySelectorAll('#bar button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#bar button').forEach(x=>x.classList.toggle('on',x===b));
+document.querySelectorAll('.node').forEach(n=>n.classList.toggle('dim',b.dataset.a!=='all'&&n.dataset.actor!==b.dataset.a))});
+</script></body></html>

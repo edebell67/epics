@@ -1,0 +1,35 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/ep064/EP064_github_pages_deploy_workflow.html
+  — Interactive workflow for deploying EP064 static demos to GitHub Pages (edebell67/epics).
+
+  VERSION HISTORY
+  v1.0.0 · 2026-10-19 · Initial version (V20261019_1451): interactive workflow covering preflight, scoped commit, SHA parity, Pages build, and live browser verification.
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP064 · GitHub Pages Deployment Workflow</title>
+<style>
+body{margin:0;font:14px/1.5 system-ui,Segoe UI,sans-serif;background:#0d1117;color:#e6edf3;padding:20px}
+.wrap{max-width:1040px;margin:0 auto}h1{margin:0 0 6px;font-size:20px}p{margin:0 0 16px;color:#8b949e}
+.steps{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.node{background:#151b23;border:1px solid #2a313c;border-radius:10px;padding:10px 14px;cursor:pointer;min-width:170px}
+.node.sel,.node:hover{border-color:#3fb950}
+.node b{display:block;font-size:13.5px}.node small{color:#8b949e}
+.detail{background:#151b23;border:1px solid #2a313c;border-radius:10px;padding:16px}
+</style></head><body><div class="wrap">
+<h1>EP064 · GitHub Pages Deployment Workflow (`edebell67/epics`)</h1>
+<p>Click any deployment gate to inspect inputs, validation rules, and expected outcomes.</p>
+<div class="steps" id="steps"></div>
+<div class="detail" id="detail">Select a gate above.</div>
+</div><script>
+const G=[
+  {id:'g1',t:'1. Preflight & Scope Gate',a:'Agent',d:'Verify gh auth, target repo (edebell67/epics:master), relative asset paths, and zero private runtime dependencies.'},
+  {id:'g2',t:'2. Scoped Stage & Secret Scan',a:'Git',d:'Stage only ep_064_reddit_oppourtunity/ and epic/ep064/. Run git diff --cached --check and secret regex scan.'},
+  {id:'g3',t:'3. Push & SHA Parity Gate',a:'GitHub',d:'Push scoped commit to edebell67/epics:master and verify LOCAL_SHA == REMOTE_SHA.'},
+  {id:'g4',t:'4. Pages Build & HTTP 200',a:'GitHub Pages',d:'Poll repos/edebell67/epics/pages until status=built; verify HTTP 200 on live thetechprinciple.com URLs.'},
+  {id:'g5',t:'5. Live Mobile & Desktop E2E',a:'Playwright',d:'Open live URLs in headless Chromium at 390x844 and 1440x900, verify interactive flows and 0 console errors.'}
+];
+const S=document.getElementById('steps'),D=document.getElementById('detail');
+G.forEach((g,i)=>{const el=document.createElement('div');el.className='node'+(i===0?' sel':'');el.innerHTML=`<b>${g.t}</b><small>${g.a}</small>`;el.onclick=()=>{document.querySelectorAll('.node').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');D.innerHTML=`<h3>${g.t}</h3><p>${g.d}</p>`};S.appendChild(el)});
+D.innerHTML=`<h3>${G[0].t}</h3><p>${G[0].d}</p>`;
+</script></body></html>

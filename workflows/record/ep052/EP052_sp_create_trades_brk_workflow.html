@@ -1,0 +1,230 @@
+<!doctype html>
+<!-- VERSION HISTORY: v1.0.0 · 2026-08-24 · Initial version: EP052 Stored Procedure Breakout Trading Workflow. -->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EP052 · Stored Procedure Breakout Trading</title>
+    <link rel="stylesheet" href="../ep051/EP051_intelligence_workflow.css" />
+  </head>
+  <body>
+    <header>
+      <div class="crumb">EP052 · stored procedure</div>
+      <h1>Stored Procedure Breakout Trading.</h1>
+      <p>
+        Replicate the breakout trading logic of the 4 Python breakout scripts inside SQL Server.
+        Generate BRK models in the exact same format as DNA trades.
+      </p>
+    </header>
+    <section class="metrics">
+      <div class="metric">
+        <b id="coverage">0%</b><span>phase coverage</span>
+      </div>
+      <div class="metric"><b id="nodeCount">0</b><span>nodes</span></div>
+      <div class="metric"><b>4</b><span>logic phases</span></div>
+      <div class="metric"><b>4</b><span>python triggers</span></div>
+      <div class="metric"><b>100%</b><span>T-SQL native</span></div>
+    </section>
+    <main class="layout">
+      <section>
+        <nav class="toolbar">
+          <button class="on" data-filter="all">All steps</button
+          ><button data-filter="ingest">Ingestion & Window</button
+          ><button data-filter="window_calc">Lookback Window</button
+          ><button data-filter="triggers">Trigger Evaluation</button
+          ><button data-filter="gating">Gating & Execution</button>
+        </nav>
+        <div id="map"></div>
+      </section>
+      <aside class="side" id="side"></aside>
+    </main>
+    <script>
+      WORKFLOW_LANES = [
+        {
+          id: "ingest",
+          title: "1 · Ingestion & Window Gates",
+          description: "Refresh quotes, enforce weekend/active trading hour windows.",
+        },
+        {
+          id: "window_calc",
+          title: "2 · Lookback Window Resolution",
+          description: "Extract historical quotes and compute rolling thresholds.",
+        },
+        {
+          id: "triggers",
+          title: "3 · Trigger Evaluation",
+          description: "Evaluate trend-following, contrarian, and active flip reversals.",
+        },
+        {
+          id: "gating",
+          title: "4 · Gating & Execution",
+          description: "Apply global limits, calculate target metrics, and insert trades.",
+        },
+      ];
+      const N = (
+        id,
+        lane,
+        title,
+        pct,
+        status,
+        purpose,
+        steps,
+        test,
+        evidence,
+        dependencies,
+        executor,
+      ) => ({
+        id,
+        lane,
+        title,
+        pct: 0,
+        status: "planned",
+        purpose,
+        steps,
+        test,
+        evidence,
+        dependencies,
+        executor,
+      });
+      WORKFLOW_NODES = [
+        N(
+          "WF-010",
+          "ingest",
+          "Quote Load & Refresh",
+          0,
+          "planned",
+          "Update the live fx_quotes table using sp_000_LoadFxQuotesFromJson_01 to ensure fresh tick rates.",
+          [
+            "Execute quote refresh procedure",
+            "Validate quotes timestamp and integrity",
+            "Check for empty quotes data feed",
+          ],
+          "Refresh succeeds within 100ms and loads active currency pairs.",
+          "Stored procedure execution trace.",
+          "None",
+          "sp_000_LoadFxQuotesFromJson_01",
+        ),
+        N(
+          "WF-020",
+          "ingest",
+          "Trading Hours Window Verification",
+          0,
+          "planned",
+          "Validate if the current London GMT time falls within the configured trade window.",
+          [
+            "Check London local timezone",
+            "Enforce weekend shutdown gates",
+            "Allow simulation override to bypass window limits",
+          ],
+          "Returns 1 during trading hours or sim-mode, 0 otherwise.",
+          "Trading active gate output.",
+          "WF-010",
+          "dbo.config",
+        ),
+        N(
+          "WF-110",
+          "window_calc",
+          "Sliding Window Extraction",
+          0,
+          "planned",
+          "Query tick or minute price history for each whitelisted currency pair to build historical lookbacks.",
+          [
+            "Identify lookback periods (e.g. 5m, 15m, 1h)",
+            "Extract last N ticks or rows from fx_quotes_history",
+            "Handle missing history gaps",
+          ],
+          "Returns exact historical rows corresponding to configured model lookback.",
+          "Lookback extraction cursor or window tables.",
+          "WF-020",
+          "dbo.fx_quotes_history",
+        ),
+        N(
+          "WF-120",
+          "window_calc",
+          "Min/Max Threshold Calculations",
+          0,
+          "planned",
+          "Determine the rolling high and low prices and offset them with the pip buffer.",
+          [
+            "Compute MIN(price) and MAX(price) for the lookback window",
+            "Add pip_buffer to high to compute long_threshold",
+            "Subtract pip_buffer from low to compute short_threshold",
+          ],
+          "Computed thresholds match mathematically verified limits for test window.",
+          "Threshold tables/variables.",
+          "WF-110",
+          "dbo.product_forex",
+        ),
+        N(
+          "WF-210",
+          "triggers",
+          "Standard Breakout & Reversal Logic",
+          0,
+          "planned",
+          "Trigger trend-following or contrarian entries on threshold breach.",
+          [
+            "Compare current_price against thresholds",
+            "Generate BUY on high breach for trend-following",
+            "Generate SHORT on high breach for contrarian reversal",
+          ],
+          "Generates correct signal (LONG/SHORT) when thresholds are crossed.",
+          "Signal candidate variables.",
+          "WF-120",
+          "@breakout.py / @breakout_R.py",
+        ),
+        N(
+          "WF-220",
+          "triggers",
+          "Position Flipping & Reversals",
+          0,
+          "planned",
+          "Support active reversals that close opposite open trades and open new ones.",
+          [
+            "Check if an opposite direction trade is currently open",
+            "If allow_reversal = 1 and new signal triggers, queue a close for the active trade",
+            "Proceed to open the new trade",
+          ],
+          "Active position is closed with reason 'Reversed' and opposite position is immediately opened on breakout.",
+          "Closed audit log + open trades update.",
+          "WF-210",
+          "@breakout_Rev.py / @breakout_R_Rev.py",
+        ),
+        N(
+          "WF-310",
+          "gating",
+          "Position Limits & Slot Checks",
+          0,
+          "planned",
+          "Ensure trade generation respects global exposure and per-model limits.",
+          [
+            "Check max_open_trades and max_open_trade_qty",
+            "Verify available slots in combined_trades_open",
+            "Rank candidates",
+          ],
+          "Prevents trade generation if slots or limits are fully occupied.",
+          "Candidates filtered by RankedTrades.",
+          "WF-220",
+          "dbo.combined_trades_open",
+        ),
+        N(
+          "WF-320",
+          "gating",
+          "Trade Placement & TP/SL Metrics",
+          0,
+          "planned",
+          "Write the generated trades to combined_trades_open with correct TP/SL.",
+          [
+            "Insert trade records",
+            "Set initial net_return and alt_net_return",
+            "Compute target profit and loss limits based on pip buffer",
+          ],
+          "Row successfully inserted in same format as DNA trades.",
+          "SELECT * FROM combined_trades_open.",
+          "WF-310",
+          "dbo.sp_001_create_trades_brk",
+        ),
+      ];
+    </script>
+    <script src="../ep051/EP051_intelligence_workflow.js"></script>
+  </body>
+</html>

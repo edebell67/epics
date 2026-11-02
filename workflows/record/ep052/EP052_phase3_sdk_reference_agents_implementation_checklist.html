@@ -1,0 +1,18 @@
+<!doctype html>
+<!--
+EP052 Phase 3 implementation checklist — evidence-backed delivery status.
+
+VERSION HISTORY
+v1.1.0 · 2026-09-02 · Records final persisted-golden, 9-test, 482-test, wheel hash, and clean dependency-resolving installation evidence.
+v1.0.0 · 2026-09-02 · Records the operational SDK, authenticated query boundary, deterministic agents, packaging, and regression evidence.
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP052 Phase 3 · Implementation Checklist</title>
+<style>body{margin:0;background:#f2efe7;color:#17352b;font:16px/1.5 system-ui,sans-serif}header{padding:28px 5vw;background:#123d31;color:#fff}main{padding:24px 5vw;max-width:1100px}.item{background:#fff;border:1px solid #c7d2ca;border-left:7px solid #146b4b;border-radius:10px;padding:16px;margin:12px 0}.status{font-weight:800;color:#146b4b}.evidence{font-family:Consolas,monospace;overflow-wrap:anywhere}a{color:#0b6044}button{min-height:44px;padding:8px 14px}details{margin-top:8px}</style></head>
+<body><header><b>EP052 · PHASE 3</b><h1>Arena SDK and reference agents</h1><p>Operational implementation checklist. Every item is backed by executable evidence.</p></header><main>
+<button onclick="document.querySelectorAll('details').forEach(x=>x.open=true)">Expand evidence</button>
+<article class="item"><div class="status">PASSED · MVP-210</div><h2>Installable SDK lifecycle</h2><p>Stable public API, immutable lifecycle inputs, typed intents/errors, major-version compatibility, and no direct database/accounting imports.</p><details><summary>Evidence</summary><p class="evidence">arena_mvp/artifacts/phase3/dist/ep052_arena_mvp-0.2.0-py3-none-any.whl<br>SHA-256 c571c9aea33be670a7fa5d007509d482c802d1fa2e88dd27bd39c2df396149d2<br>Clean isolated install: 0.2.0 · 3 agents · CredentialAuthority</p></details></article>
+<article class="item"><div class="status">PASSED · MVP-220</div><h2>Authenticated permitted-query boundary</h2><p>Signed scoped credentials, signature/expiry validation, immediate revocation, service-port authorization, and strict cross-agent isolation.</p><details><summary>Evidence</summary><p class="evidence">arena_mvp/tests/integration/test_phase3_operational_sdk.py<br>9 passed in 0.87s (Phase 3 combined acceptance)</p></details></article>
+<article class="item"><div class="status">PASSED · MVP-230</div><h2>Three deterministic reference agents</h2><p>Steady, growth, and regime agents execute through the package lifecycle and produce stable schema-valid typed intents for fixed seed/context.</p><details><summary>Evidence</summary><p class="evidence">arena_mvp/tests/fixtures/phase3_reference_agent_golden.json<br>All three outputs regenerated and matched the persisted golden fixture.</p></details></article>
+<article class="item"><div class="status">PASSED · REGRESSION</div><h2>Repository compatibility</h2><p>All existing and new tests pass after the operational implementation.</p><details><summary>Evidence</summary><p class="evidence">arena_mvp/artifacts/phase3/evidence/20260902_025717/full_regression.junit.xml<br>482 passed in 3.41s</p></details></article>
+</main></body></html>

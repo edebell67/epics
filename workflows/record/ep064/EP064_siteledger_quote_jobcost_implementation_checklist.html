@@ -1,0 +1,30 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/ep064/EP064_siteledger_quote_jobcost_implementation_checklist.html
+  — Implementation checklist for EP064 UI_01 SiteLedger mobile-first demo.
+
+  VERSION HISTORY
+  v1.0.0 · 2026-10-18 · Initial version (V20261018_2305): records delivery status and evidence for SiteLedger mobile-first demo UI.
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP064 · SiteLedger Quote &amp; Job-Cost Demo — Implementation Checklist</title>
+<style>
+body{font:14px/1.5 system-ui,Segoe UI,sans-serif;background:#f6f5f2;color:#1d1d1b;margin:0;padding:24px}
+.wrap{max-width:980px;margin:0 auto;background:#fff;border:1px solid #e3e1db;border-radius:12px;padding:20px}
+h1{margin:0 0 6px;font-size:20px}p{margin:0 0 16px;color:#6b6a66}
+table{width:100%;border-collapse:collapse}th,td{padding:10px 8px;border-bottom:1px solid #eceae4;text-align:left;vertical-align:top}
+th{font-size:12px;text-transform:uppercase;color:#6b6a66}
+.st{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
+.Passed{background:#e7f2ee;color:#1f6f5c}.Inprogress{background:#fdf3e1;color:#8a5a12}
+code{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;background:#f3f1ec;padding:1px 5px;border-radius:4px}
+</style></head><body><div class="wrap">
+<h1>EP064 · UI 01: SiteLedger Quote Follow-Up &amp; Job-Cost Demo — Delivery Checklist</h1>
+<p>Epic folder: <code>~/eds/epics/ep_064_reddit_oppourtunity/ui_01_siteledger_quote_jobcost</code> · Version: <code>V20261018_2305</code></p>
+<table><thead><tr><th>#</th><th>Check Item</th><th>Status</th><th>Evidence</th></tr></thead><tbody>
+<tr><td>1</td><td>Interactive workflow HTML created before implementation</td><td><span class="st Passed">Passed</span></td><td><code>workstream/600_workflow/ep064/EP064_siteledger_quote_jobcost_workflow.html</code></td></tr>
+<tr><td>2</td><td>Mobile-first CSS architecture (390px phone base, bottom tab bar, 44px touch targets, stacked-card tables, bottom-sheet modals, ≥700px &amp; ≥1100px breakpoints)</td><td><span class="st Passed">Passed</span></td><td><code>epics/ep_064_reddit_oppourtunity/ui_01_siteledger_quote_jobcost/index.html</code> + mobile/desktop screenshots</td></tr>
+<tr><td>3</td><td>B1 Quote Follow-Up Engine: sequential numbering (<code>Q-0101</code>…<code>Q-0113</code>), aging/ghosted badges, Day 3/7/14 rules, SMS/Email follow-up sheet, quote→job conversion</td><td><span class="st Passed">Passed</span></td><td>Verified in headless Chromium: <code>02_mobile_followup_sheet.png</code>, <code>03_mobile_jobs_converted.png</code></td></tr>
+<tr><td>4</td><td>B2 Receipt &amp; Voice-Note Job-Costing: sample thermal receipt scanner, voice/text parser, confidence bar, live margin impact preview, unassigned inbox</td><td><span class="st Passed">Passed</span></td><td>Verified in headless Chromium: <code>04_mobile_receipt_parsed.png</code></td></tr>
+<tr><td>5</td><td>Deterministic launcher (<code>run_demo.bat</code>) &amp; documentation (<code>README.md</code>)</td><td><span class="st Passed">Passed</span></td><td><code>epics/ep_064_reddit_oppourtunity/ui_01_siteledger_quote_jobcost/run_demo.bat</code></td></tr>
+<tr><td>6</td><td>Live user acceptance of demo UI</td><td><span class="st Inprogress">In progress</span></td><td>Awaiting user review of demo UI</td></tr>
+</tbody></table></div></body></html>

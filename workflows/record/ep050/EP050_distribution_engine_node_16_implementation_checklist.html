@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EP050 Node 16: Canonical Knowledge Store Implementation Checklist</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #24292e; max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1, h2, h3 { color: #0366d6; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
+        .checklist-item { margin: 12px 0; display: flex; align-items: flex-start; }
+        .checklist-item input[type="checkbox"] { margin-top: 5px; margin-right: 10px; }
+        .tag { display: inline-block; padding: 2px 6px; font-size: 12px; font-weight: 600; border-radius: 3px; background-color: #f1f8ff; color: #0366d6; margin-left: 8px; }
+        .tag.mandatory { background-color: #ffeef0; color: #d73a49; }
+        .tag.verified { background-color: #dcffe4; color: #28a745; }
+        .spec-box { background: #f6f8fa; border: 1px solid #e1e4e8; border-radius: 6px; padding: 16px; margin: 16px 0; }
+        code { background-color: rgba(27,31,35,0.05); padding: 0.2em 0.4em; border-radius: 3px; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 85%; }
+    </style>
+</head>
+<body>
+    <h1>EP050 Node 16: Canonical Knowledge Store Implementation Checklist</h1>
+    <p><strong>Owner:</strong> Gemini | <strong>Stage:</strong> Stage 4 Narrative Packaging | <strong>Version:</strong> v1.0.0 (2026-08-17)</p>
+    
+    <div class="spec-box">
+        <h3>Master Spec & Scope Summary</h3>
+        <p>Node 16 manages verified, offline canonical domain knowledge facts, technical claims, safety-critical guidelines, and product intelligence attributes (e.g. Gas Safe regulations, boiler pressure thresholds) to ensure downstream narrative packaging and publishing nodes produce 100% accurate, safe, and verifiable content.</p>
+        <p><strong>Deterministic Fact ID:</strong> <code>fact_</code> + SHA-256(<code>target_id:topic:claim:verification_source</code>)</p>
+    </div>
+
+    <h2>Pre-Implementation Gates</h2>
+    <div class="checklist-item">
+        <input type="checkbox" id="gate1" checked>
+        <label for="gate1"><strong>Upstream Dependency Gate:</strong> Node 02 Product Intelligence accepted at 100% and Node 14 at 100%. <span class="tag verified">PASSED</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="gate2" checked>
+        <label for="gate2"><strong>Pre-Code Architecture:</strong> Authored interactive workflow diagram and implementation checklist prior to module coding. <span class="tag mandatory">MANDATORY</span></label>
+    </div>
+
+    <h2>Schema & Data Container Requirements</h2>
+    <div class="checklist-item">
+        <input type="checkbox" id="req1" checked>
+        <label for="req1"><code>CanonicalFactRecord</code>: Immutable container holding <code>fact_id</code>, <code>target_id</code>, <code>product_id</code>, <code>topic</code>, <code>claim</code>, <code>verification_source</code>, <code>is_safety_critical</code>, <code>safety_guidance</code>, <code>validity_status</code>, <code>version</code>, <code>created_at</code>. <span class="tag mandatory">SCHEMA</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="req2" checked>
+        <label for="req2"><code>CanonicalKnowledgeStore</code>: Registry class supporting registration, lookup by topic/product, safety-critical filtering, persistence, and conflict detection. <span class="tag mandatory">SCHEMA</span></label>
+    </div>
+
+    <h2>Validation & Fail-Closed Rules</h2>
+    <div class="checklist-item">
+        <input type="checkbox" id="val1" checked>
+        <label for="val1"><strong>Lineage Enforcement:</strong> Must validate <code>target_id</code> against Node 01 TargetRegistry and optional <code>product_id</code> against Node 02 ProductIntelligenceRegistry. <span class="tag mandatory">SAFETY</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="val2" checked>
+        <label for="val2"><strong>Safety-Critical Guidance:</strong> If <code>is_safety_critical=True</code>, <code>safety_guidance</code> must be non-empty. <span class="tag mandatory">SAFETY</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="val3" checked>
+        <label for="val3"><strong>Verification Source:</strong> Claims must have an explicit, non-empty <code>verification_source</code> (e.g. manufacturer manual, Gas Safe Register). <span class="tag mandatory">LOGIC</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="val4" checked>
+        <label for="val4"><strong>PII & Offline Safety:</strong> Screen for prohibited PII (emails, phone numbers) and enforce 100% offline fixture operation (zero network calls). <span class="tag mandatory">SAFETY</span></label>
+    </div>
+
+    <h2>Test & Verification Requirements</h2>
+    <div class="checklist-item">
+        <input type="checkbox" id="test1" checked>
+        <label for="test1">Unit tests for canonical fact registration, deduplication, conflict rejection, and query by topic. <span class="tag verified">TEST</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="test2" checked>
+        <label for="test2">Real unmocked integration test: Node 01 -> Node 02 -> Node 16 with verified product intelligence records. <span class="tag verified">TEST</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="test3" checked>
+        <label for="test3">Deterministic fact ID verification and persistence roundtrip. <span class="tag verified">TEST</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="test4" checked>
+        <label for="test4">Fail-closed test cases for missing sources, safety violations, invalid lineage, and prohibited network calls. <span class="tag verified">TEST</span></label>
+    </div>
+</body>
+</html>

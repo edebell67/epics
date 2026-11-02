@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EP050 Node 13: Demand Path Discovery Implementation Checklist</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #24292e; max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1, h2, h3 { color: #0366d6; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
+        .checklist-item { margin: 12px 0; display: flex; align-items: flex-start; }
+        .checklist-item input[type="checkbox"] { margin-top: 5px; margin-right: 10px; }
+        .tag { display: inline-block; padding: 2px 6px; font-size: 12px; font-weight: 600; border-radius: 3px; background-color: #f1f8ff; color: #0366d6; margin-left: 8px; }
+        .tag.mandatory { background-color: #ffeef0; color: #d73a49; }
+        .tag.verified { background-color: #dcffe4; color: #28a745; }
+        .spec-box { background: #f6f8fa; border: 1px solid #e1e4e8; border-radius: 6px; padding: 16px; margin: 16px 0; }
+        code { background-color: rgba(27,31,35,0.05); padding: 0.2em 0.4em; border-radius: 3px; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 85%; }
+    </style>
+</head>
+<body>
+    <h1>EP050 Node 13: Demand Path Discovery Implementation Checklist</h1>
+    <p><strong>Owner:</strong> Gemini | <strong>Stage:</strong> Stage 3 Strategy | <strong>Version:</strong> v1.0.0 (2026-08-17)</p>
+    
+    <div class="spec-box">
+        <h3>Master Spec & Scope Summary</h3>
+        <p>Node 13 takes validated <code>DemandOpportunityRecord</code> objects from Node 12 along with full upstream lineage (Nodes 01-05), and discovers/maps deterministic multi-touchpoint customer demand pathways leading from initial problem recognition to commercial conversion.</p>
+        <p><strong>Deterministic Path ID:</strong> <code>path_</code> + SHA-256(<code>target_id:signal_id:classification_id:opportunity_id:path_name</code>)</p>
+    </div>
+
+    <h2>Pre-Implementation Gates</h2>
+    <div class="checklist-item">
+        <input type="checkbox" id="gate1" checked>
+        <label for="gate1"><strong>Upstream Dependency Gate:</strong> Node 12 Opportunity Scoring accepted at 100% and Node 11 at 100%. <span class="tag verified">PASSED</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="gate2" checked>
+        <label for="gate2"><strong>Pre-Code Architecture:</strong> Authored interactive workflow diagram and implementation checklist prior to module coding. <span class="tag mandatory">MANDATORY</span></label>
+    </div>
+
+    <h2>Schema & Data Container Requirements</h2>
+    <div class="checklist-item">
+        <input type="checkbox" id="req1" checked>
+        <label for="req1"><code>DemandPathStage</code>: Represents an ordered step in the customer demand path (<code>stage_index</code>, <code>stage_name</code>, <code>channel</code>, <code>information_sought</code>, <code>influenceable_touchpoint</code>, <code>intent_level</code>). <span class="tag mandatory">SCHEMA</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="req2" checked>
+        <label for="req2"><code>DemandPathRecord</code>: Immutable container holding <code>path_id</code>, <code>path_name</code>, <code>target_id</code>, <code>signal_id</code>, <code>classification_id</code>, <code>opportunity_id</code>, <code>stages</code>, <code>commercial_intent_emergence_stage</code>, <code>path_hypothesis</code>, <code>evidence_sources</code>, <code>created_at</code>. <span class="tag mandatory">SCHEMA</span></label>
+    </div>
+
+    <h2>Validation & Fail-Closed Rules</h2>
+    <div class="checklist-item">
+        <input type="checkbox" id="val1" checked>
+        <label for="val1"><strong>Lineage Enforcement:</strong> Must reject inputs missing <code>opportunity_id</code>, <code>classification_id</code>, <code>signal_id</code>, or <code>target_id</code>. <span class="tag mandatory">SAFETY</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="val2" checked>
+        <label for="val2"><strong>Stage Ordering:</strong> Stages must be strictly positive, contiguous integers (1, 2, 3...) with no duplicates or gaps. <span class="tag mandatory">LOGIC</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="val3" checked>
+        <label for="val3"><strong>Emergence Integrity:</strong> <code>commercial_intent_emergence_stage</code> must correspond to a valid stage in the path. <span class="tag mandatory">LOGIC</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="val4" checked>
+        <label for="val4"><strong>Offline Enclosure:</strong> Zero external network requests or live scraping; fixture data only. <span class="tag mandatory">SAFETY</span></label>
+    </div>
+
+    <h2>Test & Verification Requirements</h2>
+    <div class="checklist-item">
+        <input type="checkbox" id="test1" checked>
+        <label for="test1">Unit tests for positive demand path generation from Node 12 opportunity records. <span class="tag verified">TEST</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="test2" checked>
+        <label for="test2">Full multi-node integration test: Nodes 01 -> 02 -> 03 -> 04 -> 05 -> 11 -> 12 -> 13 with non-mocked data. <span class="tag verified">TEST</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="test3" checked>
+        <label for="test3">Deterministic ID verification and reproducibility checks. <span class="tag verified">TEST</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="test4" checked>
+        <label for="test4">Fail-closed test cases for broken lineage, invalid stages, bad touchpoints, and prohibited network calls. <span class="tag verified">TEST</span></label>
+    </div>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/EP061_self_fixing_price_server_restart_workflow.html — Interactive workflow for EP061 self-fixing price server restart on stale (>2m) forex/crypto endpoints
+
+  VERSION HISTORY
+  v1.0.0 · 2026-10-27 · Initial version: interactive actor-by-actor workflow for automatic execution of api_live_02_start_api_server_8002.bat when Forex or Crypto price endpoint is stale (>2 mins) or down.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EP061 · Self-Fixing Price Server Restart Workflow</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --ok: #2ea043;
+      --warn: #d29922;
+      --fail: #f85149;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.5 system-ui, -apple-system, Segoe UI, sans-serif;
+      max-width: 1100px;
+      margin-inline: auto;
+    }
+    h1 { margin: 0 0 6px; font-size: 20px; }
+    .sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+    .controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .btn {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .btn.active { border-color: var(--accent); background: #1f2937; color: var(--accent); font-weight: 600; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 780px) { .grid { grid-template-columns: 1fr; } }
+    .steps { display: flex; flex-direction: column; gap: 10px; }
+    .step {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: transform 0.12s ease, border-color 0.12s ease;
+    }
+    .step:hover { transform: translateX(2px); border-color: var(--accent); }
+    .step.selected { background: #1c2430; border-color: var(--accent); }
+    .step-head { display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+    .badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #21262d;
+      color: var(--muted);
+    }
+    .detail-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+      position: sticky;
+      top: 20px;
+      height: fit-content;
+    }
+    .detail-panel h2 { margin: 0 0 8px; font-size: 16px; color: var(--accent); }
+    .kv { margin: 10px 0; }
+    .kv strong { color: var(--muted); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+    code { background: #090d11; padding: 2px 6px; border-radius: 4px; font-family: Consolas, monospace; font-size: 12px; color: #79c0ff; }
+  </style>
+</head>
+<body>
+  <h1>EP061 · Self-Fixing Price Server Restart Workflow (Port 8061 → Port 8002)</h1>
+  <div class="sub">Interactive workflow diagram · Click any step to inspect inputs, validation rules, and execution actions.</div>
+
+  <div class="controls">
+    <button class="btn active" onclick="filterActor('all', this)">All Actors</button>
+    <button class="btn" onclick="filterActor('monitor', this)">Monitor (8061)</button>
+    <button class="btn" onclick="filterActor('autofix', this)">Auto-Fix Engine</button>
+    <button class="btn" onclick="filterActor('batch', this)">Batch Launcher (8002)</button>
+  </div>
+
+  <div class="grid">
+    <div class="steps" id="stepList"></div>
+    <div class="detail-panel" id="detailPanel"></div>
+  </div>
+
+  <script>
+    const STEPS = [
+      {
+        id: 1,
+        actor: "monitor",
+        title: "1. Poll Forex & Crypto Price Endpoints (Every 3s)",
+        badge: "c_endpoints()",
+        inputs: "GET http://127.0.0.1:8002/api/vw_000_fx_quotes & /api/vw_000_crypto_quotes",
+        gate: "HTTP 200 response within 6s timeout; extract rows list and latest row['timestamp'] and row['stale'].",
+        action: "Compute age_s(latest_timestamp) against thresholds.endpoint_stale_s (120 seconds / 2 minutes).",
+        outcome: "Pass if rows > 0 and newest quote age <= 120s (or Forex market closed on weekend). Fail otherwise."
+      },
+      {
+        id: 2,
+        actor: "monitor",
+        title: "2. Detect Stale (>2 mins) or Unreachable Endpoint",
+        badge: "Threshold: 120s",
+        inputs: "age_s(latest_ts) > 120s, or all rows have stale=True, or 0 rows, or HTTP connection error.",
+        gate: "For Forex: ignore staleness only during weekend market close (Fri 22:00 UTC – Sun 22:00 UTC). For Crypto: 24/7.",
+        action: "Mark check 'endpoint_fx' or 'endpoint_crypto' as status='fail' with fix='restart_market_prices'.",
+        outcome: "Stage 1 check fails and attaches fix action 'restart_market_prices'."
+      },
+      {
+        id: 3,
+        actor: "autofix",
+        title: "3. Evaluate Self-Fixing Trigger in autofix_step()",
+        badge: "autofix_step()",
+        inputs: "Failing checks from run_all() where c['fix'] == 'restart_market_prices'.",
+        gate: "Auto-fix enabled == True; check cooldown (default 120s for market_prices restart) to prevent rapid kill loops while server boots.",
+        action: "Queue 'restart_market_prices' regardless of Z: source file state so hung in-memory fetchers on 8002 are always restarted.",
+        outcome: "Invokes _restart_market_prices_via_bat() automatically."
+      },
+      {
+        id: 4,
+        actor: "batch",
+        title: "4. Kill Hung 8002 Process & Execute Batch File",
+        badge: "api_live_02_start_api_server_8002.bat",
+        inputs: "Port 8002 owning PID (via psutil.net_connections) + batch path ~/OneDrive/Desktop/batch_files/api_live_02_start_api_server_8002.bat",
+        gate: "Never kill node.exe; only kill process listening on TCP port 8002 if present.",
+        action: "1) taskkill /PID <8002_pid> /T /F (if listening)\n2) subprocess.Popen(['cmd', '/c', '%USERPROFILE%\\\\OneDrive\\\\Desktop\\\\batch_files\\\\api_live_02_start_api_server_8002.bat'], creationflags=CREATE_NEW_CONSOLE)",
+        outcome: "Fresh Market Prices API instance boots on port 8002, re-initializes fetchers, and serves fresh <2m quotes."
+      },
+      {
+        id: 5,
+        actor: "monitor",
+        title: "5. Log Self-Fix Event, Verify Recovery & Row-Level Test Buttons",
+        badge: "autofix.log + /api/test_endpoint/{key}",
+        inputs: "Result string from restart action + user click on 'Test Forex Endpoint' or 'Test Crypto Endpoint' button on each row.",
+        gate: "Port 8002 responds with quotes <= 120s old; GET /api/test_endpoint/{fx|crypto} returns live HTTP status, latency (ms), row count, newest quote age, and sample bid/ask.",
+        action: "Append timestamped entry to epics/ep_061_full_trading_workflow/autofix.log and render inline live test results directly inside the relevant endpoint row in http://127.0.0.1:8061/.",
+        outcome: "Endpoint checks return to green 'ok' state automatically and each price endpoint row can be tested on demand."
+      }
+    ];
+
+    let currentActor = 'all';
+    let selectedId = 1;
+
+    function filterActor(actor, btn) {
+      currentActor = actor;
+      document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    }
+
+    function selectStep(id) {
+      selectedId = id;
+      render();
+    }
+
+    function render() {
+      const list = document.getElementById('stepList');
+      const filtered = STEPS.filter(s => currentActor === 'all' || s.actor === currentActor);
+      if (!filtered.some(s => s.id === selectedId) && filtered.length) {
+        selectedId = filtered[0].id;
+      }
+      list.innerHTML = filtered.map(s => `
+        <div class="step ${s.id === selectedId ? 'selected' : ''}" onclick="selectStep(${s.id})">
+          <div class="step-head">
+            <span>${s.title}</span>
+            <span class="badge">${s.badge}</span>
+          </div>
+        </div>
+      `).join('');
+
+      const active = STEPS.find(s => s.id === selectedId) || STEPS[0];
+      document.getElementById('detailPanel').innerHTML = `
+        <h2>${active.title}</h2>
+        <div class="kv"><strong>Actor</strong><span>${active.actor.toUpperCase()}</span></div>
+        <div class="kv"><strong>Inputs</strong><code>${active.inputs}</code></div>
+        <div class="kv"><strong>Validation / Gate</strong><span>${active.gate}</span></div>
+        <div class="kv"><strong>Execution Action</strong><code>${active.action}</code></div>
+        <div class="kv"><strong>Expected Outcome</strong><span>${active.outcome}</span></div>
+      `;
+    }
+
+    render();
+  </script>
+</body>
+</html>

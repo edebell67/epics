@@ -1,0 +1,97 @@
+<!doctype html>
+<!--
+  ep047_generation_module_workflow.html — the deferred generation module: Render
+  cron + model-agnostic LLM loop that builds each business site.
+
+  VERSION HISTORY
+  v1.0.0 · 2026-07-30 · Initial version: captures the agreed attributes (model
+    agnostic, 5-minute Render cron, Python loop, ep044_group skills + _images as
+    hosted inputs, output committed to ep_044_web_apps on GitHub, optional chat
+    widget) and flags the four real prerequisites found by inspecting the repo.
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EP047 — Generation module workflow</title><style>
+:root{--ink:#14201a;--muted:#66736b;--paper:#f7faf7;--line:#d7e2da;--green:#087443;--green2:#dff5e8;--blue:#1e5c91;--blue2:#e8f3ff;--amber:#9a5d00;--amber2:#fff1d7;--red:#a33333;--red2:#ffebeb;--out:#c0132b;--purple:#5b3fa0;--purple2:#ece3fa}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 Inter,ui-sans-serif,system-ui,sans-serif}header{padding:28px max(24px,calc((100vw - 1180px)/2));background:#10271c;color:white}h1{margin:0;font:700 30px/1.15 Georgia,serif}header p{max-width:860px;margin:10px 0 0;color:#d3e5d9}.layout{max-width:1240px;margin:24px auto;display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:20px;padding:0 20px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.toolbar button{border:1px solid var(--line);background:white;border-radius:999px;padding:8px 12px;cursor:pointer;font:inherit}.toolbar button.active{background:var(--ink);color:white;border-color:var(--ink)}.canvas{background:white;border:1px solid var(--line);border-radius:16px;padding:18px;overflow:auto}.lane{position:relative;min-width:1060px;padding:16px 12px 26px;border-radius:12px}.lane+.lane{margin-top:14px}.lane.infra{background:#f8fcf8;border:1px solid #dbeadf}.lane.inputs{background:#faf8ff;border:1px solid #e2dcf5}.lane.outputs{background:#f7fbff;border:1px solid #d5e9f8}.lane h2{margin:0 0 13px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}.arrow{align-self:center;color:#7a887f;font-size:24px}.node{width:164px;min-height:148px;border:1px solid var(--line);border-radius:12px;background:white;padding:12px;box-shadow:0 2px 7px #1833240d;cursor:pointer;transition:.18s}.node:hover,.node.selected{outline:3px solid #b5ddc4;transform:translateY(-2px)}.node .tag{display:inline-block;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:700}.node h3{font-size:14px;line-height:1.2;margin:9px 0 6px}.node p{font-size:12px;color:var(--muted);margin:0}.ref{display:block;margin-top:8px;font:11px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;color:#3b6b52;background:#eef7f1;border-radius:6px;padding:3px 6px;word-break:break-all}.built{border-color:#8fc9a3;background:#effbf3}.built .tag{background:var(--green);color:white}.core .tag{background:var(--green2);color:var(--green)}.gate{border-color:#e3c786}.gate .tag{background:var(--amber2);color:var(--amber)}.blackbox{border:2px dashed var(--purple);background:var(--purple2)}.blackbox .tag{background:var(--purple);color:white}.outstanding{border:3px solid var(--out)!important;box-shadow:0 0 0 2px #ffe1e5}.outstanding::before{content:"OUTSTANDING";display:block;font:800 9px/1 ui-sans-serif;letter-spacing:.06em;color:var(--out);margin-bottom:6px}.outstanding .tag{background:#ffe1e5;color:var(--out)}aside{background:white;border:1px solid var(--line);border-radius:16px;padding:18px;align-self:start;position:sticky;top:18px}aside h2{font-size:17px;margin:0 0 8px}aside p{color:var(--muted)}.notice{margin-top:16px;border-left:4px solid var(--green);padding:10px 12px;background:#f0faf3;font-size:13px}.notice.warn{border-left-color:var(--out);background:#fffafa}.legend{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 14px;font-size:12px;color:var(--muted)}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}.d-built{background:var(--green)}.d-core{background:#7fbf9b}.d-out{background:var(--out)}.d-bb{background:var(--purple)}.dim{opacity:.22}@media(max-width:900px){.layout{grid-template-columns:1fr}aside{position:static}.canvas{padding:10px}header{padding:24px}}
+</style></head><body>
+<header><h1>Generation module workflow</h1><p>The deferred black box, now specified: a Render cron job runs a Python loop every 5 minutes, checks the generation queue, and for each waiting business calls a <strong>configured</strong> LLM/agent (model-agnostic — no vendor lock) using the <code>ep044_group</code> skill library and the shared image library, then commits the built site to <code>ep_044_web_apps</code> on GitHub and reports completion back. Four prerequisites are genuinely outstanding — three of them are hosting/data gaps found by inspecting the repo, not design choices.</p></header>
+<main class="layout"><section>
+<div class="toolbar"><button class="active" data-filter="all">All steps</button><button data-filter="built">Already built</button><button data-filter="core">To build</button><button data-filter="blackbox">Model-agnostic core</button><button data-filter="outstanding">Outstanding prerequisites</button></div>
+<div class="legend"><span><i class="dot d-built"></i>Already built &amp; live-tested</span><span><i class="dot d-core"></i>To build (this module)</span><span><i class="dot d-bb"></i>Model-agnostic adapter</span><span><i class="dot d-out"></i>Outstanding prerequisite</span></div>
+<div class="canvas">
+
+<div class="lane infra"><h2>Render cron job — the 5-minute loop</h2><div class="flow">
+<article class="node core" data-id="cron"><span class="tag">To build</span><h3>Render Cron Job fires</h3><p>Every 5 minutes. Cloud-hosted, independent of any laptop or local session.</p><code class="ref">*/5 * * * *</code></article>
+<span class="arrow">→</span>
+<article class="node core" data-id="python-loop"><span class="tag">To build</span><h3>Python loop starts</h3><p>Single run, exits when done. Container has Python + git.</p><code class="ref">generate_sites.py</code></article>
+<span class="arrow">→</span>
+<article class="node built" data-id="check-queue"><span class="tag">Built</span><h3>Check the queue</h3><p>GET the queue endpoint; returns 0..n businesses awaiting generation.</p><code class="ref">GET /api/internal/site-generation/queue</code></article>
+<span class="arrow">→</span>
+<article class="node gate" data-id="any-waiting"><span class="tag">Gate</span><h3>Any waiting?</h3><p>Empty queue → exit cleanly, no cost incurred. Otherwise iterate one-by-one.</p></article>
+<span class="arrow">→</span>
+<article class="node core" data-id="claim-lock"><span class="tag">To build</span><h3>Claim the business</h3><p>Prevents two overlapping 5-minute runs double-generating the same site.</p><code class="ref">needs a lock field</code></article>
+</div></div>
+
+<div class="lane inputs"><h2>Inputs the generation step needs</h2><div class="flow">
+<article class="node core" data-id="business-data"><span class="tag">To build</span><h3>Business data</h3><p>Name, category, town, contact details — comes back with the queue response.</p></article>
+<span class="arrow">+</span>
+<article class="node outstanding" data-id="skill-hosting"><span class="tag">Prerequisite</span><h3>Skill library access</h3><p>Tracked in git (35 files) — but the cron container still needs a way to fetch it.</p><code class="ref">skills/ep044_group</code></article>
+<span class="arrow">+</span>
+<article class="node outstanding" data-id="image-hosting"><span class="tag">Prerequisite</span><h3>Image library access</h3><p><strong>Not in git at all.</strong> 114 MB / 103 files, local-only. Nothing to fetch yet.</p><code class="ref">ep_044_web_apps/_images</code></article>
+<span class="arrow">+</span>
+<article class="node outstanding" data-id="llm-config"><span class="tag">Prerequisite</span><h3>LLM provider + key</h3><p>Which provider(s), and a real API key with real per-run billing.</p><code class="ref">env config</code></article>
+<span class="arrow">+</span>
+<article class="node outstanding" data-id="chat-flag"><span class="tag">Prerequisite</span><h3>Chat-widget opt-in flag</h3><p>No column exists on <code>businesses</code> to record who requested a chat widget.</p><code class="ref">needs migration</code></article>
+</div></div>
+
+<div class="lane outputs"><h2>Generation and hand-back</h2><div class="flow">
+<article class="node blackbox" data-id="adapter"><span class="tag">Adapter</span><h3>Model-agnostic adapter</h3><p>One tool-calling loop; provider chosen by config, not hardcoded. No vendor SDK as the whole solution.</p></article>
+<span class="arrow">→</span>
+<article class="node core" data-id="build-site"><span class="tag">To build</span><h3>Build the site</h3><p>Agent follows the skill blueprint: writes HTML/CSS/JS, sources and verifies images.</p></article>
+<span class="arrow">→</span>
+<article class="node core" data-id="chat-widget"><span class="tag">To build</span><h3>Add chat widget (if opted in)</h3><p>Only for businesses that requested it — reuses the existing embed pattern.</p><code class="ref">assistant-embed.js</code></article>
+<span class="arrow">→</span>
+<article class="node gate" data-id="verify"><span class="tag">Gate</span><h3>Verify the build</h3><p>Blueprint's definition of done: every image loads, section counts met, no thin screens.</p></article>
+<span class="arrow">→</span>
+<article class="node core" data-id="commit-push"><span class="tag">To build</span><h3>Commit &amp; push</h3><p>Writes into the existing per-business folder convention; GitHub Pages then serves it.</p><code class="ref">ep_044_web_apps/&lt;slug&gt;/</code></article>
+<span class="arrow">→</span>
+<article class="node built" data-id="report-complete"><span class="tag">Built</span><h3>Report completion</h3><p>POST businessId + the live URL; advances the stage to ready_for_preview.</p><code class="ref">POST …/complete</code></article>
+<span class="arrow">→</span>
+<article class="node built" data-id="notify"><span class="tag">Built</span><h3>Trigger notification</h3><p>Same run sends any outstanding preview-ready emails. Idempotent.</p><code class="ref">POST …/notify</code></article>
+</div></div>
+
+</div></section>
+<aside><h2 id="detailTitle">Select a step</h2><p id="detailText">Click any card for its purpose, evidence, and what is genuinely unresolved.</p><div id="detailList"></div>
+<div class="notice warn"><strong>Four outstanding prerequisites</strong>, in the order they block work: (1) the <b>image library is not in git at all</b> — 114 MB local-only, so "use the hosted version" has nothing to point at yet; (2) the cron container needs a fetch path for the skill library; (3) an LLM provider + key with real recurring cost; (4) a <code>businesses</code> column to record chat-widget opt-in.</div>
+<div class="notice"><strong>Already built and live-tested:</strong> the queue, complete and notify endpoints, with bearer-key auth — verified by real HTTP calls against a real database. The generation module only ever talks to the app through those three, so it can be built and replaced without touching anything else.</div></aside></main>
+<script>
+const details={
+cron:['Render Cron Job fires','A native Render Cron Job on a */5 * * * * schedule. Cloud-hosted, so unlike the Claude Code scheduler or the local Hermes orchestrator it does not depend on a laptop being on.','Not yet provisioned. Cost is per-run compute plus LLM tokens; an empty queue should exit before spending anything on tokens.'],
+'python-loop':['Python loop starts','A single Python entrypoint that runs once per cron fire and exits — not a long-lived daemon.','Needs a requirements file and a Render service definition. The container also needs git available, because the output is committed rather than uploaded.'],
+'check-queue':['Check the queue — ALREADY BUILT','GET /api/internal/site-generation/queue with the internal bearer key. Returns businesses whose current stage is awaiting_site_generation, oldest first.','Live-verified: 401 unauthenticated, 401 with a wrong key, and a real queued business returned when authed.'],
+'any-waiting':['Any waiting? — gate','If the queue is empty the run exits immediately. This matters commercially: no LLM call means no token spend on an idle cycle, which most 5-minute cycles will be.','Straightforward to implement; called out because getting it wrong means paying for nothing 288 times a day.'],
+'claim-lock':['Claim the business','A 5-minute cadence with a generation step that may take minutes means two runs can overlap. Without a claim, both could generate the same site and both could push.','No lock field exists yet. Options: an in-progress stage, a claimed_at timestamp, or a row-level advisory lock. This is a real correctness gap, not a nicety.'],
+'business-data':['Business data','Name, category, town and contact details, already returned by the queue endpoint — no extra call needed.','Category is what selects which ep044_group skill applies, so it must map cleanly onto the available category skills. Unmapped categories need a defined fallback rather than a crash.'],
+'skill-hosting':['Skill library access — PREREQUISITE','The generation step follows the ep044_group skills: the shared blueprint plus one skill per trade category.','Confirmed tracked in git (35 files), so hosting is solvable — but the cron container still needs a concrete fetch path: clone the repo, or read the raw files over HTTPS. Not yet decided or built.'],
+'image-hosting':['Image library access — PREREQUISITE (hardest one)','Generated sites are meant to be image-rich; the shared library is the source for that.','Verified: zero files tracked in git. 114 MB across 103 files, largest ~11 MB, all local-only on this machine. So "use the hosted version" currently points at nothing. Either commit it (fits within GitHub limits — no single file near the 100 MB cap — but bloats the repo permanently) or host it separately (object storage / Render disk) and fetch by URL. Undecided.'],
+'llm-config':['LLM provider + key — PREREQUISITE','The module must be model-agnostic, so the provider is a config value and the code talks to an adapter rather than one vendor SDK.','Needs: which providers to support first, an API key per provider, and acceptance that this is a real recurring cost per generation, separate from any Claude Code subscription. Also worth deciding fallback behaviour if the configured provider is down.'],
+'chat-flag':['Chat-widget opt-in flag — PREREQUISITE','Only businesses that asked for a chat widget should get one, so the generator needs to read that per business.','Verified: no such column exists on businesses today, and assistant-embed.js is itself untracked in git. Needs a small migration plus a decision on where the opt-in is captured (claim form, admin toggle, or the owner review submission).'],
+adapter:['Model-agnostic adapter','One tool-calling loop written once: send prompt + tool definitions to whichever provider is configured, execute the returned tool call, feed the result back, repeat until the build is done.','This is the core of the requirement not to be locked to a model. Providers expose broadly similar tool-calling shapes, so a thin per-provider translation layer is realistic — but it is real engineering, not a config flag.'],
+'build-site':['Build the site','The agent follows the blueprint: writes the HTML/CSS/JS files, sources real images, verifies each one actually loads, and meets the per-page image and section counts.','Multi-step and tool-using by nature, which is why a single text completion cannot do it. Depends on skill + image access being solved first.'],
+'chat-widget':['Add chat widget (if opted in)','Businesses that requested a chat widget get the assistant embed included in their generated site; everyone else does not.','Reuses the existing assistant-embed.js pattern (a single self-contained script with an enable flag) rather than inventing a new mechanism. Blocked on the opt-in flag existing.'],
+verify:['Verify the build — gate','The blueprint already defines done: every image on every page loads, required image and section counts are met, no thin or image-poor screens.','Reused from the existing ep044_common_site_blueprint rather than reinvented. Nothing should be committed or reported complete if this gate fails — a failed build must leave the business in the queue, not silently advance it.'],
+'commit-push':['Commit & push','Writes the built site into the existing per-business folder convention under ep_044_web_apps, then pushes so GitHub Pages serves it at the same URL shape as today\'s manually built sites.','Needs push credentials in the cron container — a scoped deploy key or token, treated as a real secret. Note this location is explicitly interim: expected to change once there are paying, activated clients.'],
+'report-complete':['Report completion — ALREADY BUILT','POST businessId + the live site URL. Sets generatedSiteUrl and websiteGeneratedAt, advances the stage to ready_for_preview, and writes an audit row.','Live-verified end to end: {recorded:true}, then confirmed in the database that the URL was stored and the stage had moved. This is the only seam the generation module must integrate with.'],
+notify:['Trigger notification — ALREADY BUILT','Same cron run POSTs to the notify endpoint, which sends the preview-ready email to any business at ready_for_preview not already notified.','Idempotent by design, so calling it every 5 minutes is safe. The email itself has been proven with a real send that arrived in an inbox.']
+};
+function select(id){document.querySelectorAll('.node').forEach(n=>n.classList.toggle('selected',n.dataset.id===id));const d=details[id];document.getElementById('detailTitle').textContent=d[0];document.getElementById('detailText').textContent=d[1];document.getElementById('detailList').innerHTML='<h3>Detail</h3><p>'+d[2]+'</p>';}
+document.querySelectorAll('.node').forEach(n=>n.addEventListener('click',()=>select(n.dataset.id)));
+document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-filter]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  const f=b.dataset.filter;
+  document.querySelectorAll('.node').forEach(n=>{
+    const m=f==='all'||n.classList.contains(f);
+    n.classList.toggle('dim',!m);
+  });
+}));
+select('image-hosting');
+</script></body></html>

@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<!--
+ * EP057_flip_overlay_trade_results_implementation_checklist.html
+ * VERSION HISTORY
+ * v1.0.0 · 2026-09-24 · Adds implementation and verification gates for Flip Result.
+ -->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EP057 Flip Result Checklist</title>
+<style>body{background:#07101d;color:#e2e8f0;font:15px system-ui;padding:32px}main{max-width:820px;margin:auto}li{margin:14px 0;padding:14px;background:#0d192a;border-left:4px solid #39ff14}.note{color:#94a3b8}</style></head><body><main><h1>Flip Result implementation checklist</h1><ol><li>Preserve actual signal, entry index, and exit index.</li><li>Resolve the opposite curve for the same model: BUY ↔ SELL.</li><li>Store opposite entry value, exit value, and flip result on every side-aware trade.</li><li>Render Flip Result per row and closed/open aggregate totals.</li><li>Show unavailable state for side-less Total Net rotations.</li><li>Run JavaScript syntax, calculation, and live browser checks.</li></ol><p class="note">No flip calculation may alter the actual overlay selection or P&amp;L.</p></main></body></html>

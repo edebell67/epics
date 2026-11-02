@@ -1,0 +1,18 @@
+<!doctype html>
+<!--
+workstream/600_workflow/ep057/EP057_product_type_filter_workflow.html — Interactive workflow for dashboard product-type filtering.
+
+VERSION HISTORY
+v1.1.0 · 2026-09-22 · Extends the workflow with a dependent product selector and page-wide combined filtering.
+v1.0.0 · 2026-09-21 · Initial workflow created before implementation to define filter propagation and validation.
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EP057 Product-Type Filter Workflow</title>
+<style>body{font-family:Segoe UI,sans-serif;background:#07111f;color:#dcecff;margin:0;padding:32px}h1{margin:0 0 8px;color:#7dd3fc}.sub{color:#91a4ba;margin-bottom:24px}.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.node{background:#10243c;border:1px solid #26506d;border-radius:10px;padding:16px;color:#dcecff;text-align:left;cursor:pointer}.node:hover,.node.active{border-color:#38bdf8;background:#13314d}.detail{margin-top:18px;padding:18px;border-left:4px solid #22d3ee;background:#0c1b2e;min-height:72px}.actor{font-size:12px;color:#67e8f9;text-transform:uppercase}.arrow{display:none}@media(max-width:900px){.flow{grid-template-columns:1fr}}</style></head>
+<body><h1>EP057 · Product-Type Filter</h1><div class="sub">Click a step to inspect the expected behavior.</div><div class="flow">
+<button class="node" data-d="The operator chooses Type: All, Forex, or Crypto. All remains the backward-compatible default."><span class="actor">Operator</span><br>Choose type</button>
+<button class="node" data-d="Product defaults to All and is repopulated from the selected type: forex products for Forex, crypto products for Crypto, and the complete list for All."><span class="actor">Dashboard</span><br>Choose dependent product</button>
+<button class="node" data-d="The dashboard appends product_type and product to live-day and model-trades API requests and preserves both during refreshes."><span class="actor">Dashboard</span><br>Propagate both filters</button>
+<button class="node" data-d="The API validates both values, rejects a product outside the selected type, and scopes statistics and trade details consistently."><span class="actor">API</span><br>Validate and filter</button>
+<button class="node" data-d="Cards, charts, summaries, scenarios, and trade details render from the same selected type/product scope; absent product types return an empty valid result."><span class="actor">Dashboard</span><br>Render consistent view</button>
+</div><div class="detail" id="detail">Select a workflow step.</div>
+<script>document.querySelectorAll('.node').forEach(b=>b.onclick=()=>{document.querySelectorAll('.node').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById('detail').textContent=b.dataset.d;});</script></body></html>

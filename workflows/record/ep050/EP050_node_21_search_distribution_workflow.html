@@ -1,0 +1,26 @@
+<!doctype html>
+<!-- workstream/600_workflow/ep050/EP050_node_21_search_distribution_workflow.html — Interactive offline Node 21 search-distribution workflow.
+
+VERSION HISTORY
+v1.0.0 · 2026-08-17 · Initial reviewable workflow created before Node 21 implementation to enforce local-only, fail-closed search package generation.
+-->
+<html lang="en">
+<head><meta charset="utf-8"><title>EP050 Node 21 Search Distribution Workflow</title>
+<style>body{font:16px system-ui;max-width:980px;margin:2rem auto;padding:0 1rem;color:#17202a}button,.node{padding:.7rem;margin:.35rem 0;border:1px solid #356; border-radius:7px;background:#f5f9fc;width:100%;text-align:left}.node{cursor:pointer}.detail{display:none;padding:.7rem 1rem;margin-bottom:.5rem;background:#edf7ed;border-left:4px solid #287a3d}.gate{color:#8b1e1e;font-weight:700}.tag{display:inline-block;padding:.15rem .45rem;background:#dbeafe;border-radius:1rem;margin-right:.35rem}</style>
+</head><body>
+<h1>EP050 Node 21 — Offline Search Distribution</h1>
+<p class="gate">Local synthetic <code>.test</code> artifacts only. No publishing, crawl, indexing request, CMS, network, credentials, or external action.</p>
+<p><button id="toggle">Expand all workflow details</button></p><section id="workflow"></section>
+<script>
+const steps=[
+ ['Actor: Node 19 / Node 20','Input is a validated Node 19 approved asset and its deterministically derived Node 20 mock publication plan. Both must agree on asset, target, opportunity, CTA, tracking, and approved/offline state.'],
+ ['Gate: safety and lineage','Reject malformed schemas, non-search channel, incomplete compliance/disclaimer/CTA, broken ID or tracking lineage, duplicate or conflicting package records, and any external-action request.'],
+ ['Actor: Node 21 package builder','Deterministically derive a search distribution ID and render local article, landing page, FAQ, JSON-LD structured data, internal-link plan, sitemap/indexing-support record, localized-page plan, and manifest.'],
+ ['Local persistence','Write only the generated local package directory. Repeating an identical record is idempotent; an existing differing record with the same ID is a conflict.'],
+ ['Stop gate','Every URL must be HTTPS on a literal <code>.test</code> host. The sitemap/indexing artifact states <code>indexing_request: false</code>; <code>external_action: false</code> is literal in the manifest.'],
+ ['Outcome','A reviewable, non-dispatched search-distribution package is ready for later protected routing. It is not published or indexed.']
+];
+const root=document.querySelector('#workflow');root.innerHTML=steps.map(([title,detail],i)=>`<div class="node" role="button" tabindex="0">${i+1}. ${title}</div><div class="detail"><span class="tag">offline</span><span class="tag">fail closed</span>${detail}</div>`).join('');
+document.querySelectorAll('.node').forEach(node=>node.onclick=()=>{const d=node.nextElementSibling;d.style.display=d.style.display==='block'?'none':'block'});
+document.querySelector('#toggle').onclick=()=>document.querySelectorAll('.detail').forEach(d=>d.style.display='block');
+</script></body></html>

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<!--
+ * EP057_flip_overlay_trade_results_workflow.html
+ * VERSION HISTORY
+ * v1.0.0 · 2026-09-24 · Defines actual-versus-flip overlay trade semantics and review flow.
+ -->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EP057 Flip Result Workflow</title>
+<style>body{margin:0;background:#07101d;color:#e2e8f0;font:15px system-ui;padding:32px}main{max-width:980px;margin:auto}h1{font-size:30px}section{border:1px solid #29405d;background:#0d192a;padding:22px;margin:18px 0;border-radius:12px}.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.step{border:1px solid #31506f;padding:16px;border-radius:9px}.accent{color:#39ff14}.muted{color:#94a3b8}@media(max-width:760px){.flow{grid-template-columns:1fr}}</style></head>
+<body><main><p class="accent">EP057 · INTERACTIVE WORKFLOW</p><h1>Opposite-side trade comparison</h1><p class="muted">The actual signal remains authoritative. The flip is an observation of the opposite exposure over exactly the same interval.</p>
+<section class="flow"><div class="step"><b>1 · Actual entry</b><p>Take the selected BUY or SELL signal.</p></div><div class="step"><b>2 · Fixed interval</b><p>Preserve its entry and exit timestamps.</p></div><div class="step"><b>3 · Flip side</b><p>BUY → SELL; SELL → BUY for the same strategy.</p></div><div class="step"><b>4 · Compare</b><p>Display actual and flip results per row and in totals.</p></div></section>
+<section><h2>Availability rule</h2><p>Buy/Sell split and Tri-Split trades have explicit sides and receive a flip result. Total Net leader rotation has no explicit side, so the flip result is shown as unavailable rather than inferred.</p></section>
+<section><h2>Acceptance</h2><p>The ledger must make the counterfactual unmistakable, retain current signals and P&amp;L, and calculate the opposite curve from the same baseline and replay window.</p></section></main></body></html>

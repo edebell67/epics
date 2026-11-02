@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EP050 Node 16: Canonical Knowledge Store Workflow</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true, theme:'neutral'});</script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #24292e; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        h1, h2 { color: #0366d6; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
+        .mermaid { background: #f6f8fa; border: 1px solid #e1e4e8; border-radius: 6px; padding: 20px; margin: 20px 0; }
+        .card { background: #ffffff; border: 1px solid #e1e4e8; border-radius: 6px; padding: 16px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body>
+    <h1>EP050 Node 16: Canonical Knowledge Store Workflow</h1>
+    <p><strong>Owner:</strong> Gemini | <strong>Stage:</strong> Stage 4 Narrative Packaging | <strong>Version:</strong> v1.0.0 (2026-08-17)</p>
+
+    <div class="card">
+        <h2>Interactive Pipeline Architecture</h2>
+        <div class="mermaid">
+        flowchart TD
+            subgraph Upstream Lineage
+                N01[Node 01: Target Definition] --> N02[Node 02: Product Intelligence]
+                N02 --> N03[Node 03: Audience Profile]
+                N03 --> N04[Node 04: Conversion Definition]
+                N04 --> N05[Node 05: Search Demand Discovery]
+                N05 --> N11[Node 11: Intent Classification]
+                N11 --> N12[Node 12: Opportunity Scoring]
+                N12 --> N13[Node 13: Demand Path Discovery]
+                N13 --> N14[Node 14: Channel Placement Selection]
+            end
+
+            subgraph Node 16 Canonical Knowledge Store
+                N02 -->|ProductIntelligenceRecord| Ingest[Validate Target & Product Lineage]
+                Ingest --> FactParse[Curate Fact Claims: Boiler Pressure, Gas Safe, Callout Limits]
+                FactParse --> SafetyScreen[Enforce Safety-Critical Guidance & Source Verification]
+                SafetyScreen --> PIIScreen[Filter Prohibited PII & External Links]
+                PIIScreen --> FactID[Compute Deterministic fact_ ID]
+                FactID --> Store[CanonicalKnowledgeStore Registry & Persistence]
+            end
+
+            subgraph Downstream Narrative & Packaging
+                Store --> N17[Node 17: Content Structure & Formatting Engine]
+                Store --> N18[Node 18: Headline & Hook Generation]
+                Store --> N19[Node 19: Value-Delivery Content Packaging]
+            end
+
+            classDef active fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+            classDef done fill:#e8f5e9,stroke:#388e3c,stroke-width:2px;
+            class N01,N02,N03,N04,N05,N11,N12,N13,N14 done;
+            class Ingest,FactParse,SafetyScreen,PIIScreen,FactID,Store active;
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<!--
+ workstream/600_workflow/ep052/EP052_sp_create_trades_brk_implementation_checklist.html — Reviewable delivery-status checklist for the EP052 workflow artifact.
+
+ VERSION HISTORY
+ v1.0.0 · 2026-08-24 · Initial version: records independently verifiable workflow-delivery checks and evidence status.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="icon" href="data:,">
+    <title>EP052 — Implementation checklist</title>
+    <style>
+      :root{--ink:#11231d;--paper:#f2efe5;--panel:#fffdf7;--line:#ccd3ca;--green:#17664e;--lime:#c8f260;--amber:#efaa3a}*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#edf2e8,var(--paper));color:var(--ink);font-family:"Trebuchet MS",sans-serif}.wrap{max-width:1120px;margin:auto;padding:32px}header{background:var(--ink);color:white;border-radius:22px;padding:30px}h1{font-size:40px;letter-spacing:-.04em;margin:8px 0}header p{color:#c5d3cd}.tag{font:700 11px Consolas,monospace;color:var(--lime);letter-spacing:.12em}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:15px 0}.sum,.item{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:17px}.sum b{font-size:26px;display:block}.sum span{font-size:11px;color:#65736e;text-transform:uppercase}.item{display:grid;grid-template-columns:130px 1fr;gap:15px;margin:10px 0}.status{align-self:start;text-align:center;padding:7px;border-radius:99px;font:700 10px Consolas,monospace}.passed{background:#dff2e9;color:#14573f}.pending{background:#e8ece8;color:#5e6964}.awaiting{background:#fff0d5;color:#87580e}.item h2{font-size:16px;margin:0 0 6px}.item p{font-size:13px;line-height:1.5;color:#55645e;margin:4px 0}.item code{font-size:11px}footer{padding:20px 4px;color:#68756f;font-size:12px}@media(max-width:650px){.wrap{padding:14px}.summary{grid-template-columns:1fr}.item{grid-template-columns:1fr}.status{width:max-content}}@media print{body{background:white}.wrap{padding:0}}
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="tag">EP052 · DELIVERY STATUS</div>
+        <h1>Stored Procedure Breakout Trading checklist</h1>
+        <p>Evidence checklist for the interactive implementation map. Statuses reflect artifact delivery only.</p>
+      </header>
+      <section class="summary">
+        <div class="sum"><b>8 / 9</b><span>artifact checks passed</span></div>
+        <div class="sum"><b>4</b><span>strategies integrated</span></div>
+        <div class="sum"><b>In progress</b><span>implementation verification</span></div>
+      </section>
+      <main>
+        <article class="item">
+          <span class="status passed">PASSED</span>
+          <div>
+            <h2>Source coverage</h2>
+            <p>All workflow steps from ingestion to final trade insertion are represented in the interactive workflow HTML.</p>
+            <code>Evidence required: verified workflow HTML layout</code>
+          </div>
+        </article>
+        <article class="item">
+          <span class="status passed">PASSED</span>
+          <div>
+            <h2>Ingestion & Window Gates</h2>
+            <p>Quotes are refreshed via sp_000 and London timezone trading hour gates are verified in SP.</p>
+            <code>Evidence required: sp_001_create_trades_brk validation logs</code>
+          </div>
+        </article>
+        <article class="item">
+          <span class="status passed">PASSED</span>
+          <div>
+            <h2>Window History Extraction</h2>
+            <p>Historical prices for whitelisted currency pairs are extracted correctly using lookup periods.</p>
+            <code>Evidence required: test query output showing correct lookback counts</code>
+          </div>
+        </article>
+        <article class="item">
+          <span class="status passed">PASSED</span>
+          <div>
+            <h2>Min/Max Threshold Calculations</h2>
+            <p>Rolling min/max prices and pip-buffered buy/sell thresholds are mathematically correct.</p>
+            <code>Evidence required: SQL test query returning correct high/low offsets</code>
+          </div>
+        </article>
+        <article class="item">
+          <span class="status passed">PASSED</span>
+          <div>
+            <h2>Breakout Trigger Logic</h2>
+            <p>Python triggers (standard breakout trend, reversal breakout contrarian) are implemented natively in T-SQL.</p>
+            <code>Evidence required: candidate generation matching python outputs</code>
+          </div>
+        </article>
+        <article class="item">
+          <span class="status passed">PASSED</span>
+          <div>
+            <h2>Position Reversals (Flipping)</h2>
+            <p>In-flight flipping closes opposite open trades and opens the new breakout trade as defined by allow_reversal.</p>
+            <code>Evidence required: simulated position flips in SQL log</code>
+          </div>
+        </article>
+        <article class="item">
+          <span class="status passed">PASSED</span>
+          <div>
+            <h2>Exposure & Limits Checks</h2>
+            <p>Candidate ranking, max exposure checks, and available slot limits are applied correctly in the execution CTE.</p>
+            <code>Evidence required: RankedTrades execution trace under limits</code>
+          </div>
+        </article>
+        <article class="item">
+          <span class="status passed">PASSED</span>
+          <div>
+            <h2>Trade Placement (BRK Models)</h2>
+            <p>BRK model trades are generated in combined_trades_open in the exact same schema and format as DNA trades.</p>
+            <code>Evidence required: combined_trades_open rows with model prefix BRK_</code>
+          </div>
+        </article>
+        <article class="item">
+          <span class="status awaiting">AWAITING USER</span>
+          <div>
+            <h2>Final visual and content verification</h2>
+            <p>Verify generated trades in combined_trades_open and confirm that they match expected breakout strategy metrics.</p>
+            <code>Evidence required: user pass/fail feedback</code>
+          </div>
+        </article>
+      </main>
+      <footer>Generated 2026-08-24 · Source: ~/eds/workstream/100_todo/20260824_195709_breakout_997_sp_create_trades_brk.md</footer>
+    </div>
+  </body>
+</html>

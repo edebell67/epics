@@ -1,0 +1,59 @@
+<!doctype html>
+<!--
+workstream/600_workflow/ep050/EP050_distribution_engine_node_12_workflow.html — Node 12 Architecture & Opportunity Scoring Workflow.
+
+VERSION HISTORY
+v1.0.0 · 2026-08-17 · Initial interactive workflow map for EP050 Node 12 (Opportunity Scoring).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP050 Node 12 — Opportunity Scoring Workflow</title>
+<style>
+:root{--ink:#14201a;--muted:#64716a;--paper:#f7faf7;--line:#d7e2da;--green:#087443;--blue:#12609a;--amber:#9a5d00;--red:#b3261e}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,sans-serif}
+header{background:#10271c;color:#fff;padding:24px 32px}
+h1{margin:0;font:700 28px/1.1 Georgia,serif}
+.layout{max-width:1200px;margin:24px auto;padding:0 24px;display:grid;grid-template-columns:1fr 360px;gap:24px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:16px}
+.tag{display:inline-block;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:bold;background:#edf1ee;color:#45554b}
+h3{margin:10px 0 6px}
+p{margin:0 0 10px;font-size:13.5px;color:var(--muted)}
+.flow-step{display:flex;gap:12px;margin:12px 0;align-items:flex-start}
+.num{width:28px;height:28px;border-radius:50%;background:#10271c;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:13px;flex-shrink:0}
+code{background:#edf1ee;padding:2px 5px;border-radius:4px;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+<h1>EP050 Node 12 — Demand Opportunity Scoring (DOS) Workflow</h1>
+<p style="margin:6px 0 0;color:#d3e5d9">Stage 3 Strategy node: computes deterministic Demand Opportunity Score (DOS v1.0) and priority tiering from Node 11 classification output.</p>
+</header>
+<main class="layout">
+<section>
+<div class="card">
+<span class="tag">NODE 12 EXECUTION FLOW</span>
+<h3>Opportunity Scoring Pipeline</h3>
+<div class="flow-step"><div class="num">1</div><div><strong>Ingest Intent Classification:</strong> Consume Node 11 <code>IntentClassificationResult</code> (primary/secondary intents, urgency, taxonomy scores).</div></div>
+<div class="flow-step"><div class="num">2</div><div><strong>Evaluate Urgency Component:</strong> Map <code>urgency_level</code> (high=1.0, medium=0.6, low=0.3) $\times$ 35% weight.</div></div>
+<div class="flow-step"><div class="num">3</div><div><strong>Evaluate Intent Viability Component:</strong> Score commercial / troubleshooting value $\times$ 30% weight.</div></div>
+<div class="flow-step"><div class="num">4</div><div><strong>Evaluate Service Alignment:</strong> Validate service context (e.g. <code>boiler_repair</code>) $\times$ 20% weight.</div></div>
+<div class="flow-step"><div class="num">5</div><div><strong>Evaluate Local Alignment:</strong> Validate locality presence $\times$ 15% weight.</div></div>
+<div class="flow-step"><div class="num">6</div><div><strong>Calculate DOS & Tier:</strong> Compute final DOS (0.0–100.0), assign priority tier (TIER_1_IMMEDIATE to TIER_4_LOW), generate deterministic <code>opp_</code> ID, and preserve full lineage.</div></div>
+</div>
+</section>
+<aside>
+<div class="card">
+<span class="tag">FORMULA & INVARIANTS</span>
+<h3>DOS v1.0 Formula</h3>
+<p><code>DOS = (Urgency*35) + (Intent*30) + (Service*20) + (Locality*15)</code></p>
+<p>• <strong>Tier 1 Immediate:</strong> DOS &ge; 80.0</p>
+<p>• <strong>Tier 2 High:</strong> 65.0 &le; DOS &lt; 80.0</p>
+<p>• <strong>Tier 3 Moderate:</strong> 45.0 &le; DOS &lt; 65.0</p>
+<p>• <strong>Tier 4 Low:</strong> DOS &lt; 45.0</p>
+</div>
+</aside>
+</main>
+</body>
+</html>

@@ -1,0 +1,545 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/ep043/EP043_business_owner_access_reporting_workflow.html
+  — interactive workflow for EP043 business owner access level, owner creation, reporting and tracking.
+
+  VERSION HISTORY
+  v1.0.0 · 2026-08-08 · Initial version: maps the full business owner lifecycle from
+    admin owner creation through to the owner-facing reporting and tracking dashboards,
+    aligning with the deployed API endpoints at shared-website-assistant-api.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP043 — Business Owner Access &amp; Reporting Workflow</title>
+<style>
+:root{--ink:#14201a;--muted:#64716a;--paper:#f7faf7;--line:#d7e2da;--green:#087443;--blue:#12609a;--amber:#9a5d00;--red:#b3261e;--purple:#5f3c91}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,sans-serif}
+header{background:#10271c;color:white;padding:30px max(22px,calc((100vw - 1240px)/2))}
+h1{margin:0;font:700 32px/1.1 Georgia,serif}
+header p{max-width:920px;color:#d3e5d9;margin:10px 0 0}
+header code{background:rgba(255,255,255,.14);padding:2px 5px;border-radius:4px}
+.layout{max-width:1240px;margin:24px auto;display:grid;grid-template-columns:1fr 410px;gap:20px;padding:0 20px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.toolbar button{cursor:pointer;border:1px solid var(--line);background:white;border-radius:999px;padding:8px 12px;font:inherit}
+.toolbar button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lane{background:white;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:18px}
+.lane h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 4px;color:var(--muted)}
+.lane .who{font-size:12px;color:var(--muted);margin:0 0 14px}
+.flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}
+.arrow{align-self:center;font-size:22px;color:#76867d}
+.node{width:224px;min-height:158px;border:1px solid var(--line);border-radius:10px;background:white;padding:13px;box-shadow:0 2px 7px rgba(24,51,36,.05);cursor:pointer;text-align:left;font:inherit;color:inherit;display:flex;flex-direction:column}
+.node:hover,.node.sel{outline:3px solid #b9dfd0}
+.node h3{font-size:15px;line-height:1.2;margin:7px 0}
+.node p{font-size:12.5px;color:var(--muted);margin:0}
+.tag{display:inline-block;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:700;background:#edf1ee;color:#45554b;width:max-content}
+.stage{display:block;margin-top:auto;padding-top:8px;font:11px/1.3 ui-monospace,monospace;color:var(--muted)}
+.progress{display:block;max-width:100%;border-radius:6px;padding:4px 6px;font:700 10px ui-monospace,monospace;margin-top:8px;border:1px solid;line-height:1.35}
+.blocked{background:#ffebe8;color:#8d1c13;border-color:#f5aaa2}
+.active{background:#fff2d5;color:#7b4800;border-color:#f0c779}
+.partial{background:#eaf4ff;color:#07558d;border-color:#9ac9ed}
+.complete{background:#dff5e8;color:#075b38;border-color:#95dab2}
+.scope{background:#f4f0fa;color:#4b2f74;border-color:#d3c2ea}
+.side{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;position:sticky;top:18px;max-height:calc(100vh - 40px);overflow-y:auto}
+.side h2{font:700 20px Georgia,serif;margin:0 0 4px}
+.side .sub{font:11px/1.3 ui-monospace,monospace;color:var(--muted);margin:0 0 12px}
+.side .contract{font-size:13.5px;color:var(--ink);margin:0 0 4px}
+.side h4{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px;padding-top:12px;border-top:1px solid var(--line)}
+.side ol{margin:0;padding-left:19px}
+.side ol li{font-size:13px;margin:7px 0}
+.side .box{font-size:13px;padding:9px 11px;border-radius:8px;margin:0}
+.box.test{background:#f2f8f4;border-left:3px solid var(--green)}
+.box.ev{background:#f5f9ff;border-left:3px solid var(--blue)}
+.box.dep{background:#faf7f2;border-left:3px solid var(--amber)}
+.detail{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:18px}
+.detail h3{font-size:15px;margin:0 0 8px}
+.detail ul{margin:0;padding-left:20px}
+.detail li{margin:6px 0;font-size:13.5px}
+code{background:#edf1ee;padding:2px 5px;border-radius:4px;font-size:12px}
+pre{background:#10271c;color:#dbeee3;padding:13px;border-radius:9px;overflow-x:auto;font-size:12.5px;line-height:1.5}
+pre code{background:none;color:inherit;padding:0}
+.callout{border-left:4px solid var(--amber);background:#fffaf0;padding:11px 14px;border-radius:0 8px 8px 0;margin:14px 0;font-size:13.5px}
+.callout.bad{border-left-color:var(--red);background:#fff7f6}
+@media(max-width:960px){.layout{grid-template-columns:1fr}.side{position:static;max-height:none}.node{width:100%}.arrow{display:none}}
+</style>
+</head>
+<body>
+<header>
+<h1>Business Owner Access &amp; Reporting</h1>
+<p>End-to-end workflow for the <strong>EP043 business owner</strong> access level. An admin creates a per-client owner token; the owner authenticates with it on their site, gains access to the chat widget, widget reporting, and a new aggregated website tracking dashboard.</p>
+<p style="margin-top:12px">Backend at <code>shared-website-assistant-api</code>. Deployed lineage has since moved well past <code>cc6fd5d2</code> — production was found (2026-08-11 forensics) actually running <code>113ba608</code>, and <code>master</code> has since been reconciled to <code>aa50542d</code> (pending the service's next redeploy cycle; see <code>EP043_thetechprinciple_widget_rollout_and_lead_capture_workflow.html</code> for the full account). Admin routes at <code>/api/admin/owners</code>; owner routes at <code>/api/owner/reporting</code> and <code>/api/owner/reporting/tracking</code>.</p>
+</header>
+
+<main class="layout">
+<section>
+
+<div class="toolbar">
+  <button class="on" data-f="all">All lanes</button>
+  <button data-f="admin">Admin</button>
+  <button data-f="owner">Owner</button>
+  <button data-f="track">Tracking</button>
+  <button data-f="out">Subscriptions</button>
+  <button data-f="promo">Promotion</button>
+</div>
+<p style="font-size:12px;color:var(--muted);margin:0 0 14px">Click any node for its detailed plan — steps, completion test, evidence and dependency.</p>
+
+<div class="lane" data-lane="admin">
+<h2>Lane 1 — Admin: create site + business owner</h2>
+<p class="who">Actor: admin · runs once per generated site</p>
+<div class="flow">
+  <button class="node" data-id="site"><span class="tag">Create client</span><h3>Create client profile</h3><p>Admin creates a client profile via POST /api/admin/clients or the admin HTML interface. Sets business name, allowed hosts, modules, and enabled features.</p><code class="stage">admin (1.1)</code><span class="progress complete">100% · Deployed</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="owner_create"><span class="tag">POST /api/admin/owners</span><h3>Create business owner token</h3><p>Admin calls POST /api/admin/owners with {clientId}. Server generates a UUID token. Returns it once — must be saved to BUSINESS_OWNER_TOKENS_JSON on Render.</p><code class="stage">admin (1.2)</code><span class="progress complete">100% · Deployed cc6fd5d2</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="token_save"><span class="tag">Env var</span><h3>Save token to Render</h3><p>Admin copies the one-time token into the BUSINESS_OWNER_TOKENS_JSON env var on Render. Redeploy triggers. JSON format: {"clientId": "token-uuid"}</p><code class="stage">admin (1.3)</code><span class="progress active">Needs manual env-var update</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="list_owners"><span class="tag">GET /api/admin/owners</span><h3>List owner tokens</h3><p>Admin can list all registered owner tokens with their client names via GET /api/admin/owners. Returns clientId, tokenPresent, businessName for each.</p><code class="stage">admin (1.4)</code><span class="progress complete">100% · Deployed</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="owner">
+<h2>Lane 2 — Owner: site access and dashboard</h2>
+<p class="who">Actor: business owner · authenticated via Bearer token</p>
+<div class="flow">
+  <button class="node" data-id="owner_site"><span class="tag">Navigate</span><h3>Owner visits their site</h3><p>Business owner navigates to their generated website. The site loads with the chat widget and any embedded owner features.</p><code class="stage">owner (2.1)</code><span class="progress complete">100% · Site live</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="auth"><span class="tag">Auth: Bearer token</span><h3>Authenticate to owner API</h3><p>Owner uses their saved token as Authorization: Bearer &lt;token&gt; to call owner API endpoints. The anyOwnerAuthorized() function checks both the new BUSINESS_OWNER_TOKENS_JSON and legacy OWNER_CONSOLE_TOKENS_JSON.</p><code class="stage">owner (2.2)</code><span class="progress complete">100% · Deployed</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="chat_widget"><span class="tag">Chat widget</span><h3>Access chat widget</h3><p>Owner accesses the chat widget on their own site. The widget loads configured modules (assistant, faq, booking, callback, lead capture, contact). No additional auth needed — widget is already on the site.</p><code class="stage">owner (2.3)</code><span class="progress complete">100% · Widget live on generated sites</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="dashboard"><span class="tag">Owner dashboard</span><h3>Owner dashboard (if subscribed)</h3><p>Owner accesses their reporting dashboard at /owner.html?tenant=&lt;id&gt;. Shows page analytics, lead data, conversation records, callback performance. Requires tenant-scoped auth token.</p><code class="stage">owner (2.4)</code><span class="progress complete">100% · Deployed</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="tracking_report"><span class="tag">GET /api/owner/reporting</span><h3>Tracking report (if subscribed)</h3><p>Owner views aggregated website tracking report via GET /api/owner/reporting?tenant=&lt;id&gt;. Returns pageAnalytics, summary, performance metrics. Requires anyOwnerAuthorized.</p><code class="stage">owner (2.5)</code><span class="progress complete">100% · Deployed cc6fd5d2</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="tracking_toggle"><span class="tag">PUT tracking</span><h3>Toggle web tracking</h3><p>Owner can enable/disable web tracking on their own site via PUT /api/owner/reporting/tracking?tenant=&lt;id&gt; with {analyticsEnabled: true|false}. Only affects their own tenant.</p><code class="stage">owner (2.6)</code><span class="progress complete">100% · Deployed cc6fd5d2</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="track">
+<h2>Lane 3 — Aggregated website tracking report</h2>
+<p class="who">Actor: tracking system · captures and aggregates per-session data</p>
+<div class="flow">
+  <button class="node" data-id="page_access"><span class="tag">Event</span><h3>Page access recorded</h3><p>When a visitor loads a page on the site, the system records: page URL, timestamp, session ID, visitor fingerprint. Stored as analytics event.</p><code class="stage">tracking (3.1)</code><span class="progress complete">100% · Analytics ingestion live</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="function_click"><span class="tag">Event</span><h3>Function/button click recorded</h3><p>When a visitor clicks a CTA button, opens the chat widget, clicks a service link, or submits a form — the event type and target are recorded with timestamp.</p><code class="stage">tracking (3.2)</code><span class="progress complete">100% · Analytics ingestion live</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="service_access"><span class="tag">Event</span><h3>Service access recorded</h3><p>When a visitor clicks on a specific service, opens a booking link, or requests a callback for a service — the service name and action are recorded with timestamp.</p><code class="stage">tracking (3.3)</code><span class="progress complete">100% · service_view via IntersectionObserver on [data-service], live</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="aggregate_report"><span class="tag">Aggregate</span><h3>Aggregated report generated</h3><p>System aggregates all events into a report showing: unique visitors, page views, engaged percentage, CTA clicks per page, service request counts, and timestamps for each category.</p><code class="stage">tracking (3.4)</code><span class="progress complete">100% · pageAnalytics endpoint live</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="owner_view_report"><span class="tag">View</span><h3>Owner views aggregated report</h3><p>Owner opens the dashboard and sees: pages accessed with visit counts, functions/buttons clicked per page with timestamps, services accessed with request counts. Filterable by date range.</p><code class="stage">tracking (3.5)</code><span class="progress complete">100% · owner.js Overview/Compare/Promotions tabs live</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="out">
+<h2>Lane 4 — Subscription model</h2>
+<p class="who">Actor: admin + system · business owner access tier gating</p>
+<div class="flow">
+  <button class="node" data-id="sub_none"><span class="tag">Free</span><h3>No subscription</h3><p>Business owner gets: chat widget access (no reporting or tracking). Basic site features only. No aggregated analytics.</p><code class="stage">subscription (4.1)</code><span class="progress scope">Design pending</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="sub_reporting"><span class="tag">Reporting</span><h3>Chat widget reporting subscribed</h3><p>Business owner gets: chat widget + widget reporting dashboard. Sees conversations, leads, callbacks, booking activity. No website tracking.</p><code class="stage">subscription (4.2)</code><span class="progress scope">Design pending</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="sub_tracking"><span class="tag">Tracking</span><h3>Website tracking subscribed</h3><p>Business owner gets: chat widget + reporting + aggregated website tracking report. Full analytics including pages accessed, buttons clicked, services accessed, timestamps.</p><code class="stage">subscription (4.3)</code><span class="progress scope">Design pending</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="promo">
+<h2>Lane 5 — Promotion response (sub-process)</h2>
+<p class="who">Actor: business owner · responds to popular services with time-limited offers</p>
+<div class="flow">
+  <button class="node" data-id="promo_sub"><span class="tag">Sub-process</span><h3>Promotion response flow</h3><p>Owner spots a service with above-average traffic, selects offer type (discount/voucher/combo/custom), configures parameters, activates on website &amp; chat widget, and measures effectiveness via tracking.</p><code class="stage">promotion (5.1)</code><span class="progress complete">100% · banner injection + promotion_click live in analytics-embed.js</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="promo_track"><span class="tag">Tracking</span><h3>Promotion effectiveness tracking</h3><p>Every promotion impression and click is captured alongside aggregate tracking. Day-over-day comparison shows if user behaviour changed during the promotion period vs baseline.</p><code class="stage">promotion (5.2)</code><span class="progress complete">100% · promotion_impression/click in ALLOWED_EVENT_TYPES, captured</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="promo_ai"><span class="tag">AI suggestion</span><h3>AI-suggested promotions</h3><p>Based on tracking data and day-over-day comparison, the system can suggest promotions for underperforming or high-traffic services, including optimal discount levels and timing.</p><code class="stage">promotion (5.3)</code><span class="progress partial">Threshold-based signal detector live · discount/timing optimisation not built</span></button>
+</div>
+</div>
+
+
+
+<div class="detail">
+<h3>API contract — business_owner endpoints</h3>
+<p style="margin:0 0 10px;font-size:13.5px;color:var(--muted)">All endpoints deployed on <code>shared-website-assistant-api</code>. Deployed lineage has since advanced well past <code>cc6fd5d2</code> — see the header note above for the 2026-08-11 master reconciliation.</p>
+<pre><code>POST /api/admin/owners
+  Auth: ADMIN_TOKEN
+  Body: { "clientId": "client_key" }
+  Response: { clientId, ownerToken, businessName, message }
+  Note: Token shown once — must be saved to Render env var
+
+GET /api/admin/owners
+  Auth: ADMIN_TOKEN
+  Response: { owners: [{ clientId, tokenPresent, businessName }] }
+
+GET /api/owner/reporting?tenant=&lt;id&gt;
+  Auth: Bearer &lt;owner_token&gt; (or legacy console token)
+  Response: { clientId, businessName, pageAnalytics, summary, performance }
+
+PUT /api/owner/reporting/tracking?tenant=&lt;id&gt;
+  Auth: Bearer &lt;owner_token&gt; (or legacy console token)
+  Body: { "analyticsEnabled": true|false }
+  Response: { clientId, analyticsEnabled, message }</code></pre>
+</div>
+
+<div class="detail">
+<!-- Sub-process workflow link -->
+<p><strong>Sub-process:</strong> <a href="EP043_promotion_response_sub_process.html" style="color:var(--blue)">Promotion Response Workflow →</a></p>
+
+<h3>Aggregated tracking report structure</h3>
+<p style="font-size:13.5px;color:var(--muted);margin:0 0 10px">The tracking report provides the following data to the business owner:</p>
+<ul>
+<li><strong>Pages accessed</strong> — List of pages visited, with visit count per page and timestamp of first/last visit.</li>
+<li><strong>Functions accessed / buttons clicked</strong> — Per-page breakdown of which features were interacted with (chat widget opened, CTA buttons clicked, form submitted) with timestamps.</li>
+<li><strong>Services accessed</strong> — Which services were viewed, booking links clicked, or callbacks requested, with timestamps.</li>
+<li><strong>Timestamp of each event</strong> — Every recorded event carries its creation timestamp. The report presents them in chronological order per category.</li>
+</ul>
+</div>
+
+<div class="detail">
+<h3>Tracking report — pageAnalytics shape</h3>
+<pre><code>{
+  "uniqueVisits": 42,
+  "pageViews": 156,
+  "engagedPct": 64,
+  "ctaClicks": 28,
+  "mostVisitedPages": [
+    { "url": "index.html", "views": 48, "lastVisit": "2026-08-08T10:22:00Z" },
+    { "url": "services.html", "views": 37, "lastVisit": "2026-08-08T10:15:00Z" }
+  ],
+  "buttonClicks": {
+    "cta_book_now": 12,
+    "chat_widget_open": 8,
+    "callback_request": 5,
+    "service_view": 15
+  },
+  "serviceRequests": {
+    "Boiler servicing": 6,
+    "Emergency repairs": 4,
+    "Annual inspection": 3
+  },
+  "eventsTimeline": [
+    { "type": "page_view", "url": "services.html", "timestamp": "2026-08-08T10:10:00Z" },
+    { "type": "button_click", "target": "cta_book_now", "timestamp": "2026-08-08T10:11:00Z" },
+    { "type": "service_request", "service": "Boiler servicing", "timestamp": "2026-08-08T10:12:00Z" }
+  ]
+}</code></pre>
+<div class="callout"><strong>Data is aggregated, not per-visitor.</strong> The owner sees counts and rates only, never raw per-visitor rows. This matches the same anonymity contract as the analytics ingestion system — the business owner learns what their visitors did as a population, but cannot identify individuals.</div>
+<div class="callout bad"><strong>Tracking is opt-in per-client.</strong> If <code>analyticsEnabled</code> is <code>false</code> for a client, the reporting endpoint returns <code>{"status": "tracking_disabled"}</code> instead of analytics data. The owner can toggle this on/off via <code>PUT /api/owner/reporting/tracking</code>.</div>
+</div>
+
+<div class="detail">
+<h3>Auth model — two-tier owner verification</h3>
+<ul>
+<li><strong>Admin</strong> — full platform access via <code>ADMIN_TOKEN</code> env var. Can create clients, list all data, create owner tokens.</li>
+<li><strong>Business owner</strong> — per-client access via token stored in <code>BUSINESS_OWNER_TOKENS_JSON</code> env var. Can only access their own tenant's reporting and tracking. Created by admin only.</li>
+<li><strong>Legacy owner console</strong> — backward compatible via <code>OWNER_CONSOLE_TOKENS_JSON</code> and <code>OWNER_CONSOLE_TOKENS_JSON_BATCH_01</code>. Both new and legacy tokens work via <code>anyOwnerAuthorized()</code>.</li>
+</ul>
+<div class="callout"><strong>Token distribution model.</strong> The admin generates a token via <code>POST /api/admin/owners</code> and receives it once. The token must be saved into the <code>BUSINESS_OWNER_TOKENS_JSON</code> Render env var and the service redeployed. After that, the business owner uses their token to call the owner API endpoints. The token is never stored in the application database — only in the Render env var, making token revocation a deploy-level action.</div>
+</div>
+
+</section>
+
+<aside class="side">
+<h2 id="t">Select a node</h2>
+<p class="sub" id="s">—</p>
+<p class="contract" id="c">Click any node for its detailed plan: implementation steps, the exact completion test, the evidence that proves it, and what it depends on.</p>
+<div id="plan"></div>
+</aside>
+</main>
+
+<script>
+const D={
+site:{s:'admin (1.1) · Create client profile via admin API',
+c:'Admin creates a client profile through the admin.html interface or direct API call. Sets business name, allowed hosts, enabled modules, theme, contact info, and features like analyticsEnabled.',
+steps:[
+ 'Admin opens admin.html and navigates to Client Management.',
+ 'Admin fills in the new client form with business name, allowed hosts, contact info, and selects enabled modules.',
+ 'Alternatively, admin calls POST /api/admin/clients with the full client JSON payload.',
+ 'Server validates and stores the client profile. Returns the created client object with generated ID.',
+ 'Client appears in the admin client list and is ready for owner token creation.'
+],
+test:'POST /api/admin/clients with valid ADMIN_TOKEN returns 201 with client object. Client appears in GET /api/admin/clients response.',
+ev:'API response showing 201 status and client object with all fields populated.',
+dep:'Requires ADMIN_TOKEN to be set on the shared assistant service.'},
+
+owner_create:{s:'admin (1.2) · POST /api/admin/owners — generate business owner token',
+c:'Admin calls the new business_owner creation endpoint with the client ID. Server generates a UUID and returns it as a one-time setup token. Admin must save this token to the BUSINESS_OWNER_TOKENS_JSON env var on Render.',
+steps:[
+ 'Admin calls POST /api/admin/owners with { "clientId": "&lt;client_key&gt;" } and valid ADMIN_TOKEN.',
+ 'Server looks up the client by id or publicKey. Returns 404 if not found.',
+ 'Server generates a UUID via randomUUID() for the owner token.',
+ 'Server returns the token with a message that it is shown only once.',
+ 'Admin copies the token and pastes it into the Render dashboard env var: BUSINESS_OWNER_TOKENS_JSON = {"clientId":"token-uuid"}.',
+ 'Admin triggers a Render redeploy so the new env var takes effect.',
+ 'Owner can now use the token to call owner API endpoints.'
+],
+test:'POST /api/admin/owners with valid ADMIN_TOKEN and existing clientId returns 201 with ownerToken. Without ADMIN_TOKEN returns 401. Non-existent client returns 404.',
+ev:'API response showing 201 status with ownerToken UUID.',
+dep:'Client must exist. ADMIN_TOKEN must be set.'},
+
+token_save:{s:'admin (1.3) · Save owner token to Render env var',
+c:'The one-time token from the admin creation endpoint must be saved into Render dashboard as BUSINESS_OWNER_TOKENS_JSON. Format: {"client_id": "token-uuid"}. Multiple tokens can exist in the same JSON object.',
+steps:[
+ 'Admin receives the one-time owner token from POST /api/admin/owners response.',
+ 'Admin opens Render dashboard > shared-website-assistant-api > Environment.',
+ 'Creates or updates BUSINESS_OWNER_TOKENS_JSON with the new token: {"existing_client": "existing_token", "new_client": "new_uuid_token"}.',
+ 'Triggers manual deploy or waits for auto-deploy.',
+ 'Service restarts with the new env var. Owner can now authenticate.',
+ 'Note: If the token was not captured during the one-time display, re-create it via POST /api/admin/owners again.'
+],
+test:'After env var is set and redeploy completes, GET /api/owner/reporting?tenant=&lt;clientId&gt; with the owner token returns 200 instead of 401.',
+ev:'Successful API call with the owner token showing the reporting data.',
+dep:'Token from admin (1.2). Render dashboard access.'},
+
+list_owners:{s:'admin (1.4) · GET /api/admin/owners — list owner tokens',
+c:'Admin can view all registered owner tokens and their associated client names via the listing endpoint. Returns client IDs, whether a token exists, and the client business name.',
+steps:[
+ 'Admin calls GET /api/admin/owners with valid ADMIN_TOKEN.',
+ 'Server parses BUSINESS_OWNER_TOKENS_JSON and maps each client ID to the client profile.',
+ 'Returns array of { clientId, tokenPresent, businessName } objects.',
+ 'Admin can verify which sites have owner tokens configured.',
+ 'Admin can see which clients are missing tokens.'
+],
+test:'GET /api/admin/owners with ADMIN_TOKEN returns 200 and list of owners. Without ADMIN_TOKEN returns 401.',
+ev:'API response showing owners array with client IDs and business names.',
+dep:'ADMIN_TOKEN must be set.'},
+
+owner_site:{s:'owner (2.1) · Owner navigates to their generated website',
+c:'The business owner opens their generated website in a browser. The site loads with all standard features including the chat widget (injected via assistant-embed.js) and any owner-specific elements.',
+steps:[
+ 'Owner opens the preview link from their branded email.',
+ 'Site loads at the generated domain (thetechprinciple.com/&lt;slug&gt;/).',
+ 'Chat widget launcher appears as normal on all pages.',
+ 'Owner sees the site in its current build state.',
+ 'From here, the owner can access the chat widget, view reporting, or toggle tracking.'
+],
+test:'Site loads at production URL. Layout renders correctly. Chat widget launcher is visible.',
+ev:'Browser screenshot showing the site loaded with widget launcher.',
+dep:'Site must be generated and deployed (EP047 site generation pipeline).'},
+
+auth:{s:'owner (2.2) · Authenticate to owner API with Bearer token',
+c:'The owner uses their business_owner token saved from admin creation to authenticate. The anyOwnerAuthorized() function validates the token against BUSINESS_OWNER_TOKENS_JSON. Falls back to legacy console tokens if new token not found.',
+steps:[
+ 'Owner retrieves their saved token (provided by admin when creating the account).',
+ 'Owner calls owner API endpoints with header: Authorization: Bearer &lt;token&gt;.',
+ 'Server runs anyOwnerAuthorized() which checks both BUSINESS_OWNER_TOKENS_JSON and legacy OWNER_CONSOLE_TOKENS_JSON.',
+ 'If token matches, access is granted. Returns 401 if no valid token.',
+ 'Token is per-client — can only access the owner\'s own tenant data.'
+],
+test:'GET /api/owner/reporting?tenant=&lt;clientId&gt; with valid owner token returns 200. With invalid token returns 401.',
+ev:'API response showing 200 with reporting data.',
+dep:'Token must be saved in BUSINESS_OWNER_TOKENS_JSON env var on Render.'},
+
+chat_widget:{s:'owner (2.3) · Access the chat widget on their own site',
+c:'The chat widget is already embedded on the generated site. No additional auth is needed to view it — it is part of the site layout. The owner can interact with the assistant, browse FAQs, use booking, and view contact details.',
+steps:[
+ 'Owner visits their site and sees the chat widget launcher icon.',
+ 'Owner clicks the launcher to open the chat panel.',
+ 'Widget loads the pre-configured modules from the client profile: assistant, faq, booking, callback, lead capture, contact.',
+ 'Owner can interact with the assistant, ask questions, view FAQs.',
+ 'Widget requires no owner-level authentication — it is publicly accessible.',
+ 'Owner-level features (reporting, tracking) require separate auth.'
+],
+test:'Site loads with visible chat widget. Widget panel opens on click. Modules render correctly.',
+ev:'Screenshots of widget launcher and open panel on the generated site.',
+dep:'Site must have assistant-embed.js configured with the client profile.'},
+
+dashboard:{s:'owner (2.4) · Owner accesses reporting dashboard (if subscribed)',
+c:'If the business owner has subscribed to chat widget reporting, they can access the owner dashboard at /owner.html?tenant=&lt;id&gt;. The dashboard shows conversations, leads, callbacks, booking activity, and performance metrics.',
+steps:[
+ 'Owner navigates to /owner.html on the shared assistant API domain.',
+ 'Authenticates using the dashboard access flow (password or token).',
+ 'Dashboard loads showing: conversation records with timestamps, lead captures with followup status, callback requests and handling times, booking activity, page analytics (unique visits, page views).',
+ 'Owner can filter by date range and view performance compared to baseline.',
+ 'Dashboard uses the GET /api/owner/activity endpoint for data.'
+],
+test:'GET /api/owner/activity?tenant=&lt;clientId&gt; with valid auth returns records, summary, performance, pageAnalytics.',
+ev:'API response showing records array, summary object, performance metrics, pageAnalytics data.',
+dep:'Client must be authenticated. analyticsEnabled should be true for page data.'},
+
+tracking_report:{s:'owner (2.5) · GET /api/owner/reporting — view aggregated website tracking report',
+c:'The tracking report endpoint returns aggregated analytics for the owner\'s site. Includes page analytics, summary of all activity types, and performance metrics. Only accessible with valid owner token.',
+steps:[
+ 'Owner calls GET /api/owner/reporting?tenant=&lt;clientId&gt; with Bearer token.',
+ 'Server validates via anyOwnerAuthorized() — checks both new and legacy tokens.',
+ 'If analyticsEnabled is false, returns { status: "tracking_disabled" }.',
+ 'Otherwise returns pageAnalytics (uniqueVisits, pageViews, engagedPct, ctaClicks, per-page breakdown), summary (counts per activity type), and performance (today vs baseline).',
+ 'Owner can view aggregated report of pages accessed, buttons clicked, services accessed, and event timestamps.'
+],
+test:'GET /api/owner/reporting?tenant=&lt;existing_client&gt; with valid owner token returns 200 with pageAnalytics, summary, performance.',
+ev:'API response showing all three sections populated with data.',
+dep:'auth (2.2) must be working. analyticsEnabled must be true.'},
+
+tracking_toggle:{s:'owner (2.6) · PUT /api/owner/reporting/tracking — toggle web tracking',
+c:'The owner can enable or disable web tracking on their own site. This sets analyticsEnabled on the client profile. When disabled, events are still accepted but not stored, and the reporting endpoint returns tracking_disabled.',
+steps:[
+ 'Owner calls PUT /api/owner/reporting/tracking?tenant=&lt;clientId&gt; with Bearer token.',
+ 'Body: { "analyticsEnabled": true } or { "analyticsEnabled": false }.',
+ 'Server validates via anyOwnerAuthorized().',
+ 'Updates the client profile\'s analyticsEnabled field via store.updateClient().',
+ 'Returns confirmation with the new state: { clientId, analyticsEnabled, message }.',
+ 'When disabled, GET /api/owner/reporting returns { status: "tracking_disabled" } instead of analytics data.'
+],
+test:'PUT /api/owner/reporting/tracking?tenant=&lt;clientId&gt; with valid token and {analyticsEnabled:false} returns 200 with analyticsEnabled:false. GET /api/owner/reporting then returns tracking_disabled status.',
+ev:'API responses showing the toggle switch and tracking disabled state.',
+dep:'auth (2.2) must be working.'},
+
+page_access:{s:'tracking (3.1) · Page access events recorded',
+c:'When any visitor loads a page on the generated site, the analytics system records the event. Data captured: page URL, session ID, timestamp, visitor fingerprint.',
+steps:[
+ 'Visitor navigates to any page on the site.',
+ 'The assistant-embed.js script sends a page_view analytics event to the server.',
+ 'Event includes: page URL, session ID (from localStorage), timestamp, and a non-identifying visitor fingerprint.',
+ 'Server stores the event in the activity records for that client.',
+ 'Events are aggregated into pageAnalytics for the owner dashboard.'
+],
+test:'Visit a page on a site with analyticsEnabled=true. Verify the event appears in the owner dashboard within seconds.',
+ev:'Owner dashboard showing the page visit in pageAnalytics.'},
+
+function_click:{s:'tracking (3.2) · Button click and function access events recorded',
+c:'When a visitor clicks a CTA button, opens the chat widget, clicks a service link, or interacts with site functions, the system records the event with the target and timestamp.',
+steps:[
+ 'Visitor clicks a CTA button, opens chat widget, or clicks a service link.',
+ 'The assistant-embed.js script sends a function_interaction analytics event.',
+ 'Data: event type (button_click, chat_open, service_view), target identifier, timestamp, session ID.',
+ 'Server stores the event categorized by type and target.',
+ 'Aggregated into the buttonClicks field in the owner reporting endpoint.'
+],
+test:'Click a CTA button on the site. Verify the event type and target are recorded. Check owner dashboard for the click count increment.',
+ev:'Owner dashboard showing increased click count for the specific target.'},
+
+service_access:{s:'tracking (3.3) · Service access events recorded',
+c:'When a visitor clicks on a specific service card, opens a booking link for a service, or requests a callback for a particular service — the service name and action are recorded.',
+steps:[
+ 'Visitor clicks a service name, opens booking calendar, or requests a callback.',
+ 'The assistant-embed.js script sends a service_interaction analytics event.',
+ 'Data: service name, action type (viewed, booked, callback_requested), timestamp, session ID.',
+ 'Server stores the event grouped by service name.',
+ 'Aggregated into the serviceRequests field in the owner reporting endpoint.'
+],
+test:'Click on a service on the site. Verify the service name and action are recorded in the owner dashboard.',
+ev:'Owner dashboard showing request count for the specific service.'},
+
+aggregate_report:{s:'tracking (3.4) · Aggregated report generated from raw events',
+c:'The pageAnalytics system aggregates all raw events into a structured report. Returns counts per category, not individual visitor data. Used by both the GET /api/owner/activity and GET /api/owner/reporting endpoints.',
+steps:[
+ 'System reads all analytics events for the client from the activity records.',
+ 'Aggregates page views: count per page URL, unique sessions per page, first/last visit timestamps.',
+ 'Aggregates button clicks: count per click target type.',
+ 'Aggregates service requests: count per service name.',
+ 'Calculates summary metrics: uniqueVisits, total pageViews, engagedPct, ctaClicks total.',
+ 'Returns aggregated data — never raw per-visitor rows.'
+],
+test:'Generate analytics events across multiple sessions. Verify the aggregated report shows correct unique and total counts.',
+ev:'Owner reporting endpoint response showing aggregated data matching the test events.'},
+
+owner_view_report:{s:'tracking (3.5) · Owner views the aggregated tracking report',
+c:'The owner views their aggregated tracking report in the dashboard. Data is presented as aggregated counts per category, filterable by date range. Shows pages accessed with visit counts, functions/buttons clicked with timestamps, and services accessed.',
+steps:[
+ 'Owner navigates to their owner dashboard (owner dashboard UI or owner.html).',
+ 'Owner selects "Tracking Report" section.',
+ 'Dashboard calls GET /api/owner/reporting?tenant=&lt;clientId&gt; with the owner token.',
+ 'Dashboard renders: pages list with visit counts, button click breakdown, service request counts.',
+ 'Owner can filter by date range to view specific periods.',
+ 'Data is aggregated — no individual visitor identification.'
+],
+test:'Owner dashboard UI loads tracking report data from the API. Display is correct with no raw visitor data exposed.',
+ev:'Screenshot of the owner dashboard showing the tracking report with accurate counts.',
+dep:'Deployed: owner.html/owner.js Overview tab renders tracking.uniqueVisits and tracking.serviceViews from pageAnalyticsSummary(); Compare tab renders per-service views/clicks and the demand-signals list from /api/owner/reporting/compare. Owner must be subscribed (if gated — subscription gating itself is still unbuilt, see Lane 4).'},
+
+sub_none:{s:'subscription (4.1) · Free tier — no reporting or tracking',
+c:'At the free tier, the business owner gets access to the chat widget on their site. No reporting dashboard, no aggregated tracking. The widget operates in its default public mode.',
+steps:['Owner accesses their site and sees the chat widget.','No reporting dashboard link is shown.','No tracking report link is shown.','Widget operates in default public mode.'],
+test:'Owner authenticated shows chat widget but no dashboard or tracking options are available.',
+ev:'Dashboard view showing only the chat widget configuration, no reporting or tracking sections.'},
+
+sub_reporting:{s:'subscription (4.2) · Reporting tier — chat widget analytics',
+c:'Business owner subscribed to reporting gets: chat widget access + widget reporting dashboard. Sees conversation records, lead captures, callback performance, page analytics from widget interactions. No website-wide tracking.',
+steps:['Owner accesses reporting dashboard.','Dashboard shows conversations, leads, callbacks, performance.','Tracking section is hidden or shows upgrade prompt.'],
+test:'Owner dashboard shows reporting section with conversations, leads, callbacks, pageAnalytics. Tracking section is not available or shows upgrade prompt.',
+ev:'Screenshot of dashboard showing reporting data but not tracking.'},
+
+sub_tracking:{s:'subscription (4.3) · Full tier — tracking report included',
+c:'Business owner on the full subscription gets everything: chat widget + widget reporting + aggregated website tracking report. Full analytics including pages accessed, buttons clicked by type, services accessed, and chronological event timeline.',
+steps:['Owner accesses full dashboard.','Dashboard shows reporting section with conversations, leads, callbacks.','Dashboard shows tracking section with pages, button clicks, services, and timestamps.','Owner can toggle tracking on/off via the settings.'],
+test:'Owner dashboard shows both reporting and tracking sections. Tracking report shows pages, button clicks, services, and timestamps correctly.',
+ev:'Screenshot of full dashboard showing both reporting data and tracking report.'},
+
+promo_sub:{s:'promotion (5.1) · Owner responds to a popular service with a time-limited offer',
+c:'The owner spots a service running above its weekly average, chooses an offer type, configures it, and activates it across the website and chat widget. Full node-by-node detail is in the promotion response sub-process workflow.',
+steps:[
+ 'Day-over-day comparison flags a service whose views are significantly above the N-day average (default 7).',
+ 'Owner clicks "Respond with promotion" on that service.',
+ 'Owner selects an offer type: time-limited discount (X%), voucher (X%), service combo at a discount (X%), or a free-text custom promotion.',
+ 'Owner configures value, duration (start/end), optional voucher code, and where it displays (website banner, chat widget, or both).',
+ 'Owner sets service targeting: a single service, several services, or any service.',
+ 'Owner submits. POST /api/owner/promotions stores the promotion against the client profile and activates it.',
+ 'Banner appears on the website; the assistant opens with the promotional message in the chat widget.'
+],
+test:'POST /api/owner/promotions with a valid owner token returns 201 with the promotion object. GET /api/owner/promotions?tenant=&lt;id&gt; lists it as active. Banner renders on the live site and the widget opens with the promotional message.',
+ev:'API response showing the stored promotion, plus screenshots of the banner on the site and the promotional message in the widget.',
+dep:'Deployed: POST/GET/activate/deactivate /api/owner/promotions, store.normalizePromotion, store.activePromotionsForClient, and the Promotions tab in owner.js (list, activate, deactivate, effectiveness). GET /api/public/promotions serves the active, displayOn-filtered promotion to the site. analytics-embed.js fetches it and injects a fixed-position banner with a "Discuss this offer" CTA, firing promotion_impression on render and promotion_click on the CTA. NOT yet deployed: the chat-widget promotional message half (widget.js has no promotion awareness — only the website banner exists).'},
+
+promo_track:{s:'promotion (5.2) · Promotion effectiveness tracking',
+c:'Every promotion impression and click is captured alongside the aggregate tracking events and linked to the promotionId. Conversion for the promoted service is compared against baseline to show whether visitor behaviour actually changed.',
+steps:[
+ 'promotion_impression is emitted when the banner enters the viewport; promotion_click when it is clicked. Both carry promotionId, service and pageUrl.',
+ 'Baseline is computed from the promoted service over the previous 7 days: daily views, daily conversions, conversion rate.',
+ 'During the promotion, the same metrics are tracked plus impressions, clicks and click-through rate.',
+ 'After the promotion ends, post-promotion metrics measure any lasting effect on demand.',
+ 'GET /api/owner/reporting/promotion/:id returns the baseline / during / post comparison.',
+ 'If averageJobValue is configured for the client, revenue impact is estimated from the conversion delta.'
+],
+test:'With a promotion active, GET /api/owner/reporting/promotion/&lt;id&gt; returns baseline, duringPromotion and postPromotion blocks with impressions, clicks, clickThroughRate and conversion rates populated.',
+ev:'API response showing the three comparison blocks with non-zero impression and click counts.',
+dep:'Deployed: promotion_impression and promotion_click are in server.js ALLOWED_EVENT_TYPES; sanitizeEvent() captures promotionId and service; impressions/clicks flow end-to-end from the website banner (5.1). GET /api/owner/reporting/promotion/:id computes baseline (prior 7 days) / duringPromotion / postPromotion (7 days after end) conversion rates from form_submit events, conversionUplift, a lastEffect classification, and revenueImpact when client.averageJobValue is set. Known gap: conversion counting also checks for a callback_request event type, but that type is not in ALLOWED_EVENT_TYPES, so it never matches — form_submit is the only conversion signal that actually counts today.'},
+
+promo_ai:{s:'promotion (5.3) · AI-suggested promotions — signal detection live, optimisation not built',
+c:'The system already flags candidate services without the owner having to spot the opportunity themselves. What remains future scope is suggesting the offer type, discount level, and timing — today it says "this service is trending", not "run 15% off for 5 days".',
+steps:[
+ 'GET /api/owner/reporting/compare computes a signals array: services where today\'s views are >=3 and >= max(2, 1.5x the N-day average).',
+ 'Signals are sorted by absolute uplift (today minus average), highest first.',
+ 'Each signal carries { service, viewsToday, averageViews, recommendation }, where recommendation is a fixed string: "Consider a time-bound promotion for this service."',
+ 'owner.js renders these under "Demand signals" on the Compare tab, alongside the per-service table.',
+ 'Owner still chooses the offer type, discount level, duration, and targeting manually via the existing promotion creation flow (5.1) — the system does not suggest any of those.',
+ 'Not built: discount-level suggestion informed by past promotion effectiveness, timing/duration suggestion from historical traffic patterns, and accept/edit/dismiss on a generated draft promotion.'
+],
+test:'GET /api/owner/reporting/compare?tenant=&lt;id&gt;&days=7 with a service at >=3 views today and >=1.5x its 7-day average returns a non-empty signals array; owner.js Compare tab renders it under "Demand signals".',
+ev:'API response showing a populated signals array for a seeded above-baseline service, plus a screenshot of the Demand signals card.',
+dep:'Depends on 3.4 aggregate_report and 5.2 promo_track for the underlying event data. The candidate-flagging half is deployed; discount-level and timing optimisation remain future scope.'},
+
+// Deprecated debug comments removed.
+};
+
+function renderPlan(id){
+ const p=document.getElementById('plan');
+ if(!D[id]){p.innerHTML='<p style="color:var(--muted)">No plan available for this node.</p>';document.querySelectorAll('.node').forEach(n=>n.classList.remove('sel'));return}
+ const n=D[id];
+ const a=n.s.split('·');
+ document.getElementById('t').textContent=a[0]||n.s;
+ document.getElementById('s').textContent=a[1]||'';
+ const e=['<p class="contract">'+(n.c||'')+'</p>'];
+ e.push('<h4>Implementation steps</h4><ol>'+n.steps.map(s=>`<li>${s}</li>`).join('')+'</ol>');
+ if(n.test) e.push('<h4>Completion test</h4><p class="box test">'+n.test+'</p>');
+ if(n.ev) e.push('<h4>Evidence</h4><p class="box ev">'+n.ev+'</p>');
+ if(n.dep) e.push('<h4>Depends on</h4><p class="box dep">'+n.dep+'</p>');
+ p.innerHTML=e.join('');
+ document.querySelectorAll('.node').forEach(n=>n.classList.remove('sel'));
+ const btn=document.querySelector(`.node[data-id="${id}"]`);
+ if(btn) btn.classList.add('sel');
+}
+
+document.querySelectorAll('.node').forEach(n=>n.addEventListener('click',()=>renderPlan(n.dataset.id)));
+document.querySelectorAll('.toolbar button').forEach(b=>b.addEventListener('click',()=>{
+ document.querySelectorAll('.toolbar button').forEach(x=>x.classList.remove('on'));
+ b.classList.add('on');
+ const f=b.dataset.f;
+ document.querySelectorAll('.lane').forEach(l=>l.style.display='none');
+ if(f==='all'){document.querySelectorAll('.lane').forEach(l=>l.style.display='');}
+ else document.querySelectorAll(`.lane[data-lane="${f}"]`).forEach(l=>l.style.display='')
+}));
+renderPlan('site');
+</script>
+</body>
+</html>

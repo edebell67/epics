@@ -1,0 +1,501 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/ep043/EP043_promotion_response_sub_process.html
+  — interactive sub-process map for the promotion response system. Linked from
+    the main EP043 business owner access workflow (owner lane, tracking report node).
+
+  VERSION HISTORY
+  v1.0.0 · 2026-08-08 · Initial version: maps the full promotion lifecycle from
+    detection through selection, activation, display, and effectiveness measurement.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP043 — Promotion Response Sub-Process</title>
+<style>
+:root{--ink:#14201a;--muted:#64716a;--paper:#f7faf7;--line:#d7e2da;--green:#087443;--blue:#12609a;--amber:#9a5d00;--red:#b3261e;--purple:#5f3c91}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,sans-serif}
+header{background:#10271c;color:white;padding:30px max(22px,calc((100vw - 1240px)/2))}
+h1{margin:0;font:700 32px/1.1 Georgia,serif}
+header p{max-width:920px;color:#d3e5d9;margin:10px 0 0}
+header code{background:rgba(255,255,255,.14);padding:2px 5px;border-radius:4px}
+.layout{max-width:1240px;margin:24px auto;display:grid;grid-template-columns:1fr 410px;gap:20px;padding:0 20px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.toolbar button{cursor:pointer;border:1px solid var(--line);background:white;border-radius:999px;padding:8px 12px;font:inherit}
+.toolbar button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.back-link{display:inline-block;margin-bottom:14px;color:var(--blue);text-decoration:none;font-size:13px;font-weight:600}
+.back-link:hover{text-decoration:underline}
+.lane{background:white;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:18px}
+.lane h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 4px;color:var(--muted)}
+.lane .who{font-size:12px;color:var(--muted);margin:0 0 14px}
+.flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}
+.arrow{align-self:center;font-size:22px;color:#76867d}
+.node{width:224px;min-height:158px;border:1px solid var(--line);border-radius:10px;background:white;padding:13px;box-shadow:0 2px 7px rgba(24,51,36,.05);cursor:pointer;text-align:left;font:inherit;color:inherit;display:flex;flex-direction:column}
+.node:hover,.node.sel{outline:3px solid #b9dfd0}
+.node h3{font-size:15px;line-height:1.2;margin:7px 0}
+.node p{font-size:12.5px;color:var(--muted);margin:0}
+.tag{display:inline-block;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:700;background:#edf1ee;color:#45554b;width:max-content}
+.stage{display:block;margin-top:auto;padding-top:8px;font:11px/1.3 ui-monospace,monospace;color:var(--muted)}
+.progress{display:block;max-width:100%;border-radius:6px;padding:4px 6px;font:700 10px ui-monospace,monospace;margin-top:8px;border:1px solid;line-height:1.35}
+.blocked{background:#ffebe8;color:#8d1c13;border-color:#f5aaa2}
+.active{background:#fff2d5;color:#7b4800;border-color:#f0c779}
+.partial{background:#eaf4ff;color:#07558d;border-color:#9ac9ed}
+.complete{background:#dff5e8;color:#075b38;border-color:#95dab2}
+.scope{background:#f4f0fa;color:#4b2f74;border-color:#d3c2ea}
+.side{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;position:sticky;top:18px;max-height:calc(100vh - 40px);overflow-y:auto}
+.side h2{font:700 20px Georgia,serif;margin:0 0 4px}
+.side .sub{font:11px/1.3 ui-monospace,monospace;color:var(--muted);margin:0 0 12px}
+.side .contract{font-size:13.5px;color:var(--ink);margin:0 0 4px}
+.side h4{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px;padding-top:12px;border-top:1px solid var(--line)}
+.side ol{margin:0;padding-left:19px}
+.side ol li{font-size:13px;margin:7px 0}
+.side .box{font-size:13px;padding:9px 11px;border-radius:8px;margin:0}
+.box.test{background:#f2f8f4;border-left:3px solid var(--green)}
+.box.ev{background:#f5f9ff;border-left:3px solid var(--blue)}
+.box.dep{background:#faf7f2;border-left:3px solid var(--amber)}
+.detail{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:18px}
+.detail h3{font-size:15px;margin:0 0 8px}
+.detail ul{margin:0;padding-left:20px}
+.detail li{margin:6px 0;font-size:13.5px}
+code{background:#edf1ee;padding:2px 5px;border-radius:4px;font-size:12px}
+pre{background:#10271c;color:#dbeee3;padding:13px;border-radius:9px;overflow-x:auto;font-size:12.5px;line-height:1.5}
+pre code{background:none;color:inherit;padding:0}
+.callout{border-left:4px solid var(--amber);background:#fffaf0;padding:11px 14px;border-radius:0 8px 8px 0;margin:14px 0;font-size:13.5px}
+.callout.bad{border-left-color:var(--red);background:#fff7f6}
+@media(max-width:960px){.layout{grid-template-columns:1fr}.side{position:static;max-height:none}.node{width:100%}.arrow{display:none}}
+</style>
+</head>
+<body>
+<header>
+<h1>Promotion Response — Sub-Process</h1>
+<p>Linked from the main <strong>EP043 Business Owner Access &amp; Reporting</strong> workflow (<code>tracking (3.5) — Owner views aggregated report</code>). When the owner spots a service with above-average traffic, they can respond with a time-limited promotion.</p>
+<p style="margin-top:12px"><a href="EP043_business_owner_access_reporting_workflow.html" style="color:#b9dfd0">← Back to parent workflow</a></p>
+</header>
+
+<main class="layout">
+<section>
+
+<div class="toolbar">
+  <button class="on" data-f="all">All lanes</button>
+  <button data-f="detect">Detect</button>
+  <button data-f="select">Select</button>
+  <button data-f="activate">Activate</button>
+  <button data-f="display">Display</button>
+  <button data-f="measure">Measure</button>
+</div>
+<p style="font-size:12px;color:var(--muted);margin:0 0 14px">Click any node for its detailed plan. See the skill at <code>skills/ep043/ep043-website-tracking/SKILL.md</code> for the full implementation reference.</p>
+
+<div class="lane" data-lane="detect">
+<h2>Lane 1 — Detect opportunity</h2>
+<p class="who">Actor: tracking system · day-over-day comparison triggers the notification</p>
+<div class="flow">
+  <button class="node" data-id="dod"><span class="tag">Comparison</span><h3>Day-over-day comparison</h3><p>GET /api/owner/reporting/compare?tenant=&lt;id&gt;&amp;days=7 returns today's data vs the daily average for the previous 7 days. Services with significantly above-average traffic are flagged.</p><code class="stage">detect (1.1)</code><span class="progress complete">Complete — GET /api/owner/reporting/compare, tested</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="alert"><span class="tag">Notification</span><h3>Service popularity alert</h3><p>Owner dashboard shows: "Boiler servicing is up 50% in views this week" with a "Respond with promotion" button. The notification highlights the service name, the metric, and the percentage increase.</p><code class="stage">detect (1.2)</code><span class="progress complete">Complete — demand-signals card in owner.js Compare tab</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="owner-decision"><span class="tag">Decision</span><h3>Owner decides to respond</h3><p>Owner clicks "Respond with promotion" and enters the promotion creation flow. If they decline or dismiss, the alert is recorded but no action is taken — the alert may re-appear later.</p><code class="stage">detect (1.3)</code><span class="progress active">Designing</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="select">
+<h2>Lane 2 — Select offer type</h2>
+<p class="who">Actor: business owner · chooses promotion type and configures parameters</p>
+<div class="flow">
+  <button class="node" data-id="offer-type"><span class="tag">Selection list</span><h3>Offer type selection</h3><p>Owner sees a selection list of promotion types: (A) Time-limited promotional discount (X%), (B) Time-limited voucher (X%), (C) Time-limited service combo at discount (X%), (D) Other promotional description. Each option has a brief explanation.</p><code class="stage">select (2.1)</code><span class="progress complete">Complete — promo-type select (discount/voucher/combo/custom)</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="config-promo"><span class="tag">Configure</span><h3>Configure promotion parameters</h3><p>Owner sets: discount/voucher value (X%), service target (single/multiple/any), duration in hours/days, voucher code (if applicable), promotional description text. Preview shown before submission.</p><code class="stage">select (2.2)</code><span class="progress complete">Complete — promo-form: value, duration, voucher code</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="targeting"><span class="tag">Target</span><h3>Service targeting</h3><p>Owner selects which service(s) the promotion applies to: (1) single specific service, (2) multiple services, (3) any service. Each targeting mode shows relevant service names from the client profile.</p><code class="stage">select (2.3)</code><span class="progress complete">Complete — promo-services multi-select, applyTo derived</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="submit"><span class="tag">POST /api/owner/promotions</span><h3>Submit and store promotion</h3><p>Owner submits. POST /api/owner/promotions with promotion payload (type, value, description, services, duration, displayOn). Server stores and activates. Returns promotionId and activation timestamp.</p><code class="stage">select (2.4)</code><span class="progress complete">Complete — POST /api/owner/promotions, tested</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="activate">
+<h2>Lane 3 — Activation and display</h2>
+<p class="who">Actor: system · promotion becomes visible on website and/or chat widget</p>
+<div class="flow">
+  <button class="node" data-id="activate-sys"><span class="tag">Activate</span><h3>System activates promotion</h3><p>The promotion is stored with active: true, startAt and endAt timestamps. The promotion engine checks endAt on every display tick — expired promotions are automatically deactivated.</p><code class="stage">activate (3.1)</code><span class="progress complete">Complete — active/startAt/endAt, status computed server-side</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="website-banner"><span class="tag">Website</span><h3>Promotion banner on website</h3><p>A dismissible notification bar is injected at the top of the client's website. Shows promotion description text. On click: navigates to the promoted service page / quote form. Respects site theme (accent color).</p><code class="stage">activate (3.2)</code><span class="progress complete">Complete — renderBanner() in analytics-embed.js, verified in real browser</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="chat-assistant"><span class="tag">Chat widget</span><h3>Promotional message in chat widget</h3><p>When the chat widget opens, the assistant starts with a promotional greeting: "Get X% off [service] quotes this week!". The promotion links to the service page or quote form. Owner can toggle per display channel.</p><code class="stage">activate (3.3)</code><span class="progress active">Not yet implemented</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="promo-record"><span class="tag">Capture</span><h3>Promotion events captured</h3><p>Every impression (banner in viewport) and click is captured as a promotion event with promotionId, timestamp, pageUrl, sessionId. Stored in the event bucket for effectiveness analysis.</p><code class="stage">activate (3.4)</code><span class="progress complete">Complete — promotion_impression/click in ALLOWED_EVENT_TYPES</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="display">
+<h2>Lane 4 — Owner management</h2>
+<p class="who">Actor: business owner · manage, pause, expire promotions</p>
+<div class="flow">
+  <button class="node" data-id="list-promos"><span class="tag">GET /api/owner/promotions</span><h3>List all promotions</h3><p>Owner views all active and past promotions. Shows: service, type, value, status (active/expired/paused), impression/click counts, timestamps.</p><code class="stage">manage (4.1)</code><span class="progress complete">Complete — GET /api/owner/promotions + Promotions tab UI</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="pause"><span class="tag">PUT /api/owner/promotions/:id/deactivate</span><h3>Pause or expire early</h3><p>Owner can deactivate a promotion before its endAt time. The banner/chat message is removed immediately. The effectiveness comparison is still captured for the active period.</p><code class="stage">manage (4.2)</code><span class="progress complete">Complete — PUT /api/owner/promotions/:id/deactivate</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="renew"><span class="tag">PUT /api/owner/promotions/:id/activate</span><h3>Renew or extend promotion</h3><p>Owner can extend the endAt time or reactivate an expired promotion. A new startAt/endAt is set. Effectiveness tracking is cumulative or per-run (owner chooses).</p><code class="stage">manage (4.3)</code><span class="progress complete">Complete — PUT /api/owner/promotions/:id/activate</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="measure">
+<h2>Lane 5 — Effectiveness measurement</h2>
+<p class="who">Actor: tracking system · measures impact before, during, and after promotion</p>
+<div class="flow">
+  <button class="node" data-id="pre-baseline"><span class="tag">Baseline</span><h3>Pre-promotion baseline</h3><p>For the promoted service(s), the system records: daily views, daily conversions, conversion rate, average time-to-conversion for the 7 days before promotion start.</p><code class="stage">measure (5.1)</code><span class="progress complete">Complete — GET /api/owner/reporting/promotion/:id</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="during"><span class="tag">During</span><h3>During-promotion tracking</h3><p>System continuously captures: promotion impressions count, clicks, click-through rate, plus views and conversions for the promoted service(s). All events tagged with promotionId.</p><code class="stage">measure (5.2)</code><span class="progress complete">Complete — impressions/clicks/CTR tracked during period</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="post"><span class="tag">After</span><h3>Post-promotion effect</h3><p>After the promotion ends, the system continues tracking for X days to measure lasting effects: boosted conversion rate, returning visitor rate, sustained interest.</p><code class="stage">measure (5.3)</code><span class="progress complete">Complete — postPromotion.lastEffect classification</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="compare-promo"><span class="tag">GET /api/owner/reporting/promotion/:id</span><h3>Compare and report</h3><p>Owner sees a full effectiveness report: baseline vs during vs post-promotion comparison. Metrics: impression-to-click rate, conversion uplift, revenue impact (if averageJobValue configured).</p><code class="stage">measure (5.4)</code><span class="progress complete">Complete — baseline/during/post + revenueImpact, tested</span></button>
+</div>
+</div>
+
+<div class="detail">
+<h3>Promotion data shape</h3>
+<pre><code>{
+  "promotionId": "uuid",
+  "clientId": "northstar-heating",
+  "type": "discount | voucher | combo | custom",
+  "value": 15,
+  "valueLabel": "15%",
+  "description": "15% discount on boiler servicing quotes",
+  "voucherCode": "BOILER15",
+  "services": ["boiler-servicing"],
+  "applyTo": "single | multiple | any",
+  "startAt": "2026-08-08T12:00:00Z",
+  "endAt": "2026-08-15T12:00:00Z",
+  "active": true,
+  "displayOn": ["website", "chat_widget"],
+  "createdAt": "2026-08-08T11:30:00Z",
+  "stats": {
+    "impressions": 240,
+    "clicks": 36,
+    "clickThroughRate": 0.15,
+    "conversions": 12,
+    "conversionUplift": "+67%"
+  }
+}</code></pre>
+</div>
+
+<div class="detail">
+<h3>Effectiveness comparison shape</h3>
+<pre><code>{
+  "promotionId": "uuid",
+  "service": "boiler-servicing",
+  "baseline": {
+    "dailyViews": 8,
+    "dailyConversions": 1.2,
+    "conversionRate": 0.15
+  },
+  "duringPromotion": {
+    "dailyViews": 18,
+    "dailyConversions": 4.5,
+    "conversionRate": 0.25,
+    "impressions": 240,
+    "clicks": 36,
+    "clickThroughRate": 0.15
+  },
+  "postPromotion": {
+    "dailyViews": 10,
+    "dailyConversions": 2.0,
+    "conversionRate": 0.20,
+    "lastingEffect": "elevated — +67% vs baseline"
+  }
+}</code></pre>
+<div class="callout"><strong>Tracking data must be captured at the lowest level.</strong> Every visitor interaction — page load, button click, chat open, form focus, service view, scroll milestone, exit intent, booking click — generates an event. This ensures that when the owner asks "how did this promotion affect user behaviour?", the data exists to answer it without a new instrumentation cycle.</div>
+<div class="callout"><strong>Day-over-day overlay is the primary comparison method.</strong> Current day data is displayed alongside the daily average for the previous X days (default 7) for every metric. This lets the owner see at a glance whether today's behaviour is in line with the weekly average, above it, or below it — without manually comparing numbers.</div>
+</div>
+
+</section>
+
+<aside class="side">
+<h2 id="t">Select a node</h2>
+<p class="sub" id="s">—</p>
+<p class="contract" id="c">Click any node for its detailed plan: steps, completion test, evidence, and dependencies.</p>
+<div id="plan"></div>
+</aside>
+</main>
+
+<script>
+const D={
+dod:{s:'detect (1.1) · GET /api/owner/reporting/compare — day-over-day comparison',
+c:'The comparison endpoint returns today\'s data overlaid on the daily average of the previous N days (default 7). Services with significantly above-average traffic are flagged. This is the trigger for the entire promotion response loop.',
+steps:[
+ 'Owner opens the tracking report in the dashboard.',
+ 'Dashboard calls GET /api/owner/reporting/compare?tenant=&lt;clientId&gt;&amp;days=7.',
+ 'Server computes: per-service daily averages from pre-aggregated daily rollup buckets for the last 7 days.',
+ 'Server returns today vs average comparison for every metric (visitors, pageViews, ctaClicks, perService, perPage).',
+ 'Dashboard renders: services sorted by views.change (most increased first).',
+ 'Services with change > X% threshold are highlighted with a "Respond with promotion" button.'
+],
+test:'GET /api/owner/reporting/compare?tenant=&lt;clientId&gt;&amp;days=7 returns comparison data with today and average fields for each metric.',
+ev:'API response showing comparison data structure.',
+dep:'Event capture must be running for at least 1 day to have baseline data. Analytics endpoint must be live.'},
+
+alert:{s:'detect (1.2) · Service popularity alert shown to owner',
+c:'When a service shows significantly above-average traffic, the dashboard surfaces a notification. The alert includes which service, which metric (views/clicks), and the percentage increase.',
+steps:[
+ 'Dashboard receives comparison data from endpoint.',
+ 'Identifies services where views.change > configured threshold (e.g. +30%).',
+ 'Renders a highlighted card: "Boiler servicing is up 50% in views this week."',
+ 'The card has a prominent "Respond with promotion" CTA button.',
+ 'If no services exceed threshold, no alert is shown — owner sees normal comparison view.'
+],
+test:'When a service has >30% increase in views, a notification card appears with the service name and percentage.',
+ev:'Screenshot of dashboard showing the popularity alert with the Respond CTA.',
+dep:'Comparison endpoint (1.1) must be working.'},
+
+owner_decision:{s:'detect (1.3) · Owner decides to respond',
+c:'Owner evaluates the alert and decides whether to create a promotion. If they click "Respond with promotion", the promotion creation flow opens. Declining records the decision but the alert may reappear.',
+steps:[
+ 'Owner reads the popularity alert.',
+ 'Option A: Click "Respond with promotion" → enters promotion creation flow (lane 2).',
+ 'Option B: Dismiss or ignore → alert is recorded but no action taken.',
+ 'Dismissed alerts are tracked so the same service is not repeatedly flagged if already acted on.',
+ 'A previously-responded service can be flagged again if the response expired and traffic is still elevated.'
+],
+test:'Clicking "Respond" transitions to the promotion creation form. Dismissing closes the alert without creating a promotion.',
+ev:'Screencast showing the alert interaction flow.',
+dep:'Alert (1.2) must be working.'},
+
+offer_type:{s:'select (2.1) · Offer type selection list',
+c:'The owner sees a selection list of 4 promotion types. Each type has a brief explanation. The owner picks one and configures the parameters.',
+steps:[
+ 'Owner sees 4 options: (A) Time-limited promotional discount (X%), (B) Time-limited voucher (X%), (C) Time-limited service combo at discount (X%), (D) Other promotional description.',
+ 'Each option shows: name, explanation, and example.',
+ 'Owner selects one. The form expands to show relevant configuration fields.',
+ 'For (A): discount percentage input, duration selector, service target selector.',
+ 'For (B): discount percentage input, voucher code input (auto-generated if left blank), duration selector.',
+ 'For (C): two+ service selectors, discount percentage input, combo name input.',
+ 'For (D): free-text promotion description textarea.'
+],
+test:'All 4 offer types are displayed. Selecting each shows the correct configuration form.',
+ev:'Screenshot showing the offer type selection with one type expanded.',
+dep:'detect lane (1.3) must complete — owner must have clicked "Respond with promotion".'},
+
+config_promo:{s:'select (2.2) · Configure promotion parameters',
+c:'Owner sets the promotion parameters: discount value, duration, description text, optional voucher code. A live preview shows how the promotion will appear on the site and chat widget.',
+steps:[
+ 'Owner enters the discount/voucher value (X%).',
+ 'Owner sets the duration in hours or days.',
+ 'Owner enters the promotional description text.',
+ 'A live preview renders: how the website banner will look, how the chat widget greeting will appear.',
+ 'Owner can go back to change the offer type before submitting.'
+],
+test:'All fields accept valid input. Preview updates in real-time as fields change.',
+ev:'Screenshot showing the config form with filled fields and live preview.',
+dep:'Offer type (2.1) must be selected.'},
+
+targeting:{s:'select (2.3) · Service targeting selection',
+c:'Owner selects which service(s) the promotion applies to. Three targeting modes: single specific service, multiple services, or any service (site-wide).',
+steps:[
+ 'Owner sees a targeting selector: (1) Single service, (2) Multiple services, (3) Any service.',
+ 'For (1): dropdown of all services from the client profile. Owner picks one.',
+ 'For (2): multi-select list of services. Owner picks two or more.',
+ 'For (3): "Any service" — the promotion applies site-wide to all services.',
+ 'The selected services appear in the promotion preview.'
+],
+test:'Service selector shows client services. Multi-select works. Preview updates with selected services.',
+ev:'Screenshot of service targeting UI with services selected and preview updated.',
+dep:'Config (2.2) must have the promotion type and values set.'},
+
+submit:{s:'select (2.4) · POST /api/owner/promotions — submit promotion',
+c:'Owner submits the promotion. The server stores it with active: true, startAt: now, endAt: now + duration. The promotion immediately appears on the website and/or chat widget.',
+steps:[
+ 'Owner clicks "Create promotion" button.',
+ 'Frontend calls POST /api/owner/promotions with the full promotion payload.',
+ 'Server validates: required fields present, endAt > startAt, client exists.',
+ 'Server stores promotion in the client profile promotions array.',
+ 'Returns 201 with promotion object including promotionId, startAt, endAt.',
+ 'Promotion is immediately active and appears on the configured display channels.',
+ 'Owner is redirected to the promotion management view.'
+],
+test:'POST /api/owner/promotions with valid payload returns 201. GET /api/owner/promotions returns the new promotion.',
+ev:'API response showing promotion object with all fields.',
+dep:'All select lane steps (2.1-2.3) must be complete.'},
+
+activate_sys:{s:'activate (3.1) · System activates the promotion',
+c:'The promotion is stored as active with startAt and endAt. The server checks endAt on every display tick — expired promotions are automatically deactivated. Active promotions are served to the website and chat widget.',
+steps:[
+ 'Server stores promotion with active: true, startAt: timestamp, endAt: endTimestamp.',
+ 'Promotion engine initializes: registers the promotion for display injection.',
+ 'On every page load and widget open, the engine checks: is there an active promotion for this client?',
+ 'If yes, the engine serves the display data (description, type, service target).',
+ 'If endAt has passed, the engine sets active: false and stops serving.'
+],
+test:'Newly created promotion is active. After endAt passes, it is automatically deactivated.',
+ev:'API responses showing active: true initially, then active: false after endAt passes.',
+dep:'Submit (2.4) must have created the promotion.'},
+
+website_banner:{s:'activate (3.2) · Promotion banner on website',
+c:'A dismissible notification bar is injected at the top of the client\'s website. Shows promotion text. On click: navigates to the promoted service page or quote form. Respects site theme colour.',
+steps:[
+ 'When the site loads, assistant-embed.js checks for active promotions via GET /api/public/promotions?tenant=&lt;clientId&gt; (public endpoint, no auth).',
+ 'If a promotion exists, inject a top-of-page notification bar showing the promotional description.',
+ 'Banner is dismissible (X close button) and stores dismissal in sessionStorage so it does not reappear this session.',
+ 'On banner click: navigate to the promoted service page or open the quote form.',
+ 'Banner style respects site theme: uses client accent colour for emphasis, ink colour for text.',
+ 'Banner is not injected when analyticsEnabled is false (tracking disabled = promotions disabled).'
+],
+test:'Active promotion renders a banner on the site. Banner text matches the promotion description. Click navigates correctly. Dismiss suppresses banner for the session.',
+ev:'Screenshot of site with promotion banner visible.',
+dep:'activation (3.1) must be complete. Promotion must be active.'},
+
+chat_assistant:{s:'activate (3.3) · Promotional message in chat widget',
+c:'When the chat widget opens, the assistant starts with a promotional greeting. The promotion text is shown in the chat window. Owner can toggle per display channel in the promotion config.',
+steps:[
+ 'When the widget opens, the assistant checks for active promotions.',
+ 'If active, the assistant\'s opening message includes the promotion: "Get X% off [service] quotes this week!"',
+ 'Clicking the promotion link opens the service page or quote form.',
+ 'The promotion message appears only once per session.',
+ 'Owner can configure displayOn: ["website"] to show only on site banner, not widget. Or both.'
+],
+test:'Active promotion with displayOn including chat_widget shows a promotional message when the widget opens.',
+ev:'Screenshot of chat widget showing promotion greeting.',
+dep:'activation (3.1) must be complete.'},
+
+promo_record:{s:'activate (3.4) · Promotion events captured for analysis',
+c:'Every promotion impression and click is captured as a tracking event. These events feed the effectiveness measurement system. Promotion events are stored in the same event bucket as other tracking data.',
+steps:[
+ 'When the promotion banner enters the viewport, a promotion_impression event is emitted.',
+ 'When the banner is clicked, a promotion_click event is emitted.',
+ 'When the chat widget shows the promotion message, a promotion_impression event is emitted.',
+ 'When the widget promotion link is clicked, a promotion_click event is emitted.',
+ 'All events carry: promotionId, type, timestamp, sessionId, pageUrl, service.',
+ 'Events are stored in the per-client per-date event bucket alongside all other tracking events.'
+],
+test:'View a page with promotion banner → promotion_impression event appears in tracking data. Click the banner → promotion_click event appears.',
+ev:'Tracking data showing promotion events with promotionId and timestamps.',
+dep:'Promotion must be active and displayed on at least one channel.'},
+
+list_promos:{s:'manage (4.1) · GET /api/owner/promotions — list all promotions',
+c:'Owner can view all promotions for their site. List shows: service name, promotion type, value, status (active/expired/paused), impression/click counts, start/end times.',
+steps:[
+ 'Owner opens the Promotion Management section in the dashboard.',
+ 'Dashboard calls GET /api/owner/promotions?tenant=&lt;clientId&gt;.',
+ 'Returns array of promotions sorted by creation date (most recent first).',
+ 'Each entry shows: service name(s), type icon, value, status badge, impression count, click count, start/end time.',
+ 'Owner can click any promotion to view its full effectiveness report.'
+],
+test:'GET /api/owner/promotions returns the promotions array with all fields.',
+ev:'API response showing promotions array.',
+dep:'At least one promotion must have been created.'},
+
+pause:{s:'manage (4.2) · PUT /api/owner/promotions/:id/deactivate — pause promotion early',
+c:'Owner can deactivate a promotion before its endAt time. The banner and chat message are removed immediately. The effectiveness comparison captures data for the active period only.',
+steps:[
+ 'Owner selects a promotion from the list.',
+ 'Clicks "Deactivate" button.',
+ 'Frontend calls PUT /api/owner/promotions/:id/deactivate.',
+ 'Server sets active: false and records deactivatedAt timestamp.',
+ 'Banner is immediately removed from the site and chat widget.',
+ 'Effectiveness data is preserved for the active period.'
+],
+test:'Deactivated promotion has active:false, banner disappears from site, existing impression/click data is preserved.',
+ev:'API response showing deactivated promotion. Screenshot of site without banner.',
+dep:'Promotion must be active (4.1 list shows it as active).'},
+
+renew:{s:'manage (4.3) · PUT /api/owner/promotions/:id/activate — renew or extend promotion',
+c:'Owner can extend the endAt time or reactivate an expired promotion. A new startAt/endAt is set. A new effectiveness run starts from the new activation.',
+steps:[
+ 'Owner selects a paused or expired promotion from the list.',
+ 'Clicks "Extend" or "Reactivate" button.',
+ 'Owner sets a new end time (default: current time + original duration).',
+ 'Frontend calls PUT /api/owner/promotions/:id/activate with new endAt.',
+ 'Server sets active: true and updates endAt.',
+ 'Promotion banner and chat message reappear.',
+ 'New effectiveness run begins.'
+],
+test:'Reactivated promotion returns to active:true, banner reappears, effectiveness tracking restarts.',
+ev:'API response showing renewed promotion. Screenshot of site with banner restored.',
+dep:'Promotion must exist and be paused or expired.'},
+
+pre_baseline:{s:'measure (5.1) · Pre-promotion baseline for promoted service(s)',
+c:'Before the promotion activates, the system captures the baseline conversion rate and daily views for the promoted service(s). This baseline is the comparison anchor for effectiveness measurement.',
+steps:[
+ 'When a promotion is created, the system computes the baseline for the targeted service(s).',
+ 'Baseline = daily average of: views, conversions, conversion rate for the previous 7 days.',
+ 'If the service has less than 7 days of data, use all available days.',
+ 'Baseline is stored alongside the promotion record.',
+ 'Effectiveness report compares during/post data against this baseline.'
+],
+test:'Newly created promotion has baseline data computed. Baseline is accessible via GET /api/owner/reporting/promotion/:id.',
+ev:'API response showing baseline fields alongside promotion data.',
+dep:'Promotion must be created (2.4). Enough tracking data must exist for the service.'},
+
+during:{s:'measure (5.2) · During-promotion tracking',
+c:'While the promotion is active, the system tracks: impression count, click count, click-through rate, plus views and conversions for the promoted service(s). All tracked events carry promotionId.',
+steps:[
+ 'Every time the promotion banner or chat message is displayed, impression count increments.',
+ 'Every click on the promotion increments click count.',
+ 'All page views and conversions for the promoted service(s) are tagged with the promotionId.',
+ 'Incrementing counters are updated in real-time in the promotion stats.',
+ 'Owner can view live stats in the promotion management page.',
+ 'Rate: impression/click events are captured via the same event pipeline as all other tracking.'
+],
+test:'During an active promotion, impression and click counts increment correctly. Views/conversions for the promoted service are tagged with promotionId.',
+ev:'Promotion stats showing impression count > 0. Event data showing promotionId on promoted-service events.',
+dep:'Promotion must be active (3.1). Event capture pipeline must be live.'},
+
+post:{s:'measure (5.3) · Post-promotion effect measurement',
+c:'After the promotion ends, the system continues tracking the promoted service(s) for X days (default 7). This measures lasting effects: sustained conversion uplift, returning visitor rate, residual interest.',
+steps:[
+ 'Promotion endAt passes → active set to false automatically.',
+ 'System continues tracking the promoted service(s) for the configured post period.',
+ 'Metrics: daily views vs baseline, daily conversions vs baseline, returning visitors.',
+ 'After the tracking period ends, the full effectiveness report is finalized.',
+ 'Owner sees: "Lasting effect: elevated — +67% vs baseline" or "Lasting effect: none — returned to baseline".'
+],
+test:'After promotion ends, tracking data continues for X days. The post-promotion report shows comparison to baseline.',
+ev:'Prompt (5.4).',
+dep:'Promotion must have ended. Post-tracking period must be set.'},
+
+compare_promo:{s:'measure (5.4) · GET /api/owner/reporting/promotion/:id — full effectiveness report',
+c:'Owner views the full effectiveness report: baseline vs during vs post-promotion comparison. Metrics: impression-to-click rate, conversion uplift, revenue impact (if averageJobValue configured).',
+steps:[
+ 'Owner clicks a promotion in the management list.',
+ 'Dashboard calls GET /api/owner/reporting/promotion/:id.',
+ 'Returns: promotion summary, baseline data, during-promotion stats, post-promotion effect.',
+ 'Owner sees: "15% discount on boiler servicing — 240 impressions, 36 clicks, 15% CTR, 12 conversions."',
+ 'Conversion uplift: "Baseline 15% → During 25% → Post-promotion 20% (lasting effect: elevated).".',
+ 'If averageJobValue is configured: "Estimated revenue impact: £2,160 from 12 conversions at £180 avg job value."'
+],
+test:'GET /api/owner/reporting/promotion/:id returns full effectiveness report with baseline, during, post sections.',
+ev:'API response showing complete effectiveness comparison.',
+dep:'All measurement steps (5.1-5.3) must have data.'}
+};
+
+function renderPlan(id){
+ const p=document.getElementById('plan');
+ if(!D[id]){p.innerHTML='<p style="color:var(--muted)">No plan available for this node.</p>';document.querySelectorAll('.node').forEach(n=>n.classList.remove('sel'));return}
+ const n=D[id];
+ const a=n.s.split('·');
+ document.getElementById('t').textContent=a[0]||n.s;
+ document.getElementById('s').textContent=a[1]||'';
+ const e=['<p class="contract">'+(n.c||'')+'</p>'];
+ e.push('<h4>Implementation steps</h4><ol>'+n.steps.map(s=>`<li>${s}</li>`).join('')+'</ol>');
+ if(n.test) e.push('<h4>Completion test</h4><p class="box test">'+n.test+'</p>');
+ if(n.ev) e.push('<h4>Evidence</h4><p class="box ev">'+n.ev+'</p>');
+ if(n.dep) e.push('<h4>Depends on</h4><p class="box dep">'+n.dep+'</p>');
+ p.innerHTML=e.join('');
+ document.querySelectorAll('.node').forEach(n=>n.classList.remove('sel'));
+ const btn=document.querySelector(`.node[data-id="${id}"]`);
+ if(btn) btn.classList.add('sel');
+}
+
+document.querySelectorAll('.node').forEach(n=>n.addEventListener('click',()=>renderPlan(n.dataset.id)));
+document.querySelectorAll('.toolbar button').forEach(b=>b.addEventListener('click',()=>{
+ document.querySelectorAll('.toolbar button').forEach(x=>x.classList.remove('on'));
+ b.classList.add('on');
+ const f=b.dataset.f;
+ document.querySelectorAll('.lane').forEach(l=>l.style.display='none');
+ if(f==='all'){document.querySelectorAll('.lane').forEach(l=>l.style.display='');}
+ else document.querySelectorAll(`.lane[data-lane="${f}"]`).forEach(l=>l.style.display='')
+}));
+renderPlan('dod');
+</script>
+</body>
+</html>

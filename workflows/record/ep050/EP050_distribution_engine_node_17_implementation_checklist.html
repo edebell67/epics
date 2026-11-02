@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EP050 Node 17: Content & Utility Factory Implementation Checklist</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #24292e; max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1, h2, h3 { color: #0366d6; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
+        .checklist-item { margin: 12px 0; display: flex; align-items: flex-start; }
+        .checklist-item input[type="checkbox"] { margin-top: 5px; margin-right: 10px; }
+        .tag { display: inline-block; padding: 2px 6px; font-size: 12px; font-weight: 600; border-radius: 3px; background-color: #f1f8ff; color: #0366d6; margin-left: 8px; }
+        .tag.mandatory { background-color: #ffeef0; color: #d73a49; }
+        .tag.verified { background-color: #dcffe4; color: #28a745; }
+        .spec-box { background: #f6f8fa; border: 1px solid #e1e4e8; border-radius: 6px; padding: 16px; margin: 16px 0; }
+        code { background-color: rgba(27,31,35,0.05); padding: 0.2em 0.4em; border-radius: 3px; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 85%; }
+    </style>
+</head>
+<body>
+    <h1>EP050 Node 17: Content & Utility Factory Implementation Checklist</h1>
+    <p><strong>Owner:</strong> Gemini | <strong>Stage:</strong> Stage 4 Narrative Packaging | <strong>Version:</strong> v1.0.0 (2026-08-17)</p>
+    
+    <div class="spec-box">
+        <h3>Master Spec & Scope Summary</h3>
+        <p>Node 17 synthesizes verified canonical domain knowledge (Node 16), classified customer intent (Node 11), selected channel placement (Node 14), and conversion definition (Node 04) into deterministic, template-driven asset payloads containing mandatory safety disclaimers, permitted CTAs, and explicit <code>external_action=False</code> guarantees.</p>
+        <p><strong>Deterministic Asset ID:</strong> <code>asset_</code> + SHA-256(<code>target_id:channel:format:template_version:fact_checksum</code>)</p>
+    </div>
+
+    <h2>Pre-Implementation Gates</h2>
+    <div class="checklist-item">
+        <input type="checkbox" id="gate1" checked>
+        <label for="gate1"><strong>Upstream Dependency Gate:</strong> Nodes 04, 11, 14, and 16 all accepted at 100%. <span class="tag verified">PASSED</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="gate2" checked>
+        <label for="gate2"><strong>Pre-Code Architecture:</strong> Authored interactive workflow diagram and implementation checklist prior to module coding. <span class="tag mandatory">MANDATORY</span></label>
+    </div>
+
+    <h2>Schema & Data Container Requirements</h2>
+    <div class="checklist-item">
+        <input type="checkbox" id="req1" checked>
+        <label for="req1"><code>AssetMetadata</code>: Container capturing <code>channel</code>, <code>placement_type</code>, <code>format</code>, <code>intent_category</code>, <code>template_id</code>, <code>template_version</code>, <code>external_action</code> (literal <code>False</code>). <span class="tag mandatory">SCHEMA</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="req2" checked>
+        <label for="req2"><code>AssetPayload</code>: Immutable output container holding <code>asset_id</code>, <code>title</code>, <code>body_content</code>, <code>safety_disclaimer</code>, <code>call_to_action</code>, <code>fact_ids</code>, <code>target_id</code>, <code>signal_id</code>, <code>classification_id</code>, <code>opportunity_id</code>, <code>path_id</code>, <code>selection_id</code>, <code>metadata</code>, <code>created_at</code>. <span class="tag mandatory">SCHEMA</span></label>
+    </div>
+
+    <h2>Validation & Fail-Closed Rules</h2>
+    <div class="checklist-item">
+        <input type="checkbox" id="val1" checked>
+        <label for="val1"><strong>Lineage Enforcement:</strong> Must validate complete factual lineage (at least 1 valid <code>fact_id</code> from Node 16) and upstream targeting lineage. <span class="tag mandatory">SAFETY</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="val2" checked>
+        <label for="val2"><strong>Mandatory Safety Disclaimer:</strong> Every asset must include a non-empty, compliant safety disclaimer (e.g. Gas Safe registration warnings). <span class="tag mandatory">SAFETY</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="val3" checked>
+        <label for="val3"><strong>Permitted Conversion CTA:</strong> CTA must align with conversion definition from Node 04 (e.g. phone callout / quote request). <span class="tag mandatory">LOGIC</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="val4" checked>
+        <label for="val4"><strong>Zero External Actions:</strong> Enforce <code>external_action=False</code> and block live API calls, live publishing, and network socket creation. <span class="tag mandatory">SAFETY</span></label>
+    </div>
+
+    <h2>Test & Verification Requirements</h2>
+    <div class="checklist-item">
+        <input type="checkbox" id="test1" checked>
+        <label for="test1">Unit tests for deterministic template rendering across local search, diagnostic guide, and paid search formats. <span class="tag verified">TEST</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="test2" checked>
+        <label for="test2">Full multi-node integration test: Nodes 01-05 -> 11 -> 12 -> 13 -> 14 -> 16 -> 17 with non-mocked data. <span class="tag verified">TEST</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="test3" checked>
+        <label for="test3">Deterministic asset ID verification and template idempotency. <span class="tag verified">TEST</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="test4" checked>
+        <label for="test4">Fail-closed test cases for missing facts, missing safety disclaimers, invalid CTAs, PII injection, and external action attempts. <span class="tag verified">TEST</span></label>
+    </div>
+</body>
+</html>

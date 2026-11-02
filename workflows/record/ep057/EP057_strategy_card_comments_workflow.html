@@ -1,0 +1,37 @@
+<!doctype html>
+<!--
+ * EP057_strategy_card_comments_workflow.html — Interactive behavior map for compact selected-time strategy card notes.
+ *
+ * VERSION HISTORY
+ * v1.0.0 · 2026-10-09 · Documents the card-note link, modal, and close paths before implementation so the UI change is reviewable.
+ -->
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP057 · Strategy card comments flow</title>
+<style>
+:root{color-scheme:dark;--bg:#070b16;--panel:#10192c;--line:#263650;--ink:#e7eefb;--muted:#91a3be;--cyan:#34c8f3;--lime:#c6fa39;--amber:#f5c84c}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#172846 0,transparent 50%),var(--bg);color:var(--ink);font:15px/1.55 "Cascadia Code",Consolas,monospace}
+main{max-width:1100px;margin:38px auto;padding:0 22px}.eyebrow{color:var(--cyan);font-size:11px;letter-spacing:.18em;text-transform:uppercase}h1{font-size:clamp(25px,4vw,42px);line-height:1.12;margin:8px 0}p{color:var(--muted);max-width:760px}.toolbar{display:flex;gap:8px;margin:26px 0 18px;flex-wrap:wrap}.toolbar button,.close{background:#0a1222;color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:8px 13px;font:inherit;cursor:pointer}.toolbar button[aria-pressed="true"]{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 0 1px #34c8f355}.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.step{min-height:150px;text-align:left;padding:18px;background:linear-gradient(145deg,#131f35,#0e1627);border:1px solid var(--line);border-radius:12px;color:var(--ink);cursor:pointer;position:relative}.step:hover,.step[aria-current="step"]{border-color:var(--lime);transform:translateY(-2px)}.step small{display:block;color:var(--cyan);margin-bottom:12px}.step strong{font-size:15px}.detail{margin-top:16px;padding:22px;border:1px solid #23617e;background:#0c1729;border-radius:12px;min-height:120px}.detail h2{margin:0 0 8px;font-size:19px;color:var(--lime)}.detail p{margin:0}.caption{margin-top:20px;font-size:12px;color:var(--muted)}
+@media(max-width:760px){.flow{grid-template-columns:repeat(2,1fr)}}@media(max-width:460px){.flow{grid-template-columns:1fr}}
+</style></head>
+<body><main>
+<div class="eyebrow">EP057 · UI interaction workflow</div><h1>Strategy card comments</h1>
+<p>Selected-time cards retain all rank/time notes without letting a long history stretch the card. Choose a step or filter by actor to inspect the flow.</p>
+<div class="toolbar" role="group" aria-label="Filter workflow steps">
+<button data-filter="all" aria-pressed="true">All steps</button><button data-filter="user" aria-pressed="false">User</button><button data-filter="page" aria-pressed="false">Scenario Engine</button>
+</div>
+<section class="flow" id="flow" aria-label="Workflow steps">
+<button class="step" data-actor="page" data-title="Card renders" data-detail="The selected-time strategy card keeps its compact strategy ID and metrics. The full selected rank/time history is held as card data and is not printed into the header." aria-current="step"><small>01 · Scenario Engine</small><strong>Render compact card</strong></button>
+<button class="step" data-actor="user" data-title="User opens notes" data-detail="A short “Selection notes · N” link appears only when selected-time notes exist. Clicking it opens the notes for this strategy and stops the click from selecting, hiding, or pinning the card." ><small>02 · User</small><strong>Choose Selection notes</strong></button>
+<button class="step" data-actor="page" data-title="Modal shows history" data-detail="The modal identifies the strategy and lists every selected rank and time as a separate readable entry. It does not alter the strategy data or replay state." ><small>03 · Scenario Engine</small><strong>Show full notes in modal</strong></button>
+<button class="step" data-actor="user" data-title="User closes modal" data-detail="The user closes with the close control, Escape, or the modal backdrop. Focus returns to the card link; the card remains the same compact size." ><small>04 · User</small><strong>Close and return to card</strong></button>
+</section>
+<section class="detail" aria-live="polite"><h2 id="detailTitle">Card renders</h2><p id="detailText">The selected-time strategy card keeps its compact strategy ID and metrics. The full selected rank/time history is held as card data and is not printed into the header.</p></section>
+<div class="caption">Data path: selectedAtEntries → per-card notes link → strategy-specific modal → close without changing chart selection.</div>
+</main>
+<script>
+const steps=[...document.querySelectorAll('.step')],title=document.getElementById('detailTitle'),text=document.getElementById('detailText');
+steps.forEach(step=>step.addEventListener('click',()=>{steps.forEach(item=>item.removeAttribute('aria-current'));step.setAttribute('aria-current','step');title.textContent=step.dataset.title;text.textContent=step.dataset.detail}));
+document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-filter]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));steps.forEach(step=>step.hidden=button.dataset.filter!=='all'&&step.dataset.actor!==button.dataset.filter)}));
+</script></body></html>

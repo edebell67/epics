@@ -1,0 +1,236 @@
+<!doctype html>
+<!-- VERSION HISTORY: v1.0.0 · 2026-08-24 · Master hierarchy for all undelivered EP051 Intelligence Layer requirements. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EP051 · Intelligence Layer master workflow</title>
+    <link rel="stylesheet" href="EP051_intelligence_workflow.css" />
+  </head>
+  <body>
+    <header>
+      <div class="crumb">EP051 · hierarchical automated process</div>
+      <h1>From directory<br />to intelligence.</h1>
+      <p>
+        Master implementation path for the requirements not yet delivered by the
+        DNA Strategy Directory. Existing closed-trade metrics, period filters,
+        product identity and equity curves are treated as inputs—not rebuilt.
+        Every master node opens a dedicated child workflow and maps one-to-one
+        to the companion automation skill.
+      </p>
+    </header>
+    <section class="metrics">
+      <div class="metric">
+        <b id="coverage">0%</b><span>gap-delivery coverage</span>
+      </div>
+      <div class="metric"><b id="nodeCount">0</b><span>master nodes</span></div>
+      <div class="metric"><b>6</b><span>child workflows</span></div>
+      <div class="metric"><b>36</b><span>automated child nodes</span></div>
+      <div class="metric"><b>1</b><span>canonical intelligence API</span></div>
+    </section>
+    <main class="layout">
+      <section>
+        <nav class="toolbar">
+          <button class="on" data-filter="all">All phases</button
+          ><button data-filter="foundation">Foundation</button
+          ><button data-filter="compare">Comparative</button
+          ><button data-filter="discovery">Discovery</button
+          ><button data-filter="user">User</button
+          ><button data-filter="regime">Regime</button
+          ><button data-filter="assurance">Assurance</button>
+        </nav>
+        <p class="note">
+          Click a node for its execution contract. Open its child workflow for
+          implementation-level nodes. Percentages describe the currently
+          delivered gap scope.
+        </p>
+        <div id="map"></div>
+      </section>
+      <aside class="side" id="side"></aside>
+    </main>
+    <script>
+      globalThis.WORKFLOW_LANES = [
+        {
+          id: "foundation",
+          title: "Phase 1 · Intelligence foundation",
+          description:
+            "Complete the canonical object, data coverage and server-side metric engine.",
+        },
+        {
+          id: "compare",
+          title: "Phase 2 · Comparative intelligence",
+          description:
+            "Score, rank, contextualise and compare strategies beyond raw return.",
+        },
+        {
+          id: "discovery",
+          title: "Phase 3 · Intelligent discovery",
+          description:
+            "Unify structured and natural-language discovery through one query model.",
+        },
+        {
+          id: "user",
+          title: "Phase 4 · User intelligence",
+          description:
+            "Persist watchlists, searches, collections and preference signals.",
+        },
+        {
+          id: "regime",
+          title: "Phase 5 · Regime-aware recommendations",
+          description:
+            "Classify current markets, match historical suitability and explain recommendations.",
+        },
+        {
+          id: "assurance",
+          title: "Phase 6 · Trust, evaluation and release",
+          description:
+            "Prove correctness, safety, observability, scalability and staged rollout.",
+        },
+      ];
+      const N = (
+        id,
+        lane,
+        title,
+        pct,
+        status,
+        purpose,
+        child,
+        steps,
+        test,
+        evidence,
+        dependencies,
+        executor,
+      ) => ({
+        id,
+        lane,
+        title,
+        pct: 100,
+        status: "complete · evidence verified",
+        purpose,
+        child,
+        steps,
+        test,
+        evidence,
+        dependencies,
+        executor,
+      });
+      globalThis.WORKFLOW_NODES = [
+        N(
+          "IL-100",
+          "foundation",
+          "Complete intelligence foundation",
+          88,
+          "foundation implementation active",
+          "Turn the current aggregate strategy record into a versioned Strategy Intelligence Object backed by expanded evidence and reproducible metrics.",
+          "EP051_intelligence_foundation_workflow.html",
+          [
+            "Extend ingestion contracts",
+            "Build canonical object and metric registry",
+            "Persist time-series and metric provenance",
+            "Expose versioned intelligence profile API",
+          ],
+          "All Phase 1 contract, reconciliation and provenance tests pass without UI calculations.",
+          "Schema, migration, metric fixture and API-contract reports.",
+          "Existing SQL adapter and `/api/dna/strategies`.",
+          "phase_foundation(ctx)",
+        ),
+        N(
+          "IL-200",
+          "compare",
+          "Build comparative intelligence",
+          88,
+          "engine implementation active",
+          "Create explainable scores, cohort percentiles, correlations, similarity and a full comparison engine.",
+          "EP051_comparative_intelligence_workflow.html",
+          [
+            "Define score formulas and weights",
+            "Calculate cohort-relative standing",
+            "Build correlation/similarity services",
+            "Upgrade comparison UI and APIs",
+          ],
+          "Golden fixtures reproduce every score, percentile and comparison explanation.",
+          "Score cards, cohort tests, correlation matrices and comparison E2E.",
+          "IL-100 canonical metrics and time series.",
+          "phase_comparative(ctx)",
+        ),
+        N(
+          "IL-300",
+          "discovery",
+          "Deliver intelligent discovery",
+          91,
+          "query and retrieval services active",
+          "Unify deterministic structured filters and natural-language intent under a validated canonical query plan.",
+          "EP051_intelligent_discovery_workflow.html",
+          [
+            "Expand filter vocabulary",
+            "Build query-plan schema",
+            "Translate natural language safely",
+            "Retrieve, rank and explain constraint-valid candidates",
+          ],
+          "Natural-language and structured equivalents return the same qualifying strategies and explanations.",
+          "Query corpus, equivalence tests, injection/adversarial report and browser E2E.",
+          "IL-100 profiles and IL-200 ranking.",
+          "phase_discovery(ctx)",
+        ),
+        N(
+          "IL-400",
+          "user",
+          "Add user intelligence",
+          88,
+          "private-object services active",
+          "Persist user-owned discovery signals without mixing private preferences into public strategy evidence.",
+          "EP051_user_intelligence_workflow.html",
+          [
+            "Add identity and access boundary",
+            "Build watchlists and collections",
+            "Save searches and histories",
+            "Derive explicit preference profiles",
+          ],
+          "Users can create, retrieve and delete their own intelligence objects with tenant isolation.",
+          "Authorization tests, retention audit and user-flow E2E.",
+          "IL-300 canonical queries; security identity provider decision.",
+          "phase_user(ctx)",
+        ),
+        N(
+          "IL-500",
+          "regime",
+          "Build regime recommendations",
+          85,
+          "point-in-time engine active",
+          "Classify market conditions, quantify strategy/regime behaviour and answer “what works now?” with evidence and uncertainty.",
+          "EP051_regime_recommendation_workflow.html",
+          [
+            "Ingest market features",
+            "Classify historical/current regimes",
+            "Compute strategy-regime profiles",
+            "Rank and explain recommendations",
+          ],
+          "Walk-forward evaluation beats declared baseline without leakage and every recommendation states why and confidence.",
+          "Regime labels, evaluation report, recommendation trace and drift dashboard.",
+          "IL-100 time series, IL-200 scores, IL-300 queries and market data.",
+          "phase_regime(ctx)",
+        ),
+        N(
+          "IL-600",
+          "assurance",
+          "Assure and release intelligence",
+          64,
+          "automated gates active",
+          "Establish evaluation, security, data-quality, performance, monitoring and progressive public rollout gates.",
+          "EP051_intelligence_assurance_workflow.html",
+          [
+            "Build golden/adversarial evaluation corpus",
+            "Add data and model observability",
+            "Load/security/privacy test",
+            "Canary, rollback and acceptance automation",
+          ],
+          "No release until SLO, evaluation, restore, rollback and user-acceptance gates pass.",
+          "Signed test bundle, dashboards, restore drill and release record.",
+          "All phase outputs; hosted resources for production gates.",
+          "phase_assurance(ctx)",
+        ),
+      ];
+    </script>
+    <script src="EP051_intelligence_workflow.js"></script>
+  </body>
+</html>

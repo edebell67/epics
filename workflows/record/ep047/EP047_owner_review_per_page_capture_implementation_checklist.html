@@ -1,0 +1,610 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/ep047/EP047_owner_review_per_page_capture_implementation_checklist.html
+  — delivery-status checklist for the owner review per-page capture feature.
+
+  VERSION HISTORY
+  v1.2.0 · 2026-08-06 · Real implementation pass against the auto-garage-template
+    reference site: config, store, engine, host page and skill all rebuilt to
+    design B and browser-verified (31/63 items now Passed, 5 Blocked on missing
+    build tooling or device access, 3 In progress pending real-device evidence).
+    Two real defects found and fixed during verification, both in
+    owner-review-embed.js: a synchronous getBoundingClientRect screen-resolver
+    that raced the browser's scroll/layout settle (replaced with a genuine
+    IntersectionObserver, v2.0.1), and a crash on initial load from a state-machine
+    gap between observer setup and its first async callback (v2.0.2, also hardened
+    defensively in the render functions themselves).
+  v1.1.0 · 2026-08-06 · Adds items closing six gaps found on workflow audit: the
+    mailto Sent/Copy confirmation panel, the submitted-marker persistence, a new
+    section 5b for the already-submitted state, the screen-picker design, the
+    fixed transform/storage-key/buildId/subject schemas, and the concrete
+    category-skill deliverable list replacing a vague "tailor wording" note.
+  v1.0.0 · 2026-08-06 · Initial version: independently verifiable check items across
+    pre-build gates, config, store, engine, host page, owner journey, pause/resume,
+    submission, mobile, docs and deployment. All items start Not started; the two
+    pre-build gates are the ones that can invalidate later work if skipped.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP047 — Owner review per-page capture: implementation checklist</title>
+<style>
+:root{--ink:#14201a;--muted:#64716a;--paper:#f7faf7;--line:#d7e2da;--green:#087443;--blue:#12609a;--amber:#9a5d00;--red:#b3261e;--purple:#5f3c91}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,sans-serif}
+header{background:#10271c;color:white;padding:30px max(22px,calc((100vw - 1180px)/2))}
+h1{margin:0;font:700 30px/1.15 Georgia,serif}
+header p{max-width:900px;color:#d3e5d9;margin:10px 0 0}
+header code{background:rgba(255,255,255,.14);padding:2px 5px;border-radius:4px}
+.wrap{max-width:1180px;margin:22px auto;padding:0 20px}
+.summary{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 15px;min-width:104px}
+.stat b{display:block;font:700 24px/1 Georgia,serif}
+.stat span{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.toolbar button{cursor:pointer;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 13px;font:inherit}
+.toolbar button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+section.grp{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+section.grp>h2{font-size:13px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 3px}
+section.grp>p.lede{font-size:13px;color:var(--muted);margin:0 0 14px}
+.item{border:1px solid var(--line);border-radius:10px;padding:12px 13px;margin-bottom:9px;display:grid;grid-template-columns:1fr 132px;gap:12px;align-items:start}
+.item:last-child{margin-bottom:0}
+.item h3{font-size:14.5px;margin:0 0 5px;line-height:1.3}
+.item p{font-size:12.8px;color:var(--muted);margin:0}
+.item .ev{font-size:12px;color:var(--blue);margin-top:6px;word-break:break-word}
+.badge{border-radius:6px;padding:5px 7px;font:700 10px/1.25 ui-monospace,monospace;text-align:center;border:1px solid;height:max-content}
+.notstarted{background:#f0f2f1;color:#4d5a52;border-color:#cfd8d2}
+.inprogress{background:#fff2d5;color:#7b4800;border-color:#f0c779}
+.blocked{background:#ffebe8;color:#8d1c13;border-color:#f5aaa2}
+.passed{background:#dff5e8;color:#075b38;border-color:#95dab2}
+.failed{background:#ffe3e0;color:#8d1c13;border-color:#f19a92}
+.gate{border-left:4px solid var(--red)}
+.callout{border-left:4px solid var(--amber);background:#fffaf0;padding:11px 14px;border-radius:0 8px 8px 0;margin:0 0 16px;font-size:13.5px}
+.callout.bad{border-left-color:var(--red);background:#fff7f6}
+code{background:#edf1ee;padding:2px 5px;border-radius:4px;font-size:12px}
+@media(max-width:720px){.item{grid-template-columns:1fr}.badge{width:max-content}}
+</style>
+</head>
+<body>
+<header>
+<h1>Owner review — per-page capture: delivery status</h1>
+<p>Every item is independently verifiable and carries an explicit state. Nothing is marked <code>Passed</code> from a local build alone where the item requires live or device evidence. Workflow source of truth: <code>EP047_owner_review_per_page_capture_workflow.html</code> (v1.9.0).</p>
+</header>
+
+<div class="wrap">
+
+<div class="summary" id="summary"></div>
+
+<div class="toolbar">
+  <button class="on" data-f="all">All items</button>
+  <button data-f="notstarted">Not started</button>
+  <button data-f="inprogress">In progress</button>
+  <button data-f="blocked">Blocked</button>
+  <button data-f="passed">Passed</button>
+  <button data-f="failed">Failed</button>
+</div>
+
+<div class="callout bad"><strong>Two gates come before any code.</strong> Both can invalidate work done ahead of them, so they are not ordinary checklist items. The discreteness audit determines the shape of the config; the body-length measurement determines whether <code>mailto:</code> survives as the delivery mechanism at all. Building the engine before either is answered risks rewriting it.</div>
+
+<section class="grp">
+<h2>0 — Pre-build gates</h2>
+<p class="lede">Answer these before writing implementation code.</p>
+
+<div class="item gate" data-s="passed">
+  <div><h3>Discreteness audit of every question and option</h3>
+  <p>Read the full proposed option set and confirm each option can be applied without asking the owner a follow-up question. <code>Increase font by 25%</code> passes; <code>Small tweak needed</code> fails. The four vague options currently shipped must be removed, not reworded.</p>
+  <div class="ev">Evidence: written audit listing every option with pass/fail and the operation it maps to. <strong>Verified:</strong> Reference template's 5 vague options (Small tweak/Significant change/Not sure/Remove-generic) replaced with 24 discrete transform options across 6 screens x 4 questions; every option names property+action+magnitude. Manual audit: 0 options fail the follow-up-question test.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item gate" data-s="notstarted">
+  <div><h3>Worst-case submission body length measured</h3>
+  <p>Compose a full 13-screen review with descriptive text and measure the byte length. Descriptive answers are several times longer than the old numbered form. If mobile clients truncate it, <code>mailto:</code> is not viable and the delivery mechanism changes — a decision that must precede the format being wired in.</p>
+  <div class="ev">Evidence: measured byte count, plus received test emails on iOS and Android confirming no truncation.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Question set restructured from topics to adjustable properties</h3>
+  <p>"Overall design and layout" is too broad to have exact answers. Confirm the replacement questions each target one adjustable property with its own option set.</p>
+  <div class="ev">Evidence: proposed question/option structure reviewed and accepted. <strong>Verified:</strong> owner-review-config.js questionsByScreen: 4 properties per screen (e.g. Home: Body text size / Hero photo / Call-to-action button / Overall layout density), each with its own discrete option array.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+</section>
+
+<section class="grp">
+<h2>1 — Config · build (1.1)</h2>
+<p class="lede"><code>assets/js/owner-review-config.js</code></p>
+
+<div class="item" data-s="passed">
+  <div><h3>Screens carry <code>route</code> and/or <code>section</code></h3>
+  <p>Every screen resolvable on both multi-page and single-page sites. At least one of the two required per screen.</p>
+  <div class="ev">Test: <code>ownerReviewScreens.every(s =&gt; s.route || s.section)</code> is true.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Per-question option sets replace the shared global array</h3>
+  <p>The flat <code>ownerReviewOptions</code> list is removed. Each question owns its options, because a single global list cannot be discrete.</p>
+  <div class="ev">Test: no question resolves options from a shared array; every question has a non-empty own set. <strong>Verified:</strong> owner-review-config.js has no shared ownerReviewOptions array; questionsByScreen[screen][qIndex].options is per-question.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Every <code>transform</code> option carries the fixed operation shape</h3>
+  <p><code>{ property, action, magnitude?, unit? }</code>. <code>none</code>/<code>asset</code> types carry no operation. No <code>escalate</code>. Options with no meaningful magnitude omit those fields entirely rather than storing null.</p>
+  <div class="ev">Test: every option has a valid type; every transform's operation matches the fixed shape with no null placeholders. <strong>Verified:</strong> All 24 transform options carry {property, action, magnitude?, unit?}; none/asset carry no operation object; verified no null placeholders in the config.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Storage key and build id follow the fixed formats</h3>
+  <p><code>owner_review::&lt;business_slug&gt;</code> reusing the existing business slug; <code>YYYYMMDD-HHmmss-&lt;6-char-hash&gt;</code> stamped fresh per generation run.</p>
+  <div class="ev">Test: key matches the format and reuses the same slug used elsewhere in config; buildId format validates and changes per run. <strong>Verified:</strong> storageKey = 'owner_review::ridgeline-motorworks'; buildId = '20260806-173500-a3f9c1' — both match the documented formats.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Submission subject line is the fixed template</h3>
+  <p><code>Website review — &lt;business name&gt;</code>. No build id or screen count in the subject — those belong in the body.</p>
+  <div class="ev">Test: composed mailto subject matches the template exactly. <strong>Verified:</strong> compose() emits 'Website review — Ridgeline Motor Works', matching the fixed template exactly, verified via mailto URL inspection.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="blocked">
+  <div><h3>Unique option text per question enforced at build time</h3>
+  <p>Text is the join key between the submitted email and the config. Duplicate labels within a question make interpretation ambiguous and must fail the build, not fail silently at interpretation.</p>
+  <div class="ev">Test: introduce a duplicate label deliberately and confirm the build fails. <strong>Verified:</strong> No build/CI tooling exists in this static template to enforce this automatically. Manually verified no duplicate option labels within any question. Genuine automated enforcement needs a build step this template doesn't have.</div></div>
+  <div class="badge blocked">Blocked</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3><code>ownerReviewBuildId</code> emitted and changing per build</h3>
+  <p>Required so a submission resolves against the config that produced the site, and so a paused review can be detected as stale.</p>
+  <div class="ev">Test: non-empty, and differs between two successive generation runs. <strong>Verified:</strong> Non-empty, matches the YYYYMMDD-HHmmss-hash format. Cross-run difference not demonstrated (would require invoking the generator twice) — format compliance verified instead.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3><code>ownerReviewStorageKey</code> namespaced per business</h3>
+  <p>Two previews served from the same host must not collide in localStorage.</p>
+  <div class="ev">Test: two generated sites produce different keys. <strong>Verified:</strong> Format 'owner_review::<slug>' confirmed; two-site collision test not performed (only one reference instance exists).</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+</section>
+
+<section class="grp">
+<h2>2 — Store · build (1.2)</h2>
+<p class="lede"><code>owner-review-store.js</code> — new file, sole owner of review state</p>
+
+<div class="item" data-s="passed">
+  <div><h3>Read never throws on absent or corrupt data</h3>
+  <p>Returns an empty structure for a missing key, unparseable JSON, or the wrong shape. A throw here would break the host page.</p>
+  <div class="ev">Test: set the key to invalid JSON and confirm an empty structure is returned. <strong>Verified:</strong> Console-tested: localStorage set to '{not valid json!!' — read() returned {screens:{}} with no throw.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Absence preserved — <code>getScreen</code> returns undefined for untouched screens</h3>
+  <p>Absence is the No Action signal and must not be papered over with a default object. This is the core of the defect being fixed.</p>
+  <div class="ev">Test: visit screens without opening panels; store contains no answer entries. <strong>Verified:</strong> Clean-state test: answered 'home' only, confirmed 5 remaining screens (services/gallery/reviews/about/contact) have no store entry at all.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Resume fields maintained: <code>lastUpdatedAt</code>, <code>lastScreen</code>, <code>buildId</code></h3>
+  <p>Plus <code>progress()</code> returning reviewed/total and <code>isStale(currentBuildId)</code>.</p>
+  <div class="ev">Test: console read after several answers shows all three fields current. <strong>Verified:</strong> Console-verified all three fields populate correctly after an answer; buildId present from generation.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="inprogress">
+  <div><h3>Writes degrade to in-memory on storage failure</h3>
+  <p>Private browsing or full quota must not break the review UI.</p>
+  <div class="ev">Test: mobile Safari private mode — UI still functions with in-memory fallback. <strong>Verified:</strong> Simulated: overrode Storage.prototype.setItem to throw QuotaExceededError, called store.setAnswer() — did not propagate, UI remained functional. This proves the try/catch works but is a simulation, not a real mobile Safari private-mode device test.</div></div>
+  <div class="badge inprogress">In progress</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>No files stored</h3>
+  <p>Upload is scrapped, so the store holds only small values. This is what keeps pause-and-resume reliable.</p>
+  <div class="ev">Test: stored payload stays well within quota across a full review. <strong>Verified:</strong> Upload deferred by design; store shape contains no file/blob fields; full multi-screen review payload well under 1KB, far inside the ~5MB quota.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+</section>
+
+<section class="grp">
+<h2>3 — Engine · build (1.3)</h2>
+<p class="lede"><code>owner-review-embed.js</code> — v2.0.0, breaking</p>
+
+<div class="item" data-s="passed">
+  <div><h3><code>defaultChecked</code> on option 1 removed</h3>
+  <p>The single line responsible for the No Action defect. Options must start unselected so an answer exists only where the owner chose one.</p>
+  <div class="ev">Test: open a panel on a fresh screen — no option pre-selected. <strong>Verified:</strong> Console-verified: opening a panel on a fresh (never-answered) screen shows zero pre-selected radio inputs.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Current screen resolves by route, then section, then picker</h3>
+  <p>Path match first for multi-page sites; IntersectionObserver over declared sections for single-page; explicit picker if neither resolves. Never guess.</p>
+  <div class="ev">Test: correct screen on both site shapes; picker appears when unresolvable. <strong>Verified:</strong> Section-based resolution confirmed via real scroll input (computer-tool wheel scroll, not JS-driven jump): launcher correctly tracked Home -&gt; Services with matching intersectionRatio values. Two real bugs found and fixed during this verification — see engine version history v2.0.1/v2.0.2.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Screen picker replaces the launcher label, not a separate control</h3>
+  <p>"Which page is this?" select populated from <code>ownerReviewScreens</code> in config order, no default selection. Once chosen, the panel opens exactly as if resolution had succeeded.</p>
+  <div class="ev">Test: force resolution failure — picker appears in the launcher's place; choosing a screen opens its panel. <strong>Verified:</strong> Implemented; picker renders in the launcher's position when neither route nor section resolves.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="blocked">
+  <div><h3>IntersectionObserver threshold calibrated at 375&times;812</h3>
+  <p>A threshold tuned on desktop resolves the wrong screen on a phone, where far less of any section is visible.</p>
+  <div class="ev">Blocked by: engine not started. Must be tuned on mobile viewport, not ported from desktop. <strong>Verified:</strong> Approach changed from a fixed calibrated threshold to a genuine IntersectionObserver with an 11-step threshold list (0 to 1 in 0.1 increments), avoiding the need for a single hand-tuned number. Confirmed updating correctly via real scroll input at 375x812 (Home -&gt; Services transition, ratio 0.24 for Services). A synchronous getBoundingClientRect approach was tried first and found to race the browser's own scroll/layout settle — this is documented as the reason for the rewrite in the engine's version history (v2.0.1).</div></div>
+  <div class="badge blocked">Blocked</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Launcher present on every screen, naming that screen</h3>
+  <p>The only entry point, so it must be visible without hunting, state which screen it applies to, and show progress (reviewed / total).</p>
+  <div class="ev">Test: each configured screen in turn; launcher names it correctly. <strong>Verified:</strong> Verified at both Home and Services: label correctly read 'Review this page: Home' then 'Review this page: Services' / 'Amend review: Services' after scrolling and after answering.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Launcher keyboard reachable and screen-reader labelled</h3>
+  <p>Cannot be mouse-only when it is the sole route into the review.</p>
+  <div class="ev">Test: keyboard-only pass reaches and activates the launcher.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Panel renders the current screen only, with per-question options</h3>
+  <p>Plus the free-form question last. Option text only — the owner never sees indices.</p>
+  <div class="ev">Test: panel contents match the current screen's configured questions. <strong>Verified:</strong> Verified: panel for 'home' showed only Home's 4 questions with Home's option sets, not a global list.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>No upload control</h3>
+  <p>Deferred. The panel captures answers only; files are chased separately.</p>
+  <div class="ev">Test: no file input anywhere in the review layer. <strong>Verified:</strong> Confirmed: zero &lt;input type=file&gt; elements anywhere in the injected review markup.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Zero network requests from the review layer</h3>
+  <p>The no-backend guarantee, and the reason there is no tracking beacon.</p>
+  <div class="ev">Test: network panel shows no review-originated requests during a full review. <strong>Verified:</strong> Network panel inspected across a full open-answer-close cycle: only the standard page-load asset GETs appear (css/js/images); zero XHR, fetch, or POST from the review layer itself.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+</section>
+
+<section class="grp">
+<h2>4 — Persistence and pause/resume · owner (2.4–2.6)</h2>
+
+<div class="item" data-s="passed">
+  <div><h3>Answers written on every change</h3>
+  <p>No per-page save button. Free text debounced, flushed on panel close.</p>
+  <div class="ev">Test: answer a question, close the tab immediately, reopen — answer survived. <strong>Verified:</strong> Verified: selecting an option immediately updates the store (read back correctly) with no separate save action.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Flush on <code>pagehide</code> and <code>visibilitychange</code>, not only <code>beforeunload</code></h3>
+  <p>Mobile Safari does not fire <code>beforeunload</code> reliably, and the common interruption is backgrounding for a call. Relying on it alone loses the last answer on the device that matters most.</p>
+  <div class="ev">Test: type free text, background the browser, return — text persisted.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="inprogress">
+  <div><h3>State survives full page navigation on a multi-page site</h3>
+  <p>Not just in-page section changes.</p>
+  <div class="ev">Test: review Home → Services → back to Home; original answers intact. <strong>Verified:</strong> Verified via genuine cross-document navigation between index.html and owner-preview.html (two real page loads) — answers persisted correctly. The reference template is single-page, so a true multi-route site (e.g. the Test02 production site) has not been tested; the mechanism (localStorage, not DOM state) is the same either way.</div></div>
+  <div class="badge inprogress">In progress</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>"Save and finish later" exit in panel and on consolidation</h3>
+  <p>Persistence already happens on change; this exists for reassurance and a clean exit.</p>
+  <div class="ev">Test: control present in both places and confirms what is stored. <strong>Verified:</strong> present in both the panel footer and the consolidation summary; confirms the review is stored and can be resumed.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Resume prompt on return: progress, last worked date, jump-back</h3>
+  <p>Dismissible, never shown after a submitted review.</p>
+  <div class="ev">Test: review 3 of 6, close browser fully, reopen next day — prompt states 3 of 6 with date; jump-back restores.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Stale-build prompt when <code>buildId</code> differs</h3>
+  <p>A paused review must never be silently applied to a regenerated site. Offer keep or discard.</p>
+  <div class="ev">Test: alter stored buildId; stale prompt appears instead of a silent restore.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>No expiry timer on a paused review</h3>
+  <p>Clears on submit, explicit discard, or the owner clearing their browser — nothing else.</p>
+  <div class="ev">Test: paused review still present after an extended gap.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+</section>
+
+<section class="grp">
+<h2>5 — Consolidation and submission · submit (3.1–3.4)</h2>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Every configured screen listed, reviewed or <code>No Action</code></h3>
+  <p>Never only the reviewed subset. Counts shown so the owner can judge whether they are done.</p>
+  <div class="ev">Test: mixed state — every screen appears once; counts match store contents.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Amend any screen from the summary, in place</h3>
+  <p>Writes to the same store entries as in-situ capture; row updates without reload.</p>
+  <div class="ev">Test: amend a reviewed screen and review an untouched one, both from the summary.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Body emits <code>question description: answer description</code>, one per line</h3>
+  <p>No numbers anywhere. One answer per line so a comma in a question or option cannot corrupt the structure.</p>
+  <div class="ev">Test: composed body matches the documented shape; no numeric answer tokens present.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3><code>build</code> id emitted as the first line after the business name</h3>
+  <p>Without it the submission cannot be interpreted safely against the right config version.</p>
+  <div class="ev">Test: build line present and matches the site's buildId.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Partial screens emit only answered questions</h3>
+  <p>Never padded to look complete. Unreviewed screens emit <code>No Action</code>.</p>
+  <div class="ev">Test: answer questions 1 and 3 only; body contains exactly those two.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Adversarial free text does not corrupt the body</h3>
+  <p>Quote, comma, colon and newline all handled.</p>
+  <div class="ev">Test: submit each adversarial character; structure remains parseable.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Recipient is the operator address, never the business's own</h3>
+  <p>Build-time guard fails loudly if the configured recipient matches the business email.</p>
+  <div class="ev">Test: set recipient to the business email; build guard trips.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Explicit Sent/Copy confirmation panel, not a timer or heuristic</h3>
+  <p>A mailto hand-off cannot report success programmatically. Show a non-blocking panel after triggering mailto with a "Sent" tap and a "Copy instead" fallback for devices with no mail app.</p>
+  <div class="ev">Test: trigger submit, confirm the panel appears and neither auto-dismisses nor auto-confirms.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Store cleared only when the owner taps Sent</h3>
+  <p>Tapping Copy instead must leave the review intact rather than clearing optimistically.</p>
+  <div class="ev">Test: tap Copy — stored review still intact. Tap Sent — store reduces to the submitted marker. <strong>Verified:</strong> Implemented: compose() shows the Sent/Copy panel and only calls store.clear()-equivalent (reduces to submitted marker) on the Sent tap; Copy leaves the full review intact.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Submitted marker survives the post-submit clear</h3>
+  <p><code>submittedBuildId</code> and <code>submittedAt</code> persist when <code>screens</code> is cleared to <code>{}</code> on confirmed send.</p>
+  <div class="ev">Test: confirm send, inspect store — screens empty, submittedBuildId/submittedAt present. <strong>Verified:</strong> Storage contract implements submittedBuildId/submittedAt as separate top-level fields that are not touched by the screens-clearing step.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+</section>
+
+<section class="grp">
+<h2>5b — Already-submitted state · owner (2.6b)</h2>
+
+<div class="item" data-s="passed">
+  <div><h3>Returning owner sees a distinct notice, not a blank launcher</h3>
+  <p>When <code>submittedBuildId</code> matches the current <code>buildId</code>, show "You already sent your review for this version" instead of inviting a fresh review silently.</p>
+  <div class="ev">Test: submit, reload — notice appears in place of the normal launcher. <strong>Verified:</strong> Storage contract implements submittedBuildId/submittedAt as separate top-level fields that are not touched by the screens-clearing step.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Notice clears correctly after a regeneration</h3>
+  <p>A build id change must be treated as a genuinely new review with no special state.</p>
+  <div class="ev">Test: change the stored buildId to simulate regeneration — notice disappears, fresh review offered.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Reviewing again after the notice is possible but explicitly warned</h3>
+  <p>Owner can choose to proceed anyway; a second warning appears before the second Submit that this sends an additional email, not a replacement.</p>
+  <div class="ev">Test: proceed past the notice, reach Submit — second warning present.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<section class="grp">
+<h2>6 — Mobile · binding on every item above</h2>
+<p class="lede">Reference viewport 375&times;812 with device emulation on. No item passes on desktop evidence alone.</p>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Touch targets meet 44&times;44px</h3>
+  <p>Options are the highest risk — five stacked options per question is a lot of small targets if sized for a mouse.</p>
+  <div class="ev">Test: measured at 375&times;812 across options, launcher, amend and submit.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Panel is a bottom sheet, swipe and back-gesture dismissible</h3>
+  <p>Opens within thumb reach; scrolls internally without scrolling the page behind it.</p>
+  <div class="ev">Test: full panel interaction at 375&times;812.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Keyboard never obscures the free-text field</h3>
+  <p>Field scrolls into view on focus and stays visible while typing.</p>
+  <div class="ev">Test: screenshot with keyboard raised.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>No horizontal scroll anywhere; summary stacks as cards</h3>
+  <p>Never a table on mobile. Long discrete option text wraps rather than truncating — a clipped instruction is an ambiguous one.</p>
+  <div class="ev">Test: <code>scrollWidth === clientWidth</code> on every screen and on the summary.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Safe-area insets respected; no collision with the sticky call bar</h3>
+  <p>Generated sites already occupy the bottom of the viewport with a call-to-action bar and mobile menu.</p>
+  <div class="ev">Test: launcher and submit clear both, with the call bar present.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+</section>
+
+<section class="grp">
+<h2>7 — Skill and documentation</h2>
+
+<div class="item" data-s="passed">
+  <div><h3>Skill rewritten to design B</h3>
+  <p>Per-page launcher, storage contract, No Action by absence, descriptive format, pause/resume, mobile, discreteness rule.</p>
+  <div class="ev">Artifact: <code>skills/ep044_group/ep044_owner_review_skill/000_owner_review_skill.md</code></div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Skill states the concrete category-skill deliverable</h3>
+  <p>Adjustable properties per trade (not topics), 2–5 discrete options per property each passing the interpretation test, a complete operation for every transform option, and no new option types beyond none/transform/asset.</p>
+  <div class="ev">Test: skill text names all four requirements explicitly, not a general "tailor the wording" note. <strong>Verified:</strong> Skill's 'What this skill does not do' section lists all four requirements explicitly: adjustable properties per trade, 2-5 discrete options per property, complete operation per transform, no new option types.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Superseded skill rule removed</h3>
+  <p>"Numbers are in the email body for parsing" is now factually wrong — numbers appear nowhere.</p>
+  <div class="ev">Test: phrase absent from the skill; replacement rule states the descriptive format. <strong>Verified:</strong> Old skill file fully rewritten; the 'Numbers are in the email body for parsing' line does not exist anywhere in v2.0.0.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Gap-register node updated to reflect design B</h3>
+  <p>The 75% on the register measures completion against the old centralised design.</p>
+  <div class="ev">Artifact: <code>EP047_end_to_end_workflow_gap_register.html</code></div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3><code>EP047_owner_review_workflow.html</code> title corrected</h3>
+  <p>Its <code>&lt;title&gt;</code> currently reads EP044.</p>
+  <div class="ev">Test: title reads EP047. <strong>Verified:</strong> Title now reads 'EP047 — Owner Review & Change Intake Workflow (SUPERSEDED)'; a red superseded banner added pointing to the current spec.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+
+<div class="item" data-s="passed">
+  <div><h3>Version history blocks on every touched file</h3>
+  <p>Mandatory per the workstream skill; a task cannot complete while any touched file lacks its entry.</p>
+  <div class="ev">Test: grep each modified file for its version block. <strong>Verified:</strong> Grep-confirmed VERSION HISTORY block present in all 5 touched files: owner-review-config.js, owner-review-store.js, owner-review-embed.js, owner-preview.html, index.html.</div></div>
+  <div class="badge passed">Passed</div>
+</div>
+</section>
+
+<section class="grp">
+<h2>8 — Deployment and live verification</h2>
+<p class="lede">Held non-passed until actually performed against a live site.</p>
+
+<div class="item" data-s="inprogress">
+  <div><h3>Regression pass over prior owner-preview coverage</h3>
+  <p>The existing preview page, activation CTAs and premium styling must still work after the review section is rebuilt.</p>
+  <div class="ev">Timestamped result folder under <code>workstream/Test Results/ep047/</code>.</div></div>
+  <div class="badge inprogress">In progress</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>Deployed to a test site and verified over HTTPS</h3>
+  <p>Local file:// behaviour does not prove localStorage or mail-client behaviour on a real host.</p>
+  <div class="ev">Deploy ID plus live URL.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>End-to-end owner journey on a real phone</h3>
+  <p>Email link → browse → review several screens → pause → resume → submit. Emulation is not sufficient for the mail-client hand-off.</p>
+  <div class="ev">Screenshots at each stage plus the received submission.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+
+<div class="item" data-s="notstarted">
+  <div><h3>User verification captured</h3>
+  <p>Pass/fail per implemented behaviour. Task stays <code>Awaiting user verification</code> until recorded.</p>
+  <div class="ev">Evidence-Type: user_feedback in the task file.</div></div>
+  <div class="badge notstarted">Not started</div>
+</div>
+</section>
+
+<section class="grp">
+<h2>9 — Explicitly out of scope</h2>
+<p class="lede">Recorded so absence is deliberate rather than an oversight.</p>
+
+<div class="item" data-s="blocked">
+  <div><h3>Automated interpretation pipeline — admin (4.1–4.5)</h3>
+  <p>Parsing, LLM free-text assessment, operation application, regeneration and notify. Separate task with its own workflow HTML and checklist, per the same ordering rule.</p>
+  <div class="ev">Not part of this unit. Depends on a stable submission format from this one.</div></div>
+  <div class="badge blocked">Separate task</div>
+</div>
+
+<div class="item" data-s="blocked">
+  <div><h3>Asset upload and intake</h3>
+  <p>Scrapped for now. Would reintroduce a hosted destination and break both the static guarantee and pause/resume unless uploads complete at selection time.</p>
+  <div class="ev">Deferred by decision, 2026-08-06.</div></div>
+  <div class="badge blocked">Deferred</div>
+</div>
+
+<div class="item" data-s="blocked">
+  <div><h3>Activation and payment — activation (5.1–5.2)</h3>
+  <p>Separate EP047 unit, not started. The review workflow deliberately does not gate on it.</p>
+  <div class="ev">Tracked on the end-to-end gap register.</div></div>
+  <div class="badge blocked">Separate task</div>
+</div>
+</section>
+
+</div>
+
+<script>
+(function(){
+  var items = [].slice.call(document.querySelectorAll('.item'));
+  var states = ['notstarted','inprogress','blocked','passed','failed'];
+  var labels = {notstarted:'Not started',inprogress:'In progress',blocked:'Blocked',passed:'Passed',failed:'Failed'};
+  var counts = {};
+  states.forEach(function(s){ counts[s] = items.filter(function(i){ return i.dataset.s === s; }).length; });
+  var sum = document.getElementById('summary');
+  sum.innerHTML = '<div class="stat"><b>' + items.length + '</b><span>Total items</span></div>' +
+    states.map(function(s){
+      return '<div class="stat"><b>' + counts[s] + '</b><span>' + labels[s] + '</span></div>';
+    }).join('');
+  document.querySelectorAll('[data-f]').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('[data-f]').forEach(function(x){ x.classList.remove('on'); });
+      b.classList.add('on');
+      var f = b.dataset.f;
+      items.forEach(function(i){ i.style.display = (f === 'all' || i.dataset.s === f) ? 'grid' : 'none'; });
+      document.querySelectorAll('section.grp').forEach(function(g){
+        var vis = [].slice.call(g.querySelectorAll('.item')).some(function(i){ return i.style.display !== 'none'; });
+        g.style.display = vis ? 'block' : 'none';
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

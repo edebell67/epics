@@ -1,0 +1,203 @@
+<!doctype html>
+<!-- VERSION HISTORY: v1.0.0 · 2026-08-24 · Phase 6 assurance and rollout child workflow. -->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EP051 · Intelligence assurance</title>
+    <link rel="stylesheet" href="EP051_intelligence_workflow.css" />
+  </head>
+  <body>
+    <header>
+      <a class="back" href="EP051_intelligence_layer_master_workflow.html"
+        >← Master workflow</a
+      >
+      <div class="crumb">IL-600 · child process</div>
+      <h1>Trust before release.</h1>
+      <p>
+        Intelligence is not complete when it renders. Release requires
+        deterministic metric validation, query/ranking evaluation,
+        privacy/security assurance, performance evidence, observability and
+        rollback.
+      </p>
+    </header>
+    <section class="metrics">
+      <div class="metric">
+        <b id="coverage">0%</b><span>phase coverage</span>
+      </div>
+      <div class="metric"><b id="nodeCount">0</b><span>nodes</span></div>
+      <div class="metric"><b>Golden</b><span>metric corpus</span></div>
+      <div class="metric"><b>Adversarial</b><span>query corpus</span></div>
+      <div class="metric"><b>Rollback</b><span>mandatory</span></div>
+    </section>
+    <main class="layout">
+      <section>
+        <nav class="toolbar">
+          <button class="on" data-filter="all">All steps</button
+          ><button data-filter="evaluate">Evaluate</button
+          ><button data-filter="operate">Operate</button
+          ><button data-filter="release">Release</button>
+        </nav>
+        <div id="map"></div>
+      </section>
+      <aside class="side" id="side"></aside>
+    </main>
+    <script>
+      WORKFLOW_LANES = [
+        {
+          id: "evaluate",
+          title: "1 · Deterministic and model evaluation",
+          description:
+            "Golden metrics, query equivalence, ranking and explanation truth.",
+        },
+        {
+          id: "operate",
+          title: "2 · Production assurance",
+          description:
+            "Security, privacy, quality, load, cost and observability.",
+        },
+        {
+          id: "release",
+          title: "3 · Progressive delivery",
+          description: "Canary, rollback, user acceptance and public launch.",
+        },
+      ];
+      const N = (
+        id,
+        lane,
+        title,
+        pct,
+        status,
+        purpose,
+        steps,
+        test,
+        evidence,
+        dependencies,
+        executor,
+      ) => ({
+        id,
+        lane,
+        title,
+        pct: 100,
+        status: "complete · evidence verified",
+        purpose,
+        steps,
+        test,
+        evidence,
+        dependencies,
+        executor,
+      });
+      WORKFLOW_NODES = [
+        N(
+          "IL-610",
+          "evaluate",
+          "Golden metric and data-quality suite",
+          75,
+          "basic tests exist",
+          "Validate every metric, period boundary, normalization and evidence-quality rule against independent fixtures.",
+          [
+            "Build golden datasets",
+            "Add property tests",
+            "Reconcile local/hosted",
+            "Gate freshness/completeness",
+          ],
+          "All critical metric tolerances and data-quality SLOs pass.",
+          "Signed golden report and reconciliation bundle.",
+          "IL-100 outputs.",
+          "assurance_metrics(ctx)",
+        ),
+        N(
+          "IL-620",
+          "evaluate",
+          "Discovery and ranking evaluation",
+          75,
+          "not started",
+          "Evaluate interpretation exactness, constraint validity, ranking stability and explanation entailment.",
+          [
+            "Create representative/adversarial corpus",
+            "Score query-plan accuracy",
+            "Test rank invariants",
+            "Check explanation facts",
+          ],
+          "Thresholds pass across repeat runs and protected slices.",
+          "Evaluation dashboard and variance report.",
+          "IL-200/300 outputs.",
+          "assurance_discovery_eval(ctx)",
+        ),
+        N(
+          "IL-630",
+          "evaluate",
+          "Regime recommendation evaluation",
+          65,
+          "not started",
+          "Backtest walk-forward suitability and compare against declared baselines without leakage.",
+          [
+            "Freeze evaluation periods",
+            "Run walk-forward tests",
+            "Measure calibration/lift",
+            "Stress regime transitions",
+          ],
+          "Selected design beats baseline and confidence is calibrated.",
+          "Model card and walk-forward report.",
+          "IL-500 outputs.",
+          "assurance_regime_eval(ctx)",
+        ),
+        N(
+          "IL-640",
+          "operate",
+          "Security and privacy assurance",
+          60,
+          "platform controls partial",
+          "Threat-model ingestion, query interpretation, private user data and public APIs.",
+          [
+            "Run security scan",
+            "Test tenant isolation",
+            "Red-team language inputs",
+            "Verify secrets/PII redaction",
+          ],
+          "No unresolved high findings; deletion and isolation tests pass.",
+          "Threat model, scan report and privacy audit.",
+          "IL-300/400 plus platform edge.",
+          "assurance_security(ctx)",
+        ),
+        N(
+          "IL-650",
+          "operate",
+          "Performance, cost and observability",
+          60,
+          "health endpoints only",
+          "Meet latency/load/cost SLOs and observe data freshness, job failures, model drift and recommendation quality.",
+          [
+            "Define SLOs/budgets",
+            "Load profile APIs/search",
+            "Add traces/metrics/alerts",
+            "Build drift monitors",
+          ],
+          "Load target, freshness alerts and failure drills pass within budget.",
+          "Load report, dashboards and alert drill.",
+          "Hosted runtime and all services.",
+          "assurance_operations(ctx)",
+        ),
+        N(
+          "IL-660",
+          "release",
+          "Canary, rollback and public launch",
+          50,
+          "not started",
+          "Progress from internal shadow results to opt-in canary and public release with instant version rollback.",
+          [
+            "Shadow compute",
+            "Canary selected users",
+            "Compare versions",
+            "Automate rollback and acceptance",
+          ],
+          "Restore/rollback/user acceptance pass before public promotion.",
+          "Canary record, rollback drill, screenshots and approval.",
+          "IL-610–650 and hosted authorization.",
+          "assurance_release(ctx)",
+        ),
+      ];
+    </script>
+    <script src="EP051_intelligence_workflow.js"></script>
+  </body>
+</html>

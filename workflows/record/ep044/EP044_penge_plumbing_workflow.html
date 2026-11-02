@@ -1,0 +1,391 @@
+<!doctype html>
+<!--
+  EP044_penge_plumbing_workflow.html — Interactive user conversion journey and lead qualification flow for Penge Plumbing.
+
+  VERSION HISTORY
+  v1.0.0 · 2026-08-01 · Initial version: outlines the actor-by-actor visitor journey, the interactive plumbing triage, and the AI qualification flow.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EP044 — Penge Plumbing Workflow Diagram</title>
+  <style>
+    :root {
+      --ink: #0f172a;
+      --muted: #64748b;
+      --paper: #f8fafc;
+      --line: #e2e8f0;
+      --blue: #0284c7;
+      --blue-light: #e0f2fe;
+      --teal: #0d9488;
+      --teal-light: #ccfbf1;
+      --amber: #d97706;
+      --amber-light: #fef3c7;
+      --red: #e11d48;
+      --red-light: #ffe4e6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 15px/1.45 Outfit, ui-sans-serif, system-ui, sans-serif;
+    }
+    header {
+      padding: 28px max(24px, calc((100vw - 1180px)/2));
+      background: #0c4a6e;
+      color: white;
+      border-bottom: 4px solid var(--blue);
+    }
+    h1 { margin: 0; font: 700 30px/1.15 Cormorant Garamond, Georgia, serif; }
+    header p { max-width: 860px; margin: 10px 0 0; color: #bae6fd; }
+    .layout {
+      max-width: 1240px;
+      margin: 24px auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 20px;
+      padding: 0 20px;
+    }
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .toolbar button {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 999px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font: inherit;
+    }
+    .toolbar button.active {
+      background: var(--blue);
+      color: white;
+      border-color: var(--blue);
+    }
+    .canvas {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      overflow: auto;
+    }
+    .lane {
+      position: relative;
+      min-width: 1020px;
+      padding: 16px 12px 26px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    .lane.discovery { background: #f0f9ff; border: 1px solid #bae6fd; }
+    .lane.triage { background: #f0fdfa; border: 1px solid #ccfbf1; }
+    .lane.assistant { background: #fffbeb; border: 1px solid #fef3c7; }
+    .lane.owner { background: #fff1f2; border: 1px solid #ffe4e6; }
+    .lane h2 {
+      margin: 0 0 13px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+    }
+    .flow { display: flex; align-items: stretch; gap: 10px; flex-wrap: wrap; }
+    .arrow { align-self: center; color: var(--muted); font-size: 24px; }
+    .node {
+      width: 172px;
+      min-height: 130px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: white;
+      padding: 12px;
+      box-shadow: 0 2px 7px rgba(15, 23, 42, 0.05);
+      cursor: pointer;
+      transition: .18s;
+    }
+    .node:hover, .node.selected {
+      outline: 3px solid #bae6fd;
+      transform: translateY(-2px);
+    }
+    .node .tag {
+      display: inline-block;
+      padding: 3px 7px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .node h3 { font-size: 13px; line-height: 1.2; margin: 9px 0 6px; font-family: sans-serif; font-weight: 600; }
+    .node p { font-size: 11.5px; color: var(--muted); margin: 0; }
+    
+    /* Node classes */
+    .t-entry .tag { background: var(--blue-light); color: var(--blue); }
+    .t-triage .tag { background: var(--teal-light); color: var(--teal); }
+    .t-ai .tag { background: var(--amber-light); color: var(--amber); }
+    .t-owner .tag { background: var(--red-light); color: var(--red); }
+    
+    aside {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      align-self: start;
+      position: sticky;
+      top: 18px;
+    }
+    aside h2 { font-size: 17px; margin: 0 0 8px; font-family: Cormorant Garamond, Georgia, serif; font-weight: 700; }
+    aside p { color: var(--muted); font-size: 13.5px; }
+    .legend { display: flex; gap: 12px; flex-wrap: wrap; margin: 10px 0 14px; font-size: 12px; color: var(--muted); }
+    .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; }
+    .d-discovery { background: var(--blue); }
+    .d-triage { background: var(--teal); }
+    .d-ai { background: var(--amber); }
+    .d-owner { background: var(--red); }
+    .dim { opacity: .22; }
+    .detail-section { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 12px; }
+    .detail-section h4 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink); }
+    .detail-section p { margin: 0; font-size: 12.5px; line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Penge Plumbing — Interactive User Conversion Journey</h1>
+    <p>This diagram represents the step-by-step visitor conversion flow, symptom triage process, AI qualification, and final lead handoff. Click any card to inspect detail.</p>
+  </header>
+  <main class="layout">
+    <section>
+      <div class="toolbar">
+        <button class="active" data-filter="all">All Actors</button>
+        <button data-filter="t-entry">Visitor Entry</button>
+        <button data-filter="t-triage">Triage Stepper</button>
+        <button data-filter="t-ai">AI Assistant</button>
+        <button data-filter="t-owner">Business Owner</button>
+      </div>
+      <div class="legend">
+        <span><i class="dot d-discovery"></i>Visitor Discovery</span>
+        <span><i class="dot d-triage"></i>Symptom Triage</span>
+        <span><i class="dot d-ai"></i>AI native assistant</span>
+        <span><i class="dot d-owner"></i>Lead Handoff</span>
+      </div>
+      
+      <div class="canvas">
+        <!-- Lane 1: Visitor Entry -->
+        <div class="lane discovery">
+          <h2>1. Visitor Entry & Discovery</h2>
+          <div class="flow">
+            <article class="node t-entry" data-id="entry-google">
+              <span class="tag">Entry</span>
+              <h3>Google Local Search</h3>
+              <p>User searches for local plumber in Penge, SE20.</p>
+            </article>
+            <span class="arrow">→</span>
+            <article class="node t-entry" data-id="entry-land">
+              <span class="tag">Discovery</span>
+              <h3>Homepage Load</h3>
+              <p>Sees Penge Plumbing headline, value proposition, and CTAs.</p>
+            </article>
+            <span class="arrow">→</span>
+            <article class="node t-entry" data-id="track-view">
+              <span class="tag">Analytics</span>
+              <h3>Page View Logged</h3>
+              <p>Anonymous visitor page view recorded (PII-free).</p>
+            </article>
+          </div>
+        </div>
+
+        <!-- Lane 2: Triage Stepper -->
+        <div class="lane triage">
+          <h2>2. Signature Symptom Triage Stepper</h2>
+          <div class="flow">
+            <article class="node t-triage" data-id="triage-click">
+              <span class="tag">Interaction</span>
+              <h3>Click Triage Tab</h3>
+              <p>Selects emergency leak, boiler issue, or tap fitment.</p>
+            </article>
+            <span class="arrow">→</span>
+            <article class="node t-triage" data-id="triage-view">
+              <span class="tag">Presentation</span>
+              <h3>Custom Stepper View</h3>
+              <p>Interactive slider adjusts, showing checklist, urgency, and base prices.</p>
+            </article>
+            <span class="arrow">→</span>
+            <article class="node t-triage" data-id="triage-cta">
+              <span class="tag">Conversion</span>
+              <h3>Click Quote CTA</h3>
+              <p>Directly launches AI assistant or quote form pre-loaded with issue.</p>
+            </article>
+          </div>
+        </div>
+
+        <!-- Lane 3: AI native assistant -->
+        <div class="lane assistant">
+          <h2>3. AI native Assistant Qualification</h2>
+          <div class="flow">
+            <article class="node t-ai" data-id="ai-open">
+              <span class="tag">Assistant</span>
+              <h3>AI Chat Opened</h3>
+              <p>Assistant greets visitor based on selected triage category.</p>
+            </article>
+            <span class="arrow">→</span>
+            <article class="node t-ai" data-id="ai-qualify">
+              <span class="tag">Qualification</span>
+              <h3>Verify Postcode</h3>
+              <p>Checks if location is within Penge/Bromley service areas.</p>
+            </article>
+            <span class="arrow">→</span>
+            <article class="node t-ai" data-id="ai-consent">
+              <span class="tag">Privacy</span>
+              <h3>Consent Capture</h3>
+              <p>Asks for agreement before recording name &amp; phone.</p>
+            </article>
+          </div>
+        </div>
+
+        <!-- Lane 4: Business Owner -->
+        <div class="lane owner">
+          <h2>4. Business Owner Handoff</h2>
+          <div class="flow">
+            <article class="node t-owner" data-id="owner-api">
+              <span class="tag">Integration</span>
+              <h3>Send Lead to API</h3>
+              <p>Render-hosted backend records structured lead data.</p>
+            </article>
+            <span class="arrow">→</span>
+            <article class="node t-owner" data-id="owner-notify">
+              <span class="tag">Handoff</span>
+              <h3>SMS Notification</h3>
+              <p>Penge Plumbing owner receives instant text of qualified enquiry.</p>
+            </article>
+            <span class="arrow">→</span>
+            <article class="node t-owner" data-id="owner-booking">
+              <span class="tag">Outcome</span>
+              <h3>Callback Scheduled</h3>
+              <p>Owner calls customer back in &lt;15 mins to confirm booking.</p>
+            </article>
+          </div>
+        </div>
+
+      </div>
+    </section>
+    
+    <aside>
+      <h2 id="detailTitle">Select a step</h2>
+      <p id="detailText">Click any node to explore what happens, its technical verification, and expected user behavior.</p>
+      
+      <div id="detailList" class="detail-section">
+        <!-- Dynamic content injected here -->
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    const details = {
+      'entry-google': [
+        'Google Local Search Discovery',
+        'Visitor finds the business via map pack or local keyword searches like "Emergency Plumber Penge" or "Boiler repair Bromley".',
+        'User Intent: Immediate repair or planned installation.',
+        'Technical Proof: Referral headers matched in web analytics.'
+      ],
+      'entry-land': [
+        'Homepage Load',
+        'The visitor arrives at penge-plumbing demo home page. The hero block features a water-blue theme and lists local credentials like "Gas Safe Registered".',
+        'Verification: LCP < 2.5s, all styling and font assets loaded.',
+        'HTML: index.html hero section.'
+      ],
+      'track-view': [
+        'PII-Free Web Analytics Logged',
+        'The shared first-party analytics-embed.js script logs an anonymous page view. It assigns an ephemeral, tab-scoped session ID.',
+        'Technical: GET/POST request to analytics-embed endpoint.',
+        'PII Rule: Zero contact information, phone numbers, or search parameters leave the browser.'
+      ],
+      'triage-click': [
+        'Click Symptom Triage Tab',
+        'Visitor interacts with the signature click-through process block. Toggles between different plumbing categories: Emergency, Boiler/Heating, Tap/Shower, Drains.',
+        'Interaction: Buttons with aria-current="step" update state.',
+        'Accessibility: full keyboard tab selection support.'
+      ],
+      'triage-view': [
+        'Custom Stepper State View',
+        'The stepper component changes view dynamically: displays localized repair checklists, target timeline (e.g. 1-2 hours for leaks), and estimated baseline pricing.',
+        'Visuals: Smooth transition with transform/opacity, reserves aspect ratio to prevent layout shifts.',
+        'No-JS fallback: All content remains fully visible in a structured list if JS is disabled.'
+      ],
+      'triage-cta': [
+        'Click Quote CTA',
+        'Visitor clicks "Get a Quote" or "Fix this Issue Now". The action captures the selected triage category.',
+        'Technical: Dispatches event ui:process-step or cta:quote to open the assistant modal preloaded with the issue description.',
+        'Fallback: If assistant-embed.js fails, standard anchor links directly to contact.html.'
+      ],
+      'ai-open': [
+        'AI Chat Assistant Opened',
+        'The chat widget expands. The AI assistant welcomes the user, referencing the symptom selected in the triage step.',
+        'Greeter: "Hello! I see you need help with a boiler issue in the Penge area. Let me help you verify your location and get a quote."'
+      ],
+      'ai-qualify': [
+        'Verify Service Postcode',
+        'The assistant asks the user for their postcode or borough (e.g. SE20, BR3) to ensure it falls within Penge Plumbing\'s coverage range.',
+        'Rule: If outside coverage, routes visitor to call a recommended dispatcher or generic contact.'
+      ],
+      'ai-consent': [
+        'Consent Capture & Identity',
+        'Prior to collecting name, telephone, or email, the assistant displays a GDPR consent prompt with a clickable privacy policy link.',
+        'Validation: Interactive click-to-accept gate inside the chat canvas.'
+      ],
+      'owner-api': [
+        'Send Lead to API Backend',
+        'The completed chat payload is sent via secure POST request to the Render-hosted web assistant API.',
+        'Security: Uses HTTPS and bearer client-auth token. Free text parsed and structured into JSON fields.'
+      ],
+      'owner-notify': [
+        'SMS Notification to Owner',
+        'The Render backend triggers an SMS API call (Twilio/compliant provider) notifying the plumber of a hot local lead.',
+        'Content: "Hot lead: John Doe (Penge, SE20) needs boiler leak repair. Call 07922..."'
+      ],
+      'owner-booking': [
+        'Callback & Booking Confirmed',
+        'Plumber contacts client within 15 minutes, verifies details, and locks in the service booking.',
+        'Final outcome: Qualified conversion achieved in under 20 minutes from search to booking.'
+      ]
+    };
+
+    function select(id) {
+      document.querySelectorAll('.node').forEach(n => n.classList.toggle('selected', n.dataset.id === id));
+      const d = details[id];
+      if (!d) return;
+      document.getElementById('detailTitle').textContent = d[0];
+      document.getElementById('detailText').textContent = d[1];
+      document.getElementById('detailList').innerHTML = `
+        <div class="detail-section">
+          <h4>Expected Flow Details</h4>
+          <p>${d[2]}</p>
+        </div>
+        <div class="detail-section">
+          <h4>Technical Verification</h4>
+          <p>${d[3] || 'Verified via manual inspection and HTML file validation.'}</p>
+        </div>
+      `;
+    }
+
+    document.querySelectorAll('.node').forEach(n => {
+      n.addEventListener('click', () => select(n.dataset.id));
+    });
+
+    document.querySelectorAll('[data-filter]').forEach(b => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('[data-filter]').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        const f = b.dataset.filter;
+        document.querySelectorAll('.node').forEach(n => {
+          const m = f === 'all' || n.classList.contains(f);
+          n.classList.toggle('dim', !m);
+        });
+      });
+    });
+
+    // Select first node by default
+    select('entry-google');
+  </script>
+</body>
+</html>

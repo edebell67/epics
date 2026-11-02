@@ -1,0 +1,196 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/ep054/EP054_strategy_fantasy_challenge_implementation_workflow.html
+  — top-down interactive implementation workflow for the production Strategy Fantasy Challenge.
+
+  VERSION HISTORY
+  v1.1.0 · 2026-08-31 · Links the live portfolio movement and monitored-strategy notification subprocess before its demo implementation begins.
+  v1.0.3 · 2026-08-31 · Constrains the workflow grid item and hierarchy preformatted block so mobile lanes cannot inherit a wider min-content track.
+  v1.0.2 · 2026-08-31 · Wraps long executor identifiers to prevent them from widening mobile nodes.
+  v1.0.1 · 2026-08-31 · Adds an embedded favicon so local browser verification remains console-clean without an auxiliary asset request.
+  v1.0.0 · 2026-08-31 · Initial version: maps the current EP054 release from contract baseline through live acceptance; outbound agent handoff is explicitly deferred.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10271c">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2310271c'/%3E%3Cpath d='M8 22V10h7c5 0 8 2 8 6s-3 6-8 6H8zm5-4h3c2 0 3-1 3-2s-1-2-3-2h-3v4z' fill='%23d9ff68'/%3E%3C/svg%3E">
+<title>EP054 · Strategy Fantasy Challenge implementation workflow</title>
+<style>
+:root{--ink:#14201a;--muted:#64716a;--paper:#f7faf7;--line:#d7e2da;--green:#087443;--blue:#12609a;--amber:#9a5d00;--red:#b3261e;--purple:#5f3c91;--acid:#d9ff68;--shadow:0 9px 28px rgba(19,48,32,.08)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{margin:0;background:linear-gradient(135deg,#f7faf7 0,#f2f7f3 48%,#f8f5ed 100%);color:var(--ink);font:15px/1.45 "Segoe UI",system-ui,sans-serif;overflow-x:hidden}
+button,a{font:inherit}
+button:focus-visible,a:focus-visible{outline:3px solid #5db88d;outline-offset:3px}
+header{background:#10271c;color:white;padding:34px max(22px,calc((100vw - 1440px)/2));position:relative;overflow:hidden}
+header:after{content:"";position:absolute;width:520px;height:520px;border:1px solid #456454;right:-170px;top:-310px;border-radius:50%;box-shadow:0 0 0 40px #ffffff05,0 0 0 90px #ffffff03}
+.crumb{color:var(--acid);font:700 10px ui-monospace,"Cascadia Code",monospace;letter-spacing:.16em;text-transform:uppercase}
+h1{margin:9px 0 0;font:700 clamp(32px,4.4vw,62px)/.98 Georgia,serif;letter-spacing:-.045em;max-width:890px}
+header p{max-width:990px;color:#d3e5d9;margin:14px 0 0;font-size:14px}
+.scope-note{display:inline-flex;align-items:center;gap:8px;margin-top:17px;padding:8px 11px;border:1px solid #668276;border-radius:999px;color:#fff;background:#ffffff0b;font:700 10px ui-monospace,"Cascadia Code",monospace}
+.scope-note i{width:7px;height:7px;background:var(--acid);border-radius:50%;box-shadow:0 0 12px var(--acid)}
+.metrics{max-width:1440px;margin:18px auto 0;padding:0 20px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.metric{background:#fff;border:1px solid var(--line);border-radius:13px;padding:14px;box-shadow:0 3px 14px #18332408}
+.metric b{font:700 26px Georgia,serif;display:block}
+.metric span{font:700 9px ui-monospace,"Cascadia Code",monospace;text-transform:uppercase;color:var(--muted);letter-spacing:.08em}
+.layout{max-width:1440px;margin:17px auto 42px;display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:20px;padding:0 20px;align-items:start}
+.layout>section{min-width:0}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px;position:sticky;top:8px;z-index:5;background:#f7faf7ef;padding:8px;border:1px solid var(--line);border-radius:14px;backdrop-filter:blur(12px)}
+.toolbar button{cursor:pointer;border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 13px;min-height:44px;color:var(--ink);font-size:12px}
+.toolbar button.on,.toolbar button:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+.note{font:11px ui-monospace,"Cascadia Code",monospace;color:var(--muted);margin:0 0 14px;padding-left:2px}
+.lane{background:#fff;border:1px solid var(--line);border-radius:17px;padding:18px;margin-bottom:17px;box-shadow:var(--shadow);scroll-margin-top:76px;min-width:0}
+.lane[data-lane="deferred"]{background:#faf8fc;border-style:dashed;border-color:#cdbde0}
+.lane-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px}
+.lane h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin:0;color:var(--muted)}
+.who{font-size:12px;color:var(--muted);margin:4px 0 0}
+.lane-progress{font:700 10px ui-monospace,"Cascadia Code",monospace;padding:5px 8px;border:1px solid var(--line);border-radius:999px;white-space:nowrap}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:12px}
+.node{min-width:0;min-height:205px;border:1px solid var(--line);border-radius:11px;background:#fff;padding:13px;box-shadow:0 2px 7px #1833240d;cursor:pointer;text-align:left;color:inherit;display:flex;flex-direction:column;position:relative;transition:transform .18s ease,box-shadow .18s ease}
+.node:before{content:"";position:absolute;left:14px;right:14px;top:-7px;height:3px;border-radius:4px;background:#d8e2dc}
+.node:hover{transform:translateY(-2px);box-shadow:0 11px 22px #18332414}
+.node.sel{outline:3px solid #acd9c5;transform:translateY(-2px)}
+.node h3{font-size:15px;line-height:1.18;margin:8px 0 6px}
+.node p{font-size:12.5px;color:var(--muted);margin:0}
+.tag{display:inline-block;padding:3px 7px;border-radius:999px;font-size:10px;font-weight:800;background:#edf1ee;color:#45554b;width:max-content;letter-spacing:.04em}
+.stage{display:block;margin-top:auto;padding-top:10px;font:10px ui-monospace,"Cascadia Code",monospace;color:var(--muted);overflow-wrap:anywhere;word-break:break-word}
+.progress{display:block;border-radius:7px;padding:6px 7px;font:800 10px/1.25 ui-monospace,"Cascadia Code",monospace;margin-top:8px;border:1px solid}
+.blocked{background:#ffebe8;color:#8d1c13;border-color:#f5aaa2}.active{background:#fff2d5;color:#7b4800;border-color:#f0c779}.partial{background:#eaf4ff;color:#07558d;border-color:#9ac9ed}.complete{background:#dff5e8;color:#075b38;border-color:#95dab2}.scope{background:#f4f0fa;color:#4b2f74;border-color:#d3c2ea}.planned{background:#f0f2f0;color:#49564f;border-color:#cbd4ce}
+.side{background:#fff;border:1px solid var(--line);border-radius:17px;padding:19px;position:sticky;top:72px;max-height:calc(100vh - 88px);overflow:auto;box-shadow:var(--shadow)}
+.child-map{display:inline-flex;min-height:44px;align-items:center;margin-top:14px;padding:9px 11px;border-radius:9px;background:#10271c;color:#fff;text-decoration:none;font:700 11px ui-monospace,"Cascadia Code",monospace}
+.side h2{font:700 23px/1.08 Georgia,serif;margin:0 0 5px}
+.side .sub{font:11px ui-monospace,"Cascadia Code",monospace;color:var(--muted);margin:0}
+.side .contract{font-size:13.5px;margin:12px 0 0;color:var(--ink)}
+.side h4{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px;padding-top:12px;border-top:1px solid var(--line)}
+.side ol{margin:0;padding-left:19px}.side li{font-size:13px;margin:6px 0}
+.box{font-size:13px;padding:9px 11px;border-radius:8px;margin:0;overflow-wrap:anywhere}.test{background:#f2f8f4;border-left:3px solid var(--green)}.ev{background:#f5f9ff;border-left:3px solid var(--blue)}.dep{background:#faf7f2;border-left:3px solid var(--amber)}.auto{background:#f1f8e1;border-left:3px solid #688d17}.output{background:#f7f2fa;border-left:3px solid var(--purple)}
+.legend{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 14px}.legend span{font:700 9px ui-monospace,"Cascadia Code",monospace;padding:4px 7px;border-radius:999px;border:1px solid}
+.hierarchy{max-width:100%;margin:0 0 14px;padding:13px 15px;background:#10271c;color:#dbeee3;border-radius:12px;font:12px/1.7 ui-monospace,"Cascadia Code",monospace;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}.hierarchy b{color:var(--acid)}
+.footer{max-width:1440px;margin:0 auto 30px;padding:0 20px;color:var(--muted);font:10px ui-monospace,"Cascadia Code",monospace}
+[hidden]{display:none!important}
+@media(max-width:980px){.layout{grid-template-columns:1fr}.side{position:static;max-height:none}.metrics{grid-template-columns:repeat(2,1fr)}.flow{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){header{padding:25px 16px}.metrics{grid-template-columns:1fr 1fr;padding:0 10px}.layout{padding:0 10px;margin-top:12px}.flow{grid-template-columns:1fr}.lane{padding:14px}.node{width:100%;min-height:190px}.toolbar{position:static}.lane-head{display:block}.lane-progress{display:inline-block;margin-top:9px}.side{padding:16px}.metric:last-child{grid-column:1/-1}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.node{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb">EP054 · Level 1 master implementation map</div>
+  <h1>Strategy Fantasy Challenge — from preview to platform.</h1>
+  <p>Automated delivery path for turning the static EP054 demo into the persistent human-first competition front end for EP051 Strategy Directory and EP053 Finder AI. Every node is an independently testable programmatic unit; click a node to inspect its contract.</p>
+  <div class="scope-note"><i></i> Current release: criteria A–D + F · outbound agent handoff deferred</div>
+</header>
+
+<section class="metrics" aria-label="Workflow summary">
+  <div class="metric"><b id="coverage">0%</b><span>weighted completion</span></div>
+  <div class="metric"><b id="nodeCount">0</b><span>implementation nodes</span></div>
+  <div class="metric"><b id="laneCount">0</b><span>top-level lanes</span></div>
+  <div class="metric"><b id="currentCount">0</b><span>current-release nodes</span></div>
+  <div class="metric"><b id="deferredCount">0</b><span>deferred nodes</span></div>
+</section>
+
+<main class="layout">
+  <section aria-label="Implementation workflow">
+    <nav class="toolbar" id="filters" aria-label="Workflow filters"></nav>
+    <div class="legend" aria-label="Status legend">
+      <span class="complete">100% complete</span><span class="partial">1–99% partial</span><span class="planned">0% planned</span><span class="scope">0% deferred</span>
+    </div>
+    <pre class="hierarchy"><b>EP054 MASTER</b>
+└─ FOUNDATION → PORTFOLIO → DISCOVERY → COMPETE → CHALLENGE
+   └─ REUSE → AGENT IMPORT → OPERATE → RELEASE
+      └─ DEFERRED: OUTBOUND AGENT HANDOFF</pre>
+    <p class="note">Filters expose one Level-1 lane at a time. Each inspector supplies the Level-2 implementation contract: inputs, automated tasks, executor, output, completion test, evidence and dependencies.</p>
+    <div id="map"></div>
+  </section>
+  <aside class="side" id="side" aria-live="polite"></aside>
+</main>
+
+<p class="footer">Source of truth: EP054 functional specification + completed implementation plan · statuses describe evidenced implementation, not aspiration.</p>
+
+<script>
+"use strict";
+const LANES=[
+ {id:"foundation",short:"Foundation",title:"0 · Contract, identity & release foundation",actor:"Automated platform setup · fail closed before private data"},
+ {id:"portfolio",short:"Portfolio",title:"1 · Persistent Portfolio Object",actor:"EP054 Portfolio Service · isolated fantasy schema"},
+ {id:"discovery",short:"Discovery",title:"2 · Live EP051 Directory & EP053 Finder",actor:"EP054 server adapters · canonical IDs only"},
+ {id:"competition",short:"Compete",title:"3 · Global competition, snapshots & scoring",actor:"Competition and deterministic scoring services"},
+ {id:"challenge",short:"Challenge",title:"4 · Private challenges & invitations",actor:"Shared Invitation Service + competition access rules"},
+ {id:"reuse",short:"Reuse",title:"5 · Multi-destination reuse & My Portfolios",actor:"Portfolio destination relationships"},
+ {id:"agent_import",short:"Agent import",title:"6 · Read-only owned-agent import",actor:"Authenticated EP052 read adapter · no Arena mutation"},
+ {id:"operations",short:"Operate",title:"7 · Analytics, jobs, security & operations",actor:"Background workers and operational controls"},
+ {id:"release",short:"Release",title:"8 · Staged deployment & live acceptance",actor:"Release automation and cross-epic verification"},
+ {id:"deferred",short:"Deferred",title:"Future · Outbound EP052 agent handoff",actor:"Not in this release · preserved interface seam"}
+];
+const N=(id,lane,tag,title,pct,status,purpose,inputs,steps,executor,output,test,evidence,deps,child=null)=>({id,lane,tag,title,pct,status,purpose,inputs,steps,executor,output,test,evidence,deps,child});
+const NODES=[
+ N("WF-000","foundation","Baseline","Scope & contract baseline",100,"complete","Lock the authoritative release boundary before implementation begins.","EP054 specification; completed implementation plan; user scope decision.",["Load and validate the specification-to-acceptance trace.","Pin current criteria A–D and F; mark criterion E deferred.","Publish versioned API/error/idempotency contract drafts."],"ep054_workflow_orchestrator.contract_baseline","Machine-readable release-scope manifest and contract inventory.","Automated trace reports every current criterion exactly once and no deferred capability as active.","Scope manifest, contract diff and this reviewed workflow.","None"),
+ N("WF-010","foundation","Identity","Owner identity & authorisation edge",0,"blocked","Establish a real owner identity boundary before any private portfolio persistence.","Authenticated session/token; owner subject; service trust policy.",["Verify the identity token server-side.","Derive owner_id from trusted claims, never request data.","Apply object-level authorisation to every private read and mutation."],"ep054.auth.IdentityGateway","Authorised owner context or fail-closed response.","Two distinct test owners cannot read, modify, enter or invite against each other's objects.","BOLA security suite and audit-log samples.","WF-000; approved shared authentication mechanism"),
+ N("WF-020","foundation","Database","Isolated schema & migration gate",0,"planned","Create additive PostgreSQL persistence without increasing shared-database blast radius.","Approved schema; DATABASE_URL; least-privilege role; migration set.",["Create isolated fantasy schema and role grants.","Apply forward migrations transactionally.","Run rollback rehearsal and schema invariant checks."],"ep054.migrations.runner","Versioned fantasy schema ready for application use.","Clean database migrates up/down; shared EP047/EP051 objects remain unchanged.","Migration logs, schema diff and restore rehearsal.","WF-000; database ownership approval"),
+
+ N("WF-100","portfolio","Schema","Portfolio tables & repositories",0,"planned","Persist first-class versioned portfolios and membership without copying Directory records.","Authorised owner context; canonical strategy references; fantasy schema.",["Create portfolio, membership and revision repositories.","Store objective, provenance, lifecycle and evidence versions.","Enforce optimistic concurrency and append-only revisions."],"ep054.portfolios.PortfolioRepository","Durable Portfolio Object with immutable revision history.","Create, reload and version a portfolio across process restarts.","Repository integration tests against PostgreSQL.","WF-010; WF-020"),
+ N("WF-110","portfolio","Invariant","Canonical fingerprint & duplicate prevention",0,"planned","Prevent accidental exact-composition duplicates for the same owner.","Owner ID; sorted canonical IDs; identity-affecting weights.",["Canonicalise membership representation.","Hash with the documented algorithm.","Enforce database uniqueness and return existing-portfolio resolution."],"ep054.portfolios.CompositionFingerprint","Stable composition_hash and deterministic duplicate response.","Order permutations hash identically; distinct weights hash according to policy; concurrent duplicates create one active record.","Property tests and concurrent database test output.","WF-100; WF-210"),
+ N("WF-120","portfolio","API","Portfolio lifecycle API",0,"planned","Expose create, reopen, edit, clone, archive, validate and destination-history operations.","Portfolio repositories; owner context; API contracts.",["Implement versioned portfolio endpoints.","Add idempotency and optimistic-lock errors.","Emit allow-listed audit/analytics events transactionally."],"ep054.api.portfolios","Owner-scoped Portfolio API and My Portfolios query.","Contract tests pass for success, duplicate, conflict, archive and cross-owner denial.","OpenAPI snapshot and API integration suite.","WF-100; WF-110"),
+
+ N("WF-200","discovery","Directory","EP051 canonical Directory adapter",0,"planned","Replace sample strategies with live paginated canonical Directory data.","EP051 /api/dna APIs; evidence version/freshness metadata.",["Proxy bounded, paginated Directory reads server-side.","Validate strategy availability and canonical ID.","Apply short bounded cache and visible freshness semantics."],"ep054.integrations.EP051DirectoryAdapter","Same-origin EP054 Directory responses backed by EP051.","Pagination/filter/detail contract matches EP051 and outage returns an honest unavailable state.","EP051 contract fixtures, integration logs and browser evidence.","WF-000; stable EP051 public contract"),
+ N("WF-210","discovery","Builder","Live strategy builder",0,"planned","Let users inspect, add, remove and replace canonical strategies in persisted drafts.","EP051 adapter; Portfolio API; destination rules.",["Render searchable strategy results and evidence.","Mutate draft membership through Portfolio API.","Revalidate strategy versions and rule progress after every change."],"ep054.web.builder","Responsive persisted portfolio-builder state.","Build, reload and reopen the same portfolio on phone and desktop with no sample data.","Browser E2E screenshots and API trace.","WF-120; WF-200"),
+ N("WF-220","discovery","Finder","EP053 Finder selection return",0,"planned","Reuse Finder AI instead of implementing another search engine.","Signed Finder session state; selected strategy IDs; EP051 adapter.",["Create correlated Finder session and branded route.","Receive selection callback/deep-link state.","Re-resolve IDs through EP051 before merging into draft."],"ep054.integrations.EP053FinderAdapter","Validated Finder selection added to the active portfolio.","Tampered state or unknown IDs are rejected; valid selection survives return and reload.","Cross-app E2E trace and callback contract tests.","WF-200; WF-210; EP053 return contract"),
+
+ N("WF-300","competition","Rules","Competition rules & validation",0,"planned","Define one weekly global format and reusable destination validation.","Competition configuration; portfolio version; canonical strategy availability.",["Persist windows, eligibility, rules_version and scoring_version.","Evaluate min/max, product/category, allocation and date rules.","Return deterministic field-level failures."],"ep054.competitions.RuleEngine","Versioned eligibility decision with reasons.","Same portfolio/rules input always returns the same decision; boundary cases pass.","Rule-engine table tests and configuration snapshot.","WF-120; WF-200"),
+ N("WF-310","competition","Snapshot","Immutable competition entry",0,"planned","Lock a competition-specific copy of membership while the source portfolio remains reusable.","Validated portfolio/version; competition; evidence timestamp.",["Create entry and membership snapshot transactionally.","Record strategy IDs, evidence versions, weights and rule versions.","Reject late, duplicate or ineligible submissions idempotently."],"ep054.competitions.EntryService","Immutable competition_entry and entry_strategy records.","Editing or archiving the source portfolio cannot change an accepted entry.","Database immutability and concurrency tests.","WF-300"),
+ N("WF-320","competition","Score","Deterministic score runs",0,"planned","Calculate reproducible portfolio return for a fixed competition window.","Locked entries; EP051 dated evidence; scoring_version; source snapshot ID.",["Fetch exact dated evidence for all entry strategies.","Calculate per-entry components and tie breakers.","Persist input hash, source version and results idempotently."],"ep054.scoring.ScoreRunner","Auditable score_run and entry_score breakdowns.","Replaying identical inputs produces byte-equivalent rankings; missing evidence fails the run without partial promotion.","Golden scoring fixtures and replay hashes.","WF-310; EP051 historical evidence contract"),
+ N("WF-330","competition","Board","API-backed leaderboards",0,"planned","Replace the simulated board with global, competition and My Positions views.","Promoted score run; owner context; competition state.",["Rank by versioned score and tie breakers.","Expose freshness, scoring window and algorithm version.","Render accessible desktop/mobile leaderboard states."],"ep054.leaderboards.LeaderboardQuery","Stable leaderboard JSON and responsive UI.","Rank order matches stored scores; My Position is owner-scoped; no simulated round control remains.","Query reconciliation and browser screenshots.","WF-320","EP054_live_portfolio_movement_notifications_workflow.html"),
+
+ N("WF-400","challenge","Challenge","Private challenge creation",0,"planned","Reuse the competition domain for one-to-one and group destinations.","Authorised inviter; challenge rules; entry window.",["Create private competition with access policy.","Bind inviter portfolio only through an entry snapshot.","Emit invitation-ready destination event."],"ep054.challenges.ChallengeService","Private competition destination and inviter participation state.","Private challenge is invisible to unauthorised users and never copies a Portfolio Object.","Authorisation and lifecycle integration tests.","WF-300; WF-310"),
+ N("WF-410","challenge","Invite","Reusable Invitation Service",0,"planned","Create durable invitations whose context survives authentication.","Inviter; destination; recipient locator; message; expiry policy.",["Generate random token and persist only its hash.","Store minimal destination context and append-only events.","Rate-limit create/open/accept/revoke operations."],"ep054.invitations.InvitationService","Shareable invitation URL plus audited invitation record.","Expired, revoked, replayed and cross-destination tokens fail safely.","Token security tests and invitation event log.","WF-010; WF-400"),
+ N("WF-420","challenge","Accept","Invite acceptance & participant join",0,"planned","Continue an invitee through sign-in and into portfolio selection without losing context.","Valid invitation token; authenticated invitee; challenge access rules.",["Resolve safe invitation preview before authentication.","Restore token context after sign-in.","Accept once and attach participant access transactionally."],"ep054.invitations.AcceptanceFlow","Authorised participant ready to select/create a portfolio.","Separate account accepts, submits a valid portfolio and appears only after scoring promotion.","Two-session browser E2E and audit records.","WF-410; WF-120; WF-310"),
+
+ N("WF-500","reuse","Destinations","Portfolio destination relationships",0,"planned","Reuse one persistent portfolio across global and private destinations.","Portfolio ID/version; accepted entry snapshots; owner context.",["Persist destination relationship records.","Render destination history and current state.","Offer enter-another-competition without recreating membership."],"ep054.portfolios.DestinationService","One Portfolio Object referenced by multiple immutable entries.","One portfolio ID enters global and private destinations; each entry remains independently locked.","Database reconciliation and browser reuse flow.","WF-120; WF-310; WF-400"),
+ N("WF-510","reuse","Mine","My Portfolios workspace",0,"planned","Provide the durable home for reopening, renaming, cloning, archiving and reusing portfolios.","Owner-scoped portfolio/destination queries.",["Render active/archived portfolio list.","Expose valid lifecycle actions and conflict states.","Link to strategy evidence, competitions and invitations."],"ep054.web.my_portfolios","Responsive owner portfolio workspace.","Lifecycle actions persist across sessions and cross-owner direct routes return denial/not-found safely.","Desktop/mobile E2E and BOLA tests.","WF-120; WF-500"),
+
+ N("WF-600","agent_import","EP052 read","Owned-agent strategy adapter",0,"blocked","Read an authenticated owner's agent strategy set without mutating Arena state.","Trusted owner context; EP052 durable read API.",["List only agents owned by the current subject.","Fetch the selected agent's versioned strategy set.","Map unavailable/demo-only EP052 state to an honest blocked response."],"ep054.integrations.EP052AgentReadAdapter","Owned agent selection and canonical strategy-ID set.","Unowned agent IDs are denied; unavailable durable data never falls back to browser demo state.","EP052 contract tests and cross-owner negative tests.","WF-010; authenticated durable EP052 read contract"),
+ N("WF-610","agent_import","Import","Agent-to-portfolio import",0,"planned","Create or reuse a Portfolio Object from the owned agent's strategy set.","Owned-agent strategy set; EP051 adapter; Portfolio API.",["Re-resolve every imported strategy through EP051.","Create/reuse portfolio with AGENT_IMPORT provenance.","Record source_agent_id and evidence versions."],"ep054.portfolios.AgentImportService","Persistent Portfolio Object seeded from an owned agent.","Valid import can enter a competition; duplicates resolve to the existing composition; no EP052 state changes.","Integration tests and browser import evidence.","WF-600; WF-110; WF-200"),
+
+ N("WF-700","operations","Events","Analytics & transactional outbox",0,"planned","Capture the specified funnels without losing events or coupling mutations to external delivery.","Committed domain mutations; allow-listed event vocabulary; consent state.",["Write analytics/outbox rows in the domain transaction.","Deliver asynchronously with idempotent consumers.","Apply minimisation, retention and deletion rules."],"ep054.events.OutboxWorker","Versioned product events and observable delivery state.","Mutation succeeds once; retries never duplicate logical events; private data is excluded from payloads.","Outbox recovery tests and schema validation report.","WF-020; domain services"),
+ N("WF-710","operations","Scheduler","Competition scheduler & scoring jobs",0,"planned","Advance competition states and scoring automatically at defined UTC gates.","Competition windows; job clock; ScoreRunner; lock provider.",["Claim due transitions with distributed lock/idempotency.","Close entry window and run scoring.","Promote complete results or retain prior board on failure."],"ep054.jobs.CompetitionScheduler","Audited competition transitions and promoted score runs.","Retries recover from worker termination without double scoring or partial leaderboard exposure.","Fault-injection job tests and transition logs.","WF-320; WF-700"),
+ N("WF-720","operations","Assurance","Security, observability & recovery",0,"planned","Make the service diagnosable, reversible and safe on the shared platform.","Structured logging; metrics; backup access; security policy.",["Add request IDs, dependency health and SLO metrics.","Run backup/restore and migration rollback rehearsal.","Execute CSRF, XSS, BOLA, rate-limit and secret-leak checks."],"ep054.operations.AssuranceSuite","Operational dashboard, runbook and verified recovery evidence.","Dependency outage, restore and rollback drills pass without corrupting portfolio or score evidence.","Timestamped Test Results folder and runbook logs.","WF-700; all current-release services"),
+
+ N("WF-800","release","Flags","Feature-flagged release sequence",0,"planned","Release additive backend and user journeys in reversible gates.","Tested build SHA; migrations; feature flags; rollback target.",["Deploy additive migrations and verify readiness.","Enable portfolio, global, private and import flags separately.","Keep outbound agent handoff flag absent/off."],"ep054.release.ReleaseOrchestrator","Traceable staged deployment with exact SHA and flags.","Each gate can be disabled without data loss; branded /epic/ep054 route remains stable.","Deploy IDs, flag state, health/readiness and rollback proof.","WF-720"),
+ N("WF-810","release","Regression","Cross-epic regression matrix",0,"planned","Prove EP054 integration does not regress EP051 Directory, EP053 Finder or EP052 read-only import.","Release candidate; reusable test library; test identities.",["Run EP051 discovery/detail routes.","Run EP053 selection return and EP052 read adapter tests.","Run all current EP054 criteria A–D and F on desktop and phone."],"ep054.release.CrossEpicRegression","Timestamped pass/fail evidence across the ecosystem.","All applicable prior coverage passes; unimplemented/deferred paths are labelled, never implied passed.","Screenshots, request observations, test report, SHA and deploy ID.","WF-800"),
+ N("WF-820","release","Accept","Live authenticated acceptance",0,"planned","Promote only capabilities proven on the live service with real persistence.","Live candidate; authenticated users; acceptance checklist.",["Verify persistence, global entry, private invite and reuse.","Verify deterministic leaderboard and agent import if its dependency is ready.","Remove preview-only claims only where live evidence exists."],"ep054.release.AcceptanceGate","Explicit live decision for criteria A–D and F; E recorded deferred.","Every current criterion has evidence and pass/fail; criterion E is neither run nor claimed.","Live URLs, screenshots, database/API evidence and acceptance record.","WF-810"),
+
+ N("WF-900","deferred","Deferred","Existing-agent handoff",0,"scope","Later assign a versioned portfolio skill to an existing owned agent.","Portfolio ID/version; owned agent; future EP052 mutation API.",["Create idempotent handoff saga.","Assign strategy_portfolio skill after durable acknowledgement.","Join Arena only when eligible and then return Owner View URL."],"future.ep054.handoff.ExistingAgentSaga","Durably acknowledged EP052 handoff.","Not applicable to current release; future test must prove no duplicate skills or joins on retry.","Future EP052 acknowledgements and saga log.","Deferred by user decision; not a current dependency"),
+ N("WF-910","deferred","Deferred","New-agent quick create",0,"scope","Later create an agent with exactly $1.00, attach the portfolio skill and join Arena.","Portfolio ID/version; owner; agent name; future EP052 mutation API.",["Create agent idempotently with $1.00 capital.","Assign portfolio skill and join Arena as separate acknowledged steps.","Resume safely after any partial failure."],"future.ep054.handoff.NewAgentSaga","New EP052 agent visible in Owner View.","Not applicable to current release; future test must recover each interrupted step without duplicates.","Future EP052 agent/skill/join records.","Deferred by user decision; WF-900 contract patterns")
+];
+
+const statusClass=n=>n.status==="complete"?"complete":n.status==="blocked"?"blocked":n.status==="scope"?"scope":n.pct>0?"partial":"planned";
+const statusLabel=n=>n.status==="scope"?`${n.pct}% · deferred`:n.status==="blocked"?`${n.pct}% · blocked`:n.status==="complete"?`${n.pct}% · complete`:n.pct>0?`${n.pct}% · partial`:`${n.pct}% · planned`;
+const filter=document.getElementById("filters"),map=document.getElementById("map"),side=document.getElementById("side");
+filter.innerHTML=`<button class="on" data-filter="all">All steps</button>`+LANES.map(l=>`<button data-filter="${l.id}">${l.short}</button>`).join("");
+map.innerHTML=LANES.map(l=>{
+ const nodes=NODES.filter(n=>n.lane===l.id),avg=Math.round(nodes.reduce((s,n)=>s+n.pct,0)/nodes.length);
+ return `<section class="lane" data-lane="${l.id}"><div class="lane-head"><div><h2>${l.title}</h2><p class="who">${l.actor}</p></div><span class="lane-progress">${avg}% lane</span></div><div class="flow">${nodes.map(n=>`<button class="node" data-id="${n.id}"><span class="tag">${n.id} · ${n.tag}</span><h3>${n.title}</h3><p>${n.purpose}</p><code class="stage">${n.executor}</code><span class="progress ${statusClass(n)}">${statusLabel(n)}</span></button>`).join("")}</div></section>`;
+}).join("");
+
+function selectNode(id){
+ const n=NODES.find(x=>x.id===id);if(!n)return;
+ document.querySelectorAll(".node").forEach(el=>el.classList.toggle("sel",el.dataset.id===id));
+ side.innerHTML=`<span class="tag">${n.id} · ${n.tag}</span><h2>${n.title}</h2><p class="sub">${statusLabel(n)} · Level 2 contract</p><p class="contract">${n.purpose}</p><h4>Target inputs</h4><p class="box dep">${n.inputs}</p><h4>Automated tasks</h4><ol>${n.steps.map(s=>`<li>${s}</li>`).join("")}</ol><h4>Executor mapping</h4><p class="box auto"><code>${n.executor}</code>${n.pct===0&&n.status!=="complete"?" · planned executor; implementation not yet evidenced":""}</p><h4>Final output</h4><p class="box output">${n.output}</p><h4>Completion test</h4><p class="box test">${n.test}</p><h4>Evidence</h4><p class="box ev">${n.evidence}</p><h4>Depends on</h4><p class="box dep">${n.deps}</p>${n.child?`<a class="child-map" href="${n.child}">Open child process map →</a>`:""}`;
+}
+document.querySelectorAll(".node").forEach(el=>el.addEventListener("click",()=>selectNode(el.dataset.id)));
+filter.querySelectorAll("button").forEach(btn=>btn.addEventListener("click",()=>{
+ filter.querySelectorAll("button").forEach(b=>b.classList.remove("on"));btn.classList.add("on");
+ document.querySelectorAll(".lane").forEach(l=>l.hidden=btn.dataset.filter!=="all"&&l.dataset.lane!==btn.dataset.filter);
+ const visible=NODES.find(n=>btn.dataset.filter==="all"||n.lane===btn.dataset.filter);if(visible)selectNode(visible.id);
+}));
+const active=NODES.filter(n=>n.lane!=="deferred"),weighted=Math.round(active.reduce((s,n)=>s+n.pct,0)/active.length);
+document.getElementById("coverage").textContent=`${weighted}%`;
+document.getElementById("nodeCount").textContent=NODES.length;
+document.getElementById("laneCount").textContent=LANES.length;
+document.getElementById("currentCount").textContent=active.length;
+document.getElementById("deferredCount").textContent=NODES.length-active.length;
+selectNode("WF-000");
+</script>
+</body>
+</html>

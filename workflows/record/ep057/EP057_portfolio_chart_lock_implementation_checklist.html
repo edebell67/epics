@@ -1,0 +1,14 @@
+<!doctype html>
+<!--
+ * EP057_portfolio_chart_lock_implementation_checklist.html — Delivery gates for portfolio-scoped lock state.
+ * VERSION HISTORY
+ * v1.1.0 · 2026-10-09 · Records 12 passing portfolio-switch/reload checks and leaves user acceptance pending.
+ * v1.0.0 · 2026-10-09 · Establishes implementation and verification gates before source edits.
+ -->
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EP057 · Chart lock checklist</title>
+<style>:root{color-scheme:dark;--bg:#080d18;--panel:#111b2c;--line:#2a3b56;--text:#e7edf8;--muted:#97a7bf;--lime:#caff49;--amber:#f5c84c}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 "Cascadia Code",Consolas,monospace}main{max-width:850px;margin:42px auto;padding:20px}h1{font-size:32px}.item{margin:12px 0;padding:17px;background:var(--panel);border:1px solid var(--line);border-radius:10px}.item small{display:block;color:var(--muted)}.status{float:right;color:var(--amber);font-weight:bold}.status[data-state=Passed]{color:var(--lime)}</style>
+<main><h1>Portfolio chart lock</h1><p>Each gate requires its listed evidence; UI acceptance stays open until the user verifies.</p>
+<div class="item"><span class="status" data-state="Passed">Passed · 20261009_143200 workflow report</span><b>Workflow documented</b><small>Interactive step detail and actor filter were browser-verified before code changes; console clear.</small></div>
+<div class="item"><span class="status" data-state="Passed">Passed · strategyDirectoryPortfolioViewV1</span><b>Per-view state persistence</b><small>Lock setting saved under active portfolio; Scenario view remains independent; legacy portfolios default unlocked.</small></div>
+<div class="item"><span class="status" data-state="Passed">Passed · 12/12 checks, screenshots and report captured</span><b>Portfolio switching regression</b><small>Scenario, LOCK_A, and LOCK_B were switched, changed independently, and restored after reload.</small></div>
+<div class="item"><span class="status" data-state="In progress">Awaiting user confirmation</span><b>User verification</b><small>Final acceptance of lock isolation remains with the user.</small></div></main></html>

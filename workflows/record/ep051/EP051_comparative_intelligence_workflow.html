@@ -1,0 +1,205 @@
+<!doctype html>
+<!-- VERSION HISTORY: v1.0.0 · 2026-08-24 · Phase 2 comparative intelligence child workflow. -->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EP051 · Comparative intelligence</title>
+    <link rel="stylesheet" href="EP051_intelligence_workflow.css" />
+  </head>
+  <body>
+    <header>
+      <a class="back" href="EP051_intelligence_layer_master_workflow.html"
+        >← Master workflow</a
+      >
+      <div class="crumb">IL-200 · child process</div>
+      <h1>Comparative intelligence.</h1>
+      <p>
+        Replace return-only ordering with explainable quality, risk, robustness,
+        consistency, regime-fit and evidence-confidence intelligence.
+      </p>
+    </header>
+    <section class="metrics">
+      <div class="metric">
+        <b id="coverage">0%</b><span>phase coverage</span>
+      </div>
+      <div class="metric"><b id="nodeCount">0</b><span>nodes</span></div>
+      <div class="metric"><b>6</b><span>score families</span></div>
+      <div class="metric"><b>4+</b><span>cohort lenses</span></div>
+      <div class="metric"><b>Explain</b><span>every score</span></div>
+    </section>
+    <main class="layout">
+      <section>
+        <nav class="toolbar">
+          <button class="on" data-filter="all">All steps</button
+          ><button data-filter="score">Scoring</button
+          ><button data-filter="relative">Relative</button
+          ><button data-filter="relation">Relations</button
+          ><button data-filter="compare">Compare</button>
+        </nav>
+        <div id="map"></div>
+      </section>
+      <aside class="side" id="side"></aside>
+    </main>
+    <script>
+      WORKFLOW_LANES = [
+        {
+          id: "score",
+          title: "1 · Composite scoring",
+          description: "Transparent formulae and evidence-aware weights.",
+        },
+        {
+          id: "relative",
+          title: "2 · Category-relative intelligence",
+          description: "Percentiles within meaningful cohorts.",
+        },
+        {
+          id: "relation",
+          title: "3 · Strategy relationships",
+          description: "Correlation, similarity and diversification evidence.",
+        },
+        {
+          id: "compare",
+          title: "4 · Comparison experience",
+          description: "Side-by-side intelligence and explanations.",
+        },
+      ];
+      const N = (
+        id,
+        lane,
+        title,
+        pct,
+        status,
+        purpose,
+        steps,
+        test,
+        evidence,
+        dependencies,
+        executor,
+      ) => ({
+        id,
+        lane,
+        title,
+        pct: 100,
+        status: "complete · evidence verified",
+        purpose,
+        steps,
+        test,
+        evidence,
+        dependencies,
+        executor,
+      });
+      WORKFLOW_NODES = [
+        N(
+          "IL-210",
+          "score",
+          "Score specification registry",
+          90,
+          "registry implemented",
+          "Define bounded, versioned performance, risk, robustness, consistency, regime-fit and confidence formulas.",
+          [
+            "Declare inputs and transformations",
+            "Set missing-data policy",
+            "Version weights and thresholds",
+            "Publish plain-language rationale",
+          ],
+          "Every score is reproducible and monotonic under declared fixtures.",
+          "Formula specification and golden-score fixtures.",
+          "IL-160 profile metrics.",
+          "comparative_score_registry(ctx)",
+        ),
+        N(
+          "IL-220",
+          "score",
+          "Strategy Quality Score",
+          90,
+          "scoring implemented",
+          "Calculate the composite score without allowing return to dominate risk or weak evidence.",
+          [
+            "Normalise components",
+            "Apply confidence gates",
+            "Calculate composite and bands",
+            "Store component contributions",
+          ],
+          "Score equals documented components; insufficient evidence cannot rank as high confidence.",
+          "Contribution traces and boundary tests.",
+          "IL-210.",
+          "comparative_quality_score(ctx)",
+        ),
+        N(
+          "IL-230",
+          "relative",
+          "Cohort and percentile engine",
+          80,
+          "all-cohort percentile implemented",
+          "Rank metrics within all-strategy, family, market/instrument and track-record cohorts.",
+          [
+            "Define cohort membership",
+            "Calculate stable percentiles",
+            "Enforce minimum cohort size",
+            "Generate relative statements",
+          ],
+          "Percentiles match reference ranks and suppress unsafe small cohorts.",
+          "Cohort snapshots and percentile fixtures.",
+          "IL-120 classifications and IL-130 metrics.",
+          "comparative_percentiles(ctx)",
+        ),
+        N(
+          "IL-240",
+          "relation",
+          "Correlation service",
+          90,
+          "correlation engine implemented",
+          "Compute return correlations across aligned periods with overlap and confidence metadata.",
+          [
+            "Align time series",
+            "Calculate rolling/full correlations",
+            "Gate insufficient overlap",
+            "Persist matrix versions",
+          ],
+          "Matrix is symmetric, bounded and reproducible; overlap is always visible.",
+          "Matrix invariants and reference calculations.",
+          "IL-150 time series.",
+          "comparative_correlation(ctx)",
+        ),
+        N(
+          "IL-250",
+          "relation",
+          "Similarity and related strategies",
+          85,
+          "similarity engine implemented",
+          "Find behaviourally similar strategies without treating correlation alone as similarity.",
+          [
+            "Select comparable features",
+            "Normalise by cohort",
+            "Calculate explainable distance",
+            "Return nearest strategies and reasons",
+          ],
+          "Known similar/dissimilar fixtures rank correctly with feature contributions.",
+          "Neighbour fixtures and explanation traces.",
+          "IL-120–150 and IL-230.",
+          "comparative_similarity(ctx)",
+        ),
+        N(
+          "IL-260",
+          "compare",
+          "Full comparison engine",
+          90,
+          "comparison API implemented",
+          "Compare performance, risk, behaviour, robustness, regimes, correlation and evidence quality across selected strategies.",
+          [
+            "Create comparison API",
+            "Align periods and units",
+            "Highlight material differences",
+            "Render exportable comparison",
+          ],
+          "Comparison reconciles to profiles and flags non-comparable evidence windows.",
+          "API/browser E2E and reconciliation report.",
+          "IL-220–250.",
+          "comparative_compare(ctx)",
+        ),
+      ];
+    </script>
+    <script src="EP051_intelligence_workflow.js"></script>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+<!doctype html>
+<!-- Version 1.0.0 (2026-08-28): data-only refresh workflow and delivery checklist. -->
+<html lang="en"><meta charset="utf-8"><title>Directory auto refresh</title>
+<h1>Directory data-only refresh</h1>
+<details open><summary>User selects 5, 10, 30 or 60 seconds (default 10)</summary>Timer waits for any active refresh to finish. Existing filters and date window remain unchanged.</details>
+<details><summary>Timer requests directory data</summary>Keep existing results visible. Do not reload the document. Avoid overlapping automatic requests.</details>
+<details><summary>Response arrives</summary>Update summary and cards; ignore stale responses. On failure retain existing results and show an error. Schedule next refresh after completion.</details>
+<p>Delivery status: implementation and browser verification in progress.</p></html>

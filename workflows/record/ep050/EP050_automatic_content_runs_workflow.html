@@ -1,0 +1,51 @@
+<!doctype html><!-- VERSION HISTORY v1.0.0 2026-09-08: Workflow and verified delivery status. --><meta charset="utf-8"><title>EP050 Automatic Content Runs</title><style>
+:root{--ink:#14201a;--muted:#64716a;--paper:#f7faf7;--line:#d7e2da;--green:#087443;--blue:#12609a;--amber:#9a5d00;--red:#b3261e;--purple:#5f3c91}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,sans-serif}
+header{background:#10271c;color:white;padding:30px max(22px,calc((100vw - 1240px)/2))}
+h1{margin:0;font:700 32px/1.1 Georgia,serif}
+header p{max-width:920px;color:#d3e5d9;margin:10px 0 0}
+header code{background:rgba(255,255,255,.14);padding:2px 5px;border-radius:4px}
+.layout{max-width:1240px;margin:24px auto;display:grid;grid-template-columns:1fr 410px;gap:20px;padding:0 20px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.toolbar button{cursor:pointer;border:1px solid var(--line);background:white;border-radius:999px;padding:8px 12px;font:inherit}
+.toolbar button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lane{background:white;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:18px}
+.lane h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 4px;color:var(--muted)}
+.lane .who{font-size:12px;color:var(--muted);margin:0 0 14px}
+.flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}
+.arrow{align-self:center;font-size:22px;color:#76867d}
+.node{width:224px;min-height:158px;border:1px solid var(--line);border-radius:10px;background:white;padding:13px;box-shadow:0 2px 7px rgba(24,51,36,.05);cursor:pointer;text-align:left;font:inherit;color:inherit;display:flex;flex-direction:column}
+.node:hover,.node.sel{outline:3px solid #b9dfd0}
+.node h3{font-size:15px;line-height:1.2;margin:7px 0}
+.node p{font-size:12.5px;color:var(--muted);margin:0}
+.tag{display:inline-block;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:700;background:#edf1ee;color:#45554b;width:max-content}
+.stage{display:block;margin-top:auto;padding-top:8px;font:11px/1.3 ui-monospace,monospace;color:var(--muted)}
+.progress{display:block;max-width:100%;border-radius:6px;padding:4px 6px;font:700 10px ui-monospace,monospace;margin-top:8px;border:1px solid;line-height:1.35}
+.blocked{background:#ffebe8;color:#8d1c13;border-color:#f5aaa2}
+.active{background:#fff2d5;color:#7b4800;border-color:#f0c779}
+.partial{background:#eaf4ff;color:#07558d;border-color:#9ac9ed}
+.complete{background:#dff5e8;color:#075b38;border-color:#95dab2}
+.scope{background:#f4f0fa;color:#4b2f74;border-color:#d3c2ea}
+.side{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;position:sticky;top:18px;max-height:calc(100vh - 40px);overflow-y:auto}
+.side h2{font:700 20px Georgia,serif;margin:0 0 4px}
+.side .sub{font:11px/1.3 ui-monospace,monospace;color:var(--muted);margin:0 0 12px}
+.side .contract{font-size:13.5px;color:var(--ink);margin:0 0 4px}
+.side h4{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px;padding-top:12px;border-top:1px solid var(--line)}
+.side ol{margin:0;padding-left:19px}
+.side ol li{font-size:13px;margin:7px 0}
+.side .box{font-size:13px;padding:9px 11px;border-radius:8px;margin:0}
+.box.test{background:#f2f8f4;border-left:3px solid var(--green)}
+.box.ev{background:#f5f9ff;border-left:3px solid var(--blue)}
+.box.dep{background:#faf7f2;border-left:3px solid var(--amber)}
+.detail{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:18px}
+.detail h3{font-size:15px;margin:0 0 8px}
+.detail ul{margin:0;padding-left:20px}
+.detail li{margin:6px 0;font-size:13.5px}
+code{background:#edf1ee;padding:2px 5px;border-radius:4px;font-size:12px}
+pre{background:#10271c;color:#dbeee3;padding:13px;border-radius:9px;overflow-x:auto;font-size:12.5px;line-height:1.5}
+pre code{background:none;color:inherit;padding:0}
+.callout{border-left:4px solid var(--amber);background:#fffaf0;padding:11px 14px;border-radius:0 8px 8px 0;margin:14px 0;font-size:13.5px}
+.callout.bad{border-left-color:var(--red);background:#fff7f6}
+@media(max-width:960px){.layout{grid-template-columns:1fr}.side{position:static;max-height:none}.node{width:100%}.arrow{display:none}}
+body{padding:24px}button{min-height:44px}main{display:grid;grid-template-columns:2fr 1fr;gap:24px}.lane{padding:20px}.node{display:block;width:100%;margin:12px 0;text-align:left;padding:16px}aside{position:sticky;top:20px;background:white;padding:24px;align-self:start}@media(max-width:700px){main{display:block}}</style><header class="hero"><h1>EP050 · Automatic content runs</h1><p>Two entries. One bounded background process. Durable pass or fail.</p></header><p><button onclick="filter(false)">All steps</button> <button onclick="filter(true)">Entry and gates</button></p><main><section class="lane"><button class="node" onclick="show(0)"><small>01 ENGINE</small><h2>Entry</h2><p>Existing offer or discovery brief; Start authorizes bounded live research.</p><b>100% implemented and verified</b></button><button class="node" onclick="show(1)"><small>02 ENGINE</small><h2>Research</h2><p>Collect missing demand signals.</p><b>100% implemented and verified</b></button><button class="node" onclick="show(2)"><small>03 ENGINE</small><h2>Gates</h2><p>Apply existing intent/relevance or discovery score/commitment gates.</p><b>100% implemented and verified</b></button><button class="node" onclick="show(3)"><small>04 ENGINE</small><h2>Strategy</h2><p>Run Nodes 12-15 or merge validated discovery.</p><b>100% implemented and verified</b></button><button class="node" onclick="show(4)"><small>05 ENGINE</small><h2>Content</h2><p>Use canonical facts to generate Node 17/18 production input.</p><b>100% implemented and verified</b></button><button class="node" onclick="show(5)"><small>06 ENGINE</small><h2>Result</h2><p>PASS content-ready or FAIL criteria/input/provider/execution.</p><b>100% implemented and verified</b></button></section><aside id="inspect">Select a step to inspect its contract.</aside></main><script>const steps=[["Entry", "Existing offer or discovery brief; Start authorizes bounded live research.", "Validate saved definition."], ["Research", "Collect missing demand signals.", "Distinguish provider failure from no demand."], ["Gates", "Apply existing intent/relevance or discovery score/commitment gates.", "Save exact reasons."], ["Strategy", "Run Nodes 12-15 or merge validated discovery.", "Preserve lineage."], ["Content", "Use canonical facts to generate Node 17/18 production input.", "Stop for missing facts; never manufacture claims."], ["Result", "PASS content-ready or FAIL criteria/input/provider/execution.", "No render, upload or lead fabrication. Durable status and retry."]];function filter(v){document.querySelectorAll(".node").forEach((x,i)=>x.hidden=v&&i>2)}function show(i){const s=steps[i];document.getElementById("inspect").textContent=s[0]+" — "+s[1]+" Completion test: "+s[2]+" Execution: content_runs.py. Evidence: 129 tests passed; isolated browser scenarios and local release verified."}</script>

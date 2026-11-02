@@ -1,0 +1,37 @@
+<!doctype html>
+<!--
+workstream/600_workflow/ep050/EP050_distribution_engine_operational_console_checklist.html — Delivery status for EP050 Operational Console.
+
+VERSION HISTORY
+v1.2.0 · 2026-08-16 · Dual-experience design: 7-Phase Master Workflow Operational Run + Preserved Delivery Matrix.
+v1.0.0 · 2026-08-16 · Initial checklist version.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP050 Operational Console Status</title>
+<style>
+body{font:16px Arial,sans-serif;max-width:920px;margin:40px auto;padding:0 20px;background:#f7f4ec;color:#143129}
+li{margin:14px 0;padding:14px;background:white;border-left:5px solid #b7791f}
+.passed{border-color:#168568}
+.pending{border-color:#9a5d00}
+.status{font-weight:bold}
+code{background:#edf1ee;padding:2px 5px;border-radius:4px;font-size:14px}
+</style>
+</head>
+<body>
+<h1>EP050 Operational Console — Delivery Status Checklist (v1.2.0)</h1>
+<ul>
+<li class="passed"><span class="status">Passed</span> · 7-Phase master-workflow interaction map delivered: <code>EP050_distribution_engine_operational_console_workflow.html</code>.</li>
+<li class="passed"><span class="status">Passed</span> · Dual-tab UI architecture implemented (Tab 1: 7-Phase Operational Run, Tab 2: Preserved 21-Node Delivery Matrix).</li>
+<li class="passed"><span class="status">Passed</span> · Phase 1 operates Node 01 Target Registration live; Phase 3 operates Node 11 Intent Classification live.</li>
+<li class="passed"><span class="status">Passed</span> · Phases 2, 4, 5, 6, 7 display truthful status, prerequisites, and locked state.</li>
+<li class="passed"><span class="status">Passed</span> · Run-level identity (<code>run_id</code>) and cross-phase lineage tracking implemented.</li>
+<li class="passed"><span class="status">Passed</span> · Hardened Windows batch launcher (<code>open_console.bat</code>) with persistent process window and PowerShell HTTP 200 readiness polling.</li>
+<li class="passed"><span class="status">Passed</span> · Unit and integration test suite passing (all endpoints, 7-phase run state, live classifiers).</li>
+<li class="pending"><span class="status">Pending</span> · Live user acceptance sign-off. Console held at 90% pending explicit user verification in chat.</li>
+</ul>
+<p><strong>Safety boundary:</strong> 100% offline local loop, binds to 127.0.0.1 only, zero network telemetry, zero production datastore mutations, zero real PII.</p>
+</body>
+</html>

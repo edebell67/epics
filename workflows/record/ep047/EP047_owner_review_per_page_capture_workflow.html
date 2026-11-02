@@ -1,0 +1,779 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/ep047/EP047_owner_review_per_page_capture_workflow.html
+  — interactive workflow for owner review captured per page in situ (design B).
+
+  VERSION HISTORY
+  v1.10.2 · 2026-08-10 · Re-ran submit (3.3) against the real 13-screen
+    test02 configuration. The browser path still exposes the explicit
+    "Open email app" → owner-confirmed "It sent" / "Copy instead" flow, with
+    no automatic success heuristic. A deterministic full-size worst-case
+    calculation (longest discrete option per question plus 1,000 characters
+    of free text on every screen) measured 15,211 body bytes and a 16,695-
+    character encoded mailto URL. This confirms the delivery-risk warning is
+    material, not theoretical. The node remains at 90% because the completion
+    test still requires received emails from real iOS and Android devices,
+    which cannot be verified from WSL.
+  v1.10.0 · 2026-08-07 · Progress badges updated to reflect actual implementation
+    state after building and browser-verifying lanes 1-3 end to end (build,
+    owner, submit) on both auto-garage-template and the one real generated
+    business site, test02-prospect-ltd — the badges previously described a
+    design that already existed uncommitted in the template but had not yet
+    reached the real site, and were stale in both directions. Also adds the
+    ownerReviewEnabled per-business kill switch (not previously a node; folded
+    into build 1.1's config node rather than a new node, since it is one flag
+    in the same file). Fixed a genuine gap found during the test02 migration:
+    pause/resume's "continue where I left off" only ever worked for
+    section-based single-page sites — on a multi-page site it opened the right
+    screen's panel underneath the wrong page. Remaining open item: the
+    full-size mobile mailto truncation measurement on real iOS/Android devices
+    (submit 3.3) has not been done.
+  v1.9.0 · 2026-08-06 · Closes six gaps found on audit: (1) fixed stale "decoded
+    feedback" wording in the regen node, now "applied operations"; (2) defined the
+    mailto-confirmation mechanism — an explicit Sent/Copy tap, never a timer or
+    visibility heuristic; (3) added a submittedBuildId/submittedAt marker that
+    survives the post-submit clear, plus a new node owner (2.6b) for the
+    already-submitted state, so a returning owner cannot unknowingly duplicate a
+    submission; (4) pinned concrete schemas — transform operation shape, buildId
+    format, storage-key derivation, subject-line template; (5) designed the screen
+    picker fallback as a launcher-label swap, not a new control; (6) replaced the
+    vague "harder now" category-skill note with a concrete checkable deliverable
+    list. Storage contract shape updated to match.
+  v1.8.0 · 2026-08-06 · Upload scrapped for now — which resolves both conflicts it
+    created: the review layer stays genuinely static, and pause-and-resume works
+    cleanly again with no file to store. Free text is now assessed by an LLM in a
+    PARALLEL lane (new node admin 4.2) that determines a separate action and may
+    never emit a transform or select an option; the deterministic discrete-option
+    pipeline is untouched alongside it. `asset` options route to that same lane
+    since they cannot complete without a file. Lane 4 renumbered to 4.1–4.5.
+  v1.7.0 · 2026-08-06 · No-human-check is scoped to the PROSPECT stage only —
+    human review becomes available once the client is paying, which is an economic
+    boundary, not a technical one. Resolves both open decisions: free text is
+    recorded and actioned by a person post-activation (never auto-interpreted);
+    `asset` options survive, applied when uploaded in-panel (bound to screen and
+    question) and held for a human when emailed loose. Flags two conflicts the
+    upload path creates: it cannot be static, and assets break pause-and-resume
+    unless uploaded at selection time.
+  v1.6.0 · 2026-08-06 · Interpretation is fully automated with NO human check of
+    client reviews. Removes every human-backstop escape hatch: `escalate` option
+    type is dead, lane 4 is automation not an operator, the recipient is a machine
+    ingest mailbox. Adds fail-closed on any unmatched line (apply nothing),
+    automated failure notification to the owner, build id carried in the body, and
+    unique-option-text as a build-time gate. Surfaces two open decisions: what
+    happens to free text, and whether `asset` options survive without an intake.
+  v1.5.0 · 2026-08-06 · BREAKING to the config shape: answer options must now be
+    discrete and exactly applicable ("Increase font by 25%", not "Small tweak
+    needed"). Forces per-question option sets in place of one shared global list,
+    questions restructured from topics to adjustable properties, and an option
+    `type` (none/transform/asset/escalate) so regeneration can apply what it can
+    and queue the rest. Four of the five currently shipped options fail the rule.
+  v1.4.0 · 2026-08-06 · BREAKING to the submission format: replaces the numbered
+    "1:2" body with "question description: answer description", one answer per
+    line. Numbers no longer appear in the email at all. This largely dissolves the
+    admin decode step, supersedes a skill rule, and makes worst-case body length
+    the highest delivery risk. Store still keeps indices; text resolves at compose.
+  v1.3.0 · 2026-08-06 · Adds pause-and-resume as an explicit node (owner 2.6):
+    save-and-finish-later, resume prompt with progress and last-updated, lastScreen
+    jump-back, and a buildId stamp so a paused review is not silently applied to a
+    regenerated site. Storage contract extended with the resume fields.
+  v1.2.0 · 2026-08-06 · Makes mobile-friendly delivery a binding requirement on
+    every implementation node; adds the mobile constraints section and per-node
+    mobile steps and tests. Owners review on phones, so this is not a polish pass.
+  v1.1.0 · 2026-08-06 · Attaches a detailed plan to every node — steps, completion
+    test, evidence and dependency — so each node is independently actionable
+    without reading the task file. Plan panel widened and made scrollable.
+  v1.0.0 · 2026-08-06 · Initial version: documents design B (per-page review
+    launcher feeding a retained owner-preview.html consolidation + single submit),
+    replacing the centralised card-stack design, ahead of implementation.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP047 — Owner review: per-page capture workflow</title>
+<style>
+:root{--ink:#14201a;--muted:#64716a;--paper:#f7faf7;--line:#d7e2da;--green:#087443;--blue:#12609a;--amber:#9a5d00;--red:#b3261e;--purple:#5f3c91}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 system-ui,sans-serif}
+header{background:#10271c;color:white;padding:30px max(22px,calc((100vw - 1240px)/2))}
+h1{margin:0;font:700 32px/1.1 Georgia,serif}
+header p{max-width:920px;color:#d3e5d9;margin:10px 0 0}
+header code{background:rgba(255,255,255,.14);padding:2px 5px;border-radius:4px}
+.layout{max-width:1240px;margin:24px auto;display:grid;grid-template-columns:1fr 410px;gap:20px;padding:0 20px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.toolbar button{cursor:pointer;border:1px solid var(--line);background:white;border-radius:999px;padding:8px 12px;font:inherit}
+.toolbar button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lane{background:white;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:18px}
+.lane h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 4px;color:var(--muted)}
+.lane .who{font-size:12px;color:var(--muted);margin:0 0 14px}
+.flow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}
+.arrow{align-self:center;font-size:22px;color:#76867d}
+.node{width:224px;min-height:158px;border:1px solid var(--line);border-radius:10px;background:white;padding:13px;box-shadow:0 2px 7px rgba(24,51,36,.05);cursor:pointer;text-align:left;font:inherit;color:inherit;display:flex;flex-direction:column}
+.node:hover,.node.sel{outline:3px solid #b9dfd0}
+.node h3{font-size:15px;line-height:1.2;margin:7px 0}
+.node p{font-size:12.5px;color:var(--muted);margin:0}
+.tag{display:inline-block;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:700;background:#edf1ee;color:#45554b;width:max-content}
+.stage{display:block;margin-top:auto;padding-top:8px;font:11px/1.3 ui-monospace,monospace;color:var(--muted)}
+.progress{display:block;max-width:100%;border-radius:6px;padding:4px 6px;font:700 10px ui-monospace,monospace;margin-top:8px;border:1px solid;line-height:1.35}
+.blocked{background:#ffebe8;color:#8d1c13;border-color:#f5aaa2}
+.active{background:#fff2d5;color:#7b4800;border-color:#f0c779}
+.partial{background:#eaf4ff;color:#07558d;border-color:#9ac9ed}
+.complete{background:#dff5e8;color:#075b38;border-color:#95dab2}
+.scope{background:#f4f0fa;color:#4b2f74;border-color:#d3c2ea}
+.side{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;position:sticky;top:18px;max-height:calc(100vh - 40px);overflow-y:auto}
+.side h2{font:700 20px Georgia,serif;margin:0 0 4px}
+.side .sub{font:11px/1.3 ui-monospace,monospace;color:var(--muted);margin:0 0 12px}
+.side .contract{font-size:13.5px;color:var(--ink);margin:0 0 4px}
+.side h4{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px;padding-top:12px;border-top:1px solid var(--line)}
+.side ol{margin:0;padding-left:19px}
+.side ol li{font-size:13px;margin:7px 0}
+.side .box{font-size:13px;padding:9px 11px;border-radius:8px;margin:0}
+.box.test{background:#f2f8f4;border-left:3px solid var(--green)}
+.box.ev{background:#f5f9ff;border-left:3px solid var(--blue)}
+.box.dep{background:#faf7f2;border-left:3px solid var(--amber)}
+.detail{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:18px}
+.detail h3{font-size:15px;margin:0 0 8px}
+.detail ul{margin:0;padding-left:20px}
+.detail li{margin:6px 0;font-size:13.5px}
+code{background:#edf1ee;padding:2px 5px;border-radius:4px;font-size:12px}
+pre{background:#10271c;color:#dbeee3;padding:13px;border-radius:9px;overflow-x:auto;font-size:12.5px;line-height:1.5}
+pre code{background:none;color:inherit;padding:0}
+.callout{border-left:4px solid var(--amber);background:#fffaf0;padding:11px 14px;border-radius:0 8px 8px 0;margin:14px 0;font-size:13.5px}
+.callout.bad{border-left-color:var(--red);background:#fff7f6}
+@media(max-width:960px){.layout{grid-template-columns:1fr}.side{position:static;max-height:none}.node{width:100%}.arrow{display:none}}
+</style>
+</head>
+<body>
+<header>
+<h1>Owner review — per-page capture</h1>
+<p>Design <strong>B</strong>: the owner reviews each screen <em>while looking at it</em>, answers accumulate in the browser as they browse, and <code>owner-preview.html</code> is retained as the single consolidation and submit point. Any screen never reviewed resolves to <code>No Action</code>. Replaces the centralised card-stack design previously specified in the ep044 owner review skill.</p>
+<p style="margin-top:12px"><strong>Mobile-friendly is binding on every implementation node</strong>, not a later polish pass — owners open these previews on a phone. Every node below carries an explicit mobile step and a mobile completion test.</p>
+</header>
+
+<main class="layout">
+<section>
+
+<div class="toolbar">
+  <button class="on" data-f="all">All lanes</button>
+  <button data-f="build">Build</button>
+  <button data-f="owner">Owner</button>
+  <button data-f="submit">Consolidate &amp; submit</button>
+  <button data-f="admin">Admin</button>
+  <button data-f="out">Out of scope</button>
+</div>
+<p style="font-size:12px;color:var(--muted);margin:0 0 14px">Click any node for its detailed plan — steps, completion test, evidence and dependency. Nodes marked <span class="progress scope" style="display:inline-block;margin:0">Separate task</span> are deliberately not part of this unit.</p>
+
+<div class="lane" data-lane="build">
+<h2>Lane 1 — Build time (site generation)</h2>
+<p class="who">Actor: generation system · runs once per generated site</p>
+<div class="flow">
+  <button class="node" data-id="cfg"><span class="tag">Config</span><h3>owner-review-config.js</h3><p>Screens with their route or section id, N questions, M options per question, operator recipient.</p><code class="stage">build (1.1)</code><span class="progress complete">100% · v2.0.0 shipped on both auto-garage-template and test02-prospect-ltd. Adds ownerReviewEnabled kill switch (v2.1.0). Passes the automated discreteness/schema gate (owner_review_tools.js validate) and has real stamped buildId/storageKey.</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="store"><span class="tag">Persistence</span><h3>owner-review-store.js</h3><p>localStorage read/write keyed per business. The only place review state lives.</p><code class="stage">build (1.2)</code><span class="progress complete">100% · Shipped on both sites, browser-verified: persists across nav/reload, corrupt-JSON and clear() paths behave as designed.</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="embed"><span class="tag">Engine</span><h3>owner-review-embed.js</h3><p>Injects the launcher on every screen, resolves the current screen, renders that screen's panel only.</p><code class="stage">build (1.3)</code><span class="progress complete">100% · v2.2.0 shipped on both sites. defaultChecked bug confirmed gone (0 pre-checked options). Route resolution verified on test02's 13-page site; section/IntersectionObserver resolution on auto-garage-template still shows a transient "Review this page" generic label longer than expected on initial load — tracked as a follow-up, not blocking, since it resolves correctly on scroll/click.</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="host"><span class="tag">Host page</span><h3>owner-preview.html wiring</h3><p>"Your review" section becomes a consolidation summary plus the one Submit button.</p><code class="stage">build (1.4)</code><span class="progress complete">100% · v2.0.0 shipped on both sites, browser-verified: mixed reviewed/No Action state renders correctly, Submit composes correct nested body.</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="owner">
+<h2>Lane 2 — Owner reviews in situ</h2>
+<p class="who">Actor: business owner · entirely client-side, no network calls</p>
+<div class="flow">
+  <button class="node" data-id="land"><span class="tag">Entry</span><h3>Owner opens preview link</h3><p>Arrives from the branded email onto the live generated site — the real design, not a form.</p><code class="stage">owner (2.1)</code><span class="progress complete">100% · Email + site live for Test02</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="launch"><span class="tag">Trigger</span><h3>"Review this page" launcher</h3><p>Persistent control present on every screen. Shows whether this screen is already reviewed.</p><code class="stage">owner (2.2)</code><span class="progress complete">100% · Built and injected on all 13 test02 pages plus the template. Browser-verified label + progress count update correctly on navigation.</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="panel"><span class="tag">Capture</span><h3>Panel opens for this screen only</h3><p>N questions x M options for the screen in front of them, plus one free-form final question.</p><code class="stage">owner (2.3)</code><span class="progress complete">100% · Browser-verified: no pre-selected options (the design-A defect is gone), only the current screen's questions render, mobile bottom sheet confirmed at 375x812 with 44px targets and no horizontal scroll.</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="save"><span class="tag">Persist</span><h3>Answers saved on change</h3><p>Written to localStorage immediately. No explicit per-page save step to forget.</p><code class="stage">owner (2.4)</code><span class="progress complete">100% · Browser-verified writes on radio change and debounced free-text.</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="next"><span class="tag">Navigate</span><h3>Owner moves to next page</h3><p>State survives navigation and reload. Returning to a reviewed screen restores the answers.</p><code class="stage">owner (2.5)</code><span class="progress complete">100% · Browser-verified on test02's real multi-page site: answers set on Home persisted after navigating to Services, launcher correctly re-labelled per page.</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="pause"><span class="tag">Pause / resume</span><h3>Leave and come back later</h3><p>Explicit "finish later", with a resume prompt and progress count on return — days later, not just this session.</p><code class="stage">owner (2.6)</code><span class="progress complete">100% · Browser-verified. Fixed a real gap found migrating test02: resume-jump previously only worked for section-based single-page sites — on a multi-page site it opened the right screen's panel underneath the wrong page. Now navigates to the target route first (embed.js v2.2.0), verified end to end.</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="submitted"><span class="tag">Already sent</span><h3>Already-submitted state</h3><p>A returning owner who already sent this build's review sees a distinct notice, not a blank launcher inviting a duplicate.</p><code class="stage">owner (2.6b)</code><span class="progress complete">100% · Browser-verified: submit → markSubmitted → reload shows the already-submitted toast, distinct from both never-started and stale-build states.</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="skip"><span class="tag">Default</span><h3>Unreviewed screens stay absent</h3><p>Never opening the panel writes nothing. Absence is what later resolves to <code>No Action</code>.</p><code class="stage">owner (2.7)</code><span class="progress complete">100% · By-design absence rule, no implementation needed</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="submit">
+<h2>Lane 3 — Consolidation and submit</h2>
+<p class="who">Actor: business owner · one email, one time</p>
+<div class="flow">
+  <button class="node" data-id="consol"><span class="tag">Summary</span><h3>Owner opens owner-preview.html</h3><p>Every screen listed: reviewed ones show their answers, untouched ones show <code>No Action</code>.</p><code class="stage">submit (3.1)</code><span class="progress complete">100% · Browser-verified on test02 with a mixed 2-of-13 state: reviewed screens show answer text, remaining 11 show No Action, count reads "2 of 13 pages reviewed".</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="gap"><span class="tag">Gap fill</span><h3>Owner can still fill gaps</h3><p>Any screen can be reviewed or amended from here, so a missed page is never a dead end.</p><code class="stage">submit (3.2)</code><span class="progress complete">100% · Amend/Review buttons wired to ownerReviewEngine.openForScreen on both sites.</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="compose"><span class="tag">Format</span><h3>Single "Submit review"</h3><p>Composes one mailto in the nested per-page shape. Free-form rides as the last numbered question.</p><code class="stage">submit (3.3)</code><span class="progress active">90% · Code and desktop-browser behaviour verified: composed body matches the documented shape exactly on an adversarial case (quote + comma in free text), no numbers anywhere, build id present, Sent/Copy confirmation panel works, own-email guard in place. Full 13-screen worst-case calculation: 15,211 body bytes and 16,695 encoded mailto URL characters with 1,000 characters of free text per screen. <strong>Not yet met: this node's completion test requires "received emails from iOS and Android."</strong> Real-device delivery is still unverified; if truncation occurs, the existing "Copy instead" button must become the default path, not just an alternate.</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="inbox"><span class="tag">Delivery</span><h3>Lands in operator inbox</h3><p>Addressed to the operator, never the business's own customer-facing address.</p><code class="stage">submit (3.4)</code><span class="progress complete">100% · Delivery works unchanged for design B. Recipient/business-email guard verified logically consistent on both sites (edward.bell@thetechprinciple.com vs each business's own contact address).</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="admin">
+<h2>Lane 4 — Automated interpretation and regeneration</h2>
+<p class="who">Actor: <strong>automation, with no human in the path</strong> · tracked as a separate task, shown here for continuity</p>
+<div class="flow">
+  <button class="node" data-id="decode"><span class="tag">Parse</span><h3>Parse the descriptive body</h3><p>Body already reads as question description : answer description — structure to parse, no meaning to recover.</p><code class="stage">admin (4.1)</code><span class="progress scope">Separate task</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="llm"><span class="tag">Separate lane</span><h3>LLM assesses free text</h3><p>Reads "anything else", determines a separate action. Never emits a transform, never edits the site.</p><code class="stage">admin (4.2)</code><span class="progress scope">Separate task</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="append"><span class="tag">Apply</span><h3>Operations applied to the build</h3><p>Each matched option's declared operation feeds the next build. No interpretation step, no approval step.</p><code class="stage">admin (4.3)</code><span class="progress scope">Separate task</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="regen"><span class="tag">Rebuild</span><h3>Site regenerated and redeployed</h3><p>Original business data plus the applied operations. HTTPS verification on completion.</p><code class="stage">admin (4.4)</code><span class="progress scope">Separate task</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="notify"><span class="tag">Notify</span><h3>Client notified of updated preview</h3><p>Owner re-enters at lane 2 against the new build. Loop repeats until satisfied.</p><code class="stage">admin (4.5)</code><span class="progress scope">Separate task</span></button>
+</div>
+</div>
+
+<div class="lane" data-lane="out">
+<h2>Lane 5 — Accept and activate</h2>
+<p class="who">Actor: business owner + payment provider · separate EP047 unit, untouched here</p>
+<div class="flow">
+  <button class="node" data-id="accept"><span class="tag">Accept</span><h3>Owner accepts the site</h3><p>Explicit acceptance of the current build ends the review loop.</p><code class="stage">activation (5.1)</code><span class="progress scope">Out of scope</span></button>
+  <span class="arrow">→</span>
+  <button class="node" data-id="pay"><span class="tag">Payment</span><h3>Activation and payment</h3><p>Signed webhook, idempotency, reconciliation. Only confirmed payment can publish.</p><code class="stage">activation (5.2)</code><span class="progress blocked">0% · Not started</span></button>
+</div>
+</div>
+
+<div class="detail">
+<h3>Submission format</h3>
+<p style="margin:0 0 10px;font-size:13.5px;color:var(--muted)">Nested per page, written as <strong>question description : answer description</strong>. Numbers do not appear at all — the operator reads the submission directly rather than decoding it. One answer per line, so a question or option containing a comma cannot corrupt the structure.</p>
+<pre><code>Ridgeline Motorworks
+build: 20260806-142209-a3f9c1
+{
+  home {
+    Body text size: Increase by 25%
+    Heading size: Keep as-is
+    Main photo: Replace — I will send a new one
+    Photo size: Increase by 25%
+    Call-to-action button: Make larger by 25%
+    Anything else: "the hero photo is the old unit"
+  }
+  services {
+    Body text size: Keep as-is
+    Number of services shown: Reduce to 4
+    Service card layout: Switch to two columns
+    Section order: Move above Gallery
+    Anything else: "we no longer do bodywork"
+  }
+  reviews { No Action }
+  about   { No Action }
+}</code></pre>
+<div class="callout"><strong>Why this is better than numbers.</strong> A numbered body is only meaningful against the exact config version that produced it — re-word an option six weeks later and every archived submission silently changes meaning. Descriptive text is self-contained: it stays correct no matter how the config evolves, and it needs no decoder to be actioned.</div>
+<div class="callout bad"><strong>The cost is body length.</strong> Descriptive text is far longer than <code>1:2</code>. A 13-screen site at 5 questions per screen runs to roughly 4KB before free text, and some mobile mail clients truncate a <code>mailto:</code> body well below that. This is now the single highest delivery risk in the workflow — see submit (3.3), where it must be measured at full site size rather than on a sample.</div>
+</div>
+
+<div class="detail">
+<h3>Concrete schemas</h3>
+<p style="font-size:13.5px;color:var(--muted);margin:0 0 10px">Pinned down so an implementer is not choosing field names mid-build.</p>
+<h4 style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px"><code>transform</code> operation shape</h4>
+<pre><code>{
+  type: "transform",
+  text: "Increase by 25%",
+  operation: {
+    property: "bodyTextSize",
+    action: "increase",
+    magnitude: 0.25,
+    unit: "relative"
+  }
+}</code></pre>
+<p style="font-size:13px;color:var(--muted);margin:8px 0 0">For options with no meaningful magnitude (<code>"Switch to two columns"</code>, <code>"Move above Gallery"</code>), <code>action</code> is the operation and <code>magnitude</code>/<code>unit</code> are omitted rather than left as <code>null</code> — a present-but-empty field invites a build step to check for null and forget to; an absent field cannot be forgotten in the same way.</p>
+<h4 style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px"><code>ownerReviewBuildId</code> format</h4>
+<p style="font-size:13.5px;margin:0 0 8px"><code>YYYYMMDD-HHmmss-&lt;6-char-hash&gt;</code>, e.g. <code>20260806-142209-a3f9c1</code>. Timestamp of the generation run plus a short hash of the build inputs, so two builds seconds apart are still distinguishable even if the hash portion alone were to collide.</p>
+<h4 style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px"><code>ownerReviewStorageKey</code> derivation</h4>
+<p style="font-size:13.5px;margin:0 0 8px"><code>owner_review::&lt;business_slug&gt;</code>, e.g. <code>owner_review::ridgeline-motorworks</code>. The business slug is whatever already uniquely identifies the business elsewhere in the generated config — reused, not newly invented, so two systems can never disagree about a business's identity.</p>
+<h4 style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px">Submission subject line</h4>
+<p style="font-size:13.5px;margin:0">Fixed template: <code>Website review — &lt;business name&gt;</code>. Never includes the build id or a screen count — those live in the body, where the automated parser reads them; the subject exists for a human scanning an inbox, and stays stable so submissions from the same business thread visually together.</p>
+</div>
+
+<div class="detail">
+<h3>Discrete options — the interpretation rule</h3>
+<div class="callout"><strong>Every option must be applicable without asking the owner a follow-up question.</strong> That is the test. <code>Increase font by 25%</code> passes — it names the property, the direction and the magnitude. <code>Small tweak needed</code> fails — it says something is wrong but not what to do, so it cannot be applied by anyone without going back to the owner.</div>
+<p style="font-size:13.5px;color:var(--muted);margin:0 0 10px">The five options currently shipped in <code>owner-review-config.js</code> — Keep as-is, Small tweak needed, Significant change needed, Not sure let's discuss, Remove this section — are <strong>four failures and one pass</strong>. Only "Keep as-is" and "Remove this section" are exact. The rest record dissatisfaction without recording an instruction, which is precisely the ambiguity the skill was written to eliminate.</p>
+<h4 style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px">This forces two structural changes</h4>
+<ul>
+<li><strong>Options become per-question, not one shared global list.</strong> A single flat <code>ownerReviewOptions</code> array cannot be discrete — "Increase by 25%" is meaningful for a font-size question and meaningless for a photo-choice question. Each question must carry its own option set.</li>
+<li><strong>Questions become properties, not topics.</strong> "Overall design and layout" is too broad to have exact answers. It splits into the specific adjustable properties beneath it — body text size, heading size, photo size, section order, button size — each with its own discrete option set.</li>
+</ul>
+<h4 style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px">Option types</h4>
+<p style="font-size:13.5px;color:var(--muted);margin:0 0 10px">Each option declares a type. At prospect stage there is no human backstop, so a type is only viable if it either applies by machine or has a defined destination that survives until activation.</p>
+<ul>
+<li><code>none</code> — "Keep as-is". The null action. Always the first option.</li>
+<li><code>transform</code> — "Increase by 25%", "Reduce to 4", "Switch to two columns". Exact, machine-applicable, and carries its operation in config. Applied directly.</li>
+<li><code>asset</code> — "Replace this photo", "Add my logo". Exact as an instruction, but <strong>cannot complete while upload is scrapped</strong>. Routed to the LLM lane for chasing rather than applied. Revisit if upload returns.</li>
+<li><s><code>escalate</code></s> — <strong>dead.</strong> It meant "a human will pick this up right now", and at prospect stage no one will. Post-activation handling is covered by the free-text and loose-asset routes, which do not need an option type of their own.</li>
+</ul>
+<div class="callout bad" style="margin-bottom:0"><strong>Vague options are worse than vague free text</strong>, because they masquerade as structured data — an automated interpreter will treat "Small tweak needed" as a legitimate answer and have no defined operation to apply. Free text at least announces its own ambiguity. What happens to that free text with no human to read it is an open decision, below.</div>
+</div>
+
+<div class="detail">
+<h3>Automated interpretation — safety requirements</h3>
+<div class="callout bad"><strong>No human checks a prospect's review.</strong> Before payment the submission acts on the generated site with nobody in the path — no triage, no approval, no backstop. A parser that guesses at an unrecognised line applies the wrong change and nobody notices until the owner does. Exactness is a safety property here, not a preference, and every "flag it for review" escape hatch is unavailable.</div>
+<div class="callout" style="border-left-color:var(--green);background:#f2f8f4"><strong>Human review becomes available once the client is paying.</strong> This is an economic boundary, not a technical one: unpaid prospects arrive at whatever volume the outreach generates, so their reviews must be actioned automatically or not at all. A paying client is a bounded, funded population who can be given real attention. Everything in this lane — discrete options, fail-closed parsing, no free-text interpretation — is a <strong>prospect-stage</strong> constraint that relaxes after activation.</div>
+<div class="callout"><strong>The practical consequence:</strong> anything a prospect asks for that automation cannot apply exactly is not lost — it is recorded against their review and becomes actionable by a human once they activate. That gives the free-text field a real destination without ever letting an automated interpreter guess at it.</div>
+<h4 style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px">Consequences that follow</h4>
+<ul>
+<li><strong>The submission must carry its <code>build</code> id.</strong> Interpretation resolves each answer against the exact config that produced the site, not whatever the config says today. Without it, re-wording an option silently changes how every in-flight submission is interpreted. The buildId already exists in the store for staleness detection and must now travel with the email too.</li>
+<li><strong>Options carry the operation, not just the words.</strong> A <code>transform</code> option declares its machine-readable effect in config — property, action, magnitude — so automation applies a defined operation rather than parsing English. The descriptive text in the email is the readable rendering of that operation, never the source of truth for it.</li>
+<li><strong>Option text must be unique within its question.</strong> Text is the join key between email and config, so two options in one question sharing a label makes the mapping ambiguous. This must fail at build time, not at interpretation time.</li>
+<li><strong>Fail closed on any unmatched line — apply nothing.</strong> With no human to escalate to, the only safe response to a line that cannot be matched exactly is to abandon the whole submission and change nothing. A partially applied review is worse than an unapplied one: the owner sees some of their requests honoured and cannot tell which were dropped. Never fuzzy-match, never pick the nearest option, never silently skip a line.</li>
+<li><strong>Failure must notify the owner automatically.</strong> Fail-closed is only safe if somebody learns about it, and the only party available is the owner. A submission that could not be applied triggers an automated message saying so — otherwise it fails into silence and they wait indefinitely for changes that will never come.</li>
+<li><strong>Round-trip determinism is a release gate.</strong> Compose → parse must recover the exact operation for <em>every</em> option in the config, verified across the whole option set rather than a sample, before automated regeneration is permitted to act on any submission at all.</li>
+</ul>
+<h4 style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px">Free text — assessed by an LLM as a separate lane</h4>
+<p style="font-size:13.5px;margin:0 0 10px">"Anything else" is read by an LLM, which <strong>determines a separate action</strong> rather than producing a change. This is a parallel lane, not part of the deterministic pipeline — and the distinction is the entire safety argument.</p>
+<div class="callout" style="border-left-color:var(--green);background:#f2f8f4"><strong>Why this does not undermine the discreteness rule.</strong> The LLM never emits a transform and never edits the site. Discrete options continue down the exact, config-resolved path untouched. The LLM's only output is a decision about what should happen with that note — which is a judgement call that no amount of exactness elsewhere was ever going to cover.</div>
+<h4 style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px">Uploads — scrapped for now</h4>
+<p style="font-size:13.5px;margin:0 0 10px">No upload control in the panel. The review captures answers only, and any file an owner needs to supply is chased separately.</p>
+<div class="callout" style="border-left-color:var(--green);background:#f2f8f4"><strong>This deferral resolves both conflicts the upload path created.</strong> With no file to place, the review layer stays genuinely static — no hosted destination, no posting endpoint, no exception to the skill's founding rule. And pause-and-resume works cleanly again, because every answer remains a few bytes in localStorage rather than a file that cannot live there.</div>
+<div class="callout bad" style="margin-bottom:0"><strong><code>asset</code> options cannot complete without an upload.</strong> "Replace this photo" is still a legitimate thing for an owner to say, but with nowhere to attach the file it is an instruction with nothing behind it. Such answers resolve to the same separate-action lane as free text rather than to a transform — the LLM assesses what needs chasing. Revisit if and when upload returns.</div>
+</div>
+
+<div class="detail">
+<h3>The No Action rule — and the bug it fixes</h3>
+<div class="callout bad"><strong>Current shipped behaviour is wrong.</strong> <code>owner-review-embed.js</code> pre-checks option 1 on every radio and only emits a no-action marker when the owner ticks a checkbox. An untouched screen therefore submits <code>1:1, 2:1, 3:1, 4:1, 5:1</code> — byte-identical to a screen the owner deliberately marked "keep as-is" five times. The skill's own non-negotiable section requires these two to be distinguishable.</div>
+<ul>
+<li><strong>Absence is the signal.</strong> A screen is <code>No Action</code> because nothing was ever written for it, not because a default was submitted on the owner's behalf.</li>
+<li><strong>No pre-selected answers.</strong> Options start unselected. An answer exists only where the owner actually chose one.</li>
+<li><strong>Explicit happy path stays available.</strong> An owner who opens a screen and is content marks it reviewed-and-fine, which is recorded as real answers — distinct from silence.</li>
+<li><strong>Partial screens are honest.</strong> A screen with some questions answered emits only those, rather than padding the rest with option 1.</li>
+</ul>
+</div>
+
+<div class="detail">
+<h3>Storage contract</h3>
+<ul>
+<li><strong>Key:</strong> one localStorage entry per business, namespaced so two previews on the same host cannot collide.</li>
+<li><strong>Shape (in progress):</strong>
+<pre style="margin:6px 0 0"><code>{
+  buildId: "20260806-142209-a3f9c1",
+  lastUpdatedAt: "2026-08-06T14:30:02.000Z",
+  lastScreen: "gallery",
+  submittedBuildId: null,
+  submittedAt: null,
+  screens: {
+    home: {
+      answers: { 1: 2, 3: 1 },
+      freeText: "the hero photo is the old unit",
+      firstOpenedAt: "2026-08-06T14:22:10.000Z"
+    }
+  }
+}</code></pre>
+A screen key exists only once the owner has interacted with it. Answer keys are question numbers (1-indexed, matching config order); missing keys mean that question was left unanswered on a partially reviewed screen.</li>
+<li><strong>Shape (after confirmed submit):</strong> <code>screens</code> is cleared to <code>{}</code>, but <code>submittedBuildId</code> and <code>submittedAt</code> are set and <strong>survive the clear</strong> — this is the entire mechanism behind the already-submitted state at owner (2.6b).</li>
+<li><strong>Indices internally, text at the boundary.</strong> The store keeps answers as question and option indices; the descriptive text is resolved from config only when the submission is composed. Storing indices keeps the entry small and lets option wording be corrected mid-review without rewriting stored state — and <code>buildId</code> guards the case where the wording changed enough to make a paused review stale.</li>
+<li><strong>No files, by design.</strong> With upload scrapped the store holds only small values, which is what keeps pause-and-resume reliable — localStorage quota is roughly 5MB total and base64 inflates by a third, so a photo could never have lived here safely anyway.</li>
+<li><strong>Written on change</strong>, not on a save button — an owner who wanders off mid-review loses nothing.</li>
+<li><strong>Resume fields.</strong> <code>lastUpdatedAt</code> and <code>lastScreen</code> drive the resume prompt; <code>buildId</code> lets a regenerated site detect that an in-progress review belongs to an earlier version rather than silently applying stale answers.</li>
+<li><strong>No expiry.</strong> A paused review is not timed out. It clears on successful submit, on explicit discard, or when the owner clears their browser — nothing else.</li>
+<li><strong>Cleared after a successful submit</strong> so a later revision round starts clean against the regenerated site.</li>
+<li><strong>Accepted cost:</strong> a cleared browser or a different device loses an in-progress review, including a paused one. The skill's no-backend rule leaves no alternative on a static site — a review that survives a device change would require server-side state, which is an EP047 concern, not this layer.</li>
+</ul>
+</div>
+
+<div class="detail">
+<h3>Resolving "which screen am I on"</h3>
+<p style="margin:0 0 10px;font-size:13.5px;color:var(--muted)">Generated sites come in both shapes, so the resolver must handle both without per-site code.</p>
+<ul>
+<li><strong>Multi-page sites</strong> (e.g. Test02, 13 separate <code>.html</code> files): screen resolved from the current path against each screen's declared route.</li>
+<li><strong>Single-page sites</strong> (the <code>auto-garage-template</code> reference, whose screens are anchor sections such as <code>#services</code>): screen resolved from whichever section is currently in view.</li>
+<li><strong>Fallback:</strong> if neither resolves, the launcher's label is replaced by a "Which page is this?" picker populated from <code>ownerReviewScreens</code>, defaulting to no selection. Once chosen, the panel opens for that screen exactly as if resolution had succeeded — a one-time disambiguation, not a persistent mode, and rare in practice since it only triggers outside the two known site shapes.</li>
+</ul>
+</div>
+
+<div class="detail">
+<h3>Mobile requirements — binding on every implementation node</h3>
+<div class="callout"><strong>Phone is the primary review device.</strong> The preview link arrives by email and is most often opened on a phone, so a review layer that only works comfortably on desktop fails at the exact moment it matters. No node is complete on desktop evidence alone.</div>
+<ul>
+<li><strong>Reference viewport 375 x 812.</strong> Every node's completion test must be executed at this size in addition to desktop, with device emulation on so touch behaviour applies rather than hover.</li>
+<li><strong>Touch targets minimum 44 x 44px</strong> for every option, launcher, amend control and submit button. Radio options are the highest risk — five stacked options per question is a lot of small targets if sized for a mouse.</li>
+<li><strong>The panel is a bottom sheet on mobile</strong>, not a centred desktop modal — it must open within thumb reach and be dismissible by swipe-down and by the hardware back gesture, not only by an X in a far corner.</li>
+<li><strong>The on-screen keyboard must never obscure the free-text field.</strong> The field must scroll into view on focus and stay visible while typing.</li>
+<li><strong>No horizontal scroll anywhere.</strong> Long option text wraps; the consolidation summary is a stacked card list on mobile, never a table.</li>
+<li><strong>Respect safe-area insets</strong> so the launcher and submit button clear the home indicator and any notch.</li>
+<li><strong>No collision with the site's own sticky elements</strong> — the existing sticky call-to-action bar and mobile menu already occupy the bottom of the viewport on generated sites.</li>
+<li><strong>Section resolution must be tuned for short viewports.</strong> IntersectionObserver thresholds calibrated on a desktop viewport will resolve the wrong screen on a phone, where far less of any section is visible at once.</li>
+<li><strong>iOS private mode throws on localStorage write.</strong> The store's degrade-to-memory path must be verified on mobile Safari specifically, not assumed from desktop behaviour.</li>
+</ul>
+</div>
+
+<div class="detail">
+<h3>Unchanged rules inherited from the skill</h3>
+<ul>
+<li>No backend, no database, no API call — the review layer stays entirely static.</li>
+<li>No live tracking beacon. Timestamps are client-side and travel with the submission; the operator learns nothing until the owner submits, so reminder nudges key off absence of a submission.</li>
+<li>Submission goes to the operator's inbox, never the business's own customer-facing address.</li>
+<li>Flag-toggled (<code>OWNER_REVIEW_ENABLED</code>), same self-contained pattern as <code>assistant-embed.js</code>.</li>
+<li>Category skills tailor question and option wording; the questions x options x free-text x no-action shape is fixed.</li>
+</ul>
+<h4 style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px">What a category skill must now concretely produce</h4>
+<p style="font-size:13.5px;color:var(--muted);margin:0 0 10px">Not just "harder" — a specific, checkable deliverable per trade, replacing the single generic severity scale every category previously shared:</p>
+<ul>
+<li><strong>A list of adjustable properties for that trade's site</strong>, not topics — e.g. a plumbing site might adjust "emergency callout banner visibility" where a garage site adjusts "MOT reminder placement." Properties come from what a category skill author knows actually varies for that trade, not a copy of the generic five.</li>
+<li><strong>2–5 discrete options per property</strong>, each passing the interpretation test unaided — every option authored must be checked against "can this be applied without a follow-up question?" before it ships, the same audit gate build (1.1) enforces mechanically for uniqueness but cannot enforce for exactness.</li>
+<li><strong>An operation for every <code>transform</code> option</strong> in the fixed shape above — a category skill that writes exact-sounding option text but skips the operation object still fails the build, since the operation is what automation actually runs.</li>
+<li><strong>No new option types.</strong> Only <code>none</code>, <code>transform</code> and <code>asset</code> exist; a category skill cannot invent a fourth type to route around the discreteness rule for something that is genuinely subjective — that case belongs in the free-text lane, not a new option type.</li>
+</ul>
+<div class="callout bad" style="margin-bottom:0"><strong>One skill rule is superseded and must be rewritten.</strong> The skill currently states "Owner never sees numbers — only the real option text. Numbers are in the email body for parsing." Numbers no longer appear in the body at all. The first half still holds; the second is now wrong and is a required edit in the skill rewrite.</div>
+</div>
+
+</section>
+
+<aside class="side">
+<h2 id="t">Select a node</h2>
+<p class="sub" id="s">—</p>
+<p class="contract" id="c">Click any node for its detailed plan: implementation steps, the exact completion test, the evidence that proves it, and what it depends on.</p>
+<div id="plan"></div>
+</aside>
+</main>
+
+<script>
+const D={
+cfg:{s:'build (1.1) · owner-review-config.js',
+c:'Each screen declares how to find itself — a route for multi-page sites or a section id for single-page sites. <strong>Questions become adjustable properties and each carries its own discrete option set</strong>, replacing the single shared option list. Also carries the operator recipient and the storage namespace.',
+steps:[
+ 'Extend each <code>ownerReviewScreens</code> entry from <code>{screenName,label}</code> to also carry <code>route</code> (e.g. <code>"services.html"</code>) and <code>section</code> (e.g. <code>"services"</code>). Both optional individually, at least one required.',
+ '<strong>Replace the flat <code>ownerReviewOptions</code> array with per-question option sets.</strong> A single global list cannot satisfy the discreteness rule — "Increase by 25%" is exact for a font-size question and meaningless for a photo-choice question. Each question owns its options.',
+ '<strong>Restructure <code>ownerReviewQuestions</code> from topics to adjustable properties.</strong> "Overall design and layout" is too broad to have exact answers; it becomes body text size, heading size, photo size, section order, button size — each independently answerable.',
+ 'Give every option a <code>type</code> — <code>none</code> or <code>transform</code> only, plus <code>asset</code> if an automated intake exists. There is no <code>escalate</code>: with no human checking reviews, an option that resolves to a conversation has nowhere to go.',
+ 'Every <code>transform</code> option carries its <strong>machine-readable operation</strong> in the fixed shape <code>{ property, action, magnitude?, unit? }</code> — see the Concrete Schemas panel below — so automation applies a defined operation rather than parsing the English text back into an intent.',
+ 'Storage key: <code>owner_review::&lt;business_slug&gt;</code>, reusing the business slug that already identifies this business elsewhere in the generated config. Build id: <code>YYYYMMDD-HHmmss-&lt;6-char-hash&gt;</code>, stamped fresh on every generation run.',
+ 'Enforce <strong>unique option text within each question</strong> at build time. Text is the join key between the submitted email and the config; two options sharing a label makes interpretation ambiguous, and ambiguity has no human to resolve it.',
+ 'Audit every option against the interpretation rule before shipping: can it be applied without asking the owner a follow-up question? The four currently shipped vague options — Small tweak needed, Significant change needed, Not sure let\'s discuss, and any equivalent — must be removed, not reworded.',
+ 'Add <code>ownerReviewFreeTextQuestion</code> — the free-form prompt text. It occupies the final question number (N+1) rather than a separate <code>anything_else</code> key.',
+ 'Add <code>ownerReviewStorageKey</code>, derived from the business slug, so two previews served from the same host cannot collide in localStorage.',
+ 'Add <code>ownerReviewBuildId</code>, stamped by the generator on every build, so a paused review can be recognised as belonging to an earlier version of the site.',
+ 'Bump the in-file version history block to v1.1.0 with the reason for the change.'
+],
+test:'Load any page and evaluate <code>ownerReviewScreens.every(s =&gt; s.route || s.section)</code> — must be <code>true</code>. <code>ownerReviewStorageKey</code> and <code>ownerReviewBuildId</code> must be non-empty, and <code>buildId</code> must change between two successive generation runs. <strong>Discreteness gate:</strong> every question must own a non-empty option set, every option must declare a valid <code>type</code>, and a manual read of the full option list must find no option that would require a follow-up question to act on.',
+ev:'File diff, the console evaluation output, and the written discreteness audit of every option.',
+dep:'None. This is the root of the build lane — and the discreteness rule makes it the node most likely to need category-skill input before it can be finalised.'},
+
+store:{s:'build (1.2) · owner-review-store.js (new file)',
+c:'The single owner of review state. Nothing else in the site touches localStorage for review purposes, so persistence bugs have exactly one place to live.',
+steps:[
+ 'Create the file with a version history block at the top, exposing one object (<code>window.ownerReviewStore</code>) from an IIFE, matching the self-contained pattern of <code>assistant-embed.js</code>.',
+ 'Implement <code>read()</code> returning <code>{screens:{}}</code> when the key is absent, unparseable, or the wrong shape — it must never throw on corrupt data, because a thrown error here would break the host page.',
+ 'Implement <code>setAnswer(screen, questionNumber, optionNumber)</code>, <code>setFreeText(screen, text)</code> and <code>markOpened(screen)</code>, each creating the screen entry lazily on first write.',
+ 'Implement <code>getScreen(screen)</code> returning <code>undefined</code> when the screen was never touched. This absence is the No Action signal and must not be papered over with a default object.',
+ 'Implement <code>clear()</code> for use after a successful submit or an explicit discard.',
+ 'Maintain the resume fields on every write: <code>lastUpdatedAt</code>, <code>lastScreen</code>, and the site\'s <code>buildId</code>. Expose <code>progress()</code> returning reviewed and total counts, and <code>isStale(currentBuildId)</code> so the resume prompt can distinguish continue-where-you-left-off from your-review-predates-this-version.',
+ 'Wrap every write in try/catch so private browsing or a full quota degrades to in-memory rather than breaking the review UI.',
+ '<strong>Mobile:</strong> verify the degrade path on mobile Safari private mode specifically, where <code>setItem</code> throws rather than silently failing. Desktop behaviour does not predict this, and an unhandled throw here takes the whole review layer down on the most common review device.'
+],
+test:'Console: set an answer, reload, confirm it restores. Then set the key to invalid JSON manually and confirm <code>read()</code> returns an empty structure rather than throwing. Then <code>clear()</code> and confirm the key is gone. <strong>Mobile:</strong> repeat in mobile Safari private mode and confirm the review UI still functions with in-memory fallback.',
+ev:'Console transcript covering all three cases, plus the mobile Safari private-mode run.',
+dep:'Needs <code>ownerReviewStorageKey</code> from build (1.1).'},
+
+embed:{s:'build (1.3) · owner-review-embed.js — v2.0.0 (breaking)',
+c:'Stops rendering every screen into one root. Instead injects a launcher on each screen, resolves which screen is current, and renders that screen\'s panel alone.',
+steps:[
+ 'Bump to v2.0.0 — this is a breaking change to observable behaviour, not a minor one, because the old <code>#owner-review-root</code> contract disappears.',
+ '<strong>Remove <code>input.defaultChecked = true</code> on option 1.</strong> This single line is the No Action defect; options must start unselected.',
+ 'Implement <code>resolveCurrentScreen()</code>: match <code>location.pathname</code> against each screen <code>route</code> first; if no match, use an IntersectionObserver over the declared <code>section</code> ids and take the one most in view; if neither resolves, fall back to the screen picker below rather than guessing.',
+ '<strong>Screen picker design.</strong> Replaces the launcher\'s label (not a separate control) when resolution fails: a compact dropdown/select reading "Which page is this?" populated from <code>ownerReviewScreens</code> in config order, defaulting to no selection so the owner makes an active choice rather than landing on an arbitrary screen. Once chosen, the panel opens for that screen exactly as if resolution had succeeded — the picker is a one-time disambiguation, not a persistent mode. This is the rare path (custom page structures outside the two known site shapes), so it must degrade gracefully rather than being a primary interaction.',
+ 'Inject the launcher control into every screen — fixed-position for multi-page routes, per-section for single-page anchors — labelled to reflect stored state (unreviewed vs reviewed, amendable).',
+ 'Render the panel for the current screen only: N questions x M options plus the free-form final question, restoring any saved answers from the store on open.',
+ 'Bind change handlers that write straight through to the store on every selection and on free-text input (debounced), with no per-page save button.',
+ 'Call <code>markOpened()</code> on first panel open for that screen, preserving the client-side-only timestamp guarantee.',
+ 'Keep the <code>OWNER_REVIEW_ENABLED</code> flag and make no network calls of any kind.',
+ '<strong>Mobile:</strong> all injected markup ships mobile-first CSS — the panel renders as a bottom sheet under 768px, touch targets meet 44px, and the layer respects safe-area insets. Calibrate the IntersectionObserver threshold against a 375 x 812 viewport, because a threshold that resolves correctly on desktop will resolve the wrong screen on a phone where far less of any section is visible.'
+],
+test:'Open <code>index.html</code>, scroll to the gallery section — launcher must reflect <em>gallery</em>. Select options, reload, confirm restore. Confirm via the network panel that the review layer issues zero requests. Confirm a fresh screen shows no pre-selected options. <strong>Mobile:</strong> repeat the whole pass at 375 x 812 with device emulation on, confirming section resolution still lands on the correct screen and no horizontal scroll appears.',
+ev:'Screenshots at both desktop and 375 x 812, plus a network-panel read showing no review-originated requests.',
+dep:'Needs build (1.1) for routes/sections and build (1.2) for the store.'},
+
+host:{s:'build (1.4) · owner-preview.html',
+c:'The "Your review" section stops being a stack of every screen and becomes a consolidation summary driven entirely by the store, plus the single Submit button.',
+steps:[
+ 'Replace the <code>#owner-review-root</code> card-stack markup with <code>#owner-review-summary</code>.',
+ 'Render one row per configured screen, in config order, so the owner sees the full site accounted for rather than only what they touched.',
+ 'Rows for screens with no stored entry render <code>No Action</code> in a visually distinct, non-alarming style — this is a valid outcome, not an error state.',
+ 'Rows for reviewed screens show the chosen option text (not numbers) and any free text.',
+ 'Give every row an amend control that opens that screen\'s panel in place.',
+ 'Add a single Submit button below the summary, plus a version history comment block to the file.',
+ '<strong>Mobile:</strong> the summary is a stacked card list under 768px, not a table. Verify the page has no horizontal scroll and that the existing premium styling on this page does not push Submit below the safe-area inset.'
+],
+test:'Review exactly two screens elsewhere on the site, then open <code>owner-preview.html</code>: those two must show their answers as text, and every remaining configured screen must show <code>No Action</code>. <strong>Mobile:</strong> repeat at 375 x 812 and confirm the stacked layout with no horizontal scroll.',
+ev:'Screenshots of the consolidated summary in that mixed state, at desktop and 375 x 812.',
+dep:'Needs build (1.2) and build (1.3).'},
+
+land:{s:'owner (2.1) · entry',
+c:'The owner arrives from the branded email onto the live generated site. Critically they land on the real design, not on a review form — the review is something they summon while looking at the page it concerns.',
+steps:[
+ 'No new build work: the existing branded preview email and its "View website preview" CTA already deliver this.',
+ 'Confirm the email CTA still lands on the site root and not on <code>owner-preview.html</code>, since design B expects browsing first and consolidation second.',
+ 'Confirm the review layer initialises on the landing page without the owner taking any action.'
+],
+test:'Follow the preview CTA from a real branded email and confirm the landing page is the site homepage with the launcher already present.',
+ev:'Screenshot of the landing page with the launcher visible.',
+dep:'Needs build (1.3). No change to the email template itself.'},
+
+launch:{s:'owner (2.2) · trigger',
+c:'A persistent control on every screen. This is the entire discovery mechanism for the review, so it must be visible without hunting and must state which screen it applies to.',
+steps:[
+ 'Label the control with the current screen so the owner is never in doubt what they are about to review — "Review this page: Gallery", not a bare icon.',
+ 'Reflect stored state in the label: unreviewed screens invite a review, already-reviewed screens offer to amend.',
+ 'Position it so it never obscures content or the site\'s own CTAs, and keep it clear of the existing sticky call bar on mobile.',
+ 'Make it keyboard reachable and screen-reader labelled — it is the only entry point, so it cannot be mouse-only.',
+ 'Surface the progress count (reviewed / total) on the launcher so the owner can judge remaining work without opening the summary.',
+ '<strong>Mobile:</strong> 44px minimum target, positioned within thumb reach, clear of the safe-area inset, and explicitly checked against the generated site\'s existing sticky call bar and mobile menu — both already occupy the bottom of the viewport and will collide if this is placed naively.'
+],
+test:'On each configured screen in turn, confirm the launcher is visible without scrolling hunting, names that screen correctly, shows the progress count, and is reachable by keyboard alone. <strong>Mobile:</strong> at 375 x 812 with the sticky call bar present, confirm no overlap and that the launcher is tappable at 44px.',
+ev:'Screenshots across at least three screens at desktop and 375 x 812, plus a keyboard-only pass.',
+dep:'Needs build (1.3).'},
+
+panel:{s:'owner (2.3) · capture',
+c:'Shows only the questions for the screen in front of the owner. No options pre-selected — an answer exists only where the owner actually chose one.',
+steps:[
+ 'Render the configured questions for the current screen only, each with <strong>its own</strong> option set rather than a shared global list.',
+ 'Render the free-form question last, using the configured prompt text. This is the deliberate home for anything the discrete options cannot express.',
+ 'Show option text only. The owner never sees or types the underlying indices.',
+ 'Because options are now discrete instructions rather than severity judgements, they read longer — "Increase by 25%" rather than "Small tweak needed". Lay them out so the full text is readable without truncation or an ellipsis, since a clipped instruction is an ambiguous one.',
+ 'Offer an explicit "this page is fine" affirmative that records real answers, so a deliberate happy path stays distinguishable from silence.',
+ 'Allow the panel to close without answering everything — partial screens are valid and must persist as partial.',
+ '<strong>No upload control — deferred.</strong> The panel captures answers only. An owner who wants a photo or logo changed says so, and the file itself is chased separately rather than attached here.',
+ '<strong>Mobile:</strong> render as a bottom sheet under 768px, opening within thumb reach and dismissible by swipe-down and the hardware back gesture, not only a corner X. Every option is a 44px target. The free-text field scrolls into view on focus and stays visible above the on-screen keyboard while typing — five questions of five options is a long scroll on a phone, so the sheet must scroll internally without scrolling the page behind it.'
+],
+test:'Open the panel on a fresh screen and confirm no option is pre-selected. Answer questions 1 and 3 only, close, reopen, and confirm exactly those two are still set and the rest remain empty. <strong>Mobile:</strong> at 375 x 812, confirm bottom-sheet presentation, swipe-to-dismiss, 44px targets, internal scrolling, and that focusing the free-text field does not leave it behind the keyboard.',
+ev:'Screenshots of a partially answered panel after reopen, at desktop and 375 x 812, including one with the keyboard raised.',
+dep:'Needs build (1.3).'},
+
+save:{s:'owner (2.4) · persist',
+c:'Every selection and keystroke writes straight to the store. There is no per-page save button to forget, and no submit-time collection step that could lose a screen filled in twenty minutes earlier.',
+steps:[
+ 'Write on every radio change immediately.',
+ 'Write free text on input, debounced, and flush on panel close and on <code>beforeunload</code> so an in-flight debounce is never lost.',
+ 'Never block the UI on a write; a storage failure degrades silently to in-memory rather than surfacing an error to the owner mid-review.',
+ '<strong>Mobile:</strong> flush on <code>pagehide</code> and on <code>visibilitychange</code> as well — mobile Safari does not fire <code>beforeunload</code> reliably, and the common mobile interruption is backgrounding the browser for a call rather than closing a tab. Relying on <code>beforeunload</code> alone loses the last answer on exactly the device this matters most on.'
+],
+test:'Answer a question, then close the tab without any further interaction. Reopen the site and confirm the answer survived. Repeat for free text typed immediately before closing. <strong>Mobile:</strong> type free text then background the browser (switch apps) without closing it, return, and confirm the text persisted.',
+ev:'Console read of the stored key after the abrupt close, and after the mobile backgrounding case.',
+dep:'Needs build (1.2) and build (1.3).'},
+
+next:{s:'owner (2.5) · navigate',
+c:'State survives navigation and reload because it lives in localStorage rather than the DOM. This is the property the current shipped engine lacks entirely.',
+steps:[
+ 'Verify persistence across a full page navigation on a multi-page generated site, not just an in-page section change.',
+ 'Verify the launcher on the newly loaded screen reflects that screen, not the previous one.',
+ 'Verify returning to an already-reviewed screen restores exactly the options previously chosen.',
+ '<strong>Mobile:</strong> verify the round trip using the site\'s mobile menu rather than desktop navigation, since that is the actual path an owner takes between pages on a phone.'
+],
+test:'On a multi-page site: review Home, navigate to Services, review it, navigate back to Home, confirm the original answers are intact and the launcher shows Home as reviewed. <strong>Mobile:</strong> repeat at 375 x 812 navigating via the mobile menu.',
+ev:'Screenshots of the round trip at desktop and 375 x 812.',
+dep:'Needs build (1.2) and build (1.3).'},
+
+pause:{s:'owner (2.6) · pause and resume',
+c:'A full site review is not a one-sitting job. The owner must be able to stop deliberately, close the browser, and pick up days later exactly where they left off — with the system telling them where that was, rather than making them remember.',
+steps:[
+ 'Add an explicit <strong>"Save and finish later"</strong> action in the panel and on the consolidation page. Persistence already happens on every change, so this action exists for reassurance and to give the owner a clean exit — it confirms what is stored and how to get back.',
+ 'Record <code>lastUpdatedAt</code> and <code>lastScreen</code> in the store on every write, so a returning owner can be offered the exact screen they were on.',
+ 'On load, if a review is in progress, show a <strong>resume prompt</strong>: how many screens are reviewed out of how many, when they last worked on it, and a control to jump straight back to <code>lastScreen</code>. Dismissible, and never shown once a review has been submitted.',
+ 'Show a persistent <strong>progress indicator</strong> (reviewed / total) on the launcher so the owner can judge how much is left at any moment without opening the summary.',
+ 'Record the generated site\'s <code>buildId</code> alongside the answers. On load, if the current build differs from the stored one, tell the owner their in-progress review was against an earlier version and offer to keep or discard it — never silently apply stale answers to a regenerated site.',
+ 'Do not expire the stored review on a timer. It clears on successful submit, on explicit discard, or when the owner clears their browser — nothing else.',
+ 'Make the resume path reachable from a follow-up nudge email, so an owner who paused can return by clicking the same preview link rather than hunting for where they were.',
+ '<strong>Mobile:</strong> the resume prompt is a bottom sheet consistent with the review panel, dismissible by swipe, and must not fight the site\'s sticky call bar. Assume the pause is caused by an interruption on a phone, because it usually will be.'
+],
+test:'Review 3 of 6 screens, use "Save and finish later", fully close the browser, reopen the preview link the next day: the resume prompt must appear stating 3 of 6 and the date, jumping back to the last screen restores it with answers intact, and the remaining 3 screens are still untouched. Separately, change the stored <code>buildId</code> and confirm the stale-review prompt appears instead of a silent restore. <strong>Mobile:</strong> repeat the full pause/resume cycle at 375 x 812.',
+ev:'Screenshots of the resume prompt and progress indicator on desktop and mobile, plus a console read of the store showing <code>lastUpdatedAt</code>, <code>lastScreen</code> and <code>buildId</code> after the pause.',
+dep:'Needs build (1.2) for the store fields and build (1.3) for the launcher and panel. The build stamp requires the generator to emit a <code>buildId</code> into the site config.'},
+
+skip:{s:'owner (2.7) · default',
+c:'Never opening the panel for a screen writes nothing at all for it. That absence is the No Action signal — the system never fabricates answers on the owner\'s behalf, which is precisely the defect in the current shipped engine.',
+steps:[
+ 'Confirm no store entry is created merely by visiting a screen; only opening the panel and interacting creates one.',
+ 'Confirm opening a panel and closing it without answering does not fabricate answers — it may record the open timestamp, but no option values.',
+ 'Confirm the consolidation and the composed body both treat a missing entry as <code>No Action</code>.'
+],
+test:'Visit every screen without opening any panel, then inspect the store — it must contain no screen answer entries. The composed body must show <code>No Action</code> for all of them.',
+ev:'Console read of the empty store plus the resulting composed body.',
+dep:'Needs build (1.2), (1.3) and (1.4).'},
+
+consol:{s:'submit (3.1) · summary',
+c:'The moment the owner sees the whole picture. This is the reason design B keeps this page rather than letting submit happen from anywhere.',
+steps:[
+ 'List every configured screen in config order, never only the reviewed subset.',
+ 'Show reviewed screens with their option text and free text; show untouched screens as <code>No Action</code>.',
+ 'Show a plain count — how many screens reviewed, how many will send as No Action — so the owner can judge whether they are done.',
+ 'Make clear that No Action is an acceptable outcome and not a blocker to submitting.',
+ 'Carry the same "Save and finish later" exit and last-updated stamp as the in-situ panel, so the summary is a valid place to pause rather than a point of no return.',
+ '<strong>Mobile:</strong> render as a stacked card list, never a table. Each row wraps its option text, keeps its amend control at 44px, and the Submit button sits clear of the safe-area inset.'
+],
+test:'With a mixed state (some reviewed, some not), confirm every configured screen appears exactly once and the counts match the actual store contents. <strong>Mobile:</strong> confirm at 375 x 812 that rows stack, no horizontal scroll appears, and Submit is reachable without zooming.',
+ev:'Screenshots of the summary with counts at desktop and 375 x 812.',
+dep:'Needs build (1.4) and owner (2.6) for the progress and last-updated data.'},
+
+gap:{s:'submit (3.2) · gap fill',
+c:'Any screen can be reviewed or amended directly from the summary, so an owner who missed a page is not forced to navigate back and hunt for it.',
+steps:[
+ 'Each summary row opens that screen\'s panel in place, without leaving the preview page.',
+ 'Amendments write to the same store entries as in-situ capture — there is exactly one source of truth.',
+ 'After amending, the summary row updates immediately without a reload.',
+ '<strong>Mobile:</strong> amending from the summary opens the same bottom sheet as in-situ capture, so the owner learns one interaction rather than two. On dismiss, return them to their scroll position in the summary rather than the top.'
+],
+test:'From the summary, amend a screen reviewed earlier in situ, and separately review a screen never touched. Confirm both persist and the rows update in place. <strong>Mobile:</strong> at 375 x 812, confirm the bottom sheet matches the in-situ panel and scroll position is preserved on dismiss.',
+ev:'Before/after screenshots of the amended rows at desktop and 375 x 812.',
+dep:'Needs build (1.2) and build (1.4).'},
+
+compose:{s:'submit (3.3) · format',
+c:'One button, one email, composed from the store in the nested per-page shape — written as <strong>question description : answer description</strong>, with no numbers anywhere. The operator reads it directly rather than decoding it.',
+steps:[
+ 'Emit the <code>build</code> id as the first line after the business name. Automated interpretation resolves every answer against the config from <em>that</em> build, so without it the submission cannot be interpreted safely at all.',
+ 'Build the body from the store, iterating configured screens in order so output ordering is stable across submissions.',
+ 'Resolve each stored answer index to its <strong>question text and option text</strong> from the config at compose time, and emit <code>&lt;question description&gt;: &lt;answer description&gt;</code>, one per line. The store keeps indices internally — text is resolved only at the boundary — so the same build\'s config always governs the wording.',
+ 'Emit only the questions actually answered. A partially reviewed screen must not be padded out to look complete.',
+ 'Emit the free-form answer on its own line using its configured prompt as the question description, quoted.',
+ 'Emit <code>&lt;screen&gt; { No Action }</code> for screens with no store entry.',
+ 'One answer per line rather than comma-separated, so a question or option containing a comma cannot corrupt the structure. Escape double quotes and collapse newlines inside free text for the same reason.',
+ 'Subject line carries the business name so submissions are sortable without opening them.',
+ 'On confirmed send, replace the full review payload with a small <strong>submitted marker</strong> — <code>{ submittedBuildId, submittedAt }</code> — rather than deleting the key outright. This is what makes a returning owner\'s state distinguishable from never having started: full answers are cleared for privacy and freshness, but the fact of submission persists.',
+ '<strong>Confirmation mechanism, since a mailto hand-off cannot report success programmatically.</strong> Immediately after setting <code>window.location.href</code> to the mailto URL, show a small non-blocking panel: "If your email app just opened, tap Sent — didn\'t open? Copy instead." Do not use a timer or visibility-change heuristic to guess success; browsers cannot reliably distinguish "mail app opened" from "nothing happened," so the owner\'s own tap is the only trustworthy signal. Provide a "Copy the review text" fallback button in the same panel for a device with no mail app configured.',
+ 'Only call <code>store.clear()</code> when the owner taps <strong>Sent</strong>. If they tap the copy fallback instead, do not clear — leave the review intact so they can paste it and confirm afterward, or so a second submit attempt is not starting from empty.',
+ '<strong>Measure the worst-case body length first.</strong> Descriptive text is several times longer than the numbered form — a 13-screen site at 5 questions runs to roughly 4KB before free text, and some mobile clients truncate a mailto body well below that. Measure a full-size review before building anything else here, because if it truncates, the delivery mechanism has to change and that decision belongs at the start rather than after the format is wired in.',
+ 'If truncation is confirmed, fall back to a copy-to-clipboard path with a plainly worded instruction to paste into a reply — still no backend, still one submission, but not length-bound. Decide this from the measurement, not by assumption.',
+ '<strong>Mobile:</strong> verify the mailto opens the default mail app on iOS and Android with the full body intact, at full site size rather than a 3-screen sample.'
+],
+test:'With a mixed state including a free-text answer containing a quote, a comma and a newline, confirm the composed body matches the documented shape exactly and that no line breaks the one-answer-per-line contract. Confirm no numbers appear anywhere in the body. <strong>Mobile:</strong> compose a full 13-screen review on iOS and Android and confirm the body arrives complete and untruncated — with the measured byte length recorded either way.',
+ev:'Captured body output for that adversarial case, the measured worst-case byte length, plus the received emails from both mobile platforms.',
+dep:'Needs build (1.2) and build (1.4).'},
+
+inbox:{s:'submit (3.4) · delivery',
+c:'Addressed to the configured recipient, never the business\'s own customer-facing address. <strong>This is now an automated ingest mailbox, not a person\'s inbox</strong> — nothing arriving here is read by a human before it acts.',
+steps:[
+ 'Read the recipient from <code>ownerReviewRecipient</code> only; never fall back to any business contact field.',
+ 'Treat the mailbox as a machine interface: anything landing in it that is not a well-formed submission must be rejected by the parser rather than assumed to be a human-readable message somebody will notice.',
+ 'Add a build-time guard: if the configured recipient matches the business\'s own email, fail loudly at generation rather than shipping a site that emails the owner their own review.',
+ 'Confirm the mailto encodes correctly in the owner\'s default client for a long, multi-screen body.'
+],
+test:'Trigger submit and inspect the composed <code>mailto:</code> target — it must be the operator address. Separately, set the config recipient to the business email and confirm the build guard trips.',
+ev:'Composed mailto URL plus the guard failure output.',
+dep:'Needs submit (3.3).'},
+
+decode:{s:'admin (4.1) · SEPARATE TASK · much reduced',
+c:'Parses the submission and resolves every line to a defined operation against the build that produced it. <strong>With no human checking reviews, this node is the entire safety boundary</strong> — whatever it accepts goes live on a customer\'s site unreviewed.',
+steps:[
+ 'Own workflow HTML and checklist first, per the same ordering rule that produced this diagram.',
+ 'Parse the nested body: read the <code>build</code> id, split screens on their braces, then split each answer line on its <strong>first</strong> colon only. The one-answer-per-line contract from submit (3.3) is what makes this safe.',
+ 'Resolve each question and answer against <strong>that build\'s</strong> config — never today\'s — recovering the option\'s declared operation rather than inferring intent from the words.',
+ '<strong>Exact match or reject.</strong> No fuzzy matching, no nearest-option fallback, no case-insensitive slack, no silent skipping. An unmatched line rejects the entire submission and applies nothing.',
+ 'On rejection, trigger the automated notification back to the owner. Failing into silence is not an option when no human is watching the queue.',
+ 'Explicit handling for No Action screens and partially answered screens, which must stay distinguishable from each other and from a fully reviewed one.',
+ 'Never resolve free text to an operation. Split it out verbatim and hand it to the LLM lane at admin (4.2), which determines a separate action. The deterministic parser must not attempt to interpret prose.',
+ 'Route <code>asset</code> answers to the same LLM lane while upload is scrapped — an asset instruction with no file behind it cannot become a transform.'
+],
+test:'Round-trip every option in the config, not a sample: compose → parse must recover the exact declared operation for each. Then adversarial cases — an unknown question label, an unknown option label, a duplicated option label, and a free-text answer containing a colon and a comma — each must reject the whole submission and notify, never partially apply.',
+ev:'Full round-trip output across the entire option set, plus the four adversarial rejections.',
+dep:'Needs a stable submission format from submit (3.3) and the build id carried in the body. Tracked separately — not part of this unit.'},
+
+submitted:{s:'owner (2.6b) · already-submitted state',
+c:'Once <code>submittedBuildId</code> is present and matches the current site\'s <code>buildId</code>, the owner has already sent a review for this exact build. Without this check, a returning owner sees the same empty state as someone who never started, and can unknowingly submit a duplicate review.',
+steps:[
+ 'On load, before showing the launcher or resume prompt, check the store for <code>submittedBuildId</code>.',
+ 'If <code>submittedBuildId === current buildId</code>, show a distinct state: "You already sent your review for this version — want to review again anyway?" rather than silently offering a fresh review.',
+ 'If the owner chooses to review again, treat it as starting fresh against the same build and warn once more before the second Submit that this will be an additional email, not a replacement.',
+ 'If <code>submittedBuildId !== current buildId</code> (the site was regenerated since they last submitted), treat this as a genuinely new review — no special state, same as first-time.',
+ '<strong>Mobile:</strong> the already-submitted notice uses the same bottom-sheet pattern as the resume prompt, so the owner learns one visual language for all of these states rather than three different ones.'
+],
+test:'Submit a review, confirm send, reload the site: the already-submitted state appears rather than a blank launcher. Regenerate the site (new buildId) and reload again: the state clears and a fresh review is offered with no special notice.',
+ev:'Screenshots of the already-submitted state, and of it correctly clearing after a build change.',
+dep:'Needs the submitted marker from submit (3.3) and buildId from build (1.1).'},
+
+llm:{s:'admin (4.2) · SEPARATE TASK · parallel lane',
+c:'The LLM reads the free-text answers and <strong>determines a separate action</strong>. It never emits a transform, never edits the site, and never touches the discrete-option pipeline running alongside it. Its output is a routing decision, not a change.',
+steps:[
+ 'Take only the free-text answers plus enough context to judge them — the screen they belong to, and the discrete answers given on that same screen so a note like "and make it bigger too" is not read in isolation.',
+ 'Classify each note into a defined action set, not free-form prose. The action vocabulary is fixed and small so downstream handling is deterministic even though the classification is not — for example: already covered by a discrete answer, needs an asset from the owner, needs a human after activation, out of scope, or unintelligible.',
+ '<strong>Hard boundary: the LLM may not produce a site change.</strong> It may not select a discrete option on the owner\'s behalf, and it may not emit an operation. If a note plainly maps to an existing option, the correct action is to record that observation for a human — not to apply it, because the owner did not choose it.',
+ 'Attach the original wording verbatim to whatever action is produced. A human picking this up later needs what the owner actually said, not the LLM\'s paraphrase of it.',
+ 'Record the model and prompt version alongside the classification, so a wrong action can be traced to what produced it.',
+ 'Treat low confidence as its own action rather than forcing a category. An honest "unclear" routed to a person beats a confident wrong classification acted on automatically.',
+ 'Handle <code>asset</code> answers here too while upload is scrapped, since an asset instruction with no file behind it is exactly the kind of thing that needs chasing rather than applying.'
+],
+test:'Feed a set of representative free-text notes — one clearly matching an existing option, one requesting a photo change, one vague, one irrelevant, one empty — and confirm each produces an action from the fixed vocabulary, that no output is ever a transform or an option selection, and that the original wording survives verbatim on every one.',
+ev:'Classification output across the representative set, plus an explicit negative check that no path from this node can reach the apply step.',
+dep:'Needs the parsed submission from admin (4.1). Tracked separately — not part of this unit.'},
+
+append:{s:'admin (4.3) · SEPARATE TASK',
+c:'Each matched option\'s declared operation is applied to the next build. There is no interpretation step here and no approval step — by the time a submission reaches this node it has already been resolved to defined operations or rejected whole.',
+steps:[
+ 'Define where the operation set lives and its shape, keyed by screen and question.',
+ 'Apply each <code>transform</code> operation to the build inputs, preserving the original submission verbatim for audit.',
+ '<strong>All-or-nothing.</strong> If any line in a submission failed to match, nothing from that submission is applied — see the fail-closed rule. A half-applied review leaves the owner unable to tell which of their requests were honoured.',
+ 'Bound the blast radius: an operation set that would change an implausible proportion of the site should abort rather than proceed, since no human will see it before it ships.',
+ 'Do not carry forward unmatched lines, free text, or anything requiring judgement. There is no reviewer to carry them to.'
+],
+test:'A fully matched submission produces a build the generation run consumes with no manual editing. A submission containing one unmatched line produces <strong>no</strong> changes at all.',
+ev:'Generated operation set, plus the negative test showing a single bad line prevents any application.',
+dep:'Needs admin (4.1). Tracked separately.'},
+
+regen:{s:'admin (4.4) · SEPARATE TASK',
+c:'Fresh build from original business data plus the applied operation set from admin (4.3), then HTTPS URL verification before the new preview is considered live.',
+steps:[
+ 'Trigger the ep044 generation skill with original data plus the applied operations.',
+ 'Verify the resulting HTTPS URL responds before marking the regeneration complete.',
+ 'Record a recovery reason and audit entry for the overwrite, per the existing generation guard.'
+],
+test:'A regeneration produces a live, verified URL and an audit record.',
+ev:'Deploy ID plus URL check output.',
+dep:'Needs admin (4.2). Tracked separately.'},
+
+notify:{s:'admin (4.5) · SEPARATE TASK',
+c:'Follow-up email pointing at the updated preview. The owner re-enters at lane 2 against the new build, and the loop repeats until they are satisfied.',
+steps:[
+ 'Reuse the branded email template rather than inventing a second one.',
+ 'Make clear in the copy that this is a revised build responding to their feedback.',
+ 'Ensure the owner\'s cleared store means they start the new round clean rather than seeing stale answers against a changed site.'
+],
+test:'A regenerated site produces a branded notification whose CTA lands on the updated preview.',
+ev:'Sent email plus landing screenshot.',
+dep:'Needs admin (4.3). Tracked separately.'},
+
+accept:{s:'activation (5.1) · OUT OF SCOPE',
+c:'Explicit acceptance of the current build closes the review loop and hands off to activation. Deliberately not merged into the review submission — accepting and requesting changes are different acts and must stay separable.',
+steps:[
+ 'Not planned here. Recorded so the review workflow has a defined exit rather than trailing off.',
+ 'Constraint for whoever builds it: acceptance must not be inferred from an absence of change requests.'
+],
+test:'Not applicable in this unit.',
+ev:'Not applicable.',
+dep:'Separate EP047 unit.'},
+
+pay:{s:'activation (5.2) · OUT OF SCOPE · 0%',
+c:'Provider choice, signed webhook, idempotency, reconciliation, failure and refund handling. Only confirmed payment may publish or create Subscriber status.',
+steps:[
+ 'Not started. This is the single largest remaining gap in the EP047 register and is untouched by this unit.',
+ 'The review workflow deliberately does not gate on it — an owner can complete review long before payment exists.'
+],
+test:'Not applicable in this unit.',
+ev:'Not applicable.',
+dep:'Separate EP047 unit, not started.'}
+};
+
+const t=document.getElementById('t'),s=document.getElementById('s'),c=document.getElementById('c'),plan=document.getElementById('plan');
+function sel(id){
+  document.querySelectorAll('.node').forEach(n=>n.classList.toggle('sel',n.dataset.id===id));
+  const n=D[id];
+  t.textContent=document.querySelector('.node[data-id="'+id+'"] h3').textContent;
+  s.textContent=n.s;
+  c.innerHTML=n.c;
+  plan.innerHTML=
+    '<h4>Plan</h4><ol>'+n.steps.map(x=>'<li>'+x+'</li>').join('')+'</ol>'+
+    '<h4>Completion test</h4><p class="box test">'+n.test+'</p>'+
+    '<h4>Evidence</h4><p class="box ev">'+n.ev+'</p>'+
+    '<h4>Depends on</h4><p class="box dep">'+n.dep+'</p>';
+}
+document.querySelectorAll('.node').forEach(n=>n.addEventListener('click',()=>sel(n.dataset.id)));
+document.querySelectorAll('[data-f]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-f]').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  const f=b.dataset.f;
+  document.querySelectorAll('.lane').forEach(l=>l.style.display=(f==='all'||l.dataset.lane===f)?'block':'none');
+}));
+sel('cfg');
+</script>
+</body>
+</html>

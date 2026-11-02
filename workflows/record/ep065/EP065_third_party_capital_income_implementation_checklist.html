@@ -1,0 +1,140 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/ep065/EP065_third_party_capital_income_implementation_checklist.html — Interactive implementation checklist for EP065 Third-Party Capital Income Engine
+
+  VERSION HISTORY
+  v1.0.0 · 2026-10-21 · Initial version: Interactive status tracking covering Track 1 (Delegated Liquidity/Prop Automation) and Track 2 (Flash Loan/Atomic Arbitrage/Liquidation).
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EP065: Implementation Checklist</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #f87171;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 24px; min-height: 100vh; }
+    .header { margin-bottom: 24px; border-bottom: 1px solid var(--card-border); padding-bottom: 16px; }
+    .header h1 { font-size: 24px; color: var(--accent); margin-bottom: 8px; }
+    .header p { color: var(--text-muted); font-size: 14px; }
+    
+    .checklist-container { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+    .check-item { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 6px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; }
+    .check-left { display: flex; align-items: center; gap: 12px; }
+    .check-left input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+    .check-title { font-size: 14px; font-weight: 500; }
+    .check-desc { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+    .badge { font-size: 11px; padding: 4px 8px; border-radius: 4px; font-weight: 600; text-transform: uppercase; }
+    .badge-in_progress { background: rgba(251, 191, 36, 0.2); color: var(--warning); border: 1px solid rgba(251, 191, 36, 0.4); }
+    .badge-not_started { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); border: 1px solid var(--card-border); }
+    .badge-passed { background: rgba(52, 211, 153, 0.2); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.4); }
+    
+    .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 14px; border-radius: 6px; text-align: center; }
+    .stat-val { font-size: 20px; font-weight: 700; color: var(--accent); margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>EP065 Delivery Status & Implementation Checklist</h1>
+    <p>Target: £10k–£50k 30-Day Net Income Implementation Matrix</p>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div>Total Tasks</div>
+      <div class="stat-val" id="totalTasks">6</div>
+    </div>
+    <div class="stat-card">
+      <div>In Progress</div>
+      <div class="stat-val" style="color: var(--warning);" id="inProgressTasks">0</div>
+    </div>
+    <div class="stat-card">
+      <div>Completed</div>
+      <div class="stat-val" style="color: var(--success);" id="completedTasks">6</div>
+    </div>
+    <div class="stat-card">
+      <div>Progress</div>
+      <div class="stat-val" id="percentComplete">100%</div>
+    </div>
+  </div>
+
+  <div class="checklist-container">
+    <div class="check-item">
+      <div class="check-left">
+        <input type="checkbox" checked disabled />
+        <div>
+          <div class="check-title">EP065 Architecture & Capital Flow Modeling</div>
+          <div class="check-desc">Comprehensive comparative analysis, 30-day feasibility evaluation across 5 avenues.</div>
+        </div>
+      </div>
+      <span class="badge badge-passed">Passed</span>
+    </div>
+
+    <div class="check-item">
+      <div class="check-left">
+        <input type="checkbox" checked disabled />
+        <div>
+          <div class="check-title">Track 1: Prop Firm Risk-Constraint Wrapper (Auto-Risk Guard)</div>
+          <div class="check-desc">Enforce 4% hard daily drawdown stops, automated lot sizing, and 0.5% max risk per trade.</div>
+        </div>
+      </div>
+      <span class="badge badge-passed">Passed</span>
+    </div>
+
+    <div class="check-item">
+      <div class="check-left">
+        <input type="checkbox" checked disabled />
+        <div>
+          <div class="check-title">Track 1: Strategy Execution Runner Calibration</div>
+          <div class="check-desc">Configure top-performing intraday models for $200k-$400k capital evaluation challenge.</div>
+        </div>
+      </div>
+      <span class="badge badge-passed">Passed</span>
+    </div>
+
+    <div class="check-item">
+      <div class="check-left">
+        <input type="checkbox" checked disabled />
+        <div>
+          <div class="check-title">Track 2: Atomic Arbitrage & Flash Loan Router Specification</div>
+          <div class="check-desc">Solidity contract interface specification for Aave v3 / Balancer single-block flash borrowing.</div>
+        </div>
+      </div>
+      <span class="badge badge-passed">Passed</span>
+    </div>
+
+    <div class="check-item">
+      <div class="check-left">
+        <input type="checkbox" checked disabled />
+        <div>
+          <div class="check-title">Track 2: L2 Fast Liquidity Watcher Engine</div>
+          <div class="check-desc">Mempool/block-state price divergence tracker for Base/Arbitrum DEX pools.</div>
+        </div>
+      </div>
+      <span class="badge badge-passed">Passed</span>
+    </div>
+
+    <div class="check-item">
+      <div class="check-left">
+        <input type="checkbox" checked disabled />
+        <div>
+          <div class="check-title">Cross-Track Verification & 30-Day Payout Runbook</div>
+          <div class="check-desc">Complete schedule, account credentials vault, payout verification, and audit sign-off.</div>
+        </div>
+      </div>
+      <span class="badge badge-passed">Passed</span>
+    </div>
+  </div>
+</body>
+</html>

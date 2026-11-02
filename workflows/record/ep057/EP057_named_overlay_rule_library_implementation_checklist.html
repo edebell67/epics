@@ -1,0 +1,20 @@
+<!doctype html>
+<!--
+ * EP057_named_overlay_rule_library_implementation_checklist.html — Delivery status for named portfolio overlay rules.
+ *
+ * VERSION HISTORY
+ * v1.0.0 · 2026-10-11 · Starts the feature checklist before implementation so each release gate is visible.
+ -->
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EP057 Named Overlay Rules — Delivery Checklist</title><link rel="icon" href="data:,">
+<style>:root{color-scheme:dark;--bg:#080d18;--panel:#111a2b;--line:#29415d;--cyan:#49d5ed;--amber:#ffd34f;--green:#4de0a8;--muted:#92a6c3}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#ecf4ff;font:14px/1.5 system-ui,Segoe UI,sans-serif}.wrap{max-width:1000px;margin:auto;padding:30px 20px}h1{margin:7px 0}.sub{color:var(--muted)}.item{display:grid;grid-template-columns:150px 1fr;gap:16px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0}.status{font-weight:800;color:var(--amber);text-transform:uppercase;font-size:11px;letter-spacing:.08em}.status.passed{color:var(--green)}.status.failed{color:#ff758f}.status.inprogress{color:var(--cyan)}h2{font-size:16px;margin:0 0 5px}.evidence{color:var(--muted);font:12px/1.5 ui-monospace,Consolas,monospace}.gate{border-left:3px solid var(--amber);padding:10px 14px;background:#201d13;border-radius:6px;color:#e8d9a4;margin:18px 0}</style><body><main class="wrap"><div style="color:var(--cyan);font-size:11px;font-weight:800;letter-spacing:.14em">EP057 · DELIVERY STATUS</div><h1>Named overlay rule library</h1><p class="sub">Every release gate has a concrete status and evidence reference. Live authenticated execution remains unverified until performed.</p>
+<div class="item"><div class="status passed">Passed</div><div><h2>Interactive workflow design</h2><div class="evidence">Artifact: EP057_named_overlay_rule_library_workflow.html · Playwright loaded the page; six clickable steps and actor filter verified.</div></div>
+<div class="item"><div class="status">Passed</div><div><h2>Rule catalogue persistence API</h2><div class="evidence">PASS: API CRUD and validation; duplicate name 409; unknown ID 404; assigned deletion 409. See validation_report.md.</div></div></div>
+<div class="item"><div class="status">Passed</div><div><h2>Portfolio-scoped rule assignment</h2><div class="evidence">PASS: scenario_alt and scenario_other retained distinct rule IDs; scenario_alt persisted after reload.</div></div></div>
+<div class="item"><div class="status">Passed</div><div><h2>Overlay engine integration</h2><div class="evidence">PASS: assigned criteria used, default top-1 without assignment, top-10 hold respected and negative-return exit overrides hold.</div></div></div>
+<div class="item"><div class="status">Passed</div><div><h2>Named create/list/modal UI</h2><div class="evidence">PASS: browser created named rule, opened list/details, assigned to scenario_alt, and confirmed after reload.</div></div></div>
+<div class="item"><div class="status">Passed</div><div><h2>Regression and technical validation</h2><div class="evidence">PASS in isolated test server: Python compile, JS syntax, API round trip, browser reload and deterministic replay. Production reload pending.</div></div></div>
+<div class="item"><div class="status">Not started</div><div><h2>Live PostgreSQL order behavior</h2><div class="evidence">Not tested. Active port 8765 has LIVE execute_orders=true; it was not restarted or modified.</div></div></div>
+<div class="gate"><b>Acceptance gate:</b> Local isolated rule save/list/modal/assignment/replay checks passed. Production activation and user visual verification are pending a safe server reload. Never imply live trading was tested or enabled.</div>
+</main></body></html>
+
+

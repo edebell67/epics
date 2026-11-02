@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EP050 Node 19: Quality & Compliance Review Workflow</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true, theme:'neutral'});</script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #24292e; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        h1, h2 { color: #0366d6; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
+        .mermaid { background: #f6f8fa; border: 1px solid #e1e4e8; border-radius: 6px; padding: 20px; margin: 20px 0; }
+        .card { background: #ffffff; border: 1px solid #e1e4e8; border-radius: 6px; padding: 16px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body>
+    <h1>EP050 Node 19: Quality & Compliance Review Workflow</h1>
+    <p><strong>Owner:</strong> Gemini | <strong>Stage:</strong> Stage 4 Narrative Packaging | <strong>Version:</strong> v1.0.0 (2026-08-17)</p>
+
+    <div class="card">
+        <h2>Interactive Pipeline Architecture</h2>
+        <div class="mermaid">
+        flowchart TD
+            subgraph Upstream Ingestion
+                N16[Node 16: Canonical Knowledge Store] --> N19
+                N17[Node 17: Content & Utility Factory] -->|AssetPayload| N19
+            end
+
+            subgraph Node 19 Quality & Compliance Hard Stop-Gate
+                N19[Ingest AssetPayload & Knowledge Store] --> GateFact[1. Verify Factual Lineage vs Node 16]
+                GateFact --> GateSafety[2. Check Mandatory Safety Disclaimers]
+                GateSafety --> GatePII[3. Screen Prohibited PII]
+                GatePII --> GateCTA[4. Validate CTA Schema & URL Format]
+                GateCTA --> GateContract[5. Enforce Canonical Contract v1.1.0]
+                GateContract --> Decision{All Passed?}
+                Decision -->|No| Reject[Approved=False + Explicit Violation Reasons]
+                Decision -->|Yes| Approve[Approved=True + ComplianceStamp]
+                Approve --> Package[Generate ApprovedAssetPackage]
+            end
+
+            subgraph Downstream Stage 5 Publishing
+                Package -->|Canonical Contract v1.1.0| N20[Node 20: Publishing Scheduler]
+            end
+
+            classDef active fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+            classDef done fill:#e8f5e9,stroke:#388e3c,stroke-width:2px;
+            class N16,N17 done;
+            class N19,GateFact,GateSafety,GatePII,GateCTA,GateContract,Decision,Reject,Approve,Package active;
+        </div>
+    </div>
+</body>
+</html>

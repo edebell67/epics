@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EP050 Node 19: Quality & Compliance Review Implementation Checklist</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #24292e; max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1, h2, h3 { color: #0366d6; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
+        .checklist-item { margin: 12px 0; display: flex; align-items: flex-start; }
+        .checklist-item input[type="checkbox"] { margin-top: 5px; margin-right: 10px; }
+        .tag { display: inline-block; padding: 2px 6px; font-size: 12px; font-weight: 600; border-radius: 3px; background-color: #f1f8ff; color: #0366d6; margin-left: 8px; }
+        .tag.mandatory { background-color: #ffeef0; color: #d73a49; }
+        .tag.verified { background-color: #dcffe4; color: #28a745; }
+        .spec-box { background: #f6f8fa; border: 1px solid #e1e4e8; border-radius: 6px; padding: 16px; margin: 16px 0; }
+        code { background-color: rgba(27,31,35,0.05); padding: 0.2em 0.4em; border-radius: 3px; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 85%; }
+    </style>
+</head>
+<body>
+    <h1>EP050 Node 19: Quality & Compliance Review Implementation Checklist</h1>
+    <p><strong>Owner:</strong> Gemini | <strong>Stage:</strong> Stage 4 Narrative Packaging | <strong>Version:</strong> v1.0.0 (2026-08-17)</p>
+    
+    <div class="spec-box">
+        <h3>Master Spec & Scope Summary</h3>
+        <p>Node 19 acts as an automated deterministic hard stop-gate validating candidate <code>AssetPayload</code> objects (from Node 17) against verified facts (Node 16), safety/regulatory guidelines (e.g. Gas Safe compliance), CTA integrity, PII screening, and contract schema conformity (Canonical Contract v1.1.0).</p>
+        <p><strong>Deterministic Check ID:</strong> <code>chk_</code> + SHA-256(<code>asset_id:target_id:opportunity_id:validator_version:ruleset_checksum</code>)</p>
+    </div>
+
+    <h2>Pre-Implementation Gates</h2>
+    <div class="checklist-item">
+        <input type="checkbox" id="gate1" checked>
+        <label for="gate1"><strong>Upstream Dependency Gate:</strong> Nodes 16 and 17 accepted at 100%. Canonical Contract v1.1.0 promoted. <span class="tag verified">PASSED</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="gate2" checked>
+        <label for="gate2"><strong>Pre-Code Architecture:</strong> Authored interactive workflow diagram and implementation checklist prior to module coding. <span class="tag mandatory">MANDATORY</span></label>
+    </div>
+
+    <h2>Schema & Canonical Contract v1.1.0 Compliance</h2>
+    <div class="checklist-item">
+        <input type="checkbox" id="req1" checked>
+        <label for="req1"><code>ComplianceCheckResult</code>: Evaluation outcome container (<code>check_id</code>, <code>asset_id</code>, <code>approved</code>, <code>checked_at</code>, <code>reasons</code>, <code>disclaimer_verified</code>, <code>facts_verified</code>, <code>validator_version</code>). <span class="tag mandatory">SCHEMA</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="req2" checked>
+        <label for="req2"><code>ApprovedAssetPackage</code>: Conforms byte-for-byte to <code>approved_asset_package_schema</code> in Canonical Contract v1.1.0. <span class="tag mandatory">CONTRACT</span></label>
+    </div>
+
+    <h2>Validation & Fail-Closed Rules</h2>
+    <div class="checklist-item">
+        <input type="checkbox" id="val1" checked>
+        <label for="val1"><strong>Factual Verification:</strong> All fact IDs cited in asset must exist in Node 16 CanonicalKnowledgeStore and match target. <span class="tag mandatory">SAFETY</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="val2" checked>
+        <label for="val2"><strong>Mandatory Safety Disclaimer:</strong> Asset must contain non-empty, valid safety disclaimer. Fail closed if missing. <span class="tag mandatory">SAFETY</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="val3" checked>
+        <label for="val3"><strong>Deterministic Failure Explanations:</strong> If unapproved, provide explicit, structured rejection reasons in <code>reasons</code> list. <span class="tag mandatory">LOGIC</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="val4" checked>
+        <label for="val4"><strong>Zero External Actions:</strong> Enforce <code>external_action=False</code> and block live API calls, live publishing, and network socket creation. <span class="tag mandatory">SAFETY</span></label>
+    </div>
+
+    <h2>Test & Verification Requirements</h2>
+    <div class="checklist-item">
+        <input type="checkbox" id="test1" checked>
+        <label for="test1">Unit tests for positive compliance approval and packaging into ApprovedAssetPackage. <span class="tag verified">TEST</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="test2" checked>
+        <label for="test2">Negative test matrix: missing disclaimer, unverified fact ID, PII detection, invalid CTA format, mismatched lineage. <span class="tag verified">TEST</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="test3" checked>
+        <label for="test3">Canonical contract schema validation test (Draft 2020-12) asserting full compliance with Canonical Contract v1.1.0. <span class="tag verified">TEST</span></label>
+    </div>
+    <div class="checklist-item">
+        <input type="checkbox" id="test4" checked>
+        <label for="test4">Full multi-node integration test: Nodes 01-05 -> 11 -> 12 -> 13 -> 14 -> 16 -> 17 -> 19 with non-mocked data. <span class="tag verified">TEST</span></label>
+    </div>
+</body>
+</html>

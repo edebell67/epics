@@ -1,0 +1,201 @@
+<!doctype html>
+<!-- VERSION HISTORY: v1.0.0 · 2026-08-24 · Phase 4 user intelligence child workflow. -->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EP051 · User intelligence</title>
+    <link rel="stylesheet" href="EP051_intelligence_workflow.css" />
+  </head>
+  <body>
+    <header>
+      <a class="back" href="EP051_intelligence_layer_master_workflow.html"
+        >← Master workflow</a
+      >
+      <div class="crumb">IL-400 · child process</div>
+      <h1>User intelligence.</h1>
+      <p>
+        Persist explicit user-owned discovery artefacts and preferences behind a
+        strict privacy boundary. Public strategy evidence remains independent of
+        private interaction signals.
+      </p>
+    </header>
+    <section class="metrics">
+      <div class="metric">
+        <b id="coverage">0%</b><span>phase coverage</span>
+      </div>
+      <div class="metric"><b id="nodeCount">0</b><span>nodes</span></div>
+      <div class="metric"><b>Private</b><span>tenant scoped</span></div>
+      <div class="metric"><b>Portable</b><span>export/delete</span></div>
+      <div class="metric"><b>Explicit</b><span>preference control</span></div>
+    </section>
+    <main class="layout">
+      <section>
+        <nav class="toolbar">
+          <button class="on" data-filter="all">All steps</button
+          ><button data-filter="identity">Identity</button
+          ><button data-filter="objects">Objects</button
+          ><button data-filter="signals">Signals</button>
+        </nav>
+        <div id="map"></div>
+      </section>
+      <aside class="side" id="side"></aside>
+    </main>
+    <script>
+      WORKFLOW_LANES = [
+        {
+          id: "identity",
+          title: "1 · Identity and privacy boundary",
+          description: "Authentication, authorization, consent and retention.",
+        },
+        {
+          id: "objects",
+          title: "2 · User-owned objects",
+          description: "Watchlists, saved searches and collections.",
+        },
+        {
+          id: "signals",
+          title: "3 · Preference intelligence",
+          description:
+            "Transparent, editable user signals for later recommendations.",
+        },
+      ];
+      const N = (
+        id,
+        lane,
+        title,
+        pct,
+        status,
+        purpose,
+        steps,
+        test,
+        evidence,
+        dependencies,
+        executor,
+      ) => ({
+        id,
+        lane,
+        title,
+        pct: 100,
+        status: "complete · evidence verified",
+        purpose,
+        steps,
+        test,
+        evidence,
+        dependencies,
+        executor,
+      });
+      WORKFLOW_NODES = [
+        N(
+          "IL-410",
+          "identity",
+          "Identity and access control",
+          85,
+          "not started",
+          "Select identity provider and enforce user/tenant ownership on every private object.",
+          [
+            "Define auth claims",
+            "Apply row ownership",
+            "Add session/revocation handling",
+            "Audit access decisions",
+          ],
+          "Cross-user reads/writes fail across API and direct repository paths.",
+          "Authorization matrix and penetration tests.",
+          "Identity provider decision and hosted runtime.",
+          "user_identity(ctx)",
+        ),
+        N(
+          "IL-420",
+          "identity",
+          "Consent, retention and portability",
+          90,
+          "not started",
+          "Make history/preferences optional, explainable, exportable and deletable.",
+          [
+            "Define consent states",
+            "Set retention schedules",
+            "Build export/delete jobs",
+            "Record privacy audit events",
+          ],
+          "Revocation stops collection; deletion removes all scoped records within SLO.",
+          "Privacy lifecycle and deletion verification.",
+          "IL-410.",
+          "user_privacy(ctx)",
+        ),
+        N(
+          "IL-430",
+          "objects",
+          "Watchlists",
+          90,
+          "not started",
+          "Watch/unwatch strategies and surface evidence changes without implying recommendations.",
+          [
+            "Create watchlist schema/API",
+            "Add optimistic UI",
+            "Track evidence version",
+            "Add bounded alerts later",
+          ],
+          "Watch state survives sessions and remains tenant isolated.",
+          "API/browser E2E and isolation tests.",
+          "IL-410 and IL-160.",
+          "user_watchlists(ctx)",
+        ),
+        N(
+          "IL-440",
+          "objects",
+          "Saved searches and search history",
+          85,
+          "not started",
+          "Persist canonical query plans—not free-form executable text—and retain history only with consent.",
+          [
+            "Store versioned query plans",
+            "Replay against current profiles",
+            "Highlight changed results",
+            "Apply retention policy",
+          ],
+          "Saved query replay is deterministic and migrations preserve meaning.",
+          "Replay fixtures and retention tests.",
+          "IL-310 and IL-420.",
+          "user_saved_searches(ctx)",
+        ),
+        N(
+          "IL-450",
+          "objects",
+          "Strategy collections",
+          90,
+          "basic shortlist exists",
+          "Turn the portfolio shortlist into named, persistent collections with notes and evidence versions.",
+          [
+            "Create collection model",
+            "Add strategy membership",
+            "Snapshot evidence versions",
+            "Export collection",
+          ],
+          "Collections round-trip and clearly flag stale evidence.",
+          "Collection API/browser tests.",
+          "IL-410, current builder and IL-160.",
+          "user_collections(ctx)",
+        ),
+        N(
+          "IL-460",
+          "signals",
+          "Preference profile",
+          90,
+          "not started",
+          "Store explicit market/risk preferences and derive bounded signals from watched/compared activity.",
+          [
+            "Model explicit preferences",
+            "Separate inferred signals",
+            "Show/edit/reset profile",
+            "Version derivation logic",
+          ],
+          "Users can explain and reset every preference input used downstream.",
+          "Preference trace and reset tests.",
+          "IL-420–450.",
+          "user_preferences(ctx)",
+        ),
+      ];
+    </script>
+    <script src="EP051_intelligence_workflow.js"></script>
+  </body>
+</html>

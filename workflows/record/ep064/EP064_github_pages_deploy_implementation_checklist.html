@@ -1,0 +1,24 @@
+<!doctype html>
+<!--
+  workstream/600_workflow/ep064/EP064_github_pages_deploy_implementation_checklist.html
+  — Delivery status checklist for EP064 GitHub Pages deployment.
+
+  VERSION HISTORY
+  v1.1.0 · 2026-10-19 · Gate 2 & Gate 3 marked Passed: commit cc6a2d768a6faa3341514a77385ebdef1aa37b78 verified on edebell67/epics:master and live Playwright E2E passed.
+  v1.0.0 · 2026-10-19 · Initial version (V20261019_1451): tracks preflight, scoped commit, SHA parity, and live URL verification.
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP064 · GitHub Pages Deployment Checklist</title>
+<style>
+body{margin:0;font:14px/1.5 system-ui,Segoe UI,sans-serif;background:#0d1117;color:#e6edf3;padding:24px}
+.wrap{max-width:980px;margin:0 auto;background:#151b23;border:1px solid #2a313c;border-radius:12px;padding:20px}
+table{width:100%;border-collapse:collapse}th,td{padding:10px 8px;border-bottom:1px solid #222933;text-align:left}
+.st{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
+.Passed{background:#122d1f;color:#3fb950}.Inprogress{background:#2f2410;color:#e3b341}
+</style></head><body><div class="wrap">
+<h1>EP064 · GitHub Pages Deployment Checklist (`edebell67/epics`)</h1>
+<table><thead><tr><th>#</th><th>Gate</th><th>Status</th><th>Evidence</th></tr></thead><tbody>
+<tr><td>1</td><td>Preflight &amp; Interactive Workflow HTML</td><td><span class="st Passed">Passed</span></td><td><code>workstream/600_workflow/ep064/EP064_github_pages_deploy_workflow.html</code></td></tr>
+<tr><td>2</td><td>Scoped Commit, Secret Scan &amp; SHA Parity on <code>edebell67/epics:master</code></td><td><span class="st Passed">Passed</span></td><td>Commit <code>cc6a2d768a6faa3341514a77385ebdef1aa37b78</code> (`SHA_PARITY=MATCH`, 40 files)</td></tr>
+<tr><td>3</td><td>Live URL HTTP 200 &amp; Mobile/Desktop Browser Verification</td><td><span class="st Passed">Passed</span></td><td>Pages build <code>1297145154</code> (<code>status: built</code>), HTTP 200 on all 4 URLs, 6/6 Playwright mobile+desktop screenshots passed (0 console errors) in <code>workstream/Test Results/ep064/20261019_145800_live_github_pages_passed/</code></td></tr>
+</tbody></table></div></body></html>
