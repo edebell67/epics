@@ -2,16 +2,25 @@
 <!--
   epics/ep_064_reddit_oppourtunity/ui_02_trader_risk_guard/index.html
   — ApexGuard demo: Prop-Firm Trailing Drawdown & Behavioral Tilt Lockout (T2) + Multi-Strategy Correlation & Regime Monitor (T1).
-  Plan: workstream/200_inprogress/20261018_221000_ep064_997_trader_risk_guard_demo.md
+  Plan: workstream/200_inprogress/20261102_052200_ep064_997_ep058_live_prop_guard_sync.md
   Workflow: workstream/600_workflow/ep064/EP064_trader_risk_guard_workflow.html
 
   VERSION HISTORY
+  v1.3.0 · 2026-11-10 · Scenario playback: HWM trap / revenge tilt / correlation spike play step by step with captions,
+                        highlighted panels, play/pause/step/speed controls and an equity-vs-trailing-floor chart; ?play=hwm|tilt|corr
+                        autoplays, ?live=1 now honoured. Tilt score is now computed from its 4 factors (points shown per factor);
+                        Auto De-Risk now computed (pauses highest-avg-ρ sleeves until active ρ ≤ 0.60) instead of scripted S2/S4;
+                        EOD floor fixed to min(start, HWM − maxDD) (was +$600 offset); auto-lock rule unified at cushion ≤ 15%.
+  v1.2.0 · 2026-11-02 · V20261102_0530: Live EP058 Strategy Intelligence integration (port 8149).
+                        Dynamically ingests 4 top active DNA models (GET /api/top_strategies),
+                        maps them into virtual prop-firm accounts (Apex Intraday HWM vs Topstep/MFFU EOD),
+                        evaluates real-time trailing drawdown & tilt cadence, with live streaming toggle.
   v1.0.0 · 2026-10-18 · Initial version (V20261018_2300): Mobile-first interactive demo UI covering Prop Guard (multi-account EOD vs Intraday trailing DD,
                         tilt cadence gauge, revenge-spiral lockout simulation, global flatten) and Correlation/Regime Guard (6-strategy equity curves,
                         rolling correlation matrix, regime detector, synchronized drawdown alerts, 1-click de-risk actions).
 -->
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0d1117">
-<title>ApexGuard · Prop Drawdown &amp; Correlation Monitor (Demo)</title>
+<title>ApexGuard · Prop Drawdown &amp; Correlation Monitor (EP058 Live)</title>
 <style>
 /* MOBILE-FIRST: base rules target 375px–430px phones; min-width 700px (tablet) and 1100px (desktop) scale up */
 :root{
@@ -30,8 +39,14 @@ input,select{background:#0e141f;border:1px solid var(--line);border-radius:10px;
 .demo-strip{background:#070a0f;border-bottom:1px solid var(--line);color:var(--mut);font-size:12px;padding:6px 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .demo-strip b{color:var(--ink)}.demo-strip .hide-sm{display:none}
 .demo-strip button{background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:5px 10px;font-size:12px;min-height:32px}
+.live-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:999px;font-size:11.5px;font-weight:600}
+.live-pill.on{background:var(--grn2);color:#3fb950;border:1px solid #245836}
+.live-pill.off{background:#1f2735;color:var(--mut);border:1px solid var(--line)}
+.live-pulse{width:7px;height:7px;border-radius:50%;background:#3fb950;display:inline-block;animation:pulse 1.8s infinite}
+@keyframes pulse{0%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(1.2)}100%{opacity:1;transform:scale(1)}}
 /* top header */
-.top{position:sticky;top:0;z-index:25;background:#0d131dcc;backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+/* no backdrop-filter below 1100px: it makes .top the containing block for the fixed bottom nav and pins the nav into the header */
+.top{position:sticky;top:0;z-index:25;background:#0d131d;border-bottom:1px solid var(--line)}
 .topin{display:flex;align-items:center;gap:8px;padding:10px 12px}
 .brand{font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px}
 .brand i{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#2ea043,#238636);display:inline-grid;place-items:center;color:#fff;font-style:normal;font-size:13px}
@@ -72,6 +87,7 @@ h3{font-size:14.5px;margin:0 0 10px;display:flex;align-items:center;justify-cont
 .sc-bar{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none}.sc-bar::-webkit-scrollbar{display:none}
 .sc-bar button{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 13px;font-size:12.5px;min-height:38px;white-space:nowrap}
 .sc-bar button.on{background:#1f6feb;border-color:#388bfd;color:#fff}
+.sc-bar button.live-btn.on{background:#238636;border-color:#2ea043;color:#fff}
 /* lockout banner */
 .lock-banner{background:linear-gradient(90deg,#49171a,#2c1115);border:1px solid #8c2d32;border-radius:var(--r);padding:12px 14px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 .lock-banner b{color:#ff7b72;display:block;font-size:14.5px}
@@ -112,6 +128,25 @@ table.rt td:before{content:attr(data-label);color:var(--mut);font-size:12px}
 .modal:before{content:"";display:block;width:40px;height:4px;border-radius:2px;background:#303d52;margin:4px auto 10px}
 .toast{position:fixed;bottom:calc(var(--navh) + 14px + env(safe-area-inset-bottom));left:12px;right:12px;background:#1f6feb;color:#fff;padding:11px 16px;border-radius:10px;opacity:0;transform:translateY(16px);transition:.25s;z-index:60;font-size:13.5px;text-align:center;pointer-events:none}
 .toast.on{opacity:1;transform:none}
+/* scenario playback panel */
+.pb{position:fixed;left:8px;right:8px;bottom:calc(var(--navh) + 8px + env(safe-area-inset-bottom));z-index:40;background:#0f1726f5;backdrop-filter:blur(8px);border:1px solid #2f4566;border-radius:14px;padding:8px 12px 10px;box-shadow:0 10px 30px #0009;display:none}
+.pb.on{display:block}
+body.pb-on{padding-bottom:calc(var(--navh) + var(--pbh,200px) + 24px + env(safe-area-inset-bottom))}
+.pb-head{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut)}
+.pb-tag{color:#79c0ff;font-weight:600}
+.pb-x{margin-left:auto;background:none;border:0;color:var(--mut);font-size:18px;min-width:40px;min-height:36px}
+.pb-prog{height:4px;background:#1c2536;border-radius:2px;margin:2px 0 8px;overflow:hidden}.pb-prog i{display:block;height:100%;background:#388bfd;transition:width .3s}
+.pb-title{display:block;font-size:14.5px;margin-bottom:3px}
+.pb-body{margin:0 0 8px;font-size:13px;color:#c9d1d9;line-height:1.45}
+.pb-ctl{display:flex;gap:6px;align-items:center}
+.pb-ctl button{background:var(--card2);border:1px solid var(--line);border-radius:10px;min-width:44px;min-height:42px;font-size:16px}
+.pb-ctl button:disabled{opacity:.35}
+.pb-ctl .main{background:#1f6feb;border-color:#388bfd;color:#fff;flex:1;font-size:14px;font-weight:600}
+.pb-hl{outline:2px solid #58a6ff!important;outline-offset:3px;box-shadow:0 0 0 7px #388bfd2e!important;border-radius:var(--r)}
+.intro{border-color:#2f4566;background:linear-gradient(180deg,#132036,#131a26);margin-bottom:12px}
+.intro p{margin:4px 0 10px;color:#c9d1d9;font-size:13.5px}
+.fchart-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--mut);margin-top:8px}.fchart-legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:4px}
+.f-row small{color:var(--mut);font-weight:400;margin-left:6px}
 
 /* tablet ≥700px */
 @media(min-width:700px){
@@ -120,10 +155,12 @@ table.rt td:before{content:attr(data-label);color:var(--mut);font-size:12px}
   .btnrow .btn{flex:none}
   .mask{align-items:center;padding:20px}.modal{border:1px solid var(--line);border-radius:14px;max-width:600px}.modal:before{display:none}
   .toast{left:50%;right:auto;transform:translateX(-50%) translateY(16px);bottom:24px}.toast.on{transform:translateX(-50%)}
+  .pb{left:50%;right:auto;width:min(640px,calc(100% - 32px));transform:translateX(-50%)}
 }
 /* desktop ≥1100px */
 @media(min-width:1100px){
   body{padding-bottom:0;font-size:14px}
+  .top{background:#0d131dcc;backdrop-filter:blur(10px)}
   nav{position:static;display:flex;gap:6px;height:auto;border:0;padding:0;background:none}
   nav button{flex-direction:row;font-size:13.5px;padding:7px 13px;border-radius:8px;gap:6px}
   nav button.on{background:#1f6feb;color:#fff}nav button.on:before{display:none}nav .badge{position:static}
@@ -133,16 +170,21 @@ table.rt td:before{content:attr(data-label);color:var(--mut);font-size:12px}
   table.rt th{font-size:12px;text-align:left;color:var(--mut);padding:8px;border-bottom:1px solid var(--line)}
   table.rt td{display:table-cell;padding:8px;border-bottom:1px solid #1c2433}table.rt td:before{display:none}
   .btn{min-height:38px;padding:7px 12px}.btn.sm{min-height:30px;padding:4px 9px}
+  .pb{bottom:16px}
+  body.pb-on{padding-bottom:calc(var(--pbh,200px) + 32px)}
 }
 </style></head><body>
 <div class="demo-strip">
-  <b>APEXGUARD DEMO</b><span class="hide-sm">· Prop-Firm Trailing Drawdown &amp; Tilt Guard (T2) + Multi-Strategy Correlation &amp; Regime Monitor (T1)</span>
+  <b>APEXGUARD</b><span class="hide-sm">· Prop Trailing DD &amp; Tilt Guard (T2) + Correlation Monitor (T1)</span>
+  <span id="livePill" class="live-pill off"><span class="live-pulse" style="display:none"></span><span id="liveText">Simulated</span></span>
   <span class="sp"></span>
+  <button id="liveToggleBtn" data-act="toggleLive" style="font-weight:600">📡 Connect Live EP058</button>
+  <button data-act="refreshEP058" title="Force Sync with EP058">↻ Sync</button>
   <button data-act="walkthrough">▶ Walkthrough</button>
   <button data-act="reset">↺ Reset</button>
 </div>
 <div class="top"><div class="topin">
-  <div class="brand"><i>AG</i>ApexGuard <small>· Real-Time Prop &amp; Portfolio Risk Engine</small></div>
+  <div class="brand"><i>AG</i>ApexGuard <small id="brandSubtitle">· Real-Time Prop &amp; Portfolio Risk Engine</small></div>
   <nav id="nav"></nav>
   <span class="sp"></span>
   <button class="btn dan sm" data-act="flattenAll">🛑 Flatten &amp; Lock All</button>
@@ -150,13 +192,22 @@ table.rt td:before{content:attr(data-label);color:var(--mut);font-size:12px}
 <main id="app"></main>
 <div class="mask" id="mask"><div class="modal" id="modal"></div></div>
 <div class="toast" id="toast"></div>
+<div class="pb" id="pb" role="region" aria-label="Scenario playback"></div>
 <script>
 'use strict';
-const KEY='ep064_apexguard_demo_v1';
+/*
+  ApexGuard UI Controller with Live EP058 Strategy Intelligence Synchronisation
+  DateTime: 2026-11-02 05:30:00 UTC
+  Version: v1.2.0 (V20261102_0530)
+*/
+const KEY='ep064_apexguard_demo_v2';
+const EP058_BASE=localStorage.getItem('ep058_url')||'http://127.0.0.1:8149';
 const $=s=>document.querySelector(s);
 const usd=n=>(n<0?'-$':'$')+Math.abs(Math.round(n)).toLocaleString('en-US');
 const sgn=n=>(n>=0?'+$':'-$')+Math.abs(Math.round(n)).toLocaleString('en-US');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let pollInterval=null;
 
 function seed(preset='normal'){
   const baseAccts=[
@@ -201,14 +252,14 @@ function seed(preset='normal'){
     tilt.score=88; tilt.trades10m=11; tilt.sizeMult=2.5; tilt.lossStreak=5; tilt.reentrySec=11;
     tilt.lockoutUntil='15:05:00';
     tilt.reason='LOCKOUT TRIGGERED: 11 orders in 10m + 2.5x size escalation + 11s re-entry after loss.';
-    logs.unshift({t:'14:37:01',lvl:'CRIT',m:'🛑 TILT LOCKOUT (88/100): Copier severed & Apex-50K-Eval-02 auto-flattened before cascading breach.'});
+    logs.unshift({t:'14:37:01',lvl:'CRIT',m:'🛑 TILT LOCKOUT (98/100): Copier severed & Apex-50K-Eval-02 auto-flattened before cascading breach.'});
   } else if(preset==='corr_spike'){
     regime={label:'CHOPPY',er:0.19,volPct:89,avgCorr:0.84,syncDD:5,msg:'⚠ CORRELATION SPIKE (avg ρ = 0.84): 5 of 6 strategies in simultaneous drawdown during whipsaw regime!'};
     corr=corr.map((r,i)=>r.map((v,j)=>i===j?1:+(0.76+((i+j)%3)*0.06).toFixed(2)));
     strats.forEach((s,idx)=>{s.dd=-(420+idx*110);s.dayNet=-180-idx*65;s.curve=[0,160,290,120,-80,-210,-340,s.dayNet]});
     logs.unshift({t:'14:38:19',lvl:'CRIT',m:'⚠ REGIME SHIFT → CHOPPY (ER 0.19, Vol 89th pct). Cross-strategy ρ spiked to 0.84.'});
   }
-  return {preset,accts:baseAccts,tilt,strats,corr,regime,logs};
+  return {mode:'sim',preset,accts:baseAccts,tilt,strats,corr,regime,logs,ep058:{status:'idle',lastSync:null,topModels:[]}};
 }
 
 let S=load();
@@ -218,7 +269,8 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2600)}
 
 function acctMetrics(a){
-  const floor=a.mode==='Intraday'?(a.hwm-a.maxDD):Math.min(a.start,a.hwm-a.maxDD+600);
+  // Intraday: floor trails the equity peak incl. open P&L. EOD: trails the closing-balance peak and stops at the starting balance.
+  const floor=a.mode==='Intraday'?(a.hwm-a.maxDD):Math.min(a.start,a.hwm-a.maxDD);
   const dist=Math.max(0,a.eq-floor);
   const bufPct=Math.max(0,Math.min(100,(dist/a.maxDD)*100));
   const dailyRem=Math.max(0,a.dailyLim+Math.min(0,a.dayPnl));
@@ -238,21 +290,49 @@ function renderNav(){
   $('#nav').innerHTML=TABS.map(([k,ic,l])=>`<button class="${UI.tab===k?'on':''}" data-act="tab" data-id="${k}"><span class="ic">${ic}</span><span>${l}</span>${k==='prop'&&crit?`<span class="badge">${crit}</span>`:''}</button>`).join('');
 }
 
+function updateLiveStrip(){
+  const pill=$('#livePill');
+  const txt=$('#liveText');
+  const btn=$('#liveToggleBtn');
+  const pulse=pill.querySelector('.live-pulse');
+  if(S.mode==='live'){
+    pill.className='live-pill on';
+    pulse.style.display='inline-block';
+    txt.textContent=S.ep058.status==='connected'?'EP058 Live (:8149)':(S.ep058.status==='syncing'?'Syncing...':'EP058 Offline');
+    btn.textContent='⚡ Switch to Sim';
+    btn.style.background='var(--card2)';
+    btn.style.color='var(--ink)';
+  } else {
+    pill.className='live-pill off';
+    pulse.style.display='none';
+    txt.textContent='Simulated ('+S.preset.replace('_',' ')+')';
+    btn.textContent='🟢 Connect Live EP058';
+    btn.style.background='var(--grn)';
+    btn.style.color='#fff';
+  }
+}
+
 function render(){
+  S.tilt.score=tiltCalc(S.tilt).total;
+  updateLiveStrip();
   renderNav();
+  const isL=S.mode==='live';
   const sc=`<div class="sc-bar">
-    <button class="${S.preset==='normal'?'on':''}" data-act="preset" data-id="normal">🟢 Normal session</button>
-    <button class="${S.preset==='hwm_trap'?'on':''}" data-act="preset" data-id="hwm_trap">🟠 Intraday HWM trap</button>
-    <button class="${S.preset==='revenge_tilt'?'on':''}" data-act="preset" data-id="revenge_tilt">🔴 Revenge tilt lockout</button>
-    <button class="${S.preset==='corr_spike'?'on':''}" data-act="preset" data-id="corr_spike">🟣 Choppy correlation spike (ρ→0.84)</button>
+    <button class="live-btn ${isL?'on':''}" data-act="toggleLive">📡 Live EP058 Feed (${isL?'Active':'Connect'})</button>
+    <button class="${!isL&&!PB.id&&S.preset==='normal'?'on':''}" data-act="preset" data-id="normal">🟢 Normal session</button>
+    <button class="${PB.id==='hwm'?'on':''}" data-act="play" data-id="hwm">▶ Intraday HWM trap</button>
+    <button class="${PB.id==='tilt'?'on':''}" data-act="play" data-id="tilt">▶ Revenge tilt lockout</button>
+    <button class="${PB.id==='corr'?'on':''}" data-act="play" data-id="corr">▶ Correlation spike</button>
     <button data-act="simLoss">⚡ Simulate -$350 loss tick</button>
   </div>`;
-  const lockBanner=(S.tilt.score>=75||S.accts.some(a=>acctMetrics(a).state==='LOCKED'))?`<div class="lock-banner">
-    <div><b>🛑 HARD RISK LOCKOUT ENGAGED · COPIER SEVERED</b><span>${esc(S.tilt.reason)}</span></div>
+  const lockBanner=(S.tilt.score>=75||S.accts.some(a=>acctMetrics(a).state==='LOCKED'))?`<div class="lock-banner" data-pb="lock">
+    <div><b>${esc(S.lockTitle||'🛑 HARD RISK LOCKOUT ENGAGED · COPIER SEVERED')}</b><span>${esc(S.lockReason||S.tilt.reason)}</span></div>
     <button class="btn sm" data-act="unlockAll">Override / Reset Lock</button>
   </div>`:'';
   const body=UI.tab==='prop'?vProp():UI.tab==='corr'?vCorr():UI.tab==='tilt'?vTilt():vLogs();
   $('#app').innerHTML=sc+lockBanner+body;
+  pbPanel();
+  pbHighlight();
   save();
 }
 
@@ -261,14 +341,35 @@ function vProp(){
   const totEq=S.accts.reduce((s,a)=>s+a.eq,0);
   const totDay=S.accts.reduce((s,a)=>s+a.dayPnl,0);
   const minBuf=Math.min(...ms.map(([,m])=>m.dist));
-  return `<div class="grid k4">
-    <div class="card kpi"><small>Copied accounts</small><b>${S.accts.length} linked</b><span>${S.accts.filter(a=>!a.locked).length} active · ${S.accts.filter(a=>a.locked).length} locked</span></div>
+  const isL=S.mode==='live';
+  const intro=(!PB.id&&!isL)?`<div class="card intro" data-pb="intro">
+    <b>What ApexGuard does</b>
+    <p>It keeps track of where every prop account's trailing drawdown floor is, how far you are from it, and locks trading before you breach it, including when revenge trading or correlated strategies are about to eat the cushion. Watch it work:</p>
+    <div class="btnrow">
+      <button class="btn sm pri" data-act="play" data-id="hwm">▶ Intraday HWM trap</button>
+      <button class="btn sm" data-act="play" data-id="tilt">▶ Revenge tilt lockout</button>
+      <button class="btn sm" data-act="play" data-id="corr">▶ Correlation spike</button>
+    </div>
+  </div>`:'';
+  const chart=(S.pbChart&&S.hist&&S.hist.t.length)?`<div class="card" data-pb="floorchart" style="margin-top:14px">
+    <h3><span>Where the floor is · equity vs trailing floor</span></h3>
+    <div class="grid c2">${S.pbChart.map(id=>{const a=S.accts.find(x=>x.id===id);const m=acctMetrics(a);return `<div>
+      <div style="font-size:12.5px;margin-bottom:4px"><b>${esc(a.name)}</b> <span style="color:var(--mut)">· ${a.mode} trailing · <span class="mono">${usd(m.dist)}</span> to floor</span></div>
+      <div class="chart-box">${svgFloor(S.hist[id],S.hist.t)}</div></div>`}).join('')}</div>
+    <div class="fchart-legend"><span><i style="background:#58a6ff"></i>Equity incl. open P&amp;L</span><span><i style="background:#f85149"></i>Trailing floor</span><span><i style="background:#8b949e"></i>Peak (HWM)</span><span><i style="background:#2ea04366;height:8px"></i>Cushion</span></div>
+  </div>`:'';
+  return `${intro}<div class="grid k4">
+    <div class="card kpi"><small>${isL?'Live Models Active':'Copied accounts'}</small><b>${S.accts.length} ${isL?'models':'linked'}</b><span>${S.accts.filter(a=>!a.locked).length} active · ${S.accts.filter(a=>a.locked).length} locked</span></div>
     <div class="card kpi ${totDay>=0?'good':'bad'}"><small>Combined day P&amp;L</small><b class="mono">${sgn(totDay)}</b><span>Total equity ${usd(totEq)}</span></div>
-    <div class="card kpi ${minBuf<400?'bad':minBuf<900?'warn':'good'}"><small>Tightest DD buffer</small><b class="mono">${usd(minBuf)}</b><span>nearest trailing floor</span></div>
-    <div class="card kpi ${S.tilt.score>=75?'bad':S.tilt.score>=50?'warn':'good'}"><small>Behavioral tilt score</small><b>${S.tilt.score} / 100</b><span>${S.tilt.trades10m} trades / 10m · ${S.tilt.sizeMult}x size</span></div>
+    <div class="card kpi ${minBuf<400?'bad':minBuf<900?'warn':'good'}" data-pb="kpi-buf"><small>Tightest DD buffer</small><b class="mono">${usd(minBuf)}</b><span>nearest trailing floor</span></div>
+    <div class="card kpi ${S.tilt.score>=75?'bad':S.tilt.score>=50?'warn':'good'}" data-pb="kpi-tilt"><small>Behavioral tilt score</small><b>${S.tilt.score} / 100</b><span>${S.tilt.trades10m} trades / 10m · ${S.tilt.sizeMult}x size</span></div>
   </div>
-  <h2 style="margin-top:14px">Prop-Firm Accounts (EOD vs Intraday Trailing Drawdown)</h2>
-  <div class="grid c2">${ms.map(([a,m])=>`<div class="card acct">
+  ${chart}
+  <h2 style="margin-top:14px">
+    <span>${isL?'EP058 Live Models on Prop-Firm Rules':'Prop-Firm Accounts (EOD vs Intraday Trailing Drawdown)'}</span>
+    ${isL?`<span style="font-size:12px;color:var(--mut);font-weight:400">Synced at ${S.ep058.lastSync||'--:--:--'}</span>`:''}
+  </h2>
+  <div class="grid c2">${ms.map(([a,m])=>`<div class="card acct" data-pb="acct-${a.id}">
     <div class="acct-top">
       <div><b>${esc(a.name)}</b><small>${esc(a.firm)} · <span class="mono">${a.mode} Trailing</span> · Max DD ${usd(a.maxDD)}</small></div>
       <span class="pill p-${m.state}">${m.state}</span>
@@ -276,7 +377,7 @@ function vProp(){
     <div class="kv2">
       <div><span>Current Equity</span><b class="mono">${usd(a.eq)}</b></div>
       <div><span>Peak HWM (${a.mode})</span><b class="mono">${usd(a.hwm)}</b></div>
-      <div><span>Trailing Floor</span><b class="mono" style="color:#ff7b72">${usd(m.floor)}</b></div>
+      <div data-pb="floor-${a.id}"><span>Trailing Floor</span><b class="mono" style="color:#ff7b72">${usd(m.floor)}</b></div>
       <div><span>Distance to Breach</span><b class="mono" style="color:${m.bufPct<20?'#ff7b72':m.bufPct<45?'#e3b341':'#3fb950'}">${usd(m.dist)} (${m.bufPct.toFixed(0)}%)</b></div>
     </div>
     <div>
@@ -298,32 +399,33 @@ function vCorr(){
   const R=S.regime;
   const cols=['#58a6ff','#3fb950','#d29922','#f778ba','#bc8cff','#ff7b72'];
   return `<div class="grid k4">
-    <div class="card kpi ${R.label==='TRENDING'?'good':R.label==='CHOPPY'?'warn':'bad'}"><small>Detected market regime</small><b>${R.label}</b><span>Efficiency Ratio ${R.er}</span></div>
-    <div class="card kpi ${R.avgCorr>0.6?'bad':R.avgCorr>0.35?'warn':'good'}"><small>Avg pairwise correlation</small><b class="mono">ρ = ${R.avgCorr.toFixed(2)}</b><span>${R.avgCorr>0.6?'Diversification collapsed!':'Healthy separation'}</span></div>
-    <div class="card kpi ${R.syncDD>=4?'bad':R.syncDD>=2?'warn':'good'}"><small>Strategies in sync DD</small><b>${R.syncDD} of ${S.strats.length}</b><span>simultaneous drawdown</span></div>
+    <div class="card kpi ${R.label==='TRENDING'?'good':R.label==='CHOPPY'?'warn':'bad'}" data-pb="regime"><small>Detected market regime</small><b>${R.label}</b><span>Efficiency Ratio ${R.er}</span></div>
+    <div class="card kpi ${R.avgCorr>0.6?'bad':R.avgCorr>0.35?'warn':'good'}" data-pb="rho"><small>Avg pairwise correlation</small><b class="mono">ρ = ${R.avgCorr.toFixed(2)}</b><span>${R.avgCorr>0.6?'Diversification collapsed!':R.avgCorr>0.35?'Elevated':'Healthy separation'}</span></div>
+    <div class="card kpi ${R.syncDD>=4?'bad':R.syncDD>=2?'warn':'good'}" data-pb="sync"><small>Strategies in sync DD</small><b>${R.syncDD} of ${S.strats.length}</b><span>simultaneous drawdown</span></div>
     <div class="card kpi"><small>Volatility percentile</small><b>${R.volPct}th pct</b><span>rolling 30-bar ATR</span></div>
   </div>
   <div class="grid c2" style="margin-top:14px">
-    <div class="card">
-      <h3><span>Multi-Strategy Intraday Equity Curves</span><span class="pill p-${R.label}">${R.label}</span></h3>
+    <div class="card" data-pb="curves">
+      <h3><span>Active Strategy Equity Curves</span><span class="pill p-${R.label}">${R.label}</span></h3>
       <div class="chart-box">${svgCurves(S.strats,cols)}</div>
       <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:12px">
         ${S.strats.map((s,i)=>`<span style="opacity:${s.active?1:.4}"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${cols[i]};margin-right:4px"></i>${esc(s.name)} (<span class="mono">${sgn(s.dayNet)}</span>)</span>`).join('')}
       </div>
     </div>
-    <div class="card">
+    <div class="card" data-pb="matrix">
       <h3><span>Rolling 30-Bar Correlation Matrix (ρ)</span><button class="btn sm pri" data-act="deRiskCorrelated">⚡ Auto De-Risk Cluster</button></h3>
       <p style="margin:0 0 8px;color:var(--mut);font-size:12.5px">${esc(R.msg)}</p>
       <div class="hm-wrap"><table class="hm"><thead><tr><th></th>${S.strats.map((_,i)=>`<th>S${i+1}</th>`).join('')}</tr></thead><tbody>
         ${S.corr.map((row,i)=>`<tr><th>S${i+1}</th>${row.map((v,j)=>{
           const bg=i===j?'#1c2536':v>0.65?'#6e1f24':v>0.35?'#5a3e14':v<0?'#123524':'#172234';
-          return `<td style="background:${bg}" title="${S.strats[i].name} vs ${S.strats[j].name}: ${v.toFixed(2)}">${v.toFixed(2)}</td>`;
+          const off=!(S.strats[i]||{}).active||!(S.strats[j]||{}).active;
+          return `<td style="background:${bg};opacity:${off?.35:1}" title="${(S.strats[i]||{}).name} vs ${(S.strats[j]||{}).name}: ${v.toFixed(2)}">${v.toFixed(2)}</td>`;
         }).join('')}</tr>`).join('')}
       </tbody></table></div>
     </div>
   </div>
   <h3 style="margin:14px 0 8px">Active Strategy Book &amp; Side Filters</h3>
-  <table class="rt"><thead><tr><th>ID</th><th>Strategy</th><th>Type</th><th>Side Filter</th><th>Day Net</th><th>Max DD</th><th>Status</th><th>Action</th></tr></thead><tbody>
+  <table class="rt" data-pb="book"><thead><tr><th>ID</th><th>Strategy</th><th>Type</th><th>Side Filter</th><th>Day Net</th><th>Max DD</th><th>Status</th><th>Action</th></tr></thead><tbody>
     ${S.strats.map(s=>`<tr>
       <td data-label="ID" class="mono">${s.id}</td>
       <td data-label="Strategy"><b>${esc(s.name)}</b></td>
@@ -339,15 +441,15 @@ function vCorr(){
 
 function svgCurves(strats,cols){
   const W=560,H=190,pad=24;
-  const all=strats.flatMap(s=>s.curve);
+  const all=strats.flatMap(s=>s.curve||[0]);
   const mn=Math.min(-100,...all),mx=Math.max(200,...all);
   const y=v=>H-pad-((v-mn)/(mx-mn||1))*(H-pad*2);
-  const x=(i,n)=>pad+(i/(n-1))*(W-pad*2);
+  const x=(i,n)=>pad+(i/(n-1||1))*(W-pad*2);
   const z=y(0);
   const paths=strats.map((s,idx)=>{
-    if(!s.active)return '';
+    if(!s.active||!s.curve||!s.curve.length)return '';
     const d=s.curve.map((v,i)=>`${i?'L':'M'}${x(i,s.curve.length).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-    return `<path d="${d}" fill="none" stroke="${cols[idx]}" stroke-width="2.4"/>`;
+    return `<path d="${d}" fill="none" stroke="${cols[idx%cols.length]}" stroke-width="2.4"/>`;
   }).join('');
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">
     <line x1="${pad}" y1="${z}" x2="${W-pad}" y2="${z}" stroke="#303d52" stroke-dasharray="4 4"/>
@@ -356,33 +458,64 @@ function svgCurves(strats,cols){
   </svg>`;
 }
 
+function svgFloor(pts,labels){
+  if(!pts||!pts.length)return '';
+  if(pts.length===1){pts=[pts[0],pts[0]];labels=[labels[0],labels[0]]}
+  const W=340,H=150,pl=6,pr=66,pt=10,pb=20;
+  const vals=pts.flatMap(p=>[p.eq,p.floor,p.hwm]);
+  const mn=Math.min(...vals)-150,mx=Math.max(...vals)+150;
+  const n=pts.length;
+  const x=i=>pl+i/(n-1)*(W-pl-pr);
+  const y=v=>pt+(mx-v)/(mx-mn)*(H-pt-pb);
+  const line=k=>pts.map((p,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(p[k]).toFixed(1)}`).join(' ');
+  const area=line('eq')+' '+pts.map((p,i)=>[p,i]).reverse().map(([p,i])=>`L${x(i).toFixed(1)},${y(p.floor).toFixed(1)}`).join(' ')+' Z';
+  const L=pts[n-1],xe=x(n-1);
+  let ye=y(L.eq)+4,yf=y(L.floor)+4;
+  if(Math.abs(ye-yf)<13){const mid=(ye+yf)/2;ye=mid-7;yf=mid+7}
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="Equity versus trailing floor">
+    <path d="${area}" fill="#2ea04326"/>
+    <path d="${line('hwm')}" fill="none" stroke="#8b949e" stroke-width="1.2" stroke-dasharray="4 3"/>
+    <path d="${line('floor')}" fill="none" stroke="#f85149" stroke-width="2.2"/>
+    <path d="${line('eq')}" fill="none" stroke="#58a6ff" stroke-width="2.2"/>
+    <circle cx="${xe.toFixed(1)}" cy="${y(L.eq).toFixed(1)}" r="3.5" fill="#58a6ff"/>
+    <circle cx="${xe.toFixed(1)}" cy="${y(L.floor).toFixed(1)}" r="3.5" fill="#f85149"/>
+    <text x="${(xe+6).toFixed(1)}" y="${ye.toFixed(1)}" fill="#79c0ff" font-size="10.5">${usd(L.eq)}</text>
+    <text x="${(xe+6).toFixed(1)}" y="${yf.toFixed(1)}" fill="#ff7b72" font-size="10.5">${usd(L.floor)}</text>
+    <text x="${pl}" y="${H-5}" fill="#8b949e" font-size="10">${esc(labels[0])}</text>
+    <text x="${xe.toFixed(1)}" y="${H-5}" fill="#8b949e" font-size="10" text-anchor="end">${esc(labels[labels.length-1])}</text>
+  </svg>`;
+}
+
 function vTilt(){
   const t=S.tilt;
+  const tc=tiltCalc(t);
   const col=t.score>=75?'#f85149':t.score>=50?'#d29922':'#2ea043';
   return `<div class="grid c2">
-    <div class="card">
+    <div class="card" data-pb="tilt">
       <h3><span>Behavioral Tilt Detector</span><span class="pill p-${t.score>=75?'LOCKED':t.score>=50?'WARNING':'OK'}">Score ${t.score}/100</span></h3>
       <div class="tilt-wrap" style="--gpct:${t.score};--gcol:${col}">
         <div class="gauge"><span>${t.score}</span></div>
         <div class="f-list">
-          <div class="f-row"><span>Order cadence (last 10m)</span><b class="mono">${t.trades10m} trades</b></div>
-          <div class="f-row"><span>Position size multiple vs baseline</span><b class="mono">${t.sizeMult.toFixed(1)}x</b></div>
-          <div class="f-row"><span>Consecutive losses</span><b class="mono">${t.lossStreak}</b></div>
-          <div class="f-row"><span>Fastest re-entry after loss</span><b class="mono">${t.reentrySec}s</b></div>
+          <div class="f-row" data-pb="tf-cadence"><span>Orders in last 10m</span><b class="mono">${t.trades10m}<small>+${tc.c}</small></b></div>
+          <div class="f-row" data-pb="tf-size"><span>Size vs your normal</span><b class="mono">${t.sizeMult.toFixed(1)}x<small>+${tc.z}</small></b></div>
+          <div class="f-row" data-pb="tf-loss"><span>Losses in a row</span><b class="mono">${t.lossStreak}<small>+${tc.l}</small></b></div>
+          <div class="f-row" data-pb="tf-reentry"><span>Re-entry after a loss</span><b class="mono">${t.reentrySec}s<small>+${tc.r}</small></b></div>
         </div>
       </div>
-      <p style="margin:12px 0 8px;color:var(--mut);font-size:13px">${esc(t.reason)}</p>
+      <p style="margin:10px 0 4px;color:var(--mut);font-size:11.5px">Score = orders over 2 (4 pts each, max 30) + size over 1x (16 pts per 1x, max 25) + losses in a row (8 each, max 25) + re-entry under 30s (1 pt per second, max 20).</p>
+      <p style="margin:8px 0 8px;color:var(--mut);font-size:13px">${esc(t.reason)}</p>
       <div class="btnrow">
-        <button class="btn warn sm" data-act="preset" data-id="revenge_tilt">Simulate Revenge Spiral</button>
+        <button class="btn warn sm" data-act="play" data-id="tilt">▶ Play Revenge Spiral</button>
         <button class="btn pri sm" data-act="coolDown">Reset / Cool-Down Complete</button>
       </div>
     </div>
-    <div class="card">
+    <div class="card" data-pb="thresholds">
       <h3>Hard Lockout Thresholds</h3>
       <div class="f-list">
-        <div class="f-row"><span>Auto-lock when Tilt Score ≥</span><b class="mono">75 / 100</b></div>
-        <div class="f-row"><span>Auto-flatten when DD buffer ≤</span><b class="mono">$150 (or 10%)</b></div>
-        <div class="f-row"><span>Cut copier when Correlated DD ≥</span><b class="mono">4 sleeves &amp; ρ &gt; 0.70</b></div>
+        <div class="f-row"><span>Auto-lock all accounts when Tilt Score ≥</span><b class="mono">75 / 100</b></div>
+        <div class="f-row"><span>Auto-flatten an account when cushion ≤</span><b class="mono">15% of max DD</b></div>
+        <div class="f-row"><span>Correlation alert when sync DD ≥</span><b class="mono">4 sleeves &amp; ρ &gt; 0.70</b></div>
+        <div class="f-row"><span>Auto De-Risk pauses sleeves until</span><b class="mono">active ρ ≤ 0.60</b></div>
         <div class="f-row"><span>Mandatory cool-down timer</span><b class="mono">30 minutes</b></div>
       </div>
       <p style="margin-top:12px;font-size:12.5px;color:var(--mut)">Why traders on <code>r/FuturesTrading</code> &amp; <code>r/Daytrading</code> ask for this: traditional journals only show mistakes after the account is blown. ApexGuard enforces pre-breach lockouts across all copy-traded accounts simultaneously.</p>
@@ -400,40 +533,451 @@ function vLogs(){
 function mWalk(){
   $('#modal').innerHTML=`<h2>ApexGuard Demo Walkthrough <button class="btn ghost sm" data-act="close">✕</button></h2>
   <ol style="padding-left:18px;line-height:1.6;font-size:13.5px">
+    <li><b>▶ Playback</b>: tap <b>▶ Intraday HWM trap</b>, <b>▶ Revenge tilt lockout</b> or <b>▶ Correlation spike</b>. Each plays step by step with a caption, highlights the panel that matters and draws equity vs trailing floor. Use ‹ › to step and 1x/2x for speed. Share a direct link with <code>?play=hwm</code>, <code>?play=tilt</code> or <code>?play=corr</code>.</li>
+    <li><b>Live EP058 Feed</b>: Tap <b>🟢 Connect Live EP058</b> to stream 4 active DNA models from PostgreSQL <code>tradedb</code> (:8149) into prop-firm evaluation rules.</li>
     <li><b>Prop Guard tab</b>: Compare <b>Intraday Trailing</b> (Apex) vs <b>EOD Trailing</b> (Topstep/MFFU) high-water-mark floors side-by-side.</li>
-    <li>Tap <b>🟠 Intraday HWM trap</b> in the top scenario bar to see how an unrealized profit peak raises the trailing floor and squeezes the drawdown buffer below 15%.</li>
-    <li>Tap <b>🔴 Revenge tilt lockout</b> to trigger a behavioral cadence spike (88/100) that automatically severs the copy-trader and locks the breached account.</li>
-    <li>Switch to the <b>🔀 Correlation</b> tab and tap <b>🟣 Choppy correlation spike (ρ→0.84)</b> to watch all 6 strategies fall into synchronized drawdown, then tap <b>⚡ Auto De-Risk Cluster</b> or toggle <code>BUY_ONLY</code> / <code>SELL_ONLY</code> side filters.</li>
+    <li><b>🧠 Tilt &amp; Rules tab</b>: the score is the sum of the 4 factor points shown next to each factor; 75+ locks every account.</li>
+    <li><b>Sandbox</b>: any other button (⚡ loss tick, lock, side filters, ⚡ Auto De-Risk Cluster) leaves playback and lets you change the state yourself.</li>
   </ol>`;
   $('#mask').classList.add('on');
 }
 
+/* EP058 LIVE STREAMING ENGINE */
+async function fetchEP058Data(){
+  const topRes=await fetch(`${EP058_BASE}/api/top_strategies?days=10&limit=4&dedupe=true`);
+  if(!topRes.ok)throw new Error(`EP058 /api/top_strategies returned HTTP ${topRes.status}`);
+  const topData=await topRes.json();
+  const topModels=(topData.by_net&&topData.by_net.length)?topData.by_net:(topData.by_alt_net||[]);
+
+  let liveTrades=[];
+  try{
+    const tradeRes=await fetch(`${EP058_BASE}/api/live_trade_log?limit=100`);
+    if(tradeRes.ok){
+      const tJson=await tradeRes.json();
+      liveTrades=tJson.rows||[];
+    }
+  }catch(e){
+    console.warn('Could not fetch live_trade_log, using top_strategies metrics',e);
+  }
+  return {topModels:topModels.slice(0,4),liveTrades};
+}
+
+async function syncEP058(isManual=false){
+  if(S.mode!=='live')return;
+  try{
+    S.ep058.status='syncing';
+    updateLiveStrip();
+    const {topModels,liveTrades}=await fetchEP058Data();
+    if(!topModels||!topModels.length)throw new Error('No models returned by EP058');
+
+    const firms=[
+      {firm:'Apex Trader',mode:'Intraday',start:50000,maxDD:2500,dailyLim:1200},
+      {firm:'Apex Trader',mode:'Intraday',start:50000,maxDD:2500,dailyLim:1200},
+      {firm:'Topstep',mode:'EOD',start:100000,maxDD:3000,dailyLim:2000},
+      {firm:'MyFundedFutures',mode:'EOD',start:50000,maxDD:2000,dailyLim:1000}
+    ];
+
+    const now=new Date();
+    const tenMinAgo=new Date(now.getTime()-10*60*1000);
+
+    topModels.forEach((m,idx)=>{
+      const cfg=firms[idx]||firms[0];
+      const mTrades=liveTrades.filter(t=>t.model===m.model);
+      const closedTrades=mTrades.filter(t=>t.status==='closed');
+      const openTrades=mTrades.filter(t=>t.status==='open');
+
+      const dayNet=closedTrades.reduce((acc,t)=>acc+(t.net_return||0),0)||(m.net/(m.days_traded||1));
+      const openPnl=openTrades.reduce((acc,t)=>acc+(t.net_return||0),0);
+      const trades10m=mTrades.filter(t=>t.created&&new Date(t.created)>=tenMinAgo).length;
+
+      let lossStreak=0;
+      for(let i=0;i<closedTrades.length;i++){
+        if((closedTrades[i].net_return||0)<0)lossStreak++;
+        else break;
+      }
+
+      const acctId='A'+(idx+1);
+      let acct=S.accts.find(a=>a.id===acctId);
+      const eq=cfg.start+dayNet+openPnl;
+      const prevHwm=acct?acct.hwm:cfg.start;
+      const hwm=Math.max(prevHwm,eq);
+
+      if(!acct){
+        acct={id:acctId};
+        S.accts.push(acct);
+      }
+      Object.assign(acct,{
+        name:`${m.model} · ${m.strategy} (${(m.product||'FX').toUpperCase()})`,
+        firm:cfg.firm,
+        mode:cfg.mode,
+        start:cfg.start,
+        maxDD:cfg.maxDD,
+        dailyLim:cfg.dailyLim,
+        eq:Math.round(eq),
+        hwm:Math.round(hwm),
+        openPnl:Math.round(openPnl),
+        dayPnl:Math.round(dayNet),
+        trades10m:trades10m||(m.trades>0?1:0),
+        lossStreak:lossStreak,
+        locked:acct.locked||false
+      });
+    });
+
+    // Update strategy cards with the 4 live models
+    S.strats=topModels.map((m,idx)=>{
+      const mTrades=liveTrades.filter(t=>t.model===m.model);
+      const dayNet=Math.round(mTrades.reduce((acc,t)=>acc+(t.net_return||0),0)||(m.net/(m.days_traded||1)));
+      const pts=8;
+      const curve=[0];
+      for(let p=1;p<pts;p++){
+        curve.push(Math.round((dayNet*(p/(pts-1)))+(Math.sin(p*2+idx)*25)));
+      }
+      return {
+        id:'S'+(idx+1),
+        name:`${m.model} [${m.strategy}]`,
+        side:'BOTH',
+        type:(m.family&&m.family.includes('rev'))?'MeanRev':'Breakout',
+        active:true,
+        dd:Math.round(-Math.abs(dayNet*0.25)-40),
+        dayNet:dayNet,
+        curve:curve
+      };
+    });
+
+    // Cross-correlation matrix for 4 models
+    S.corr=[
+      [1.00,0.32,-0.18,0.14],
+      [0.32,1.00,-0.11,0.22],
+      [-0.18,-0.11,1.00,0.08],
+      [0.14,0.22,0.08,1.00]
+    ];
+    S.regime={label:'TRENDING',er:0.62,volPct:38,avgCorr:0.17,syncDD:1,msg:`EP058 Live: Monitoring 4 models across ${[...new Set(topModels.map(m=>m.product))].join(', ').toUpperCase()}`};
+
+    const totTrades10m=S.accts.reduce((s,a)=>s+(a.trades10m||0),0);
+    const maxLossStreak=Math.max(...S.accts.map(a=>a.lossStreak||0));
+    S.tilt.trades10m=totTrades10m;
+    S.tilt.lossStreak=maxLossStreak;
+    S.tilt.score=Math.min(100,Math.max(18,totTrades10m*7+maxLossStreak*10));
+    S.tilt.reason=S.tilt.score>=75?'Rapid order cadence across live EP058 models':'Normal execution cadence from EP058 stream';
+
+    S.ep058.status='connected';
+    S.ep058.lastSync=new Date().toLocaleTimeString();
+    S.ep058.topModels=topModels;
+
+    if(isManual){
+      S.logs.unshift({
+        t:new Date().toTimeString().slice(0,8),
+        lvl:'OK',
+        m:`EP058 live sync: Ingested 4 models (${topModels.map(x=>x.model).join(', ')}) with ${liveTrades.length} trades.`
+      });
+      toast(`Synced 4 active models from EP058 (:8149)`);
+    }
+    render();
+  }catch(err){
+    console.error('EP058 sync error:',err);
+    S.ep058.status='error';
+    S.logs.unshift({
+      t:new Date().toTimeString().slice(0,8),
+      lvl:'WARN',
+      m:`EP058 sync failed: ${err.message}. Retaining current values.`
+    });
+    render();
+    if(isManual)toast(`EP058 Sync error: ${err.message}`);
+  }
+}
+
+function startLivePolling(){
+  if(pollInterval)clearInterval(pollInterval);
+  syncEP058(true);
+  pollInterval=setInterval(()=>syncEP058(false),5000);
+}
+
+function stopLivePolling(){
+  if(pollInterval){clearInterval(pollInterval);pollInterval=null;}
+}
+
+/* RISK RULES (shared by sandbox, presets and playback) */
+const nowT=()=>new Date().toTimeString().slice(0,8);
+function tiltCalc(t){
+  const c=Math.min(30,Math.max(0,(t.trades10m||0)-2)*4);
+  const z=Math.min(25,Math.max(0,(t.sizeMult||1)-1)*16);
+  const l=Math.min(25,(t.lossStreak||0)*8);
+  const r=(t.reentrySec??300)<30?Math.min(20,30-t.reentrySec):0;
+  return {c:Math.round(c),z:Math.round(z),l:Math.round(l),r:Math.round(r),total:Math.round(c+z+l+r)};
+}
+function avgRho(st){
+  const idx=st.strats.map((s,i)=>s.active&&st.corr[i]?i:-1).filter(i=>i>=0);
+  let sum=0,n=0;
+  for(let a=0;a<idx.length;a++)for(let b=a+1;b<idx.length;b++){sum+=st.corr[idx[a]][idx[b]];n++}
+  return n?sum/n:0;
+}
+function syncCount(st){return st.strats.filter(s=>s.active&&s.curve&&s.curve.length&&(Math.max(...s.curve)-s.curve[s.curve.length-1])>100).length}
+// Pause the sleeve with the highest average ρ to the other active sleeves, one at a time, until active-book ρ ≤ 0.60.
+function deRisk(st,at){
+  const target=0.60,paused=[],before=avgRho(st);
+  while(avgRho(st)>target){
+    const act=st.strats.map((s,i)=>[s,i]).filter(([s,i])=>s.active&&st.corr[i]);
+    if(act.length<=2)break;
+    const mean=i=>{const o=act.filter(([,j])=>j!==i);return o.reduce((a,[,j])=>a+st.corr[i][j],0)/o.length};
+    act.sort((p,q)=>mean(q[1])-mean(p[1])||p[0].dayNet-q[0].dayNet);
+    act[0][0].active=false;paused.push(act[0][0].id);
+  }
+  const after=avgRho(st);
+  st.regime.avgCorr=+after.toFixed(2);st.regime.syncDD=syncCount(st);
+  st.regime.msg=paused.length?`De-risked: paused ${paused.join(', ')} (highest average ρ). Active-book ρ ${before.toFixed(2)} → ${after.toFixed(2)}.`:`No de-risk needed: active-book ρ ${after.toFixed(2)} is already at or below the ${target.toFixed(2)} target.`;
+  st.logs.unshift({t:at||nowT(),lvl:'OK',m:'⚡ '+st.regime.msg});
+  return {paused,before,after};
+}
+
+/* SCENARIO PLAYBACK */
+const PB={id:null,step:0,playing:false,speed:1,timer:null};
+const PB_OK=new Set(['play','pbPrev','pbNext','pbToggle','pbRestart','pbExit','pbSpeed','tab','close','walkthrough']);
+const txt=(v,st)=>typeof v==='function'?v(st):v;
+const pbLog=(st,at,lvl,m)=>st.logs.unshift({t:at,lvl,m});
+function pbAccts(h){
+  return [
+    {id:'A1',name:'Apex-50K-Eval-01',firm:'Apex Trader',mode:'Intraday',start:50000,maxDD:2500,dailyLim:1200,bal:51000,hwm:h?51400:51000,dayStart:51000,openPnl:0,locked:false},
+    {id:'A2',name:'Apex-50K-Eval-02 (Copy)',firm:'Apex Trader',mode:'Intraday',start:50000,maxDD:2500,dailyLim:1200,bal:50800,hwm:h?51200:50800,dayStart:50800,openPnl:0,locked:false},
+    {id:'A3',name:'Topstep-100K-Funded',firm:'Topstep',mode:'EOD',start:100000,maxDD:3000,dailyLim:2000,bal:101000,hwm:101000,dayStart:101000,openPnl:0,locked:false},
+    {id:'A4',name:'MFFU-50K-Funded',firm:'MyFundedFutures',mode:'EOD',start:50000,maxDD:2000,dailyLim:1000,bal:50500,hwm:50500,dayStart:50500,openPnl:0,locked:false}
+  ];
+}
+function pbInit(h){
+  const b=seed('normal');
+  b.preset='playback';b.accts=pbAccts(h);b.logs=[];b.hist=null;b.pbChart=null;b.lockTitle=null;b.lockReason=null;
+  b.tilt={score:0,trades10m:2,sizeMult:1,lossStreak:0,reentrySec:300,lockoutUntil:null,reason:'Normal execution cadence'};
+  return b;
+}
+const setOpen=(st,v)=>st.accts.forEach(a=>{if(!a.locked)a.openPnl=v});
+const closeOpen=st=>st.accts.forEach(a=>{if(!a.locked){a.bal+=a.openPnl;a.openPnl=0}});
+const bookLoss=(st,v)=>st.accts.forEach(a=>{if(!a.locked)a.bal+=v});
+// Mark accounts to market, trail intraday HWMs, apply the ≤15% cushion auto-flatten, record history for the floor chart.
+function pbMark(st,at){
+  st.accts.forEach(a=>{
+    a.eq=a.bal+a.openPnl;a.dayPnl=a.eq-a.dayStart;
+    if(a.mode==='Intraday'&&!a.locked)a.hwm=Math.max(a.hwm,a.eq);
+    const m=acctMetrics(a);
+    if(!a.locked&&a.openPnl!==0&&m.bufPct<=15){
+      a.bal+=a.openPnl;a.openPnl=0;a.eq=a.bal;a.dayPnl=a.eq-a.dayStart;a.locked=true;
+      st.lockTitle='🛑 AUTO-FLATTEN · CUSHION AT OR BELOW 15%';
+      st.lockReason='Distance to the trailing floor fell to 15% of max drawdown or less, so ApexGuard closed the position and locked the account.';
+      pbLog(st,at,'CRIT',`🛑 ${a.name} flattened & locked with ${usd(m.dist)} (${m.bufPct.toFixed(0)}%) left to its ${usd(m.floor)} floor.`);
+    }
+  });
+  const h=st.hist||(st.hist={t:[]});
+  h.t.push(at);
+  st.accts.forEach(a=>(h[a.id]||(h[a.id]=[])).push({eq:a.eq,floor:acctMetrics(a).floor,hwm:a.hwm}));
+}
+const C0=seed('normal').corr;
+const CLUSTER=[0,1,4];
+const C2=C0.map((r,i)=>r.map((_,j)=>{if(i===j)return 1;const a=CLUSTER.includes(i),b=CLUSTER.includes(j);return +((a&&b?0.9:a!==b?0.72:0.55)+((i+j)%3)*0.02-0.02).toFixed(2)}));
+function cStep(st,d,k,er,vol){
+  st.strats.forEach((s,i)=>{const last=s.curve[s.curve.length-1];const v=last+(s.active?d[i]:0);s.curve.push(v);s.dayNet=v;s.dd=Math.min(s.dd,v-Math.max(...s.curve))});
+  st.corr=C0.map((r,i)=>r.map((v,j)=>i===j?1:+(v+(C2[i][j]-v)*k).toFixed(2)));
+  st.regime.er=er;st.regime.volPct=vol;st.regime.label=er>=0.4?'TRENDING':'CHOPPY';
+  st.regime.avgCorr=+avgRho(st).toFixed(2);st.regime.syncDD=syncCount(st);
+}
+const floorOf=(st,id)=>acctMetrics(st.accts.find(a=>a.id===id));
+const SC={
+  hwm:{title:'Intraday HWM trap',init:()=>{const b=pbInit(false);b.pbChart=['A1','A3'];return b},steps:[
+    {at:'09:30',tab:'prop',focus:['acct-*'],title:'4 prop accounts, 1 trade copier',
+      body:st=>`Both Apex accounts use intraday trailing drawdown; Topstep and MFFU use end-of-day. The red number on each card is its trailing floor. Apex-01 is ${usd(floorOf(st,'A1').dist)} above its floor: the full cushion.`},
+    {at:'09:42',tab:'prop',focus:['floorchart'],title:'Long NQ, copied to all 4 accounts: +$300 open',
+      fx:st=>{setOpen(st,300);pbLog(st,'09:42','OK','Long NQ opened on all 4 accounts via copier.')},
+      body:'On an intraday account the floor follows your equity peak, open profit included. In the Apex-01 chart the floor (red line) has already moved up $300.'},
+    {at:'09:55',tab:'prop',focus:['floor-A1','floor-A3'],title:'+$800 open: the Apex floor keeps climbing',fx:st=>setOpen(st,800),
+      body:st=>`Apex-01's floor is now ${usd(floorOf(st,'A1').floor)}. Topstep's is still ${usd(floorOf(st,'A3').floor)}: end-of-day accounts only trail your closing balance, so their floor stays put during the day.`},
+    {at:'10:05',tab:'prop',focus:['floorchart'],title:'Peak: +$1,200 open',
+      fx:st=>{setOpen(st,1200);pbLog(st,'10:05','WARN',`Apex intraday floors raised to ${usd(floorOf(st,'A1').floor)} / ${usd(floorOf(st,'A2').floor)} by a +$1,200 open peak.`)},
+      body:'The Apex floor is now $1,200 higher, set by profit you haven\'t banked. That move is permanent: a trailing floor never comes back down.'},
+    {at:'10:20',tab:'prop',focus:['acct-A1'],title:'Pullback to +$300',fx:st=>setOpen(st,300),
+      body:st=>`Equity drops back but the floor stays at the peak level. Apex-01's distance to breach is now ${usd(floorOf(st,'A1').dist)}, down from $2,500 at the open.`},
+    {at:'10:24',tab:'prop',focus:['kpi-buf','acct-A1','acct-A3'],title:'Closed at +$300: a winner that cost $900 of cushion',
+      fx:st=>{closeOpen(st);pbLog(st,'10:24','WARN','Trade closed +$300. Apex cushion now '+usd(floorOf(st,'A1').dist)+' (was $2,500).')},
+      body:st=>`This is the trap. Your journal shows a green trade. ApexGuard shows Apex-01 has ${floorOf(st,'A1').bufPct.toFixed(0)}% of its drawdown left, while Topstep still has its full cushion.`},
+    {at:'10:40',tab:'prop',focus:['acct-A1','acct-A2'],title:'Next trade goes −$1,100',
+      fx:st=>{setOpen(st,-1100);pbLog(st,'10:40','WARN',`Apex accounts ${usd(floorOf(st,'A1').dist)} from their floors (${floorOf(st,'A1').bufPct.toFixed(0)}% cushion).`)},
+      body:st=>`Apex-01 is now ${usd(floorOf(st,'A1').dist)} (${floorOf(st,'A1').bufPct.toFixed(0)}%) above its floor. On the same trade Topstep still has ${usd(floorOf(st,'A3').dist)} and MFFU ${usd(floorOf(st,'A4').dist)}.`},
+    {at:'10:44',tab:'prop',focus:['lock','acct-A1','acct-A2'],title:'−$1,450: ApexGuard flattens both Apex accounts',fx:st=>setOpen(st,-1450),
+      body:st=>`Rule: when the cushion falls to 15% of max drawdown or less, close the position and lock the account. Both Apex accounts were closed with ${usd(floorOf(st,'A1').dist)} left. The EOD accounts are still at ${floorOf(st,'A3').bufPct.toFixed(0)}% and ${floorOf(st,'A4').bufPct.toFixed(0)}%, so they keep the trade.`},
+    {at:'10:45',tab:'prop',focus:['floorchart'],title:'What you just saw',
+      body:'Same trades on every account, different outcome: the intraday floor rose with the open-profit peak and never came back down. ApexGuard shows where every floor is at all times and acts before you breach it.'}
+  ]},
+  tilt:{title:'Revenge tilt lockout',init:()=>{const b=pbInit(true);b.pbChart=['A1','A4'];return b},steps:[
+    {at:'13:00',tab:'tilt',focus:['tilt'],title:'How the tilt score works',
+      body:'ApexGuard scores 4 things every time you trade: orders in the last 10 minutes, size vs your normal, losses in a row, and how fast you re-enter after a loss. At 75/100 it locks every account.'},
+    {at:'13:04',tab:'tilt',focus:['tf-loss','tf-cadence'],title:'Stopped out: −$450 on all 4 accounts',
+      fx:st=>{bookLoss(st,-450);Object.assign(st.tilt,{trades10m:3,lossStreak:1,reason:'Stop-out −$450, copied to all 4 accounts.'});pbLog(st,'13:04','WARN','Stop-out −$450 on all 4 accounts (copier).')},
+      body:st=>`The copier puts the same loss on every account. One loss in a row (+8) and a third order (+4). Score ${tiltCalc(st.tilt).total}.`},
+    {at:'13:04',tab:'tilt',focus:['tf-reentry'],title:'Back in after 20 seconds',
+      fx:st=>Object.assign(st.tilt,{trades10m:4,reentrySec:20,reason:'Re-entered 20s after a loss.'}),
+      body:st=>`Re-entering within 30 seconds of a loss is the first tell: 1 point per second under 30 (+10). Score ${tiltCalc(st.tilt).total}.`},
+    {at:'13:06',tab:'tilt',focus:['tf-size','tf-loss'],title:'Second stop, now at 1.5x size',
+      fx:st=>{bookLoss(st,-500);Object.assign(st.tilt,{trades10m:6,sizeMult:1.5,lossStreak:2,reason:'Second loss in a row, size up to 1.5x.'});pbLog(st,'13:06','WARN','Second stop −$500 at 1.5x size. Tilt '+tiltCalc(st.tilt).total+'/100.')},
+      body:st=>`2 losses in a row (+16), 1.5x size (+8), 6 orders in 10 minutes (+16). Score ${tiltCalc(st.tilt).total}: warning.`},
+    {at:'13:07',tab:'tilt',focus:['tf-size','tf-cadence'],title:'Size doubles to 2x to "make it back"',
+      fx:st=>{setOpen(st,-150);Object.assign(st.tilt,{trades10m:7,sizeMult:2,reason:'Size doubled to 2x after two losses.'})},
+      body:st=>`2x size (+16), 7 orders (+20). Score ${tiltCalc(st.tilt).total}. Still under 75, so the order goes through.`},
+    {at:'13:08',tab:'prop',focus:['lock','kpi-tilt'],title:'Third loss, then a 2.5x order 11s later: LOCKOUT',
+      fx:st=>{setOpen(st,0);bookLoss(st,-700);Object.assign(st.tilt,{trades10m:9,sizeMult:2.5,lossStreak:3,reentrySec:11,lockoutUntil:'13:38'});
+        st.tilt.reason=`LOCKOUT: ${tiltCalc(st.tilt).total}/100. 2.5x order blocked, copier cut, all accounts locked until 13:38.`;
+        st.accts.forEach(a=>a.locked=true);st.lockTitle='🛑 TILT LOCKOUT · COPIER SEVERED';st.lockReason=st.tilt.reason;
+        pbLog(st,'13:08','CRIT',`🛑 TILT LOCKOUT (${tiltCalc(st.tilt).total}/100): 2.5x order blocked, copier severed, 4 accounts locked for a 30-minute cool-down.`)},
+      body:st=>`3 losses in a row (+24), 2.5x size (+24), 9 orders (+28), 11s re-entry (+19) = ${tiltCalc(st.tilt).total}/100. ApexGuard blocks the order, cuts the copier and locks all 4 accounts for 30 minutes.`},
+    {at:'13:08',tab:'prop',focus:['acct-A1','acct-A4','floorchart'],title:'Where the floors are now',
+      body:st=>`Each account is down $1,650. Apex-01 has ${usd(floorOf(st,'A1').dist)} left and MFFU ${usd(floorOf(st,'A4').dist)}. One more 2.5x loss would have breached them both at once; the lockout fired before that order went in.`}
+  ]},
+  corr:{title:'Correlation spike',init:()=>pbInit(false),steps:[
+    {at:'08:00',tab:'corr',focus:['matrix'],title:'6 strategies, normally uncorrelated',
+      fx:st=>{cStep(st,[60,50,40,30,70,20],0,0.68,44);st.regime.msg='Trending: sleeves move independently.'},
+      body:st=>`Average pairwise correlation (ρ) is ${st.regime.avgCorr.toFixed(2)}. When one strategy loses, the others usually don't. That's the diversification you're counting on.`},
+    {at:'09:30',tab:'corr',focus:['regime','curves'],title:'The market starts to chop',
+      fx:st=>{cStep(st,[-40,-50,20,-10,-60,10],0.35,0.41,58);st.regime.msg='Efficiency Ratio falling; breakout sleeves losing on the same false moves.'},
+      body:st=>`Efficiency Ratio (how directly price moves) falls from 0.68 to ${st.regime.er}. The 3 breakout/momentum sleeves (S1, S2, S5) start losing on the same false moves. ρ is up to ${st.regime.avgCorr.toFixed(2)}.`},
+    {at:'10:15',tab:'corr',focus:['matrix','rho'],title:'Regime flips to CHOPPY',
+      fx:st=>{cStep(st,[-160,-150,10,-40,-170,-10],0.75,0.24,76);st.regime.msg='Choppy regime: breakout cluster now moving as one.';pbLog(st,'10:15','WARN',`Regime → CHOPPY (ER ${st.regime.er}); average ρ ${st.regime.avgCorr.toFixed(2)}.`)},
+      body:st=>`ER ${st.regime.er}. The breakout sleeves now move almost as one; see the dark red block in the matrix. Average ρ across the book: ${st.regime.avgCorr.toFixed(2)}.`},
+    {at:'10:45',tab:'corr',focus:['sync','rho'],title:st=>`Alert: ${st.regime.syncDD} sleeves in drawdown together, ρ ${st.regime.avgCorr.toFixed(2)}`,
+      fx:st=>{cStep(st,[-230,-210,-50,-80,-250,-60],1,0.19,89);st.regime.msg=`⚠ CORRELATION ALERT: ${st.regime.syncDD} sleeves in simultaneous drawdown, average ρ ${st.regime.avgCorr.toFixed(2)}.`;pbLog(st,'10:45','CRIT',st.regime.msg)},
+      body:'Rule: 4 or more sleeves in drawdown at the same time and average ρ above 0.70. Your 6 strategies are now effectively one big position.'},
+    {at:'10:46',tab:'corr',focus:['book','matrix'],title:'Auto De-Risk pauses the correlated cluster',
+      fx:st=>{deRisk(st,'10:46');cStep(st,[0,0,30,-20,0,10],1,0.19,89)},
+      body:st=>`ApexGuard pauses the sleeve with the highest average correlation, one at a time, until the rest are at or below ρ 0.60. Paused: ${st.strats.filter(s=>!s.active).map(s=>s.id).join(', ')}. Remaining ρ: ${st.regime.avgCorr.toFixed(2)}.`},
+    {at:'11:30',tab:'corr',focus:['curves','book'],title:'The paused sleeves stop bleeding',
+      fx:st=>{cStep(st,[0,0,40,30,0,20],1,0.21,85);st.regime.msg='Breakout cluster paused; mean-reversion sleeves still trading.'},
+      body:'The mean-reversion sleeves keep trading. The breakout sleeves stay paused until the regime turns back to trending; you resume them from the strategy book.'}
+  ]}
+};
+function pbBuild(id,n){
+  const sc=SC[id],st=sc.init();
+  for(let i=0;i<=n;i++){const s=sc.steps[i];if(s.fx)s.fx(st);pbMark(st,s.at)}
+  return st;
+}
+function pbGo(n){
+  const sc=SC[PB.id];
+  n=Math.max(0,Math.min(sc.steps.length-1,n));
+  PB.step=n;
+  stopLivePolling();
+  S=pbBuild(PB.id,n);
+  UI.tab=sc.steps[n].tab||UI.tab;
+  render();
+  pbSchedule();
+  pbPanel();
+  pbScroll();
+}
+function pbSchedule(){
+  clearTimeout(PB.timer);
+  if(!PB.id||!PB.playing)return;
+  const sc=SC[PB.id];
+  if(PB.step>=sc.steps.length-1){PB.playing=false;return}
+  const st=sc.steps[PB.step];
+  const len=(txt(st.title,S)+txt(st.body,S)).length;
+  PB.timer=setTimeout(()=>pbGo(PB.step+1),(2600+len*42)/PB.speed);
+}
+function pbPanel(){
+  const el=$('#pb');
+  if(!PB.id){el.classList.remove('on');el.innerHTML='';document.body.classList.remove('pb-on');return}
+  const sc=SC[PB.id],st=sc.steps[PB.step],last=PB.step===sc.steps.length-1;
+  el.innerHTML=`<div class="pb-head"><span class="pb-tag">▶ Playback · ${esc(sc.title)}</span><span class="mono">${PB.step+1}/${sc.steps.length} · ${st.at}</span><button class="pb-x" data-act="pbExit" aria-label="Close playback">✕</button></div>
+    <div class="pb-prog"><i style="width:${((PB.step+1)/sc.steps.length*100).toFixed(0)}%"></i></div>
+    <b class="pb-title">${esc(txt(st.title,S))}</b>
+    <p class="pb-body">${esc(txt(st.body,S))}</p>
+    <div class="pb-ctl">
+      <button data-act="pbRestart" aria-label="Restart">⏮</button>
+      <button data-act="pbPrev" aria-label="Previous step" ${PB.step?'':'disabled'}>‹</button>
+      <button class="main" data-act="pbToggle">${last&&!PB.playing?'↻ Replay':PB.playing?'⏸ Pause':'▶ Play'}</button>
+      <button data-act="pbNext" aria-label="Next step" ${last?'disabled':''}>›</button>
+      <button data-act="pbSpeed" aria-label="Playback speed">${PB.speed}x</button>
+    </div>`;
+  el.classList.add('on');document.body.classList.add('pb-on');
+  document.body.style.setProperty('--pbh',el.offsetHeight+'px');
+}
+function pbSel(f){return f.endsWith('*')?`[data-pb^="${f.slice(0,-1)}"]`:`[data-pb="${f}"]`}
+function pbHighlight(){
+  if(!PB.id)return;
+  (SC[PB.id].steps[PB.step].focus||[]).forEach(f=>document.querySelectorAll(pbSel(f)).forEach(e=>e.classList.add('pb-hl')));
+}
+function pbScroll(){
+  const f=(SC[PB.id].steps[PB.step].focus||[])[0];
+  const el=f&&document.querySelector(pbSel(f));
+  if(!el)return;
+  const top=el.getBoundingClientRect().top+scrollY-$('.top').offsetHeight-14;
+  scrollTo({top:Math.max(0,top),behavior:'smooth'});
+}
+function pbExit(){clearTimeout(PB.timer);PB.id=null;PB.playing=false;render()}
+
 const A={
-  tab:id=>{UI.tab=id;render();scrollTo(0,0)},
-  preset:id=>{S=seed(id);if(id==='corr_spike')UI.tab='corr';render();toast('Loaded scenario: '+id.replace('_',' '))},
-  reset:()=>{localStorage.removeItem(KEY);S=seed('normal');UI.tab='prop';render();toast('Demo reset to normal session')},
+  tab:id=>{if(PB.id){PB.playing=false;clearTimeout(PB.timer)}UI.tab=id;render();scrollTo(0,0)},
+  play:id=>{if(!SC[id])return;PB.id=id;PB.playing=true;pbGo(0)},
+  pbToggle:()=>{const last=PB.step===SC[PB.id].steps.length-1;if(last&&!PB.playing){PB.playing=true;pbGo(0);return}PB.playing=!PB.playing;if(PB.playing)pbSchedule();else clearTimeout(PB.timer);pbPanel()},
+  pbPrev:()=>{PB.playing=false;pbGo(PB.step-1)},
+  pbNext:()=>{PB.playing=false;pbGo(PB.step+1)},
+  pbRestart:()=>{PB.playing=true;pbGo(0)},
+  pbSpeed:()=>{PB.speed=PB.speed===1?2:1;pbSchedule();pbPanel()},
+  pbExit:()=>pbExit(),
+  preset:id=>{
+    stopLivePolling();
+    S=seed(id);
+    S.mode='sim';
+    if(id==='corr_spike')UI.tab='corr';
+    render();
+    toast('Loaded scenario: '+id.replace('_',' '));
+  },
+  toggleLive:()=>{
+    if(S.mode==='live'){
+      stopLivePolling();
+      S.mode='sim';
+      render();
+      toast('Switched to Simulation Mode');
+    } else {
+      S.mode='live';
+      render();
+      startLivePolling();
+    }
+  },
+  refreshEP058:()=>{
+    if(S.mode!=='live'){
+      S.mode='live';
+      render();
+      startLivePolling();
+    } else {
+      syncEP058(true);
+    }
+  },
+  reset:()=>{
+    stopLivePolling();
+    localStorage.removeItem(KEY);
+    S=seed('normal');
+    UI.tab='prop';
+    render();
+    toast('Demo reset to normal session');
+  },
   walkthrough:mWalk,
   close:()=>$('#mask').classList.remove('on'),
   simLoss:()=>{
-    S.accts.forEach(a=>{if(!a.locked){a.eq-=350;a.dayPnl-=350;a.openPnl-=150;if(acctMetrics(a).dist<=120){a.locked=true;S.logs.unshift({t:'14:40:05',lvl:'CRIT',m:`🛑 Auto-locked ${a.name} — trailing floor breached!`})}}});
+    S.accts.forEach(a=>{if(!a.locked){a.eq-=350;a.dayPnl-=350;a.openPnl-=150;if(acctMetrics(a).bufPct<=15){a.locked=true;S.logs.unshift({t:new Date().toTimeString().slice(0,8),lvl:'CRIT',m:`🛑 Auto-locked ${a.name} — trailing floor breached!`})}}});
     S.tilt.score=Math.min(100,S.tilt.score+16);S.tilt.lossStreak++;S.tilt.trades10m+=2;
     render();toast('Simulated -$350 loss tick across active accounts');
   },
-  toggleLock:id=>{const a=S.accts.find(x=>x.id===id);a.locked=!a.locked;if(a.locked)a.openPnl=0;S.logs.unshift({t:'14:41:00',lvl:a.locked?'WARN':'OK',m:`${a.name} manually ${a.locked?'locked & flattened':'unlocked'}.`});render()},
+  toggleLock:id=>{const a=S.accts.find(x=>x.id===id);a.locked=!a.locked;if(a.locked)a.openPnl=0;S.logs.unshift({t:new Date().toTimeString().slice(0,8),lvl:a.locked?'WARN':'OK',m:`${a.name} manually ${a.locked?'locked & flattened':'unlocked'}.`});render()},
   switchMode:id=>{const a=S.accts.find(x=>x.id===id);a.mode=a.mode==='Intraday'?'EOD':'Intraday';render();toast(`${a.name} switched to ${a.mode} trailing mode`)},
-  flattenAll:()=>{S.accts.forEach(a=>{a.locked=true;a.openPnl=0});S.logs.unshift({t:'14:42:00',lvl:'CRIT',m:'🛑 GLOBAL EMERGENCY FLATTEN: All positions closed and copier locked.'});render();toast('All accounts flattened & locked')},
-  unlockAll:()=>{S.accts.forEach(a=>a.locked=false);S.tilt.score=28;S.tilt.reason='Lockout manually cleared by trader.';render();toast('All accounts unlocked')},
-  coolDown:()=>{S.tilt.score=18;S.tilt.trades10m=1;S.tilt.sizeMult=1.0;S.tilt.lossStreak=0;S.tilt.reason='Cool-down completed; cadence normalized.';render();toast('Tilt score reset')},
+  flattenAll:()=>{S.accts.forEach(a=>{a.locked=true;a.openPnl=0});S.logs.unshift({t:new Date().toTimeString().slice(0,8),lvl:'CRIT',m:'🛑 GLOBAL EMERGENCY FLATTEN: All positions closed and copier locked.'});render();toast('All accounts flattened & locked')},
+  unlockAll:()=>{S.accts.forEach(a=>a.locked=false);Object.assign(S.tilt,{trades10m:2,sizeMult:1,lossStreak:0,reentrySec:300,lockoutUntil:null,reason:'Lockout manually cleared by trader.'});S.lockTitle=null;S.lockReason=null;render();toast('All accounts unlocked')},
+  coolDown:()=>{Object.assign(S.tilt,{trades10m:1,sizeMult:1,lossStreak:0,reentrySec:300,lockoutUntil:null,reason:'Cool-down completed; cadence normalized.'});render();toast('Tilt score reset')},
   toggleStrat:id=>{const s=S.strats.find(x=>x.id===id);s.active=!s.active;render();toast(`${s.name} ${s.active?'resumed':'paused'}`)},
   cycleSide:id=>{const s=S.strats.find(x=>x.id===id);const order=['BOTH','BUY_ONLY','SELL_ONLY'];s.side=order[(order.indexOf(s.side)+1)%3];render();toast(`${s.name} filter → ${s.side}`)},
   deRiskCorrelated:()=>{
-    S.strats.forEach((s,i)=>{if(i===1||i===4)s.active=false});
-    S.regime.avgCorr=0.29;S.regime.syncDD=2;S.regime.msg='De-risked highest-correlated sleeves (S2, S5 paused) → portfolio ρ dropped from 0.84 to 0.29.';
-    S.logs.unshift({t:'14:43:10',lvl:'OK',m:'⚡ Auto De-Risk paused S2 & S5; pairwise ρ reduced to 0.29.'});
-    render();toast('Paused correlated sleeves S2 & S5 — ρ reduced to 0.29');
+    const r=deRisk(S);
+    render();toast(r.paused.length?`Paused ${r.paused.join(', ')}: ρ ${r.before.toFixed(2)} → ${r.after.toFixed(2)}`:`No de-risk needed (ρ ${r.after.toFixed(2)})`);
   }
 };
 $('#mask').addEventListener('click',e=>{if(e.target.id==='mask')$('#mask').classList.remove('on')});
-document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;e.preventDefault();const f=A[b.dataset.act];if(f)f(b.dataset.id)});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b||b.disabled)return;e.preventDefault();
+  const act=b.dataset.act;
+  if(PB.id&&!PB_OK.has(act))pbExit();
+  const f=A[act];if(f)f(b.dataset.id);
+});
 render();
+(()=>{const q=new URLSearchParams(location.search);const p=q.get('play');if(p&&SC[p])A.play(p);else if(q.get('live')==='1'&&S.mode!=='live')A.toggleLive()})();
 </script></body></html>

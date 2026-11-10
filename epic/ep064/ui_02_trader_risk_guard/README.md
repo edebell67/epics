@@ -2,6 +2,9 @@
   epics/ep_064_reddit_oppourtunity/ui_02_trader_risk_guard/README.md — Documentation for ApexGuard mobile-first trading demo UI
   
   VERSION HISTORY
+  v1.3.0 · 2026-11-10 · Scenario playback (?play=hwm|tilt|corr), equity-vs-floor chart, computed tilt score and de-risk, EOD floor fix.
+  v1.2.0 · 2026-11-02 · V20261102_0530: Added live EP058 Strategy Intelligence streaming integration (port 8149).
+                        Dynamically selects top 4 models from PostgreSQL tradedb and monitors as prop trades.
   v1.0.0 · 2026-10-18 · Initial version: documents Reddit trading pain points T1+T2, mobile-first design, and interactive scenarios.
 -->
 # EP064 · UI 02: ApexGuard — Prop-Firm Drawdown/Tilt Guard & Multi-Strategy Correlation Monitor
@@ -16,8 +19,39 @@
    - Efficiency-Ratio & ATR percentile regime classifier (`TRENDING`, `CHOPPY`, `VOLATILE`).
    - 1-click **Auto De-Risk Cluster** and per-strategy `BOTH` / `BUY_ONLY` / `SELL_ONLY` directional filters.
 
+## EP058 Strategy Intelligence Integration (Live Mode)
+- **Service Endpoint**: Connects to the local EP058 FastAPI service on `http://127.0.0.1:8149`.
+- **Dynamic 4-Model Selection**: Ingests `GET /api/top_strategies?days=10&limit=4&dedupe=true` to rank and select the 4 highest-performing active models from PostgreSQL `tradedb`.
+- **Virtual Prop Account Mapping**: Evaluates each model under realistic prop-firm rules:
+  - Model 1 $\to$ Apex \$50K Intraday Trailing Account (Evaluation 1)
+  - Model 2 $\to$ Apex \$50K Intraday Trailing Account (Copy Account)
+  - Model 3 $\to$ Topstep \$100K EOD Trailing Account (Funded Account)
+  - Model 4 $\to$ MFFU \$50K EOD Trailing Account (Funded Account)
+- **Live Stream / Sim Toggle**: Seamless 1-click toggle between real-time PostgreSQL streaming and offline stress-test simulation presets (*Intraday HWM trap*, *Revenge tilt lockout*, *Correlation spike*).
+
+## Scenario Playback (v1.3.0)
+Viewers can watch exactly what ApexGuard does and how, without knowing where to tap:
+- **▶ Intraday HWM trap** (9 steps): one copied trade runs to +$1,200 open, pulls back and closes at +$300. The Apex intraday floor ratchets up with the open peak, while the Topstep/MFFU EOD floors stay put. The next loser takes Apex to a 6% cushion, and the ≤15% rule flattens and locks both Apex accounts.
+- **▶ Revenge tilt lockout** (7 steps): 3 losses, a 20s re-entry and size creeping from 1.5x to 2.5x. The score is built factor by factor (0 → 12 → 26 → 50 → 62 → 95). At 95 the 2.5x order is blocked, the copier is cut and all 4 accounts lock.
+- **▶ Correlation spike** (6 steps): the regime moves from trending to choppy and the breakout cluster (S1, S2, S5) converges. The alert fires at 4 sleeves in sync drawdown with ρ 0.72, then Auto De-Risk pauses the cluster (ρ 0.72 → 0.56).
+- Each step shows a caption, highlights the panel it is about, and switches to the right tab. On the Prop Guard tab an **equity vs trailing floor** chart is drawn as the scenario runs.
+- Controls: ⏮ restart, ‹ › step, ▶/⏸, 1x/2x. Tapping any sandbox button leaves playback.
+- Direct links: `index.html?play=hwm`, `?play=tilt`, `?play=corr` (autoplay).
+
+### Rules (same in playback and sandbox)
+| Rule | Value |
+|---|---|
+| Intraday floor | equity peak incl. open P&L − max DD |
+| EOD floor | min(starting balance, closing-balance peak − max DD) |
+| Auto-flatten + lock an account | cushion ≤ 15% of max DD |
+| Tilt score | orders over 2 ×4 (max 30) + size over 1x ×16 (max 25) + losses in a row ×8 (max 25) + seconds under 30 on re-entry (max 20) |
+| Tilt lockout (all accounts, 30 min) | score ≥ 75 |
+| Correlation alert | ≥ 4 sleeves in sync drawdown and average ρ > 0.70 |
+| Auto De-Risk | pause the highest-average-ρ sleeve, one at a time, until active ρ ≤ 0.60 |
+
 ## Mobile-First Design
 - Designed for 375px–430px phone screens first (fixed bottom navigation bar, horizontal scenario chips, touch-friendly account cards, stacked responsive tables, bottom-sheet walkthrough modal) and scales up at `700px` and `1100px`.
 
 ## Launching the Demo
 Run `run_demo.bat` or open `index.html` directly in any browser.
+To start directly in live streaming mode, open `index.html?live=1`.
