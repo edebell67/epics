@@ -6,6 +6,11 @@
   Workflow: workstream/600_workflow/ep064/EP064_siteledger_quote_jobcost_workflow.html
 
   VERSION HISTORY
+  v1.2.0 · 2026-11-10 · Invoices tab (chase ladder: friendly → firm → final notice → letter-before-claim warning; part payments; client
+                        reliability colours; B2B statutory late-payment interest + compensation) and Tax tab (Making Tax Digital for Income Tax
+                        quarterly-update DEMO from SiteLedger records: mandate check, quarter deadlines, cumulative YTD figures by expense
+                        category, readiness checks, "prepared" state; not connected to HMRC). Scenario playback (?play=inv|tax) ported from
+                        ApexGuard. Demo date now moves in playback (stored in state). Nav: Home/Quotes/Jobs/Invoices/Receipts/Tax; rules via link.
   v1.1.0 · 2026-10-18 · (V20261018_2220) Mobile-first rebuild per user request: base CSS targets phones; bottom tab bar, stacked-card tables,
                         bottom-sheet modals, swipeable receipt strip, 44px touch targets; tablet ≥700px and desktop ≥1100px enhance. Moved to EP064.
   v1.0.0 · 2026-10-18 · Initial version (V20261018_2210): dashboard KPIs, sequential quotes, aging/ghosted badges, follow-up sequences + templates,
@@ -30,7 +35,7 @@ textarea{resize:vertical}a{color:var(--blue)}
 .brand small{display:none;font-weight:400;color:var(--mut)}
 .sp{flex:1}.hdr-actions{display:flex;gap:6px}.hdr-actions .lbl{display:none}
 /* nav: bottom tab bar on mobile */
-nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);height:calc(var(--navh) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(6,1fr);height:calc(var(--navh) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
 nav button{border:0;background:none;color:var(--mut);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;position:relative}
 nav button .ic{font-size:20px;line-height:1}nav button.on{color:var(--acc);font-weight:600}nav button.on:before{content:"";position:absolute;top:0;left:25%;right:25%;height:3px;border-radius:0 0 3px 3px;background:var(--acc)}
 .badge{display:inline-block;min-width:18px;padding:0 5px;border-radius:999px;background:var(--red);color:#fff;font-size:11px;line-height:18px;text-align:center;font-weight:600}
@@ -102,6 +107,27 @@ table.plain th{font-size:12px;text-align:left;color:var(--mut);font-weight:500;p
 .modal-actions{display:flex;gap:8px;margin-top:14px;position:sticky;bottom:0;background:#fff;padding-top:8px}.modal-actions .btn{flex:1}
 .toast{position:fixed;bottom:calc(var(--navh) + 14px + env(safe-area-inset-bottom));left:12px;right:12px;background:#1c1c1a;color:#fff;padding:12px 16px;border-radius:12px;opacity:0;transform:translateY(16px);transition:.25s;z-index:60;font-size:13.5px;text-align:center;pointer-events:none}.toast.on{opacity:1;transform:none}
 .walk ol{padding-left:18px}.walk li{margin-bottom:9px}
+/* invoices + tax */
+.p-Paid,.p-Ready,.p-Submitted{background:var(--acc2);color:var(--acc)}.p-Notdue,.p-Open{background:var(--blue2);color:var(--blue)}.p-Duesoon{background:var(--amb2);color:#8a5a12}
+.p-Chasedue,.p-Issues{background:#fde4cf;color:#9a4a0e;border-color:#f4c9a3}.p-Chased,.p-Prepared{background:#efeaf8;color:#5b4691}.p-Finalstage{background:var(--red2);color:var(--red)}.p-Future{background:#f0efeb;color:#7b7870}
+.rel{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:0}.rel.green{background:#2f9e6e}.rel.amber{background:#d69a2d}.rel.red{background:#c4453b}
+.tag2{font-size:10.5px;border:1px solid var(--line);border-radius:4px;padding:0 4px;color:var(--mut);margin-left:4px;vertical-align:1px}
+.disclaim{background:var(--amb2);border:1px solid #efd9ad;color:#7a4f0f;border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:12px}
+.grid>*{min-width:0}
+.qline{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}.qline div{border:1px solid var(--line);border-radius:10px;padding:8px;font-size:12px;background:#fff}.qline div b{display:block;font-size:13px}.qline div.sel{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc2)}
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;padding:7px 0;border-bottom:1px dashed #efece5}.chk:last-child{border:0}.chk i{font-style:normal;flex:none;width:20px;text-align:center}
+.msgq{background:#f0efeb;border-radius:10px;padding:8px 10px;font-size:12.5px;margin-top:6px;color:#3b3a36}
+/* scenario playback */
+.pb{position:fixed;left:8px;right:8px;bottom:calc(var(--navh) + 8px + env(safe-area-inset-bottom));z-index:40;background:#fffffff7;border:1px solid #b9d3c9;border-radius:14px;padding:8px 12px 10px;box-shadow:0 10px 30px #0003;display:none}
+.pb.on{display:block}body.pb-on{padding-bottom:calc(var(--navh) + var(--pbh,200px) + 24px + env(safe-area-inset-bottom))}
+.pb-head{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut)}.pb-tag{color:var(--acc);font-weight:600}
+.pb-x{margin-left:auto;background:none;border:0;color:var(--mut);font-size:18px;min-width:40px;min-height:36px}
+.pb-prog{height:4px;background:#e9e6de;border-radius:2px;margin:2px 0 8px;overflow:hidden}.pb-prog i{display:block;height:100%;background:var(--acc);transition:width .3s}
+.pb-title{display:block;font-size:14.5px;margin-bottom:3px}.pb-body{margin:0 0 8px;font-size:13px;color:#3b3a36;line-height:1.45}
+.pb-ctl{display:flex;gap:6px;align-items:center}.pb-ctl button{background:#fff;border:1px solid var(--line);border-radius:10px;min-width:44px;min-height:42px;font-size:16px}
+.pb-ctl button:disabled{opacity:.35}.pb-ctl .main{background:var(--acc);border-color:var(--acc);color:#fff;flex:1;font-size:14px;font-weight:600}
+.pb-hl{outline:2px solid var(--acc)!important;outline-offset:3px;box-shadow:0 0 0 7px #1f6f5c22!important;border-radius:var(--r)}
+.intro{border-color:#b9d3c9;background:linear-gradient(180deg,#eef7f3,#fff);margin-bottom:12px}.intro p{margin:4px 0 10px;font-size:13.5px}
 
 /* ---------- tablet ≥700px ---------- */
 @media(min-width:700px){
@@ -114,6 +140,7 @@ table.plain th{font-size:12px;text-align:left;color:var(--mut);font-weight:500;p
  .li{flex-wrap:nowrap}.li .meta{flex:1 1 auto}.li select{flex:none;width:160px}.btnrow .btn{flex:none}
  .toast{left:50%;right:auto;transform:translateX(-50%) translateY(16px);bottom:24px}.toast.on{transform:translateX(-50%)}
  h2 .sub{display:inline;margin-left:6px}
+ .pb{left:50%;right:auto;width:min(640px,calc(100% - 32px));transform:translateX(-50%)}
 }
 /* ---------- desktop ≥1100px: top nav, real tables, two-column dashboards ---------- */
 @media(min-width:1100px){
@@ -129,9 +156,10 @@ table.plain th{font-size:12px;text-align:left;color:var(--mut);font-weight:500;p
  table.rt td{display:table-cell;text-align:left;padding:9px 8px;border-bottom:1px solid #f0eee8}table.rt td:before{display:none}table.rt td.num{text-align:right}
  table.rt tr:hover td{background:#fbfaf7}table.rt td.act-cell{white-space:nowrap}
  input,select,textarea{font-size:14px;min-height:38px;padding:8px 10px}.btn{min-height:38px;padding:7px 12px}.btn.sm{min-height:30px;padding:4px 9px;font-size:12.5px}
+ .pb{bottom:16px}body.pb-on{padding-bottom:calc(var(--pbh,200px) + 32px)}
 }
 </style></head><body>
-<div class="demo-strip"><b>DEMO</b><span class="hide-sm">Seeded data · demo date fixed to <b>Sat 18 Oct 2026</b> · nothing is really sent</span><span class="sp"></span>
+<div class="demo-strip"><b>DEMO</b><span class="hide-sm">Seeded data · demo date <b id="demoDate">Sat 18 Oct 2026</b> · nothing is really sent</span><span class="sp"></span>
 <button data-act="walkthrough">▶ Walkthrough</button><button data-act="reset">↺ Reset</button></div>
 <div class="top"><div class="topin">
  <div class="brand"><i>SL</i>SiteLedger <small>· Northfield Build &amp; Renovate</small></div>
@@ -141,10 +169,12 @@ table.plain th{font-size:12px;text-align:left;color:var(--mut);font-weight:500;p
 <main id="app"></main>
 <div class="mask" id="mask"><div class="modal" id="modal"></div></div>
 <div class="toast" id="toast"></div>
+<div class="pb" id="pb" role="region" aria-label="Scenario playback"></div>
 <script>
 'use strict';
 /* ---------- helpers ---------- */
-const TODAY=new Date('2026-10-18T09:00:00');
+const BASE=new Date('2026-10-18T09:00:00');
+let TODAY=new Date(BASE);   // demo date; playback moves it forward, stored in S.todayIso
 const iso=d=>d.toISOString().slice(0,10);
 const daysAgo=n=>{const d=new Date(TODAY);d.setDate(d.getDate()-n);return iso(d)};
 const diff=s=>s?Math.round((TODAY-new Date(s+'T09:00:00'))/864e5):null;
@@ -154,13 +184,14 @@ const gbp2=n=>'£'+Number(n||0).toLocaleString('en-GB',{minimumFractionDigits:2,
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $=s=>document.querySelector(s);
 const BIZ='Northfield Build & Renovate';
-const KEY='ep056_siteledger_demo_v1';
+const KEY='ep064_siteledger_demo_v2';
 const STEP_NAMES=['Day {d} · Friendly nudge','Day {d} · Value reminder','Day {d} · Last call'];
 const SUPPLIERS=['Travis Perkins','Screwfix','Toolstation','City Plumbing','Wickes','Howdens','Topps Tiles','B&Q','Jewson','Selco','Victorian Plumbing','Shell','Halfords','CEF','Plumb Center'];
 
 /* ---------- seed data ---------- */
 function mkItems(mat,lab,extra){const it=[{d:'Materials & supplies',kind:'materials',amt:mat},{d:'Labour',kind:'labour',amt:lab}];if(extra)it.push(extra);return it}
 function seed(){
+ TODAY=new Date(BASE);
  const q=(no,cust,phone,email,title,items,status,sentAgo,fu,lastAgo,extra)=>Object.assign({no,cust,phone,email,title,items,status,sentAt:sentAgo==null?null:daysAgo(sentAgo),followUps:fu||0,lastContact:lastAgo==null?null:daysAgo(lastAgo),jobNo:null,created:daysAgo((sentAgo||0)+1),hist:[]},extra||{});
  const quotes=[
   q('Q-0101','Sarah Smith','07700 900111','sarah.smith@example.com','Kitchen refit',mkItems(3900,4550),'Won',34,1,30,{jobNo:'J-0041'}),
@@ -207,15 +238,44 @@ function seed(){
   {key:'S4',supplier:'Shell',ref:'',date:0,items:[{d:'Diesel 41.2L',amt:62.1}],vatInc:true},
   {key:'S5',supplier:'Wickes',ref:'Khan shop',date:0,items:[{d:'Tile adhesive 20kg x3',amt:44.97},{d:'Grout 5kg x2',amt:29.98}],vatInc:true}
  ];
- return {quotes,jobs,receipts,activity,sampleScans,usedScans:[],settings:{seq:[3,7,14],templates:[
+ /* invoices: issued days ago, payment terms (days), payments [{daysAgo,amt}], reminders already sent */
+ const iv=(no,cust,b2b,phone,email,jobNo,title,amount,issuedAgo,terms,pays,chases,lastAgo)=>{
+  const v={no,cust,b2b,phone,email,jobNo,title,amount,issued:daysAgo(issuedAgo),terms,payments:pays.map(([a,amt])=>({t:daysAgo(a),amt})),chases,lastChase:lastAgo==null?null:daysAgo(lastAgo),lastMsg:null,hist:[{t:daysAgo(issuedAgo),m:'Invoice issued'}]};
+  for(let i=0;i<chases;i++)v.hist.push({t:i===chases-1&&lastAgo!=null?daysAgo(lastAgo):daysAgo(issuedAgo),m:`Reminder ${i+1} sent`});
+  v.payments.forEach(p=>v.hist.push({t:p.t,m:'Payment received '+gbp2(p.amt)}));return v};
+ const invoices=[
+  iv('INV-0024','Ben Carter',false,'07700 902121','ben.carter@example.com',null,'Garage conversion',3200,75,14,[],3,20),
+  iv('INV-0025','Priory Lettings Ltd',true,'020 7946 0101','accounts@priory.example',null,'Boiler service x6 (lettings)',1240,60,30,[[26,1240]],0,null),
+  iv('INV-0026','Khan Stores Ltd',true,'07700 901111','ahmed@khanstores.example',null,'Stockroom shelving',2400,52,30,[],2,8),
+  iv('INV-0027','Nina Walsh',false,'07700 903131','nina.w@example.com',null,'Radiator replacement',640,33,14,[[30,640]],0,null),
+  iv('INV-0028','Sarah Smith',false,'07700 900111','sarah.smith@example.com','J-0041','Kitchen refit – stage 1 (50%)',4225,25,7,[[10,2000]],1,18),
+  iv('INV-0029','Mark Patel',false,'07700 900222','mark.patel@example.com','J-0042','Bathroom remodel – deposit',1800,20,7,[[18,1800]],0,null),
+  iv('INV-0030','Priory Lettings Ltd',true,'020 7946 0101','accounts@priory.example',null,'Void flat repairs – 14 Elm Rd',980,9,30,[],0,null),
+  iv('INV-0031','Lucy Grant',false,'07700 901010','lucy.grant@example.com','J-0043','Kitchen wall tiling',1650,12,10,[],0,null)
+ ];
+ /* tax-year bank import (cash basis), 6 Apr 2026 onwards; job receipts and invoice payments are added from SiteLedger records */
+ const ledger=[];let lid=0;
+ const L=(date,kind,cat,amt,desc)=>ledger.push({id:'B-'+(++lid),date,kind,cat,amt,desc});
+ [['2026-04-28',6200],['2026-05-28',6900],['2026-06-26',6300],['2026-07-29',7100],['2026-08-27',6400],['2026-09-22',5800]].forEach(([d,a])=>L(d,'in','income',a,'Customer payments (bank import)'));
+ [['04',2100,1300,290],['05',2400,1450,320],['06',2350,1350,310],['07',2600,1500,340],['08',2300,1600,360],['09',900,1500,330]].forEach(([m,c,s,t])=>{
+  L(`2026-${m}-20`,'out','cogs',c,'Merchant account (bank import)');L(`2026-${m}-25`,'out','cis',s,'Subcontractor payments, net of CIS');L(`2026-${m}-15`,'out','travel',t,'Van fuel & insurance');L(`2026-${m}-30`,'out','finance',20,'Bank charges')});
+ L('2026-04-10','out','premises',410,'Yard & tools insurance');L('2026-06-12','out','admin',180,'Phone & software');L('2026-05-08','out','adverts',250,'Checkatrade listing');
+ L('2026-08-14','out','admin',165,'Phone & software');L('2026-07-09','out','adverts',300,'Leaflet drop');L('2026-09-03','out','repairs',210,'Van tyres');
+ L('2026-10-02','out',null,86.4,'AMZN Mktp UK – card payment');
+ return {todayIso:iso(BASE),quotes,jobs,receipts,invoices,ledger,mtd:{submitted:{Q1:'2026-08-04'},prepared:{},qualifying:78400},activity,sampleScans,usedScans:[],settings:{baseRate:4.0,ladder:[0,7,14,30],invTemplates:[
+  'Hi {first}, a quick reminder that invoice {no} for {amount} was due on {due}. Bank details are on the invoice. Thanks – {biz}',
+  'Hi {first}, invoice {no} ({amount}) is now {days} days overdue. Could you let me know when it will be paid? Thanks – {biz}',
+  'Hi {first}, invoice {no} for {amount} is {days} days overdue. Please pay within 7 days.{interest} – {biz}',
+  'Hi {first}, invoice {no} ({amount}) is still unpaid {days} days after the due date. Unless it\'s paid or we hear from you this week, we\'ll send a formal letter before claim. – {biz}'
+ ],seq:[3,7,14],templates:[
   'Hi {first}, just checking you received quote {no} for the {title} ({value}). Happy to answer any questions – {biz}',
   'Hi {first}, a quick follow-up on {no} ({title}). We can start within 2 weeks and the price includes all materials and clear-up. Want me to pencil in a date? – {biz}',
   'Hi {first}, I\'ll close off quote {no} on Friday so I can plan the diary. If you\'d still like to go ahead (or need it tweaked), just reply here. Thanks – {biz}'
  ]}};
 }
 let S=load();let UI={view:'dashboard',qfilter:'All',preview:null,scanning:null,fu:null};
-function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.quotes)return s}catch(e){}return seed()}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.quotes&&s.invoices){TODAY=new Date((s.todayIso||iso(BASE))+'T09:00:00');return s}}catch(e){}return seed()}
+function save(){if(typeof PB!=='undefined'&&PB.id)return;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}  // playback never overwrites the viewer's saved data
 function log(m){S.activity.unshift({t:iso(TODAY),m});S.activity=S.activity.slice(0,40)}
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2600)}
 
@@ -264,13 +324,152 @@ function parseScan(sc){
  return {source:'photo',scanKey:sc.key,supplier:sc.supplier,amount:+total.toFixed(2),vat:+(total/6).toFixed(2),items:sc.items,note:sc.ref?('Ref on receipt: "'+sc.ref+'"'):'No job reference on receipt',job:mt.job,conf:mt.conf};
 }
 
+/* ---------- invoices: chase ladder ---------- */
+const LADDER_NAMES=['Friendly reminder','Firm reminder','Final notice','Letter-before-claim warning'];
+const addDays=(s,n)=>{const d=new Date(s+'T09:00:00');d.setDate(d.getDate()+n);return iso(d)};
+const invPaid=v=>v.payments.reduce((a,p)=>a+p.amt,0);
+const invOut=v=>Math.max(0,+(v.amount-invPaid(v)).toFixed(2));
+const invDue=v=>addDays(v.issued,v.terms);
+const invOD=v=>diff(invDue(v));                 // days past due date (negative = not yet due)
+function invState(v){
+ if(invOut(v)<=0.005)return 'Paid';
+ const od=invOD(v);
+ if(od<0)return od>=-3?'Due soon':'Not due';
+ const step=S.settings.ladder[v.chases];
+ if(step===undefined)return 'Final stage';
+ return od>=step?'Chase due':'Chased';
+}
+function stepLabel(v){const i=v.chases;if(i>=S.settings.ladder.length)return 'all reminders sent';return `Day ${S.settings.ladder[i]} · ${LADDER_NAMES[i]}`}
+// Business customers only: Late Payment of Commercial Debts (Interest) Act 1998 — 8% over base rate + fixed compensation.
+function lateInterest(v){
+ if(!v.b2b)return null;const od=invOD(v),out=invOut(v);if(od<=0||out<=0)return null;
+ const rate=0.08+S.settings.baseRate/100;const interest=out*rate*od/365;const comp=v.amount<1000?40:v.amount<10000?70:100;
+ return {rate,interest,comp,total:interest+comp,od};
+}
+// How late a client pays: paid invoices → days after due date; open → days overdue so far.
+function clientRel(cust){
+ const lates=S.invoices.filter(v=>v.cust===cust).map(v=>invOut(v)<=0.005?Math.max(0,diff(invDue(v))-diff(v.payments[v.payments.length-1].t)):Math.max(0,invOD(v)));
+ const worst=Math.max(0,...lates),avg=lates.reduce((a,b)=>a+b,0)/Math.max(1,lates.length);
+ return {avg,worst,col:worst>20?'red':worst>5?'amber':'green'};
+}
+function fillInv(tpl,v){const li=lateInterest(v);
+ return tpl.replace(/{first}/g,first(v.cust.replace(/ Ltd$/,'')).replace(/^(Khan|Priory)$/,'there')).replace(/{no}/g,v.no).replace(/{amount}/g,gbp2(invOut(v))).replace(/{due}/g,fmtD(invDue(v)))
+  .replace(/{days}/g,Math.max(0,invOD(v))).replace(/{interest}/g,li?` As a business customer, statutory interest and compensation (${gbp2(li.total)} so far) can be added under the Late Payment of Commercial Debts (Interest) Act 1998.`:'').replace(/{biz}/g,BIZ)}
+function doChase(no,ch,text){const v=S.invoices.find(x=>x.no===no);const i=Math.min(v.chases,S.settings.ladder.length-1);
+ const msg=text||fillInv(S.settings.invTemplates[i],v);v.lastMsg=msg;v.chases=Math.min(v.chases+1,S.settings.ladder.length);v.lastChase=iso(TODAY);
+ v.hist.push({t:iso(TODAY),m:`${LADDER_NAMES[i]} sent (${ch})`});log(`${LADDER_NAMES[i]} ${ch} sent to ${v.cust} (${v.no}, ${gbp2(invOut(v))})`);return msg}
+function recordPayment(no,amt){const v=S.invoices.find(x=>x.no===no);amt=Math.min(+amt,invOut(v));v.payments.push({t:iso(TODAY),amt});
+ v.hist.push({t:iso(TODAY),m:'Payment received '+gbp2(amt)});log(`💷 ${v.cust} paid ${gbp2(amt)} on ${v.no}${invOut(v)<=0.005?' (paid in full)':' ('+gbp2(invOut(v))+' left)'}`)}
+function nextInvNo(){return 'INV-'+String(Math.max(...S.invoices.map(v=>+v.no.slice(4)))+1).padStart(4,'0')}
+const jobInvoiced=j=>S.invoices.filter(v=>v.jobNo===j.no).reduce((a,v)=>a+v.amount,0);
+
+/* ---------- tax: Making Tax Digital for Income Tax (demo, not connected to HMRC) ---------- */
+const TAXY={label:'2026/27',start:'2026-04-06',final:'2028-01-31',quarters:[['Q1','2026-04-06','2026-07-05','2026-08-07'],['Q2','2026-07-06','2026-10-05','2026-11-07'],['Q3','2026-10-06','2027-01-05','2027-02-07'],['Q4','2027-01-06','2027-04-05','2027-05-07']]};
+const CATS={cogs:'Cost of goods & materials',cis:'Payments to subcontractors (CIS)',staff:'Wages & staff costs',travel:'Car, van & travel',premises:'Rent, rates, power & insurance',repairs:'Repairs & maintenance',admin:'Phone, stationery & office',adverts:'Advertising & marketing',finance:'Bank, card & finance charges',prof:'Accountancy & legal fees',other:'Other business expenses'};
+// Every money movement the update is built from: bank import + scanned receipts + invoice payments (cash basis).
+function txns(){
+ const T=S.ledger.map(x=>({...x,src:'bank'}));
+ S.receipts.forEach(r=>T.push({id:r.id,date:r.date,kind:'out',amt:r.amount,src:'receipt',desc:r.supplier+' · '+((r.items[0]||{}).d||''),
+  cat:r.cat||(r.jobNo&&r.jobNo!=='__overhead'?'cogs':r.jobNo==='__overhead'?(r.supplier==='Shell'?'travel':'other'):null)}));
+ S.invoices.forEach(v=>v.payments.forEach((p,i)=>T.push({id:v.no+'/'+(i+1),date:p.t,kind:'in',cat:'income',amt:p.amt,src:'invoice',desc:v.cust+' · '+v.no})));
+ return T;
+}
+function qSum(qi){
+ const [q,s,e,dl]=TAXY.quarters[qi],today=iso(TODAY);if(s>today)return null;
+ const end=e<today?e:today,T=txns().filter(x=>x.date>=TAXY.start&&x.date<=end);
+ const inc=T.filter(x=>x.kind==='in').reduce((a,x)=>a+x.amt,0);
+ const exp={};Object.keys(CATS).forEach(k=>exp[k]={amt:0,n:0});
+ T.filter(x=>x.kind==='out'&&x.cat&&x.cat!=='personal').forEach(x=>{exp[x.cat].amt+=x.amt;exp[x.cat].n++});
+ const expTot=Object.values(exp).reduce((a,x)=>a+x.amt,0);
+ return {q,s,e,dl,end,partial:end<e,inc,exp,expTot,profit:inc-expTot,uncats:T.filter(x=>x.kind==='out'&&!x.cat),n:T.length,qn:T.filter(x=>x.date>=s).length};
+}
+function qStatus(qi){const [q,s,e,dl]=TAXY.quarters[qi],today=iso(TODAY);
+ if(S.mtd.submitted[q])return 'Submitted';if(S.mtd.prepared[q])return 'Prepared';if(s>today)return 'Future';if(e>=today)return 'Open';
+ return qSum(qi).uncats.length?'Issues':'Ready'}
+const dueQ=()=>{const i=TAXY.quarters.findIndex((x,i)=>!S.mtd.submitted[x[0]]&&x[2]<iso(TODAY)&&x[3]>=iso(TODAY));return i<0?TAXY.quarters.findIndex(x=>x[2]>=iso(TODAY)):i};
+const fmtDY=s=>new Date(s+'T09:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+
 /* ---------- rendering ---------- */
-const VIEWS=[['dashboard','📊','Home'],['quotes','📋','Quotes'],['jobs','🔨','Jobs'],['receipts','🧾','Receipts'],['settings','⚙️','Rules']];
+const VIEWS=[['dashboard','📊','Home'],['quotes','📋','Quotes'],['jobs','🔨','Jobs'],['invoices','💷','Invoices'],['receipts','🧾','Receipts'],['tax','🏛️','Tax']];
 function renderNav(){const un=S.receipts.filter(r=>!r.jobNo).length,due=S.quotes.filter(q=>['Due','Overdue'].includes(qState(q))).length;
- $('#nav').innerHTML=VIEWS.map(([k,ic,l])=>`<button class="${UI.view===k?'on':''}" data-act="view" data-id="${k}"><span class="ic">${ic}</span><span>${l}</span>${k==='receipts'&&un?`<span class="badge">${un}</span>`:''}${k==='quotes'&&due?`<span class="badge" style="background:var(--amb)">${due}</span>`:''}</button>`).join('')}
+ const ch=S.invoices.filter(v=>invState(v)==='Chase due').length,tq=dueQ(),tx=tq>=0&&qStatus(tq)==='Issues';
+ $('#nav').innerHTML=VIEWS.map(([k,ic,l])=>`<button class="${UI.view===k?'on':''}" data-act="view" data-id="${k}"><span class="ic">${ic}</span><span>${l}</span>${k==='receipts'&&un?`<span class="badge">${un}</span>`:''}${k==='quotes'&&due?`<span class="badge" style="background:var(--amb)">${due}</span>`:''}${k==='invoices'&&ch?`<span class="badge" style="background:var(--amb)">${ch}</span>`:''}${k==='tax'&&tx?'<span class="badge">!</span>':''}</button>`).join('')}
 function pill(s){return `<span class="pill p-${s.replace(/\s/g,'')}">${s==='Ghosted'?'👻 ':''}${s}</span>`}
 function dots(n){return `<span class="dots" title="${n} of ${S.settings.seq.length} follow-ups sent">${S.settings.seq.map((_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`}
-function render(){renderNav();const v=UI.view;$('#app').innerHTML=v==='dashboard'?vDash():v==='quotes'?vQuotes():v==='jobs'?vJobs():v==='receipts'?vReceipts():vSettings();save()}
+function render(){S.todayIso=iso(TODAY);$('#demoDate').textContent=TODAY.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+ renderNav();const v=UI.view;$('#app').innerHTML=v==='dashboard'?vDash():v==='quotes'?vQuotes():v==='jobs'?vJobs():v==='invoices'?vInvoices():v==='receipts'?vReceipts():v==='tax'?vTax():vSettings();
+ pbPanel();pbHighlight();save()}
+
+function vInvoices(){
+ const st=S.invoices.map(v=>[v,invState(v)]);
+ const outAll=S.invoices.reduce((a,v)=>a+invOut(v),0);
+ const od=st.filter(([,s])=>['Chase due','Chased','Final stage'].includes(s)).sort((a,b)=>invOD(b[0])-invOD(a[0]));
+ const odAmt=od.reduce((a,[v])=>a+invOut(v),0),due=st.filter(([,s])=>s==='Chase due').length;
+ const paid=S.invoices.filter(v=>invOut(v)<=0.005);
+ const dtp=paid.length?paid.reduce((a,v)=>a+(diff(v.issued)-diff(v.payments[v.payments.length-1].t)),0)/paid.length:0;
+ const li=S.invoices.map(lateInterest).filter(Boolean).reduce((a,x)=>a+x.total,0);
+ const clients=[...new Set(S.invoices.map(v=>v.cust))];
+ const ladder=v=>`<span class="dots" title="${v.chases} of ${S.settings.ladder.length} reminders sent">${S.settings.ladder.map((_,i)=>`<i class="${i<v.chases?'on':''}"></i>`).join('')}</span>`;
+ return `<h2>Invoices <span class="sub">· chase ladder days ${S.settings.ladder.join(' / ')} after due · <a href="#" data-act="view" data-id="settings">edit rules</a></span></h2>
+ <div class="grid k6" data-pb="iv-kpis">
+  <div class="card kpi"><small>Outstanding</small><b>${gbp(outAll)}</b><span>${st.filter(([,s])=>s!=='Paid').length} unpaid invoices</span></div>
+  <div class="card kpi ${odAmt?'alert':''}"><small>Overdue</small><b>${gbp(odAmt)}</b><span>${od.length} past due date</span></div>
+  <div class="card kpi ${due?'alert':''}"><small>Reminders due today</small><b>${due}</b><span>next ladder step reached</span></div>
+  <div class="card kpi"><small>Avg days to pay</small><b>${dtp.toFixed(0)}</b><span>issued → paid, paid invoices</span></div>
+  <div class="card kpi"><small>Late interest claimable</small><b>${gbp2(li)}</b><span>business clients only</span></div>
+  <div class="card kpi good"><small>Paid</small><b>${paid.length}</b><span>of ${S.invoices.length} invoices</span></div>
+ </div>
+ <div class="grid c2" style="margin-top:14px">
+  <div class="card" data-pb="iv-queue"><h3>Chase queue <span style="color:var(--mut);font-weight:400">· ${od.length} overdue</span></h3>
+   <div class="list">${od.length?od.map(([v,s])=>{const l=lateInterest(v),r=clientRel(v.cust);return `<div class="li" data-pb="inv-${v.no}"><div class="meta"><b><span class="rel ${r.col}"></span>${esc(v.cust)}${v.b2b?'<span class="tag2">business</span>':''} · ${esc(v.title)}</b>
+    <span class="mono">${v.no}</span> <span>· ${gbp2(invOut(v))} outstanding${invPaid(v)?' ('+gbp2(invPaid(v))+' paid)':''} · ${invOD(v)}d overdue · next: ${stepLabel(v)}${s==='Chased'?' in '+(S.settings.ladder[v.chases]-invOD(v))+'d':''}</span>
+    ${l?`<span style="display:block;color:#7a4f0f">Statutory interest ${gbp2(l.interest)} (${(l.rate*100).toFixed(1)}% a year × ${l.od}d) + ${gbp(l.comp)} compensation</span>`:''}
+    ${v.lastMsg?`<div class="msgq">Last sent: “${esc(v.lastMsg)}”</div>`:''}</div>
+    ${pill(s)}${ladder(v)}${s==='Final stage'?'':`<button class="btn sm ${s==='Chase due'?'pri':''}" data-act="chase" data-id="${v.no}">Chase</button>`}<button class="btn sm" data-act="payment" data-id="${v.no}">Payment</button></div>`}).join(''):'<div class="empty">✅ Nobody owes you anything overdue.</div>'}</div></div>
+  <div class="card" data-pb="iv-rel"><h3>Client reliability</h3><p style="margin:0 0 6px;color:var(--mut);font-size:12.5px">Worst lateness across a client's invoices: <span class="rel green"></span>≤5 days <span class="rel amber"></span>6–20 <span class="rel red"></span>21+</p>
+   <div class="list">${clients.map(c=>{const r=clientRel(c),vs=S.invoices.filter(v=>v.cust===c);return `<div class="li"><div class="meta"><b><span class="rel ${r.col}"></span>${esc(c)}</b><span>${vs.length} invoice${vs.length>1?'s':''} · worst ${r.worst}d late · avg ${r.avg.toFixed(0)}d · ${gbp2(vs.reduce((a,v)=>a+invOut(v),0))} owed</span></div></div>`}).join('')}</div></div>
+ </div>
+ <h3 style="margin:18px 0 8px">All invoices</h3><div class="card tablewrap"><table class="rt"><thead><tr><th>No.</th><th>Client</th><th>For</th><th class="num">Amount</th><th class="num">Outstanding</th><th>Due</th><th>Status</th><th>Reminders</th><th>Actions</th></tr></thead><tbody>
+ ${st.slice().reverse().map(([v,s])=>`<tr data-pb="invrow-${v.no}"><td data-label="Invoice" class="mono">${v.no}</td><td data-label="Client"><span class="rel ${clientRel(v.cust).col}"></span>${esc(v.cust)}${v.b2b?'<span class="tag2">B2B</span>':''}</td><td data-label="For">${esc(v.title)}${v.jobNo?` <span class="mono" style="color:var(--acc)">${v.jobNo}</span>`:''}</td>
+ <td data-label="Amount" class="num">${gbp2(v.amount)}</td><td data-label="Outstanding" class="num"><b>${gbp2(invOut(v))}</b></td><td data-label="Due">${fmtD(invDue(v))}</td><td data-label="Status">${pill(s)}</td><td data-label="Reminders">${ladder(v)}</td>
+ <td class="act-cell">${s==='Paid'?'<span style="color:var(--mut);font-size:12px">paid '+fmtD(v.payments[v.payments.length-1].t)+'</span>':`${['Chase due','Chased'].includes(s)?`<button class="btn sm" data-act="chase" data-id="${v.no}">Chase</button> `:''}<button class="btn sm" data-act="payment" data-id="${v.no}">Payment</button>`}</td></tr>`).join('')}</tbody></table></div>`}
+
+function vTax(){
+ const qi=UI.tq!=null?UI.tq:dueQ(),sm=qSum(qi),[q,s,e,dl]=TAXY.quarters[qi],stt=qStatus(qi),left=-diff(dl);
+ return `<h2>Tax · Making Tax Digital <span class="sub">· Income Tax ${TAXY.label}, sole trader</span></h2>
+ <div class="disclaim"><b>Demo, not connected to HMRC.</b> SiteLedger isn't HMRC-recognised software. This screen shows what each quarterly update would contain and checks it; a real update has to be sent with recognised or bridging software, or by your accountant.</div>
+ <div class="grid c2">
+  <div class="card" data-pb="tx-mandate"><h3>Are you in?</h3>
+   <div class="row"><span>2024/25 qualifying income (self-employment + property)</span><b>${gbp(S.mtd.qualifying)}</b></div>
+   <div class="okbox" style="display:block">In MTD for Income Tax from <b>6 April 2026</b>: qualifying income over £50,000. The threshold drops to £30,000 from April 2027 and £20,000 from April 2028.</div>
+   <div class="row"><span>Accounting basis</span><b>Cash basis</b></div><div class="row"><span>VAT</span><b>Not registered · figures include VAT</b></div></div>
+  <div class="card" data-pb="tx-timeline"><h3>Deadlines ${TAXY.label}</h3>
+   <div class="qline">${TAXY.quarters.map((x,i)=>`<div class="${i===qi?'sel':''}" data-act="tq" data-id="${i}" style="cursor:pointer"><b>${x[0]}</b>${fmtD(x[1])}–${fmtD(x[2])}<br>due ${fmtD(x[3])}<br>${pill(qStatus(i))}</div>`).join('')}
+    <div><b>Final</b>declaration<br>due ${fmtD(TAXY.final)} ${TAXY.final.slice(0,4)}<br>${pill('Future')}</div></div>
+   <p style="margin:10px 0 0;font-size:12.5px;color:var(--mut)">Tap a quarter to see its update. Each update is year-to-date: 6 Apr to the quarter end.</p></div>
+ </div>
+ <div class="grid c2" style="margin-top:14px">
+  <div class="card" data-pb="tx-summary"><h3>${q} update · 6 Apr – ${fmtD(sm?sm.e:e)} ${sm&&sm.partial?'<span style="color:var(--mut);font-weight:400">(so far, to '+fmtD(sm.end)+')</span>':''} ${pill(stt)}</h3>
+   ${sm?`<div class="row"><span>Turnover (money received)</span><b>${gbp2(sm.inc)}</b></div>
+   <table class="plain" style="margin:8px 0"><thead><tr><th>Expense category</th><th class="num">Records</th><th class="num">Amount</th></tr></thead><tbody>
+   ${Object.entries(sm.exp).filter(([,x])=>x.n).map(([k,x])=>`<tr><td>${CATS[k]}</td><td class="num">${x.n}</td><td class="num">${gbp2(x.amt)}</td></tr>`).join('')}
+   <tr><td><b>Total expenses</b></td><td></td><td class="num"><b>${gbp2(sm.expTot)}</b></td></tr></tbody></table>
+   <div class="row"><span>Net profit, year to date</span><b style="font-size:17px">${gbp2(sm.profit)}</b></div>
+   <div class="row" style="font-size:12px"><span>Built from ${sm.n} digital records (bank import, scanned receipts, invoice payments)</span><span></span></div>`:'<div class="empty">This quarter hasn\'t started yet.</div>'}</div>
+  <div class="grid">
+   <div class="card" data-pb="tx-checks"><h3>Readiness checks · ${q}</h3>${sm?`
+    <div class="chk"><i>${sm.uncats.length?'❌':'✅'}</i><div>${sm.uncats.length?`<b>${sm.uncats.length} transaction${sm.uncats.length>1?'s have':' has'} no category.</b> Every figure has to sit in an HMRC category.`:'Every transaction has a category.'}
+     ${sm.uncats.map(x=>`<div class="li" data-pb="tx-fix"><div class="meta"><b>${esc(x.desc)} · ${gbp2(x.amt)}</b><span>${fmtD(x.date)} · from ${x.src==='bank'?'bank import':'receipt '+x.id}</span></div>
+      <select id="cat_${x.id}"><option value="">Choose category…</option>${Object.entries(CATS).map(([k,l])=>`<option value="${k}">${l}</option>`).join('')}<option value="personal">Personal – not a business cost</option></select><button class="btn sm pri" data-act="setCat" data-id="${x.id}">Save</button></div>`).join('')}</div></div>
+    <div class="chk"><i>✅</i><div>Figures come from digital records, not typed-in totals (${sm.n} records).</div></div>
+    <div class="chk"><i>${sm.partial?'⏳':left<0?'⚠️':'✅'}</i><div>${sm.partial?`Quarter still open until ${fmtD(e)}.`:left>=0?`Deadline ${fmtDY(dl)}: <b>${left} days left</b>.`:`Deadline ${fmtDY(dl)} has passed.`}</div></div>`:'<div class="empty">Nothing to check yet.</div>'}</div>
+   <div class="card" data-pb="tx-prepare"><h3>Prepare ${q} update</h3>
+    ${stt==='Submitted'?`<div class="okbox">Submitted ${fmtD(S.mtd.submitted[q])} (example: through the accountant's software).</div>`:
+      stt==='Prepared'?`<div class="okbox" style="display:block">Prepared ${fmtD(S.mtd.prepared[q])}: turnover ${gbp2(sm.inc)}, expenses ${gbp2(sm.expTot)}, profit ${gbp2(sm.profit)}. <b>Not sent.</b> Send it with HMRC-recognised or bridging software.</div>`:
+      stt==='Ready'?`<p style="margin:0 0 8px;font-size:13px">All checks pass.</p><button class="btn pri" data-act="prepareQ" data-id="${qi}">Prepare ${q} update (demo)</button>`:
+      stt==='Issues'?'<p style="margin:0;font-size:13px;color:var(--red)">Fix the checks above first.</p>':'<p style="margin:0;font-size:13px;color:var(--mut)">Available after the quarter ends.</p>'}</div>
+  </div>
+ </div>`}
 
 function kpis(){const st=S.quotes.map(q=>[q,qState(q)]);const sum=f=>st.filter(([q,s])=>f(s)).reduce((a,[q])=>a+qVal(q),0);
  const won=st.filter(([,s])=>s==='Won').length,lost=st.filter(([,s])=>s==='Lost').length,gh=st.filter(([,s])=>s==='Ghosted').length;
@@ -282,7 +481,10 @@ function vDash(){const k=kpis();
  const order=[['Draft','#a9a59b'],['Fresh','#2f5f9e'],['Due','#c98a26'],['Overdue','#d0682a'],['Waiting','#6b54a8'],['Ghosted','#b4433a'],['Won','#1f6f5c'],['Lost','#8d8a82']];
  const cnt={};S.quotes.forEach(q=>{const s=qState(q);cnt[s]=(cnt[s]||0)+1});
  const wonUnconv=S.quotes.filter(q=>q.status==='Won'&&!q.jobNo);
- return `<div class="grid k6">
+ const chq=S.invoices.filter(v=>invState(v)==='Chase due').sort((a,b)=>invOD(b)-invOD(a));
+ return `${PB.id?'':`<div class="card intro"><b>What SiteLedger does</b><p>Quotes that chase themselves, receipts that cost your jobs, invoices that chase themselves, and the Making Tax Digital quarterly update built from the same records. Watch it work:</p>
+  <div class="btnrow"><button class="btn sm pri" data-act="play" data-id="inv">▶ Invoice chase ladder</button><button class="btn sm" data-act="play" data-id="tax">▶ MTD quarterly update</button></div></div>`}
+ <div class="grid k6">
   <div class="card kpi"><small>Open pipeline</small><b>${gbp(k.open)}</b><span>quotes awaiting decision</span></div>
   <div class="card kpi ${k.due?'alert':''}"><small>Follow-ups due today</small><b>${k.due}</b><span>sequence steps reached</span></div>
   <div class="card kpi alert"><small>Ghosted value at risk</small><b>${gbp(k.ghost)}</b><span>${k.ghostN} quotes gone quiet</span></div>
@@ -294,6 +496,9 @@ function vDash(){const k=kpis();
   <div class="grid">
    <div class="card"><h3>Today's follow-ups <span style="color:var(--mut);font-weight:400">· ${fq.length} due</span></h3>
     <div class="list">${fq.length?fq.map(([q,s])=>`<div class="li"><div class="meta"><b>${esc(q.cust)} · ${esc(q.title)}</b><span class="mono">${q.no}</span> <span>· ${gbp(qVal(q))} · sent ${diff(q.sentAt)}d ago · next: ${nextStepLabel(q)}</span></div>${pill(s)}${dots(q.followUps)}<button class="btn sm pri" data-act="followUp" data-id="${q.no}">Follow up</button></div>`).join(''):'<div class="empty">✅ All caught up – no follow-ups due.</div>'}</div></div>
+   <div class="card"><h3>💷 Invoices to chase <span style="color:var(--mut);font-weight:400">· ${chq.length} due</span></h3>
+    <div class="list">${chq.length?chq.slice(0,4).map(v=>`<div class="li"><div class="meta"><b><span class="rel ${clientRel(v.cust).col}"></span>${esc(v.cust)} · ${gbp2(invOut(v))}</b><span class="mono">${v.no}</span> <span>· ${invOD(v)}d overdue · next: ${stepLabel(v)}</span></div><button class="btn sm pri" data-act="chase" data-id="${v.no}">Chase</button></div>`).join(''):'<div class="empty">No invoice reminders due.</div>'}</div>
+    <button class="btn sm ghost" data-act="view" data-id="invoices">All invoices →</button></div>
    <div class="card"><h3>👻 Revive ghosted quotes</h3>
     <div class="list">${gq.length?gq.map(q=>`<div class="li"><div class="meta"><b>${esc(q.cust)} · ${esc(q.title)}</b><span class="mono">${q.no}</span> <span>· ${gbp(qVal(q))} · last contact ${diff(q.lastContact||q.sentAt)}d ago</span></div>${dots(q.followUps)}<button class="btn sm warn" data-act="followUp" data-id="${q.no}">Send revival</button><button class="btn sm ghost" data-act="markLost" data-id="${q.no}">Close as lost</button></div>`).join(''):'<div class="empty">No ghosted quotes.</div>'}</div></div>
   </div>
@@ -310,7 +515,7 @@ function jobMini(j){const mat=jobMat(j),m=jobMargin(j),pct=Math.min(100,mat/j.ma
 
 function vQuotes(){const F=['All','Draft','Fresh','Due','Overdue','Waiting','Ghosted','Won','Lost'];
  const rows=S.quotes.map(q=>[q,qState(q)]).filter(([,s])=>UI.qfilter==='All'||s===UI.qfilter||(UI.qfilter==='Due'&&s==='Overdue')).sort((a,b)=>b[0].no.localeCompare(a[0].no));
- return `<h2>Quotes <span class="sub">· sequential numbering, next is <span class="mono">${nextQuoteNo()}</span></span></h2>
+ return `<h2>Quotes <span class="sub">· sequential numbering, next is <span class="mono">${nextQuoteNo()}</span> · <a href="#" data-act="view" data-id="settings">follow-up rules</a></span></h2>
  <div class="tabs">${F.map(f=>`<button class="${UI.qfilter===f?'on':''}" data-act="qfilter" data-id="${f}">${f}</button>`).join('')}</div>
  <div class="card tablewrap"><table class="rt"><thead><tr><th>No.</th><th>Customer</th><th>Job</th><th class="num">Value</th><th>Sent</th><th>Age</th><th>Status</th><th>Follow-ups</th><th>Actions</th></tr></thead><tbody>
  ${rows.map(([q,s])=>`<tr><td data-label="Quote" class="mono"><a href="#" data-act="openQuote" data-id="${q.no}">${q.no}</a></td><td data-label="Customer">${esc(q.cust)}</td><td data-label="Job">${esc(q.title)}${q.jobNo?` <span class="mono" style="color:var(--acc)">→ ${q.jobNo}</span>`:''}</td><td data-label="Value" class="num"><b>${gbp(qVal(q))}</b></td>
@@ -329,7 +534,8 @@ function vJobs(){return `<h2>Jobs <span class="sub">· live margin from captured
  <div class="row"><span>Margin</span><b style="font-size:18px;color:${m<.25?'var(--red)':'var(--acc)'}">${(m*100).toFixed(1)}%</b></div>
  ${over>0?`<div class="alertbox">⚠ Materials ${gbp2(over)} over quoted budget – consider a variation order.</div>`:pct>85?`<div class="alertbox" style="background:var(--amb2);color:#8a5a12">Materials at ${pct.toFixed(0)}% of budget.</div>`:''}
  <div class="rcpts"><b style="font-size:12.5px">Receipts (${jobRcpts(j).length})</b>${jobRcpts(j).map(r=>`<div class="row"><span>${srcIcon(r.source)} ${esc(r.supplier)} · ${fmtD(r.date)}</span><span>${gbp2(r.amount)}</span></div>`).join('')}</div>
- <div class="btnrow">${j.status!=='Complete'?`<button class="btn sm" data-act="captureNav">+ Add receipt</button><button class="btn sm" data-act="completeJob" data-id="${j.no}">Mark complete</button>`:''}</div></div>`}).join('')}</div>`}
+ <div class="row"><span>Invoiced</span><b>${gbp2(jobInvoiced(j))} of ${gbp(j.value)}</b></div>
+ <div class="btnrow">${j.status!=='Complete'?`<button class="btn sm" data-act="captureNav">+ Add receipt</button><button class="btn sm" data-act="completeJob" data-id="${j.no}">Mark complete</button>`:''}${j.value-jobInvoiced(j)>0.5?`<button class="btn sm pri" data-act="invoiceJob" data-id="${j.no}">Invoice ${gbp(j.value-jobInvoiced(j))}</button>`:''}</div></div>`}).join('')}</div>`}
 const srcIcon=s=>s==='photo'?'📷':s==='voice'?'🎙':'✉️';
 
 function vReceipts(){const un=S.receipts.filter(r=>!r.jobNo);const P=UI.preview;
@@ -367,7 +573,13 @@ function vSettings(){const s=S.settings;return `<h2>Follow-up rules</h2><div cla
  ${s.seq.map((d,i)=>`<div class="fl"><label>${STEP_NAMES[i].replace('Day {d} · ','Step '+(i+1)+' · ')} – day after sending</label><input type="number" min="1" max="60" value="${d}" id="seq${i}"></div><div class="fl"><label>Template</label><textarea rows="3" id="tpl${i}">${esc(s.templates[i])}</textarea></div>`).join('')}
  <button class="btn pri" data-act="saveSettings">Save rules</button></div>
  <div class="card"><h3>Placeholders</h3><div class="kv"><span>{first}</span><span>Customer first name</span><span>{no}</span><span>Quote number</span><span>{title}</span><span>Job title</span><span>{value}</span><span>Quote total</span><span>{biz}</span><span>Your business name</span></div>
- <h3 style="margin-top:18px">Preview (Grace Hughes, step 1)</h3><div class="phone"><div class="bubble">${esc(fill(s.templates[0],S.quotes.find(q=>q.no==='Q-0104')||S.quotes[0]))}</div></div></div></div>`}
+ <h3 style="margin-top:18px">Preview (Grace Hughes, step 1)</h3><div class="phone"><div class="bubble">${esc(fill(s.templates[0],S.quotes.find(q=>q.no==='Q-0104')||S.quotes[0]))}</div></div></div></div>
+ <h2 style="margin-top:22px">Invoice chase ladder</h2><div class="grid c2"><div class="card"><h3>Steps (days after the due date)</h3>
+ ${s.ladder.map((d,i)=>`<div class="fl"><label>Step ${i+1} · ${LADDER_NAMES[i]} – days after due</label><input type="number" min="0" max="120" value="${d}" id="lad${i}"></div><div class="fl"><label>Template</label><textarea rows="3" id="itpl${i}">${esc(s.invTemplates[i])}</textarea></div>`).join('')}
+ <div class="fl"><label>Bank of England base rate (%) for business late-payment interest: check the current rate</label><input type="number" step="0.05" min="0" max="20" value="${s.baseRate}" id="baseRate"></div>
+ <button class="btn pri" data-act="saveSettings">Save rules</button></div>
+ <div class="card"><h3>Placeholders</h3><div class="kv"><span>{first}</span><span>Client first name</span><span>{no}</span><span>Invoice number</span><span>{amount}</span><span>Amount outstanding</span><span>{due}</span><span>Due date</span><span>{days}</span><span>Days overdue</span><span>{interest}</span><span>Statutory interest sentence (business clients only)</span></div>
+ <p style="font-size:12.5px;color:var(--mut)">Statutory interest and fixed compensation (£40 / £70 / £100 by invoice size) apply to <b>business</b> clients under the Late Payment of Commercial Debts (Interest) Act 1998, not to homeowners unless your terms say so. A real letter before claim to an individual has to follow the Pre-Action Protocol for Debt Claims.</p></div></div>`}
 
 /* ---------- modals ---------- */
 function openModal(h){$('#modal').innerHTML=h;$('#mask').classList.add('on')}
@@ -383,6 +595,22 @@ function mFollowUp(no){const q=S.quotes.find(x=>x.no===no);const i=Math.min(q.fo
  <div class="phone"><div class="bubble" id="fuPrev">${esc(f.txt)}</div></div>
  <div class="modal-actions"><button class="btn ghost" data-act="close">Cancel</button><button class="btn pri" data-act="sendFu" data-id="${q.no}">Send ${f.ch} (demo)</button></div>`);
  $('#fuTxt').addEventListener('input',e=>{UI.fu.txt=e.target.value;$('#fuPrev').textContent=e.target.value})}
+function mChase(no){const v=S.invoices.find(x=>x.no===no);const i=Math.min(v.chases,S.settings.ladder.length-1);
+ UI.ch=UI.ch&&UI.ch.no===no?UI.ch:{no,ch:v.b2b?'Email':'SMS',txt:fillInv(S.settings.invTemplates[i],v)};const c=UI.ch;
+ openModal(`<h2>Chase ${v.no} <button class="btn ghost" data-act="close">✕</button></h2>
+ <div class="row"><span>${esc(v.cust)} · ${gbp2(invOut(v))} · ${invOD(v)}d overdue</span>${pill(invState(v))}</div><div class="row"><span>Ladder step</span><b>${stepLabel(v)}</b></div>
+ ${i===3?'<div class="alertbox" style="background:var(--amb2);color:#7a4f0f">This only warns that a formal letter is coming. A real letter before claim to an individual must follow the Pre-Action Protocol for Debt Claims (30 days to respond, with an information sheet).</div>':''}
+ <div style="margin:10px 0" class="seg">${['SMS','Email'].map(x=>`<button class="${c.ch===x?'on':''}" data-act="chCh" data-id="${x}">${x==='SMS'?'💬 SMS':'✉️ Email'}</button>`).join('')}</div>
+ <div style="color:var(--mut);font-size:12.5px">To: ${c.ch==='SMS'?esc(v.phone):esc(v.email)}</div>
+ <textarea id="chTxt" rows="5" style="margin-top:6px">${esc(c.txt)}</textarea>
+ <div class="modal-actions"><button class="btn ghost" data-act="close">Cancel</button><button class="btn pri" data-act="sendChase" data-id="${v.no}">Send ${c.ch} (demo)</button></div>`);
+ $('#chTxt').addEventListener('input',e=>{UI.ch.txt=e.target.value})}
+function mPayment(no){const v=S.invoices.find(x=>x.no===no);
+ openModal(`<h2>Record payment · ${v.no}<button class="btn ghost" data-act="close">✕</button></h2>
+ <div class="row"><span>${esc(v.cust)} · ${esc(v.title)}</span><b>${gbp2(invOut(v))} outstanding</b></div>
+ <div class="fl" style="margin-top:10px"><label>Amount received (£)</label><input type="number" id="payAmt" min="0.01" step="0.01" value="${invOut(v).toFixed(2)}"></div>
+ <p style="font-size:12.5px;color:var(--mut);margin:0">On the cash basis this counts as income on ${fmtD(iso(TODAY))}, so it lands in that quarter on the Tax tab.</p>
+ <div class="modal-actions"><button class="btn ghost" data-act="close">Cancel</button><button class="btn pri" data-act="savePayment" data-id="${v.no}">Record payment</button></div>`)}
 function mQuote(no){const q=S.quotes.find(x=>x.no===no);const s=qState(q);
  openModal(`<h2><span><span class="mono">${q.no}</span> · ${esc(q.title)}</span><button class="btn ghost" data-act="close">✕</button></h2>
  <div class="row"><span>${esc(q.cust)} · ${esc(q.phone)} · ${esc(q.email)}</span>${pill(s)}</div>
@@ -410,7 +638,9 @@ function mWalk(){openModal(`<h2>Demo walkthrough (≈3 min)<button class="btn gh
  <li><b>Scan the Shell fuel receipt</b> – no job match → goes to the Unassigned inbox; assign it as overhead.</li>
  <li><b>Jobs</b> – J-0042 Patel bathroom shows a materials overrun alert; margin drops below target.</li>
  <li><b>New quote</b> – gets the next sequential number automatically (Q-0113).</li>
- <li><b>Follow-up rules</b> – change the sequence days/templates and watch statuses recalculate.</li></ol>
+ <li><b>Follow-up rules</b> (link on the Quotes page): change the sequence days or templates and watch statuses recalculate.</li>
+ <li><b>💷 Invoices</b>: overdue invoices climb a 4-step chase ladder (friendly → firm → final notice → letter-before-claim warning). Business clients show statutory late-payment interest; record part or full payments. <b>▶ Invoice chase ladder</b> plays it for you (<code>?play=inv</code>).</li>
+ <li><b>🏛️ Tax</b>: a Making Tax Digital quarterly-update demo built from the same records, with deadlines, year-to-date figures by HMRC category and readiness checks. Not connected to HMRC. <b>▶ MTD quarterly update</b> plays it (<code>?play=tax</code>).</li></ol>
  <p style="color:var(--mut);font-size:12.5px">Use "Reset demo data" in the black strip to start again.</p></div>`)}
 
 /* ---------- actions ---------- */
@@ -452,8 +682,92 @@ const A={
   UI.preview=null;render();toast(job?`Allocated to ${job} – margin ${(jobMargin(j)*100).toFixed(1)}%`:'Saved to Unassigned inbox')},
  assign:id=>{const v=$('#as_'+id).value;if(!v){toast('Pick a job first');return}const r=S.receipts.find(x=>x.id===id);r.jobNo=v;log(`Receipt ${id} assigned to ${v==='__overhead'?'overhead':v}`);render();toast('Receipt assigned')},
  saveSettings:()=>{const seq=[0,1,2].map(i=>Math.max(1,parseInt($('#seq'+i).value)||1));if(!(seq[0]<seq[1]&&seq[1]<seq[2])){toast('Step days must increase (e.g. 3, 7, 14)');return}
-  S.settings.seq=seq;S.settings.templates=[0,1,2].map(i=>$('#tpl'+i).value);log(`Follow-up sequence updated to days ${seq.join(', ')}`);render();toast('Rules saved – statuses recalculated')}
+  const lad=[0,1,2,3].map(i=>Math.max(0,parseInt($('#lad'+i).value)||0));if(!(lad[0]<lad[1]&&lad[1]<lad[2]&&lad[2]<lad[3])){toast('Chase ladder days must increase (e.g. 0, 7, 14, 30)');return}
+  S.settings.seq=seq;S.settings.templates=[0,1,2].map(i=>$('#tpl'+i).value);S.settings.ladder=lad;S.settings.invTemplates=[0,1,2,3].map(i=>$('#itpl'+i).value);
+  S.settings.baseRate=Math.max(0,parseFloat($('#baseRate').value)||0);log(`Rules updated: follow-ups ${seq.join(', ')} · chase ladder ${lad.join(', ')}`);render();toast('Rules saved – statuses recalculated')},
+ chase:id=>{UI.ch=null;mChase(id)},
+ chCh:c=>{UI.ch.ch=c;mChase(UI.ch.no)},
+ sendChase:id=>{const c=UI.ch;doChase(id,c.ch,c.txt);closeModal();UI.ch=null;render();const v=S.invoices.find(x=>x.no===id);toast(`${c.ch} sent to ${first(v.cust)} – ${invState(v)}`)},
+ payment:id=>mPayment(id),
+ savePayment:id=>{const a=parseFloat($('#payAmt').value);if(!(a>0)){toast('Enter an amount');return}recordPayment(id,a);closeModal();render();const v=S.invoices.find(x=>x.no===id);toast(invOut(v)<=0.005?`${id} paid in full`:`${gbp2(invOut(v))} still outstanding on ${id}`)},
+ invoiceJob:id=>{const j=S.jobs.find(x=>x.no===id);const amt=+(j.value-jobInvoiced(j)).toFixed(2);if(amt<=0)return;const q=S.quotes.find(x=>x.no===j.quote)||{};const no=nextInvNo();
+  S.invoices.push({no,cust:j.cust,b2b:/Ltd|Stores/.test(j.cust)||/shop/i.test(j.title),phone:q.phone||'—',email:q.email||'—',jobNo:j.no,title:j.title+(jobInvoiced(j)?' – balance':''),amount:amt,issued:iso(TODAY),terms:14,payments:[],chases:0,lastChase:null,lastMsg:null,hist:[{t:iso(TODAY),m:'Invoice issued'}]});
+  log(`${no} issued to ${j.cust} for ${gbp2(amt)} (${j.no})`);UI.view='invoices';render();toast(`${no} issued – due in 14 days`)},
+ tq:id=>{UI.tq=+id;render()},
+ setCat:id=>{const v=$('#cat_'+id).value;if(!v){toast('Choose a category first');return}const b=S.ledger.find(x=>x.id===id),r=S.receipts.find(x=>x.id===id);if(b)b.cat=v;if(r)r.cat=v;
+  log(`${id} categorised as ${v==='personal'?'personal (excluded)':CATS[v]}`);render();toast('Categorised')},
+ prepareQ:id=>{const q=TAXY.quarters[+id][0];S.mtd.prepared[q]=iso(TODAY);log(`MTD ${q} update prepared (demo – not sent to HMRC)`);render();toast(`${q} prepared – not sent`)},
+ play:id=>{if(!SC[id])return;PB.id=id;PB.playing=true;pbGo(0)},
+ pbToggle:()=>{const last=PB.step===SC[PB.id].steps.length-1;if(last&&!PB.playing){PB.playing=true;pbGo(0);return}PB.playing=!PB.playing;if(PB.playing)pbSchedule();else clearTimeout(PB.timer);pbPanel()},
+ pbPrev:()=>{PB.playing=false;pbGo(PB.step-1)},
+ pbNext:()=>{PB.playing=false;pbGo(PB.step+1)},
+ pbRestart:()=>{PB.playing=true;pbGo(0)},
+ pbSpeed:()=>{PB.speed=PB.speed===1?2:1;pbSchedule();pbPanel()},
+ pbExit:()=>pbExit()
 };
-document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;e.preventDefault();const f=A[b.dataset.act];if(f)f(b.dataset.id,b)});
+
+/* ---------- scenario playback (same engine as ApexGuard) ---------- */
+const PB={id:null,step:0,playing:false,speed:1,timer:null};
+const PB_OK=new Set(['play','pbPrev','pbNext','pbToggle','pbRestart','pbExit','pbSpeed','view','close','walkthrough','tq']);
+const txt=(v,st)=>typeof v==='function'?v(st):v;
+const setDay=n=>{TODAY=new Date(BASE);TODAY.setDate(TODAY.getDate()+n)};
+const invOf=no=>S.invoices.find(v=>v.no===no);
+function invTotals(){const od=S.invoices.filter(v=>['Chase due','Chased','Final stage'].includes(invState(v)));return {out:S.invoices.reduce((a,v)=>a+invOut(v),0),od:od.length,odAmt:od.reduce((a,v)=>a+invOut(v),0),due:S.invoices.filter(v=>invState(v)==='Chase due').length}}
+const SC={
+ inv:{title:'Invoice chase ladder',steps:[
+  {at:'Sat 18 Oct',view:'invoices',focus:['iv-kpis'],title:'Invoices: who owes you, and what to send next',
+   body:()=>{const t=invTotals();return `${gbp(t.out)} is outstanding and ${gbp(t.odAmt)} of it is overdue across ${t.od} invoices. ${t.due} reminders are due today. Each overdue invoice climbs a 4-step ladder: friendly → firm → final notice → letter-before-claim warning.`}},
+  {at:'Sat 18 Oct',view:'invoices',focus:['inv-INV-0031'],title:'Lucy Grant, 2 days overdue: friendly reminder',fx:()=>doChase('INV-0031','SMS'),
+   body:()=>`Step 1 goes out by SMS: “${invOf('INV-0031').lastMsg}”`},
+  {at:'Sat 18 Oct',view:'invoices',focus:['inv-INV-0028'],title:'Sarah Smith, part-paid and 18 days overdue: firm reminder',fx:()=>doChase('INV-0028','Email'),
+   body:()=>{const v=invOf('INV-0028');return `${gbp(invPaid(v))} of ${gbp(v.amount)} is paid, so the reminder asks for the remaining ${gbp2(invOut(v))}: “${v.lastMsg}”`}},
+  {at:'Sat 18 Oct',view:'invoices',focus:['inv-INV-0026'],title:'Khan Stores Ltd, a business: final notice with statutory interest',fx:()=>doChase('INV-0026','Email'),
+   body:()=>{const l=lateInterest(invOf('INV-0026'));return `Business clients can be charged interest at 8% over base rate (${(l.rate*100).toFixed(1)}% a year) plus fixed compensation: ${gbp2(l.interest)} interest for ${l.od} days + ${gbp(l.comp)} on a ${gbp(2400)} invoice. Homeowners can't be charged this unless your terms say so.`}},
+  {at:'Sat 18 Oct',view:'invoices',focus:['inv-INV-0024'],title:'Ben Carter, 61 days overdue: letter-before-claim warning',fx:()=>doChase('INV-0024','Email'),
+   body:'The last step only warns that a formal letter is coming. A real letter before claim to an individual has to follow the Pre-Action Protocol for Debt Claims, which gives 30 days to respond.'},
+  {at:'Tue 21 Oct',view:'invoices',focus:['iv-kpis','invrow-INV-0031'],title:'3 days later: 2 invoices paid',fx:()=>{setDay(3);recordPayment('INV-0031',1650);recordPayment('INV-0026',2400)},
+   body:()=>`Lucy Grant paid ${gbp(1650)} and Khan Stores ${gbp(2400)}. Outstanding is down to ${gbp(invTotals().out)}. On the cash basis both payments count as Q3 income on the Tax tab.`},
+  {at:'Sat 25 Oct',view:'invoices',focus:['inv-INV-0028','iv-rel'],title:'A week on, the ladder moves by itself',fx:()=>setDay(7),
+   body:()=>{const v=invOf('INV-0028');return `Sarah Smith is now ${invOD(v)} days overdue, so her next step (${stepLabel(v)}) is due. Ben Carter has had every reminder. Client colours come from how late each client pays.`}},
+  {at:'Sat 25 Oct',view:'invoices',focus:['iv-queue'],title:'What you just saw',
+   body:'SiteLedger knows who owes what, what to send next and when. It writes the message, adds statutory interest only where the law allows it, and feeds payments into your tax figures.'}
+ ]},
+ tax:{title:'Making Tax Digital quarterly update',steps:[
+  {at:'Sat 18 Oct',view:'tax',focus:['tx-mandate'],title:'Making Tax Digital: why this business is in',
+   body:()=>`Since 6 April 2026, sole traders and landlords with qualifying income over £50,000 must keep digital records and send quarterly updates. Northfield's 2024/25 income was ${gbp(S.mtd.qualifying)}, so it's in. The threshold falls to £30,000 in April 2027 and £20,000 in April 2028.`},
+  {at:'Sat 18 Oct',view:'tax',focus:['tx-timeline'],title:'4 updates a year, plus a final declaration',
+   body:()=>`Q1 is done. Q2 (6 Jul–5 Oct) is due by 7 Nov 2026: ${-diff('2026-11-07')} days left. The final declaration for 2026/27 is due by 31 Jan 2028.`},
+  {at:'Sat 18 Oct',view:'tax',focus:['tx-summary'],title:'The Q2 figures are year-to-date, built from SiteLedger records',
+   body:()=>{const s=qSum(1);return `Updates are cumulative: 6 Apr–5 Oct. Turnover ${gbp(s.inc)}, expenses ${gbp(s.expTot)}, profit ${gbp(s.profit)}, from ${s.n} records: scanned receipts, invoice payments and the bank import. On the cash basis, money counts when it's received or paid.`}},
+  {at:'Sat 18 Oct',view:'tax',focus:['tx-checks','tx-fix'],title:'Check fails: 1 transaction has no category',
+   body:'An Amazon card payment of £86.40 (2 Oct) came in from the bank import with no category. Every figure has to sit in an HMRC category, so Q2 can\'t be prepared yet.'},
+  {at:'Sat 18 Oct',view:'tax',focus:['tx-checks'],title:'Categorised as office costs: checks pass',fx:()=>{S.ledger.find(x=>x.desc.startsWith('AMZN')).cat='admin';log('AMZN £86.40 categorised as Phone, stationery & office')},
+   body:()=>`Set to “Phone, stationery & office”. All ${qSum(1).n} records are categorised, so Q2 is ready.`},
+  {at:'Sat 18 Oct',view:'tax',focus:['tx-prepare'],title:'Q2 update prepared (demo, not sent)',fx:()=>{S.mtd.prepared.Q2=iso(TODAY)},
+   body:'This is exactly what Q2 would contain. SiteLedger isn\'t HMRC-recognised software, so a real update goes through recognised or bridging software, or your accountant.'},
+  {at:'Sat 18 Oct',view:'tax',focus:['tx-summary'],title:'What you just saw',
+   body:'The records you already keep for quotes, jobs, receipts and invoices become the quarterly update, and gaps are flagged weeks before the deadline.'}
+ ]}
+};
+function pbBuild(id,n){S=seed();UI.tq=null;const sc=SC[id];for(let i=0;i<=n;i++){const st=sc.steps[i];if(st.fx)st.fx()}}
+function pbGo(n){const sc=SC[PB.id];n=Math.max(0,Math.min(sc.steps.length-1,n));PB.step=n;closeModal();pbBuild(PB.id,n);UI.view=sc.steps[n].view||UI.view;render();pbSchedule();pbPanel();pbScroll()}
+function pbSchedule(){clearTimeout(PB.timer);if(!PB.id||!PB.playing)return;const sc=SC[PB.id];if(PB.step>=sc.steps.length-1){PB.playing=false;return}
+ const st=sc.steps[PB.step];PB.timer=setTimeout(()=>pbGo(PB.step+1),(2600+(txt(st.title)+txt(st.body)).length*42)/PB.speed)}
+function pbPanel(){const el=$('#pb');if(!PB.id){el.classList.remove('on');el.innerHTML='';document.body.classList.remove('pb-on');return}
+ const sc=SC[PB.id],st=sc.steps[PB.step],last=PB.step===sc.steps.length-1;
+ el.innerHTML=`<div class="pb-head"><span class="pb-tag">▶ Playback · ${esc(sc.title)}</span><span class="mono">${PB.step+1}/${sc.steps.length} · ${st.at}</span><button class="pb-x" data-act="pbExit" aria-label="Close playback">✕</button></div>
+  <div class="pb-prog"><i style="width:${((PB.step+1)/sc.steps.length*100).toFixed(0)}%"></i></div><b class="pb-title">${esc(txt(st.title))}</b><p class="pb-body">${esc(txt(st.body))}</p>
+  <div class="pb-ctl"><button data-act="pbRestart" aria-label="Restart">⏮</button><button data-act="pbPrev" aria-label="Previous step" ${PB.step?'':'disabled'}>‹</button>
+  <button class="main" data-act="pbToggle">${last&&!PB.playing?'↻ Replay':PB.playing?'⏸ Pause':'▶ Play'}</button><button data-act="pbNext" aria-label="Next step" ${last?'disabled':''}>›</button><button data-act="pbSpeed" aria-label="Playback speed">${PB.speed}x</button></div>`;
+ el.classList.add('on');document.body.classList.add('pb-on');document.body.style.setProperty('--pbh',el.offsetHeight+'px')}
+const pbSel=f=>f.endsWith('*')?`[data-pb^="${f.slice(0,-1)}"]`:`[data-pb="${f}"]`;
+function pbHighlight(){if(!PB.id)return;(SC[PB.id].steps[PB.step].focus||[]).forEach(f=>document.querySelectorAll(pbSel(f)).forEach(e=>e.classList.add('pb-hl')))}
+function pbScroll(){const f=(SC[PB.id].steps[PB.step].focus||[])[0];const hit=f&&document.querySelector(pbSel(f));if(!hit)return;
+ const el=hit.matches('.li,tr')?hit:(hit.closest('.card')||hit);const top=el.getBoundingClientRect().top+scrollY-$('.top').offsetHeight-14;scrollTo({top:Math.max(0,top),behavior:'smooth'})}
+function pbExit(){clearTimeout(PB.timer);PB.id=null;PB.playing=false;render()}
+
+document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||b.disabled)return;e.preventDefault();const act=b.dataset.act;
+ if(PB.id&&!PB_OK.has(act))pbExit();if(PB.id&&(act==='view'||act==='tq')){PB.playing=false;clearTimeout(PB.timer)}const f=A[act];if(f)f(b.dataset.id,b)});
 render();
+(()=>{const p=new URLSearchParams(location.search).get('play');if(p&&SC[p])A.play(p)})();
 </script></body></html>
