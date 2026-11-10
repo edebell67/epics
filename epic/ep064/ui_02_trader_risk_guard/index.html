@@ -6,6 +6,9 @@
   Workflow: workstream/600_workflow/ep064/EP064_trader_risk_guard_workflow.html
 
   VERSION HISTORY
+  v1.4.0 · 2026-11-10 · Rulebook tab (Prop Rulebook Guard): per-account consistency rule (biggest day ≤ X% of cycle profit) with
+                        today's cap, profit needed for payout and a daily P&L chart; news blackout windows (±N min) with countdown
+                        and open-position warnings; new playback "Consistency + news rules" (?play=rules). Rule values are examples.
   v1.3.0 · 2026-11-10 · Scenario playback: HWM trap / revenge tilt / correlation spike play step by step with captions,
                         highlighted panels, play/pause/step/speed controls and an equity-vs-trailing-floor chart; ?play=hwm|tilt|corr
                         autoplays, ?live=1 now honoured. Tilt score is now computed from its 4 factors (points shown per factor);
@@ -53,7 +56,7 @@ input,select{background:#0e141f;border:1px solid var(--line);border-radius:10px;
 .brand small{display:none;font-weight:400;color:var(--mut);font-size:12.5px}
 .sp{flex:1}
 /* bottom tab bar on mobile */
-nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#101723;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);height:calc(var(--navh) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#101723;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);height:calc(var(--navh) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
 nav button{border:0;background:none;color:var(--mut);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;position:relative}
 nav button .ic{font-size:19px;line-height:1}
 nav button.on{color:#58a6ff;font-weight:600}
@@ -147,6 +150,13 @@ body.pb-on{padding-bottom:calc(var(--navh) + var(--pbh,200px) + 24px + env(safe-
 .intro p{margin:4px 0 10px;color:#c9d1d9;font-size:13.5px}
 .fchart-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--mut);margin-top:8px}.fchart-legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:4px}
 .f-row small{color:var(--mut);font-weight:400;margin-left:6px}
+/* rulebook */
+.rchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.rchip{font-size:11px;padding:2px 8px;border-radius:999px;background:#0e141f;border:1px solid #243049;color:#9fb3cf}
+.rnote{color:var(--mut);font-size:12.5px;margin:0 0 12px}
+.rnews{font-size:12.5px;padding:8px 10px;border-radius:8px;background:#0e141f;border:1px solid #1d2636}
+.rnews.warn{border-color:#6e5015;background:var(--amb2);color:#f0c674}
+.rnews.bad{border-color:#7d2629;background:var(--red2);color:#ffb3ad}
 
 /* tablet ≥700px */
 @media(min-width:700px){
@@ -259,12 +269,53 @@ function seed(preset='normal'){
     strats.forEach((s,idx)=>{s.dd=-(420+idx*110);s.dayNet=-180-idx*65;s.curve=[0,160,290,120,-80,-210,-340,s.dayNet]});
     logs.unshift({t:'14:38:19',lvl:'CRIT',m:'⚠ REGIME SHIFT → CHOPPY (ER 0.19, Vol 89th pct). Cross-strategy ρ spiked to 0.84.'});
   }
-  return {mode:'sim',preset,accts:baseAccts,tilt,strats,corr,regime,logs,ep058:{status:'idle',lastSync:null,topModels:[]}};
+  return ensureRules({mode:'sim',preset,accts:baseAccts,tilt,strats,corr,regime,logs,ep058:{status:'idle',lastSync:null,topModels:[]}});
+}
+
+/* RULEBOOK: example rule settings per account (not any firm's current terms) and prior days of the payout cycle */
+const RULES={A1:{cons:0.30,target:3000,newsMin:2},A2:{cons:0.30,target:3000,newsMin:2},A3:{cons:0.40,target:6000,newsMin:0},A4:{cons:0.50,target:3000,newsMin:5}};
+const mkDays=a=>a.map((p,i)=>({d:['Mon','Tue','Wed','Thu'][i],pnl:p}));
+const DAYS={A1:mkDays([420,380,350,450]),A2:mkDays([300,520,410,260]),A3:mkDays([600,-200,900,300]),A4:mkDays([300,250,-100,200])};
+const NEWS_DEFAULT=[{t:'08:30',n:'US CPI'},{t:'10:00',n:'ISM Services PMI'},{t:'14:00',n:'FOMC Minutes'},{t:'15:00',n:'Fed Chair speech'}];
+function ensureRules(st){
+  if(!st.clock)st.clock='14:32';
+  if(!st.today)st.today='Fri';
+  if(!st.news)st.news=NEWS_DEFAULT.map(e=>({...e}));
+  st.accts.forEach(a=>{
+    if(!a.rules)a.rules={...(RULES[a.id]||{cons:0.40,target:3000,newsMin:2})};
+    if(!a.days)a.days=(DAYS[a.id]||[]).map(d=>({...d}));
+  });
+  return st;
+}
+const hm=s=>{const [h,m]=String(s).split(':').map(Number);return h*60+m};
+const fmtHM=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+// Consistency rule: biggest single day (incl. today) must be ≤ cons × total cycle profit.
+function consMetrics(a){
+  const r=a.rules,days=a.days||[];
+  const prev=days.reduce((s,d)=>s+d.pnl,0),today=a.dayPnl||0,P=prev+today;
+  const B=Math.max(0,...days.map(d=>d.pnl),today);
+  const ratio=P>0?B/P:(B>0?Infinity:0);
+  const capTotal=prev>0?r.cons*prev/(1-r.cons):0;            // most today can make without becoming the breaking day
+  const capLeft=Math.max(0,capTotal-Math.max(0,today));
+  const need=Math.max(r.target,B>0?B/r.cons:0);              // total profit needed for target AND consistency
+  const short=Math.max(0,need-P);
+  const breach=P>0?ratio>r.cons+1e-9:B>0;
+  const ready=P>=r.target&&!breach;
+  const near=!breach&&!ready&&today>0&&capLeft<=Math.max(100,capTotal*0.15);
+  return {prev,today,P,B,ratio,capTotal,capLeft,need,short,breach,ready,near,
+    state:ready?'READY':breach?'BLOCKED':near?'NEAR CAP':'OK',binding:B>0&&B/r.cons>r.target?'consistency':'target'};
+}
+// News rule: no open position from newsMin minutes before to newsMin minutes after each event.
+function newsInfo(st,a){
+  const w=a.rules.newsMin;if(!w)return null;
+  const c=hm(st.clock);
+  for(const e of st.news){const s=hm(e.t)-w,en=hm(e.t)+w;if(en>=c)return {e,s,en,inWin:c>=s,mins:s-c}}
+  return {none:true};
 }
 
 let S=load();
 let UI={tab:'prop',selPair:[0,1]};
-function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&x.accts)return x}catch(e){}return seed('normal')}
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&x.accts)return ensureRules(x)}catch(e){}return seed('normal')}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2600)}
 
@@ -280,6 +331,7 @@ function acctMetrics(a){
 
 const TABS=[
   ['prop','🛡️','Prop Guard'],
+  ['rules','📏','Rulebook'],
   ['corr','🔀','Correlation'],
   ['tilt','🧠','Tilt & Rules'],
   ['logs','📜','Event Log']
@@ -321,6 +373,7 @@ function render(){
     <button class="live-btn ${isL?'on':''}" data-act="toggleLive">📡 Live EP058 Feed (${isL?'Active':'Connect'})</button>
     <button class="${!isL&&!PB.id&&S.preset==='normal'?'on':''}" data-act="preset" data-id="normal">🟢 Normal session</button>
     <button class="${PB.id==='hwm'?'on':''}" data-act="play" data-id="hwm">▶ Intraday HWM trap</button>
+    <button class="${PB.id==='rules'?'on':''}" data-act="play" data-id="rules">▶ Consistency + news rules</button>
     <button class="${PB.id==='tilt'?'on':''}" data-act="play" data-id="tilt">▶ Revenge tilt lockout</button>
     <button class="${PB.id==='corr'?'on':''}" data-act="play" data-id="corr">▶ Correlation spike</button>
     <button data-act="simLoss">⚡ Simulate -$350 loss tick</button>
@@ -329,7 +382,8 @@ function render(){
     <div><b>${esc(S.lockTitle||'🛑 HARD RISK LOCKOUT ENGAGED · COPIER SEVERED')}</b><span>${esc(S.lockReason||S.tilt.reason)}</span></div>
     <button class="btn sm" data-act="unlockAll">Override / Reset Lock</button>
   </div>`:'';
-  const body=UI.tab==='prop'?vProp():UI.tab==='corr'?vCorr():UI.tab==='tilt'?vTilt():vLogs();
+  ensureRules(S);
+  const body=UI.tab==='prop'?vProp():UI.tab==='rules'?vRules():UI.tab==='corr'?vCorr():UI.tab==='tilt'?vTilt():vLogs();
   $('#app').innerHTML=sc+lockBanner+body;
   pbPanel();
   pbHighlight();
@@ -344,9 +398,10 @@ function vProp(){
   const isL=S.mode==='live';
   const intro=(!PB.id&&!isL)?`<div class="card intro" data-pb="intro">
     <b>What ApexGuard does</b>
-    <p>It keeps track of where every prop account's trailing drawdown floor is, how far you are from it, and locks trading before you breach it, including when revenge trading or correlated strategies are about to eat the cushion. Watch it work:</p>
+    <p>It keeps track of where every prop account's trailing drawdown floor is, how far you are from it, and locks trading before you breach it, including when revenge trading or correlated strategies are about to eat the cushion. It also tracks the consistency and news rules that block payouts. Watch it work:</p>
     <div class="btnrow">
       <button class="btn sm pri" data-act="play" data-id="hwm">▶ Intraday HWM trap</button>
+      <button class="btn sm" data-act="play" data-id="rules">▶ Consistency + news rules</button>
       <button class="btn sm" data-act="play" data-id="tilt">▶ Revenge tilt lockout</button>
       <button class="btn sm" data-act="play" data-id="corr">▶ Correlation spike</button>
     </div>
@@ -437,6 +492,63 @@ function vCorr(){
       <td data-label="Action"><button class="btn sm ${s.active?'warn':'pri'}" data-act="toggleStrat" data-id="${s.id}">${s.active?'Pause sleeve':'Resume'}</button></td>
     </tr>`).join('')}
   </tbody></table>`;
+}
+
+function vRules(){
+  const ms=S.accts.map(a=>[a,consMetrics(a),newsInfo(S,a)]);
+  const ready=ms.filter(([,m])=>m.ready).length,blocked=ms.filter(([,m])=>m.breach).length;
+  const nexts=ms.filter(([,,n])=>n&&!n.none).map(([a,,n])=>({a,n})).sort((p,q)=>p.n.mins-q.n.mins);
+  const nx=nexts[0];
+  const atRisk=ms.filter(([a,,n])=>n&&!n.none&&a.openPnl&&!a.locked&&(n.inWin||n.mins<=5)).length;
+  const pct=v=>(v*100).toFixed(0)+'%';
+  const rat=m=>m.ratio===Infinity?'—':(m.ratio*100).toFixed(1)+'%';
+  return `<p class="rnote">Clock <b class="mono">${esc(S.today)} ${esc(S.clock)} ET</b> · Rule values below are <b>examples</b>, not any firm's current terms. Set them to match yours.</p>
+  <div class="grid k4">
+    <div class="card kpi ${ready?'good':''}" data-pb="rk-ready"><small>Payout-ready</small><b>${ready} of ${S.accts.length}</b><span>target hit and consistency passed</span></div>
+    <div class="card kpi ${blocked?'bad':'good'}" data-pb="rk-blocked"><small>Blocked by consistency</small><b>${blocked}</b><span>biggest day over the limit</span></div>
+    <div class="card kpi ${nx&&(nx.n.inWin||nx.n.mins<=5)?'warn':''}" data-pb="rk-news"><small>Next news blackout</small><b class="mono">${nx?(nx.n.inWin?'NOW':fmtHM(nx.n.s)):'—'}</b><span>${nx?esc(nx.n.e.n)+(nx.n.inWin?' · window open':' · in '+nx.n.mins+' min'):'no more events today'}</span></div>
+    <div class="card kpi ${atRisk?'bad':'good'}" data-pb="rk-open"><small>Positions into news</small><b>${atRisk}</b><span>open within 5 min of a blackout</span></div>
+  </div>
+  <div class="grid c2" style="margin-top:14px">${ms.map(([a,m,n])=>{
+    const r=a.rules;
+    const nCls=n&&!n.none&&a.openPnl&&!a.locked?(n.inWin?'bad':n.mins<=5?'warn':''):'';
+    const nTxt=!n?'No news rule on this account.':n.none?`No more news events today (±${r.newsMin} min rule).`:
+      `${esc(n.e.n)} at ${esc(n.e.t)}: blackout ${fmtHM(n.s)}–${fmtHM(n.en)} · ${n.inWin?'<b>window open now</b>':'in '+n.mins+' min'}${a.openPnl&&!a.locked?(n.inWin?' · <b>position open inside the window</b>':n.mins<=5?` · <b>position open: close by ${fmtHM(n.s)}</b>`:''):''}`;
+    return `<div class="card acct" data-pb="rule-${a.id}">
+      <div class="acct-top"><div><b>${esc(a.name)}</b>
+        <div class="rchips"><span class="rchip">Consistency ${pct(r.cons)}</span><span class="rchip">Target ${usd(r.target)}</span><span class="rchip">${r.newsMin?'News ±'+r.newsMin+' min':'No news rule'}</span></div></div>
+        <span class="pill p-${m.state==='READY'?'OK':m.state==='BLOCKED'?'CRITICAL':m.state==='NEAR CAP'?'WARNING':'ACTIVE'}">${m.state}</span></div>
+      <div class="chart-box" data-pb="rchart-${a.id}">${svgDays(a,m)}</div>
+      <div class="kv2">
+        <div><span>Biggest day / cycle profit</span><b class="mono" style="color:${m.breach?'#ff7b72':'inherit'}">${usd(m.B)} / ${usd(m.P)} = ${rat(m)}</b></div>
+        <div data-pb="rcap-${a.id}"><span>Can still make today</span><b class="mono" style="color:${m.near||m.breach?'#e3b341':'#3fb950'}">${m.prev>0?usd(m.capLeft)+' <small style="color:var(--mut)">of '+usd(m.capTotal)+'</small>':'—'}</b></div>
+        <div data-pb="rneed-${a.id}"><span>Profit still needed for payout</span><b class="mono">${m.ready?'$0 · ready':usd(m.short)}</b></div>
+        <div><span>Binding number</span><b class="mono">${usd(m.need)} <small style="color:var(--mut)">(${m.binding})</small></b></div>
+      </div>
+      <div class="rnews ${nCls}" data-pb="rnews-${a.id}">📰 ${nTxt}</div>
+    </div>`}).join('')}</div>`;
+}
+
+// Daily P&L bars for the payout cycle; dashed line = biggest day the consistency rule allows at the current total.
+function svgDays(a,m){
+  const vals=(a.days||[]).map(d=>({d:d.d,v:d.pnl})).concat([{d:S.today+'*',v:a.dayPnl||0}]);
+  const W=320,H=118,pt=16,pb=18,pl=6,pr=6;
+  const lim=m.P>0?a.rules.cons*m.P:0;
+  const mx=Math.max(100,lim,...vals.map(x=>x.v)),mn=Math.min(0,...vals.map(x=>x.v));
+  const y=v=>pt+(mx-v)/(mx-mn||1)*(H-pt-pb);
+  const bw=(W-pl-pr)/vals.length;
+  const bars=vals.map((x,i)=>{
+    const today=i===vals.length-1,big=x.v===m.B&&m.B>0;
+    const col=big&&m.breach?'#f85149':today?'#58a6ff':big?'#d29922':x.v<0?'#7d2629':'#3a4a63';
+    const x0=pl+i*bw+bw*0.18,w=bw*0.64,y0=Math.min(y(x.v),y(0)),h=Math.max(1,Math.abs(y(x.v)-y(0)));
+    return `<rect x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${col}"/>
+      <text x="${(x0+w/2).toFixed(1)}" y="${(y0-3).toFixed(1)}" fill="#c9d1d9" font-size="9.5" text-anchor="middle">${x.v<0?'-':''}${Math.abs(Math.round(x.v))}</text>
+      <text x="${(x0+w/2).toFixed(1)}" y="${H-5}" fill="#8b949e" font-size="9.5" text-anchor="middle">${esc(x.d)}</text>`;
+  }).join('');
+  const line=lim>0?`<line x1="${pl}" x2="${W-pr}" y1="${y(lim).toFixed(1)}" y2="${y(lim).toFixed(1)}" stroke="#f85149" stroke-dasharray="4 3" stroke-width="1.2"/>
+    <text x="${pl+2}" y="${(y(lim)-3).toFixed(1)}" fill="#ff7b72" font-size="9.5">max allowed day ${usd(lim)}</text>`:'';
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="Daily profit this payout cycle versus the consistency limit">
+    <line x1="${pl}" x2="${W-pr}" y1="${y(0).toFixed(1)}" y2="${y(0).toFixed(1)}" stroke="#303d52"/>${bars}${line}</svg>`;
 }
 
 function svgCurves(strats,cols){
@@ -536,6 +648,7 @@ function mWalk(){
     <li><b>▶ Playback</b>: tap <b>▶ Intraday HWM trap</b>, <b>▶ Revenge tilt lockout</b> or <b>▶ Correlation spike</b>. Each plays step by step with a caption, highlights the panel that matters and draws equity vs trailing floor. Use ‹ › to step and 1x/2x for speed. Share a direct link with <code>?play=hwm</code>, <code>?play=tilt</code> or <code>?play=corr</code>.</li>
     <li><b>Live EP058 Feed</b>: Tap <b>🟢 Connect Live EP058</b> to stream 4 active DNA models from PostgreSQL <code>tradedb</code> (:8149) into prop-firm evaluation rules.</li>
     <li><b>Prop Guard tab</b>: Compare <b>Intraday Trailing</b> (Apex) vs <b>EOD Trailing</b> (Topstep/MFFU) high-water-mark floors side-by-side.</li>
+    <li><b>📏 Rulebook tab</b>: per account, how much more you can make today before breaking the consistency rule, the profit still needed for a payout, and the next news blackout. Rule values are examples.</li>
     <li><b>🧠 Tilt &amp; Rules tab</b>: the score is the sum of the 4 factor points shown next to each factor; 75+ locks every account.</li>
     <li><b>Sandbox</b>: any other button (⚡ loss tick, lock, side filters, ⚡ Auto De-Risk Cluster) leaves playback and lets you change the state yourself.</li>
   </ol>`;
@@ -746,7 +859,7 @@ function pbInit(h){
   const b=seed('normal');
   b.preset='playback';b.accts=pbAccts(h);b.logs=[];b.hist=null;b.pbChart=null;b.lockTitle=null;b.lockReason=null;
   b.tilt={score:0,trades10m:2,sizeMult:1,lossStreak:0,reentrySec:300,lockoutUntil:null,reason:'Normal execution cadence'};
-  return b;
+  return ensureRules(b);
 }
 const setOpen=(st,v)=>st.accts.forEach(a=>{if(!a.locked)a.openPnl=v});
 const closeOpen=st=>st.accts.forEach(a=>{if(!a.locked){a.bal+=a.openPnl;a.openPnl=0}});
@@ -778,6 +891,16 @@ function cStep(st,d,k,er,vol){
   st.regime.avgCorr=+avgRho(st).toFixed(2);st.regime.syncDD=syncCount(st);
 }
 const floorOf=(st,id)=>acctMetrics(st.accts.find(a=>a.id===id));
+const consOf=(st,id)=>consMetrics(st.accts.find(a=>a.id===id));
+const APEX=['A1','A2'];
+const onIds=(st,ids,f)=>st.accts.filter(a=>ids.includes(a.id)).forEach(f);
+const setDayIds=(st,ids,v)=>onIds(st,ids,a=>{a.openPnl=0;a.bal=a.dayStart+v});
+// Roll to the next trading day: today's P&L joins the cycle history.
+function newDay(st,label,clock){
+  st.accts.forEach(a=>{a.bal+=a.openPnl;a.openPnl=0;a.days.push({d:st.today,pnl:a.bal-a.dayStart});a.dayStart=a.bal});
+  st.today=label;st.clock=clock;
+}
+const pc1=v=>v===Infinity?'—':(v*100).toFixed(1)+'%';
 const SC={
   hwm:{title:'Intraday HWM trap',init:()=>{const b=pbInit(false);b.pbChart=['A1','A3'];return b},steps:[
     {at:'09:30',tab:'prop',focus:['acct-*'],title:'4 prop accounts, 1 trade copier',
@@ -826,6 +949,38 @@ const SC={
       body:st=>`3 losses in a row (+24), 2.5x size (+24), 9 orders (+28), 11s re-entry (+19) = ${tiltCalc(st.tilt).total}/100. ApexGuard blocks the order, cuts the copier and locks all 4 accounts for 30 minutes.`},
     {at:'13:08',tab:'prop',focus:['acct-A1','acct-A4','floorchart'],title:'Where the floors are now',
       body:st=>`Each account is down $1,650. Apex-01 has ${usd(floorOf(st,'A1').dist)} left and MFFU ${usd(floorOf(st,'A4').dist)}. One more 2.5x loss would have breached them both at once; the lockout fired before that order went in.`}
+  ]},
+  rules:{title:'Consistency + news rules',init:()=>{
+      const b=pbInit(false);b.clock='08:15';b.today='Fri';
+      b.news=[{t:'08:30',n:'US CPI'},{t:'10:00',n:'ISM Services PMI'},{t:'14:00',n:'FOMC Minutes'}];
+      const D={A1:[420,380,350,450],A2:[420,380,350,450],A3:[600,450,700,520],A4:[300,250,280,200]};
+      b.accts.forEach(a=>{a.rules={...RULES[a.id]};a.days=mkDays(D[a.id])});
+      return b},steps:[
+    {at:'Fri 08:15',tab:'rules',focus:['rule-A1'],title:'The Rulebook tab: 2 rules that block payouts',
+      body:st=>{const m=consOf(st,'A1');return `Consistency: no single day may be more than 30% of the cycle's profit (example value). Apex-01 has made ${usd(m.P)}; its biggest day (${usd(m.B)}) is ${pc1(m.ratio)}. Today it can make up to ${usd(m.capTotal)} before today itself breaks the rule.`}},
+    {at:'Fri 08:24',tab:'rules',focus:['rnews-A1'],title:'Long NQ opened 6 minutes before CPI',
+      fx:st=>{st.clock='08:24';onIds(st,APEX,a=>a.openPnl=150);pbLog(st,'08:24','WARN','Apex accounts hold a position into the 08:28–08:32 CPI blackout.')},
+      body:'CPI is at 08:30. With a ±2-minute news rule, Apex-01 can\'t hold a position from 08:28 to 08:32. ApexGuard warns: close by 08:28.'},
+    {at:'Fri 08:27',tab:'rules',focus:['rnews-A1','rnews-A4'],title:'08:27: ApexGuard closes the trade before the blackout',
+      fx:st=>{st.clock='08:27';onIds(st,APEX,a=>{a.openPnl=180;a.bal+=a.openPnl;a.openPnl=0});pbLog(st,'08:27','OK','📰 Closed Apex positions at +$180, 1 minute before the CPI blackout.')},
+      body:'It closes the position on both Apex accounts at +$180, a minute before the window opens. MFFU has a ±5-minute rule but no position; Topstep has no news rule in this example.'},
+    {at:'Fri 09:45',tab:'rules',focus:['rcap-A1'],title:'+$600 on the day: near the cap',
+      fx:st=>{st.clock='09:45';setDayIds(st,APEX,600);pbLog(st,'09:45','WARN',`Apex-01 near today's consistency cap: ${usd(consOf(st,'A1').capLeft)} left.`)},
+      body:st=>{const m=consOf(st,'A1');return `Today's cap is ${usd(m.capTotal)}; ${usd(m.capLeft)} left. Past that, today becomes the day that breaks the rule. ApexGuard flags NEAR CAP: stop, or size down.`}},
+    {at:'Fri 10:40',tab:'rules',focus:['rule-A1','rneed-A1'],title:'+$1,100 on the day: the rule is broken',
+      fx:st=>{st.clock='10:40';setDayIds(st,APEX,1100);const m=consOf(st,'A1');pbLog(st,'10:40','CRIT',`⚠ Consistency breach on Apex accounts: biggest day ${usd(m.B)} = ${pc1(m.ratio)} of ${usd(m.P)}. Payout blocked until total reaches ${usd(m.need)}.`)},
+      body:st=>{const m=consOf(st,'A1');return `Today is ${pc1(m.ratio)} of ${usd(m.P)}, over the 30% limit, so the payout is blocked. To fix it, total profit has to reach ${usd(m.need)} (${usd(m.B)} ÷ 30%). The ${usd(st.accts[0].rules.target)} target is no longer the number that matters.`}},
+    {at:'Mon 15:55',tab:'rules',focus:['rneed-A1','rchart-A1'],title:'Monday +$350: above target, still blocked',
+      fx:st=>{newDay(st,'Mon','15:55');setDayIds(st,APEX,350)},
+      body:st=>{const m=consOf(st,'A1');return `Total ${usd(m.P)} is over the $3,000 target, but $1,100 is still ${pc1(m.ratio)} of it. Payout blocked; ${usd(m.short)} more needed.`}},
+    {at:'Tue 15:55',tab:'rules',focus:['rneed-A1','rchart-A1'],title:'Tuesday +$300: still blocked',
+      fx:st=>{newDay(st,'Tue','15:55');setDayIds(st,APEX,300)},
+      body:st=>{const m=consOf(st,'A1');return `Total ${usd(m.P)}; $1,100 is ${pc1(m.ratio)} of it. ${usd(m.short)} still needed.`}},
+    {at:'Wed 15:55',tab:'rules',focus:['rule-A1','rk-ready'],title:'Wednesday +$330: payout-ready',
+      fx:st=>{newDay(st,'Wed','15:55');setDayIds(st,APEX,330);pbLog(st,'15:55','OK','✅ Apex accounts payout-ready: target and consistency both pass.')},
+      body:st=>{const m=consOf(st,'A1');return `Total ${usd(m.P)}; $1,100 is now ${pc1(m.ratio)}, under 30%. Both rules pass: READY.`}},
+    {at:'Wed 16:00',tab:'rules',focus:['rchart-A1'],title:'What you just saw',
+      body:st=>{const m=consOf(st,'A1');return `One $1,100 day raised the payout bar from $3,000 to ${usd(m.need)} and kept the payout blocked for two days after the account was above target. The Rulebook tab shows today's cap before you pass it, and closes positions ahead of news blackouts on accounts with that rule.`}}
   ]},
   corr:{title:'Correlation spike',init:()=>pbInit(false),steps:[
     {at:'08:00',tab:'corr',focus:['matrix'],title:'6 strategies, normally uncorrelated',
@@ -899,8 +1054,9 @@ function pbHighlight(){
 }
 function pbScroll(){
   const f=(SC[PB.id].steps[PB.step].focus||[])[0];
-  const el=f&&document.querySelector(pbSel(f));
-  if(!el)return;
+  const hit=f&&document.querySelector(pbSel(f));
+  if(!hit)return;
+  const el=hit.closest('.card')||hit;   // show the whole card, not just the highlighted row inside it
   const top=el.getBoundingClientRect().top+scrollY-$('.top').offsetHeight-14;
   scrollTo({top:Math.max(0,top),behavior:'smooth'});
 }

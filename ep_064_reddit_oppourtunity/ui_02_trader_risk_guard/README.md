@@ -2,6 +2,7 @@
   epics/ep_064_reddit_oppourtunity/ui_02_trader_risk_guard/README.md — Documentation for ApexGuard mobile-first trading demo UI
   
   VERSION HISTORY
+  v1.4.0 · 2026-11-10 · Rulebook tab (consistency + news-window rules) and playback ?play=rules.
   v1.3.0 · 2026-11-10 · Scenario playback (?play=hwm|tilt|corr), equity-vs-floor chart, computed tilt score and de-risk, EOD floor fix.
   v1.2.0 · 2026-11-02 · V20261102_0530: Added live EP058 Strategy Intelligence streaming integration (port 8149).
                         Dynamically selects top 4 models from PostgreSQL tradedb and monitors as prop trades.
@@ -28,6 +29,22 @@
   - Model 3 $\to$ Topstep \$100K EOD Trailing Account (Funded Account)
   - Model 4 $\to$ MFFU \$50K EOD Trailing Account (Funded Account)
 - **Live Stream / Sim Toggle**: Seamless 1-click toggle between real-time PostgreSQL streaming and offline stress-test simulation presets (*Intraday HWM trap*, *Revenge tilt lockout*, *Correlation spike*).
+
+## 📏 Rulebook tab: Prop Rulebook Guard (v1.4.0)
+Built from scan #2 (`research/reddit_opportunity_scan_20261110.md`, idea #1): consistency rules and news-window bans are the prop rules Reddit traders complain about most (r/LucidProp, r/TopStepX, r/PropFirmTester, r/propfirm).
+- **Consistency rule** per account: biggest single day ≤ X% of the cycle's total profit. The tab shows:
+  - **Can still make today:** `cons × prior profit ÷ (1 − cons)` minus today so far. Past this, today becomes the day that breaks the rule.
+  - **Profit still needed for payout:** `max(target, biggest day ÷ cons) − total`. The tab labels whether the target or consistency is the binding number.
+  - A daily P&L bar chart with a dashed "max allowed day" line. The day that breaks the rule is drawn red; today is blue.
+  - State: `OK` / `NEAR CAP` (≤ max($100, 15% of today's cap) left) / `BLOCKED` / `READY`.
+- **News rule** per account (±N minutes around each event): countdown to the next blackout, amber warning when a position is open within 5 minutes of it, red inside it.
+- **Rule values are examples** (30% / 40% / 50%, targets, ±2 / ±5 min). The page says so; firms change their terms.
+- **▶ Consistency + news rules** playback (9 steps, `?play=rules`):
+  1. A position is closed at 08:27, before an 08:28–08:32 CPI blackout.
+  2. The day reaches +$600, near the $686 cap.
+  3. It closes at +$1,100, which is 40.7% of $2,700, so the payout is blocked and the bar rises to $3,667.
+  4. Mon $3,050 and Tue $3,350 are both above the $3,000 target but still blocked.
+  5. Wed $3,680 brings the big day down to 29.9%: READY.
 
 ## Scenario Playback (v1.3.0)
 Viewers can watch exactly what ApexGuard does and how, without knowing where to tap:
