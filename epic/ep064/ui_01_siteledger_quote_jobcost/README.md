@@ -2,6 +2,7 @@
   epics/ep_064_reddit_oppourtunity/ui_01_siteledger_quote_jobcost/README.md — Documentation for SiteLedger mobile-first demo UI
   
   VERSION HISTORY
+  v1.3.0 · 2026-11-11 · Two-Track Workflow Visualizer (Track A: Solo Builder full mobile app vs Track B: Headless Zero-API WhatsApp), ?play=workflow scenario tour.
   v1.2.0 · 2026-11-10 · Invoices tab (chase ladder), Tax tab (Making Tax Digital quarterly-update demo), scenario playback ?play=inv|tax.
   v1.0.0 · 2026-10-18 · Initial version: documents Reddit pain points B1+B2, mobile-first architecture, and demo walkthrough.
 -->
@@ -30,7 +31,13 @@
    - **Cumulative year-to-date** figures per quarter, built from digital records: bank import, scanned receipts and invoice payments (cash basis, not VAT-registered). Expenses are grouped into HMRC-style categories with record counts.
    - Readiness checks: uncategorised transactions block "Prepare". "Prepared" means not sent.
 
-## Scenario playback (v1.2.0)
+5. **B5 · App Fatigue & Frictionless Onboarding (The "Not Another App" Solution)**:
+   - **⚡ Two-Track Workflow Visualizer (`⚡ How It Works` button & `?play=workflow`)**:
+     - **Track A (Solo Builder - Full App Cockpit):** For contractors without accounting software who use SiteLedger directly for Quotes → Job Margins → Invoices → Autonomous B2B statutory chasing.
+     - **Track B (Agency / Xero User - Zero-API Headless Engine):** For users who already use Xero, QuickBooks, or Word. Demonstrates zero-friction onboarding where the user simply CCs `chase@siteledger.io` when emailing their invoice PDF, and receives light-touch conversational updates and controls via a simulated WhatsApp chat feed.
+
+## Scenario playback (v1.3.0)
+- **▶ Two-track workflow tour** (`?play=workflow`, 5 steps): guided visual comparison between Track A (Full mobile app) and Track B (Zero-API headless email CC + simulated WhatsApp chat feed).
 - **▶ Invoice chase ladder** (`?play=inv`, 8 steps):
   1. Friendly reminder to Lucy Grant (2d overdue) and a firm reminder to Sarah Smith (part-paid).
   2. Final notice to Khan Stores Ltd with statutory interest (£17.36 for 22d at 12% + £70).

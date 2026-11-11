@@ -6,6 +6,10 @@
   Workflow: workstream/600_workflow/ep064/EP064_siteledger_quote_jobcost_workflow.html
 
   VERSION HISTORY
+  v1.3.0 · 2026-11-11 · (V20261111_1715) Two-Track Workflow Visualizer & WhatsApp View: added interactive Track A (Solo Builder
+                        full mobile app cockpit) vs Track B (Zero-API headless engine via email CC and conversational WhatsApp
+                        feedback loop); simulated WhatsApp mobile phone chat; ?play=workflow scenario tour.
+                        Plan: workstream/200_inprogress/gemini/20261111_163000_ep064_997_siteledger_two_track_workflow_visualizer.md
   v1.2.0 · 2026-11-10 · Invoices tab (chase ladder: friendly → firm → final notice → letter-before-claim warning; part payments; client
                         reliability colours; B2B statutory late-payment interest + compensation) and Tax tab (Making Tax Digital for Income Tax
                         quarterly-update DEMO from SiteLedger records: mandate check, quarter deadlines, cumulative YTD figures by expense
@@ -17,7 +21,7 @@
                         quote→job conversion, job margin tracking, receipt capture (sample scans + voice/text note parser), unassigned inbox, activity, reset.
 -->
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff">
-<title>SiteLedger · Quotes & Job Costs (Demo)</title>
+<title>SiteLedger · Quotes & Job Costs (Demo v1.3.0)</title>
 <style>
 /* v1.1.0 · 2026-10-18 · MOBILE-FIRST: base rules target phones (≥320px); min-width breakpoints at 700px and 1100px enhance for tablet/desktop. */
 :root{--bg:#f5f4f0;--card:#fff;--ink:#1c1c1a;--mut:#6d6b65;--line:#e4e1d9;--acc:#1f6f5c;--acc2:#e7f2ee;--amb:#b7791f;--amb2:#fdf3e1;--red:#b4433a;--red2:#fbe9e7;--blue:#2f5f9e;--blue2:#e8eff9;--r:12px;--navh:62px}
@@ -129,6 +133,31 @@ table.plain th{font-size:12px;text-align:left;color:var(--mut);font-weight:500;p
 .pb-hl{outline:2px solid var(--acc)!important;outline-offset:3px;box-shadow:0 0 0 7px #1f6f5c22!important;border-radius:var(--r)}
 .intro{border-color:#b9d3c9;background:linear-gradient(180deg,#eef7f3,#fff);margin-bottom:12px}.intro p{margin:4px 0 10px;font-size:13.5px}
 
+/* v1.3.0 · 2026-11-11 · Two-Track Workflow Visualizer & WhatsApp View */
+.track-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#e9e7e0;padding:4px;border-radius:10px;margin-bottom:14px}
+.track-tab{border:0;background:none;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:600;color:var(--mut);cursor:pointer;text-align:center;transition:all .15s}
+.track-tab.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px #0002}
+.flow-step{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start}
+.flow-num{width:28px;height:28px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;flex-shrink:0}
+.flow-num.alt{background:var(--blue)}
+.flow-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;flex:1}
+.flow-card b{display:block;font-size:13.5px;margin-bottom:2px}
+.flow-card p{margin:0;font-size:12.5px;color:var(--mut);line-height:1.4}
+.flow-card .tag{display:inline-block;font-size:11px;padding:2px 6px;border-radius:4px;background:#f0eee6;color:#555;margin-top:5px}
+/* simulated WhatsApp UI */
+.wa-wrap{background:#efeae2;border-radius:14px;overflow:hidden;border:1px solid #dcd7cc;max-width:440px;margin:0 auto;box-shadow:0 4px 14px #0001}
+.wa-hdr{background:#075e54;color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.wa-av{width:36px;height:36px;border-radius:50%;background:#128c7e;display:grid;place-items:center;font-weight:700;font-size:14px;color:#fff}
+.wa-meta b{display:block;font-size:13.5px;line-height:1.2}
+.wa-meta small{font-size:11px;opacity:.85}
+.wa-chat{padding:12px;display:flex;flex-direction:column;gap:10px;max-height:380px;overflow-y:auto;font-size:12.5px}
+.wa-msg{max-width:88%;padding:8px 11px;border-radius:10px;position:relative;line-height:1.4;box-shadow:0 1px 1.5px #0002}
+.wa-in{background:#fff;align-self:flex-start;border-top-left-radius:2px}
+.wa-out{background:#dcf8c6;align-self:flex-end;border-top-right-radius:2px}
+.wa-time{display:block;text-align:right;font-size:10px;color:#888;margin-top:4px}
+.wa-pill{display:inline-flex;gap:6px;margin-top:6px}
+.wa-pill span{background:#f0f0f0;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;color:#075e54;border:1px solid #ddd}
+
 /* ---------- tablet ≥700px ---------- */
 @media(min-width:700px){
  main{padding:20px}.topin{padding:10px 20px}.demo-strip{padding:6px 20px}.demo-strip .hide-sm{display:inline}
@@ -160,7 +189,7 @@ table.plain th{font-size:12px;text-align:left;color:var(--mut);font-weight:500;p
 }
 </style></head><body>
 <div class="demo-strip"><b>DEMO</b><span class="hide-sm">Seeded data · demo date <b id="demoDate">Sat 18 Oct 2026</b> · nothing is really sent</span><span class="sp"></span>
-<button data-act="walkthrough">▶ Walkthrough</button><button data-act="reset">↺ Reset</button></div>
+<button data-act="workflowGuide">⚡ How It Works</button><button data-act="walkthrough">▶ Walkthrough</button><button data-act="reset">↺ Reset</button></div>
 <div class="top"><div class="topin">
  <div class="brand"><i>SL</i>SiteLedger <small>· Northfield Build &amp; Renovate</small></div>
  <nav id="nav"></nav><span class="sp"></span>
@@ -628,6 +657,111 @@ function mNewQuote(){UI.nq=UI.nq||{items:[{d:'Materials & supplies',kind:'materi
  <div class="modal-actions"><button class="btn" data-act="nqSave" data-id="draft">Save draft</button><button class="btn pri" data-act="nqSave" data-id="send">Save &amp; send</button></div>`);
  const sync=()=>{n.c=$('#nqC').value;n.t=$('#nqT').value;n.p=$('#nqP').value;n.e=$('#nqE').value;document.querySelectorAll('#nqItems [data-f]').forEach(el=>{n.items[+el.dataset.i][el.dataset.f]=el.value});$('#nqTot').textContent=gbp(n.items.reduce((a,i)=>a+Number(i.amt||0),0))};
  $('#modal').oninput=sync;$('#modal').onchange=sync}
+// v1.3.0 · 2026-11-11 · Two-Track Workflow Visualizer (Track A: Full App vs Track B: Headless WhatsApp)
+function mWorkflow(track){
+ track = track || 'app';
+ const isApp = track === 'app';
+ const content = isApp ? `
+  <div class="flow-step">
+   <div class="flow-num">1</div>
+   <div class="flow-card">
+    <b>Quote Won ➔ Converted to Active Job</b>
+    <p>Quote <code>Q-0101</code> converts to Job <code>J-0041</code> in 1 click. Live receipt OCR & voice dictation track field expenses against quoted margins.</p>
+    <span class="tag">Zero Spreadsheet Math</span>
+   </div>
+  </div>
+  <div class="flow-step">
+   <div class="flow-num">2</div>
+   <div class="flow-card">
+    <b>Balance Invoiced with Mandatory PO #</b>
+    <p>Contractor raises Invoice <code>INV-0026</code> for £2,400 with the client's corporate PO # and Accounts Payable email attached.</p>
+    <span class="tag">PO Verification</span>
+   </div>
+  </div>
+  <div class="flow-step">
+   <div class="flow-num">3</div>
+   <div class="flow-card">
+    <b>Autonomous "Bad Cop" Pre-Audit (Day -3)</b>
+    <p>System contacts AP from <code>credit-control@...</code> 3 days before due date confirming the invoice is scheduled on their upcoming BACS payment run.</p>
+    <span class="tag">Pre-Empting Excuses</span>
+   </div>
+  </div>
+  <div class="flow-step">
+   <div class="flow-num">4</div>
+   <div class="flow-card">
+    <b>Statutory Interest & Fixed Fee Auto-Applied (Day 14)</b>
+    <p>If unpaid at Day 14, system auto-generates <code>INV-0026-REV</code> adding the statutory <b>£70 compensation + 13% interest</b> under the 1998 Act. Client pays principal; statutory fee is waived upon settlement.</p>
+    <span class="tag">UK 1998 Late Payment Act</span>
+   </div>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+   <button class="btn sm" data-act="play" data-id="inv">▶ Play Invoice Chase Ladder</button>
+   <button class="btn sm pri" data-act="close">Close</button>
+  </div>
+ ` : `
+  <div style="background:#eef7f2;border:1px solid #cce5d9;border-radius:10px;padding:9px 12px;margin-bottom:12px;font-size:12.5px;color:#1d5945;line-height:1.4">
+   <b>💡 Zero Setup / No API Keys Needed:</b> Keep your current invoicing software (Xero, QuickBooks, Word, or phone app). Simply <b>CC chase@siteledger.io</b> when emailing your invoice to the client. You get light-touch updates via WhatsApp.
+  </div>
+  <div class="wa-wrap">
+   <div class="wa-hdr">
+    <div class="wa-av">SL</div>
+    <div class="wa-meta">
+     <b>SiteLedger Assistant</b>
+     <small>Online · Autonomous Credit Control</small>
+    </div>
+   </div>
+   <div class="wa-chat">
+    <div class="wa-msg wa-out">
+     📎 <i>Attached: INV-0026_KhanStores.pdf</i><br>
+     <small style="opacity:.8">CC'd to chase@siteledger.io</small>
+     <span class="wa-time">10:14 ✓✓</span>
+    </div>
+    <div class="wa-msg wa-in">
+     Hi Dave! 👋 Received Invoice #INV-0026 for <b>Khan Stores Ltd</b> (£2,400, due 28 Nov, PO #4410).<br><br>
+     Autonomous credit control is <b>ACTIVE</b>.<br>
+     • Pre-due audit: 25 Nov<br>
+     • Reply <b>PAUSE</b> at any time to hold.
+     <span class="wa-time">10:14</span>
+    </div>
+    <div class="wa-msg wa-in">
+     📋 <b>Update on INV-0026 (Khan Stores):</b><br>
+     We emailed AP to verify PO #4410. AP replied: <i>'Approved for Friday 28th payment run.'</i><br>
+     No action needed from you!
+     <span class="wa-time">25 Nov 09:20</span>
+    </div>
+    <div class="wa-msg wa-in">
+     ⚠️ <b>Alert: Khan Stores is 14 days overdue (£2,400).</b><br>
+     We auto-generated & emailed revised invoice <code>INV-0026-REV</code> to AP with UK statutory penalties (1998 Act):<br>
+     • Statutory compensation: <b>+£70.00</b><br>
+     • Accrued interest (13% p.a.): <b>+£35.32</b><br>
+     • Total now claimed: <b>£2,505.32</b><br>
+     <div class="wa-pill"><span>HOLD</span><span>VIEW PDF</span></div>
+     <span class="wa-time">12 Dec 09:15</span>
+    </div>
+    <div class="wa-msg wa-in">
+     🎉 <b>Payment detected!</b> Khan Stores settled the £2,400 principal via BACS.<br>
+     Statutory fee waived as agreed. INV-0026 marked <b>PAID</b> and closed.<br>
+     Total time you spent chasing: <b>0 minutes</b>.
+     <span class="wa-time">14 Dec 11:42</span>
+    </div>
+   </div>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+   <button class="btn sm" data-act="play" data-id="workflow">▶ Play 90s Guided Tour</button>
+   <button class="btn sm pri" data-act="close">Got It</button>
+  </div>
+ `;
+
+ openModal(`
+  <h2>⚡ How SiteLedger Works<span class="sub">Two Ways to Eliminate Late Payments</span><button class="btn ghost" data-act="close">✕</button></h2>
+  <div class="track-tabs">
+   <button class="track-tab ${isApp ? 'on' : ''}" data-act="setTrack" data-id="app">📱 Track A: Solo Builder (Full App)</button>
+   <button class="track-tab ${!isApp ? 'on' : ''}" data-act="setTrack" data-id="headless">💬 Track B: Agency/Xero (Headless WhatsApp)</button>
+  </div>
+  ${content}
+ `);
+}
+
 function mWalk(){openModal(`<h2>Demo walkthrough (≈3 min)<button class="btn ghost" data-act="close">✕</button></h2><div class="walk"><ol>
  <li><b>Dashboard</b> – KPIs show open pipeline, follow-ups due, ghosted £ at risk and live job margin.</li>
  <li><b>Follow up Grace Hughes (Q-0104)</b> – Day-3 nudge template is pre-filled; switch SMS/Email; send. The quote leaves today's list and its follow-up dots advance.</li>
@@ -647,7 +781,7 @@ function mWalk(){openModal(`<h2>Demo walkthrough (≈3 min)<button class="btn gh
 const A={
  view:id=>{UI.view=id;closeModal();render();scrollTo(0,0)},
  qfilter:id=>{UI.qfilter=id;render()},
- close:closeModal,walkthrough:mWalk,
+ close:closeModal,walkthrough:mWalk,workflowGuide:()=>mWorkflow("app"),setTrack:t=>mWorkflow(t),
  reset:()=>{if(confirm('Reset all demo data?')){localStorage.removeItem(KEY);S=seed();UI={view:'dashboard',qfilter:'All',preview:null,scanning:null,fu:null};render();toast('Demo data reset')}},
  newQuote:()=>{UI.nq=null;mNewQuote()},
  nqAdd:()=>{UI.nq.items.push({d:'',kind:'materials',amt:''});mNewQuote()},
@@ -708,12 +842,24 @@ const A={
 
 /* ---------- scenario playback (same engine as ApexGuard) ---------- */
 const PB={id:null,step:0,playing:false,speed:1,timer:null};
-const PB_OK=new Set(['play','pbPrev','pbNext','pbToggle','pbRestart','pbExit','pbSpeed','view','close','walkthrough','tq']);
+const PB_OK=new Set(['play','pbPrev','pbNext','pbToggle','pbRestart','pbExit','pbSpeed','view','close','walkthrough','tq','workflowGuide','setTrack']);
 const txt=(v,st)=>typeof v==='function'?v(st):v;
 const setDay=n=>{TODAY=new Date(BASE);TODAY.setDate(TODAY.getDate()+n)};
 const invOf=no=>S.invoices.find(v=>v.no===no);
 function invTotals(){const od=S.invoices.filter(v=>['Chase due','Chased','Final stage'].includes(invState(v)));return {out:S.invoices.reduce((a,v)=>a+invOut(v),0),od:od.length,odAmt:od.reduce((a,v)=>a+invOut(v),0),due:S.invoices.filter(v=>invState(v)==='Chase due').length}}
 const SC={
+ workflow:{title:'Two-Track Workflow (Full App vs Headless)',steps:[
+  {at:'Sat 18 Oct',view:'invoices',focus:['iv-kpis'],title:'The Two-Track Architecture',
+   body:'Small businesses have two distinct ways to run SiteLedger: Track A as a standalone mobile app for solo builders, or Track B as a zero-setup headless engine via WhatsApp for those who already use Xero/QuickBooks.'},
+  {at:'Sat 18 Oct',view:'invoices',title:'Track A: The Solo Tradesman Mobile Cockpit',fx:()=>mWorkflow('app'),
+   body:'Track A handles Quotes → Jobs → Live Margins → Invoices. When an invoice is raised, SiteLedger becomes your automated credit control department, auditing POs and escalating late payments.'},
+  {at:'Sat 18 Oct',view:'invoices',title:'Track B: Zero-API Ingestion via Email CC',fx:()=>mWorkflow('headless'),
+   body:'No Xero/QBO integration required! The user generates an invoice anywhere and CCs chase@siteledger.io. SiteLedger ingests the PDF, extracts the PO and due date, and handles the chasing.'},
+  {at:'Sat 18 Oct',view:'invoices',title:'Track B: Light-Touch WhatsApp Feedback Loop',fx:()=>mWorkflow('headless'),
+   body:'Instead of checking an app, the founder receives 1-sentence WhatsApp updates: PO verification on Day -3, statutory penalty alert on Day 14, and payment confirmation when cleared.'},
+  {at:'Sat 18 Oct',view:'invoices',focus:['iv-queue'],title:'The Outcome: Cash Recovered, Zero Awkward Calls',fx:()=>closeModal(),
+   body:'Both tracks use the same legal statutory penalty engine (1998 Act) and "Bad Cop" persona to cut average debtor days in half without burning client relationships.'}
+ ]},
  inv:{title:'Invoice chase ladder',steps:[
   {at:'Sat 18 Oct',view:'invoices',focus:['iv-kpis'],title:'Invoices: who owes you, and what to send next',
    body:()=>{const t=invTotals();return `${gbp(t.out)} is outstanding and ${gbp(t.odAmt)} of it is overdue across ${t.od} invoices. ${t.due} reminders are due today. Each overdue invoice climbs a 4-step ladder: friendly → firm → final notice → letter-before-claim warning.`}},

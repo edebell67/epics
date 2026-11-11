@@ -1,61 +1,93 @@
 <!doctype html>
 <!--
   epics/ep_064_reddit_oppourtunity/index.html
-  — Public-ready mobile-first showcase hub for EP064 Reddit Opportunity Demos (UI_01 SiteLedger + UI_02 ApexGuard) with built-in feedback capture.
-
-  VERSION HISTORY
-  v1.0.0 · 2026-10-19 · Initial version (V20261019_0347): mobile-first landing hub linking both interactive demos and Reddit outreach copy.
+  — Public-ready dual-offering gateway portal for EP064 Reddit Opportunity Demos.
+  Plan: workstream/200_inprogress/gemini/20261111_210000_ep064_997_split_offering_landing_pages.md
+  Version: v2.0.0 · 2026-11-11
 -->
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>EP064 · Reddit Pain-Point Interactive Demos</title>
+<title>EP064 · Reddit Pain-Point Interactive Offerings</title>
 <style>
-:root{--bg:#0d1117;--card:#151b23;--ink:#e6edf3;--mut:#8b949e;--line:#2a313c;--grn:#2ea043;--blu:#388bfd;--r:14px}
-*{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);padding:16px}
+:root{--bg:#0d1117;--card:#151b23;--ink:#e6edf3;--mut:#8b949e;--line:#2a313c;--grn:#2ea043;--blu:#388bfd;--r:16px}
+*{box-sizing:border-box}body{margin:0;font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);padding:16px}
 .wrap{max-width:980px;margin:0 auto}
-header{padding:16px 0 20px;border-bottom:1px solid var(--line);margin-bottom:20px}
-h1{margin:0 0 6px;font-size:22px}header p{margin:0;color:var(--mut);font-size:14px}
-.grid{display:grid;gap:16px;grid-template-columns:1fr}
-@media(min-width:720px){.grid{grid-template-columns:1fr 1fr}body{padding:28px}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:12px}
-.tag{display:inline-block;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;width:fit-content}
+header{padding:20px 0 24px;border-bottom:1px solid var(--line);margin-bottom:24px}
+.badge-top{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;background:#1e2632;color:#a5d6ff;border:1px solid #388bfd44;margin-bottom:10px}
+h1{margin:0 0 6px;font-size:24px;letter-spacing:-.02em}
+header p{margin:0;color:var(--mut);font-size:14.5px;max-width:740px}
+.grid{display:grid;gap:20px;grid-template-columns:1fr}
+@media(min-width:760px){.grid{grid-template-columns:1fr 1fr}body{padding:32px}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px;display:flex;flex-direction:column;gap:14px;position:relative;transition:border-color .2s}
+.card.biz:hover{border-color:#2ea043}
+.card.trd:hover{border-color:#388bfd}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;width:fit-content;letter-spacing:.03em}
 .t-biz{background:#122d1f;color:#3fb950;border:1px solid #245836}
 .t-trd{background:#13253e;color:#58a6ff;border:1px solid #254b80}
-.card h2{margin:0;font-size:18px}.card p{margin:0;color:var(--mut);font-size:13.5px}
-.card ul{margin:0;padding-left:18px;color:var(--ink);font-size:13.5px;line-height:1.55}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font-weight:600;padding:12px 16px;border-radius:10px;min-height:44px;margin-top:auto}
-.btn.biz{background:#1f6f5c;color:#fff}.btn.trd{background:#1f6feb;color:#fff}
-.foot{margin-top:20px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;font-size:13.5px;color:var(--mut)}
+.card h2{margin:0;font-size:20px;letter-spacing:-.01em}
+.card p.lead{margin:0;color:var(--ink);font-size:14px;font-weight:500;line-height:1.45}
+.card p.sub{margin:0;color:var(--mut);font-size:13px}
+.card ul{margin:0;padding-left:18px;color:#c9d1d9;font-size:13px;line-height:1.55}
+.card-actions{display:flex;flex-direction:column;gap:8px;margin-top:auto;padding-top:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font-weight:600;padding:12px 16px;border-radius:10px;font-size:14px;min-height:44px}
+.btn.biz{background:#1f6f5c;color:#fff}
+.btn.biz:hover{background:#288b73}
+.btn.trd{background:#1f6feb;color:#fff}
+.btn.trd:hover{background:#388bfd}
+.btn.outline{background:#1c222b;color:var(--ink);border:1px solid var(--line);font-size:13px;min-height:38px}
+.btn.outline:hover{background:#242c38}
+.foot{margin-top:28px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;font-size:13px;color:var(--mut);line-height:1.5}
 .foot code{color:var(--ink);background:#0b0f17;padding:2px 6px;border-radius:5px}
+.foot a{color:#58a6ff;text-decoration:none}
 </style></head><body><div class="wrap">
+
 <header>
-  <h1>EP064 · Reddit Pain-Point Interactive Demos (Mobile-First)</h1>
-  <p>Standalone, zero-backend interactive sandboxes built directly from recurring Reddit frustrations in <code>r/smallbusiness</code>, <code>r/Contractor</code>, <code>r/FuturesTrading</code>, and <code>r/algotrading</code>.</p>
+  <span class="badge-top">EP064 · REDDIT OPPORTUNITY SUITE</span>
+  <h1>Validated Solutions for Underserved Reddit Pain Points</h1>
+  <p>Zero-backend, mobile-first interactive applications engineered directly from recurring frustrations on UK small business and proprietary trading subreddits. Select your offering below:</p>
 </header>
+
 <div class="grid">
-  <div class="card">
-    <span class="tag t-biz">UI 01 · BUSINESS / CONTRACTORS (B1 + B2)</span>
-    <h2>SiteLedger · Quote Follow-Up &amp; Job-Cost Tracker</h2>
-    <p>Solves quote radio-silence ("ghosting") and faded supply-house receipts eating into quoted job margins.</p>
+  <!-- OFFERING 1: BUSINESS / SITELEDGER -->
+  <div class="card biz">
+    <span class="tag t-biz">OFFERING 01 · BUSINESS &amp; CONTRACTORS</span>
+    <h2>SiteLedger · Autonomous Receivables &amp; Job Costing</h2>
+    <p class="lead">Eliminates late-paying B2B clients, quote ghosting, and field receipt profit leakage for contractors and agencies.</p>
+    <p class="sub">Addresses <code>r/smallbusiness</code>, <code>r/Contractor</code>, and <code>r/smallbusinessuk</code>:</p>
     <ul>
-      <li>Sequential quote-to-job continuity (<code>Q-0101</code> → <code>J-0041</code>)</li>
-      <li>Day 3 / Day 7 / Day 14 ghosted-quote aging badges &amp; 1-click SMS/Email sheet</li>
-      <li>Tap-to-scan thermal receipts &amp; voice-note parser with live margin preview</li>
+      <li><b>Two-Track Engine (v1.3.0):</b> Solo mobile cockpit vs. Zero-API headless email CC with WhatsApp status updates</li>
+      <li><b>Statutory Interest &amp; Compensation:</b> Auto-applies 8% + BoE rate (~13% p.a.) + £70 fee (Late Payment Act 1998)</li>
+      <li><b>Field Receipt OCR:</b> Thermal scan matching &amp; live Quoted vs. Actual Margin impact</li>
+      <li><b>Making Tax Digital (ITSA):</b> Quarterly deadlines &amp; cumulative digital records</li>
     </ul>
-    <a class="btn biz" href="ui_01_siteledger_quote_jobcost/index.html">Launch SiteLedger Demo →</a>
+    <div class="card-actions">
+      <a class="btn biz" href="siteledger.html">Explore SiteLedger Offering →</a>
+      <a class="btn outline" href="ui_01_siteledger_quote_jobcost/index.html?play=workflow">▶ 90s Two-Track Tour</a>
+      <a class="btn outline" href="ui_01_siteledger_quote_jobcost/index.html">Direct Launch Sandbox</a>
+    </div>
   </div>
-  <div class="card">
-    <span class="tag t-trd">UI 02 · PROP &amp; ALGO TRADING (T1 + T2)</span>
-    <h2>ApexGuard · Drawdown, Tilt &amp; Correlation Monitor</h2>
-    <p>Solves the Intraday High-Water-Mark trailing drawdown trap, copy-trader revenge spirals, and choppy-regime correlation spikes.</p>
+
+  <!-- OFFERING 2: TRADING / APEXGUARD -->
+  <div class="card trd">
+    <span class="tag t-trd">OFFERING 02 · PROP &amp; ALGO TRADING</span>
+    <h2>ApexGuard · Prop-Firm Drawdown, Tilt &amp; Rule Guard</h2>
+    <p class="lead">Protects funded traders from the consistency rule payout trap, trailing drawdown breaches, and revenge spirals.</p>
+    <p class="sub">Addresses <code>r/FuturesTrading</code>, <code>r/Daytrading</code>, and <code>r/PropFirmTester</code>:</p>
     <ul>
-      <li>Side-by-side Intraday HWM vs EOD trailing drawdown buffers across 4 accounts</li>
-      <li>Quantitative Behavioral Tilt Score (0–100) with pre-breach copier lockout</li>
-      <li>Rolling 30-bar cross-strategy correlation matrix (ρ) &amp; 1-click Auto De-Risk</li>
+      <li><b>Rulebook Guard (v1.4.0):</b> Live calculation of max allowed daily profit &amp; news blackout countdowns</li>
+      <li><b>Intraday HWM Trailing Floor:</b> Real-time floor comparison across Apex, Topstep, and MFFU accounts</li>
+      <li><b>Behavioral Tilt Engine (0–100):</b> Detects rapid re-entry, size escalation &amp; severs copier automatically</li>
+      <li><b>Live EP058 Integration:</b> Streams top 4 models from PostgreSQL <code>tradedb</code> into prop accounts</li>
     </ul>
-    <a class="btn trd" href="ui_02_trader_risk_guard/index.html">Launch ApexGuard Demo →</a>
+    <div class="card-actions">
+      <a class="btn trd" href="trading.html">Explore ApexGuard Offering →</a>
+      <a class="btn outline" href="ui_02_trader_risk_guard/index.html?play=rules">▶ Play Rulebook Scenario</a>
+      <a class="btn outline" href="ui_02_trader_risk_guard/index.html">Direct Launch Sandbox</a>
+    </div>
   </div>
 </div>
+
 <div class="foot">
-  <b>Reddit Outreach Playbook &amp; Copy Matrix:</b> See <code>research/reddit_outreach_and_copy_matrix.md</code> for comment-sniping search queries, "Roast My Workflow" post templates, and subreddit rules.
+  <b>Research &amp; Outreach Documentation:</b> Built from quantitative analysis in <a href="research/reddit_opportunity_scan_20261110.md"><code>reddit_opportunity_scan_20261110.md</code></a>. Ready-to-post copy templates and comment-sniping rules are detailed in <a href="research/reddit_outreach_and_copy_matrix.md"><code>reddit_outreach_and_copy_matrix.md</code></a>.
 </div>
+
 </div></body></html>
