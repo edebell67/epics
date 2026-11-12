@@ -1,5 +1,5 @@
 <!--
-  epics/ep_064_reddit_oppourtunity/research/reddit_opportunity_scan_20261110.md
+  epics/ep_064_business_solutions/research/reddit_opportunity_scan_20261110.md
   — Second Reddit pain-point scan: candidates for the next EP064-style demo apps (after SiteLedger and ApexGuard).
 
   VERSION HISTORY

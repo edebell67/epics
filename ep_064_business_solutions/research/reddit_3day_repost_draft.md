@@ -1,5 +1,5 @@
 <!--
-  epics/ep_064_reddit_oppourtunity/research/reddit_3day_repost_draft.md
+  epics/ep_064_business_solutions/research/reddit_3day_repost_draft.md
   — Saved copy-paste post draft ready for re-submission once u/edbell609 account is seasoned.
 
   VERSION HISTORY
@@ -59,7 +59,7 @@ For people running automated or rule-based forex setups: do you treat long and s
 
 Only post the link when asked (copy matrix rule 4):
 ```text
-Sure, it's a rough mobile sandbox with simulated accounts, nothing to sign up for. This link plays a 1-minute walkthrough of the floor creeping up on an intraday account: https://thetechprinciple.com/ep_064_reddit_oppourtunity/ui_02_trader_risk_guard/?play=hwm
+Sure, it's a rough mobile sandbox with simulated accounts, nothing to sign up for. This link plays a 1-minute walkthrough of the floor creeping up on an intraday account: https://thetechprinciple.com/ep_064_business_solutions/ui_02_trader_risk_guard/?play=hwm
 On the Correlation tab you can tap a strategy's side label to switch it between both / buy-only / sell-only. Interested to hear what you'd want it to show.
 ```
 URL checked 2026-11-10 after deploy `556a11d`: HTTP 200, serves ApexGuard v1.3.0, and `?play=hwm` autoplays the HWM trap walkthrough.

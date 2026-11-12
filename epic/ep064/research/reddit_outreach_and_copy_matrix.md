@@ -1,5 +1,5 @@
 <!--
-  epics/ep_064_reddit_oppourtunity/research/reddit_outreach_and_copy_matrix.md
+  epics/ep_064_business_solutions/research/reddit_outreach_and_copy_matrix.md
   — Reddit value-first outreach strategy, comment-sniping search queries, and ready-to-post copy matrix for EP064 UI_01 (SiteLedger) and UI_02 (ApexGuard).
 
   VERSION HISTORY
@@ -42,8 +42,8 @@ Run these searches on Reddit sorted by **New** or **Past Week** to find high-int
 ## 3. Playbook B: "Roast My Workflow / Show & Tell" Post Templates
 
 Attach the mobile screenshots from:
-- `epics/ep_064_reddit_oppourtunity/ui_01_siteledger_quote_jobcost/evidence/screenshots/`
-- `epics/ep_064_reddit_oppourtunity/ui_02_trader_risk_guard/evidence/screenshots/`
+- `epics/ep_064_business_solutions/ui_01_siteledger_quote_jobcost/evidence/screenshots/`
+- `epics/ep_064_business_solutions/ui_02_trader_risk_guard/evidence/screenshots/`
 
 ### Post 1 — `r/Contractor` & `r/smallbusiness` (SiteLedger)
 - **Title**: `Got tired of losing £10k+ in ghosted quotes and finding faded receipts in the van, so I mocked up a dead-simple mobile tracker (no bloat). What am I missing?`

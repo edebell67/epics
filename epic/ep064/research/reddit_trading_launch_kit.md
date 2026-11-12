@@ -1,5 +1,5 @@
 <!--
-  epics/ep_064_reddit_oppourtunity/research/reddit_trading_launch_kit.md
+  epics/ep_064_business_solutions/research/reddit_trading_launch_kit.md
   — Complete ready-to-execute Reddit launch kit for Trading (ApexGuard UI_02).
 
   VERSION HISTORY
@@ -20,7 +20,7 @@ Before posting or commenting, configure your Reddit account profile:
   > Futures & algo trader. Built a mobile risk guard for tracking intraday prop firm drawdown cushions & strategy correlation spikes. Interactive sandbox linked below.
 * **Social Links / Custom Link**:
   * **Title**: `ApexGuard Demo (Mobile Sandbox)`
-  * **URL**: `https://thetechprinciple.com/ep_064_reddit_oppourtunity/ui_02_trader_risk_guard/`
+  * **URL**: `https://thetechprinciple.com/ep_064_business_solutions/ui_02_trader_risk_guard/`
 
 ---
 
@@ -29,8 +29,8 @@ Before posting or commenting, configure your Reddit account profile:
 * **Target Subreddits**: `r/FuturesTrading`, `r/Daytrading`
 * **Flair**: `Discussion`, `Strategy`, or `Educational`
 * **Attached Images (Upload 2 images as a Reddit Gallery)**:
-  1. `epics/ep_064_reddit_oppourtunity/ui_02_trader_risk_guard/evidence/screenshots/01_mobile_prop_guard.png` (Normal Intraday vs EOD Cushion)
-  2. `epics/ep_064_reddit_oppourtunity/ui_02_trader_risk_guard/evidence/screenshots/02_mobile_revenge_lockout.png` (Revenge Tilt Lockout Triggered)
+  1. `epics/ep_064_business_solutions/ui_02_trader_risk_guard/evidence/screenshots/01_mobile_prop_guard.png` (Normal Intraday vs EOD Cushion)
+  2. `epics/ep_064_business_solutions/ui_02_trader_risk_guard/evidence/screenshots/02_mobile_revenge_lockout.png` (Revenge Tilt Lockout Triggered)
 
 ### Post Title:
 `Visualizing the "Green Wick Ratchet" in Intraday Trailing Drawdown across 4 copy-traded accounts (+ a quantitative 'Revenge Tilt' lockout score)`
@@ -68,8 +68,8 @@ Curious to hear from others running multiple funded/eval accounts:
 * **Target Subreddits**: `r/algotrading`
 * **Flair**: `Strategy / Model Discussion`
 * **Attached Images (Upload 2 images as a Reddit Gallery)**:
-  1. `epics/ep_064_reddit_oppourtunity/ui_02_trader_risk_guard/evidence/screenshots/03_mobile_corr_spike.png` (Correlation Spike & Choppy Regime)
-  2. `epics/ep_064_reddit_oppourtunity/ui_02_trader_risk_guard/evidence/screenshots/04_mobile_corr_derisked.png` (Auto De-Risk Cluster Activated)
+  1. `epics/ep_064_business_solutions/ui_02_trader_risk_guard/evidence/screenshots/03_mobile_corr_spike.png` (Correlation Spike & Choppy Regime)
+  2. `epics/ep_064_business_solutions/ui_02_trader_risk_guard/evidence/screenshots/04_mobile_corr_derisked.png` (Auto De-Risk Cluster Activated)
 
 ### Post Title:
 `How are you handling intraday correlation spikes (ρ → 0.85) when market regimes shift from Trending to Choppy?`
@@ -107,7 +107,7 @@ When users comment:
 ### Reply:
 ```text
 Here is the interactive browser sandbox:
-https://thetechprinciple.com/ep_064_reddit_oppourtunity/ui_02_trader_risk_guard/
+https://thetechprinciple.com/ep_064_business_solutions/ui_02_trader_risk_guard/
 
 It runs entirely in-browser (mobile-first, works on phone or desktop). You can test both scenarios:
 - Under "Prop Guard": Click "Trigger Revenge Tilt" or "Compare Intraday vs EOD".

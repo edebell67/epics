@@ -1,5 +1,5 @@
 <!--
-  epics/ep_064_reddit_oppourtunity/ui_02_trader_risk_guard/README.md — Documentation for ApexGuard mobile-first trading demo UI
+  epics/ep_064_business_solutions/ui_02_trader_risk_guard/README.md — Documentation for ApexGuard mobile-first trading demo UI
   
   VERSION HISTORY
   v1.4.0 · 2026-11-10 · Rulebook tab (consistency + news-window rules) and playback ?play=rules.

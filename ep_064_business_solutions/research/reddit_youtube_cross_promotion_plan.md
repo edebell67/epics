@@ -1,5 +1,5 @@
 <!--
-  epics/ep_064_reddit_oppourtunity/research/reddit_youtube_cross_promotion_plan.md
+  epics/ep_064_business_solutions/research/reddit_youtube_cross_promotion_plan.md
   — Strategy connecting @edbell609 YouTube channel (Forex strategy replays, EP062 race) with Reddit trading outreach and ApexGuard risk monitor.
 
   VERSION HISTORY
@@ -89,5 +89,5 @@ I broke down the full session replay with the buy/sell split here on YouTube:
 https://www.youtube.com/@edbell609
 
 And if you want to test the interactive pre-breach risk guard and correlation monitor we built, the web sandbox is live here (runs directly in your browser on phone or desktop):
-https://thetechprinciple.com/ep_064_reddit_oppourtunity/ui_02_trader_risk_guard/
+https://thetechprinciple.com/ep_064_business_solutions/ui_02_trader_risk_guard/
 ```

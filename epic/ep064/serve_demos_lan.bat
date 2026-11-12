@@ -1,5 +1,5 @@
 @echo off
-REM epics/ep_064_reddit_oppourtunity/serve_demos_lan.bat — Serve EP064 mobile-first demos over local HTTP (port 8064) for phone/LAN testing or tunnel sharing
+REM epics/ep_064_business_solutions/serve_demos_lan.bat — Serve EP064 mobile-first demos over local HTTP (port 8064) for phone/LAN testing or tunnel sharing
 REM
 REM VERSION HISTORY
 REM v1.0.0 · 2026-10-19 · Initial version (V20261019_0347): starts Python HTTP server on port 8064 and opens the EP064 demo hub.

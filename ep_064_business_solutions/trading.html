@@ -1,0 +1,266 @@
+<!doctype html>
+<!--
+  epics/ep_064_business_solutions/apexguard.html
+  — Dedicated Standalone Commercial Landing Page for ApexGuard (Prop Firm Drawdown, Tilt & Rule Protection).
+  Plan: workstream/200_inprogress/gemini/20261112_022200_ep064_997_remove_technical_specs_link_from_public_view.md
+  Version: v1.5.0 · 2026-11-12 · [V20261112_0330]
+  Plan: workstream/200_inprogress/20261112_033000_ep064_interactive_simulation_and_waitlist.md
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ApexGuard · Prop Firm Drawdown, Tilt &amp; Correlation Guard</title>
+<style>
+:root{--bg:#0b0f19;--card:#111827;--ink:#f3f4f6;--mut:#9ca3af;--line:#1f2937;--acc:#388bfd;--acc2:#1f6feb;--amb:#f59e0b;--red:#ef4444;--r:14px}
+*{box-sizing:border-box}body{margin:0;font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);padding:16px}
+.wrap{max-width:980px;margin:0 auto}
+header{padding:20px 0 24px;border-bottom:1px solid var(--line);margin-bottom:24px}
+.badge{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:#13253e;color:#58a6ff;border:1px solid #254b80;margin-bottom:10px}
+h1{margin:0 0 8px;font-size:26px;letter-spacing:-.02em}
+header p{margin:0;color:var(--mut);font-size:15px;max-width:760px;line-height:1.5}
+.grid{display:grid;gap:18px;grid-template-columns:1fr}
+@media(min-width:720px){.grid{grid-template-columns:1fr 1fr}body{padding:32px}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:12px}
+.card h2{margin:0;font-size:18px;display:flex;align-items:center;gap:8px}
+.card h2 i{font-size:20px;font-style:normal}
+.card p{margin:0;color:var(--mut);font-size:13.5px}
+.card ul{margin:0;padding-left:18px;color:var(--ink);font-size:13.5px;line-height:1.6}
+.highlight-box{background:#0d1424;border:1px solid #1e3a5f;border-radius:10px;padding:12px 14px;margin-top:6px}
+.highlight-box b{color:#58a6ff;font-size:13px;display:block;margin-bottom:3px}
+.highlight-box p{margin:0;font-size:12.5px;color:#c9d1d9}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;font-weight:600;padding:10px 14px;border-radius:8px;font-size:13.5px;min-height:42px}
+.btn.pri{background:var(--acc2);color:#fff;border:1px solid var(--acc)}
+.btn.pri:hover{background:#388bfd}
+.btn.sec{background:#1f2937;color:var(--ink);border:1px solid var(--line)}
+.btn.sec:hover{background:#374151}
+.feature-banner{background:linear-gradient(180deg,#132338,#111827);border:1px solid #23456b;border-radius:var(--r);padding:22px;margin-bottom:20px}
+.feature-banner h3{margin:0 0 8px;font-size:18px;color:#58a6ff}
+.feature-banner p{margin:0 0 14px;color:#c9d1d9;font-size:14px;line-height:1.5}
+.foot{margin-top:24px;border-top:1px solid var(--line);padding-top:18px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;color:var(--mut);font-size:13px}
+.foot a{color:#58a6ff;text-decoration:none}
+</style></head><body><div class="wrap">
+
+<header>
+  <span class="badge">PROP &amp; ALGO TRADING RISK SUITE</span>
+  <h1>ApexGuard · Prop-Firm Drawdown, Tilt &amp; Rule Protection</h1>
+  <p>Purpose-built for funded futures and algo traders across Apex, Topstep, and MFFU. Prevents the 3 most common payout disqualifiers: Consistency Rule Violations, Intraday Trailing Drawdown Traps, and Behavioral Tilt Escalation.</p>
+  <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+    <a class="btn pri" href="ui_02_trader_risk_guard/index.html?play=rules">▶ Play Opportunity #1 Simulation (Rulebook Guard)</a>
+    <button class="btn" onclick="openWaitlistModal()" style="background:#238636;border:1px solid #2ea043;color:#fff;font-weight:700;cursor:pointer">⭐ Join Waitlist &amp; Vote on Features</button>
+  </div>
+</header>
+
+<div class="feature-banner">
+  <h3>⚡ New in v1.4.0: Prop Rulebook Engine (Consistency &amp; News Lockouts)</h3>
+  <p>Most funded traders lose their accounts not from poor strategy, but from obscure payout rule violations. ApexGuard tracks rules in real time:</p>
+  <ul>
+    <li><b>Consistency Rule Guard:</b> Live calculation of maximum allowed daily profit (30% / 40% / 50% caps) relative to total balance.</li>
+    <li><b>News Window Blackout:</b> Real-time countdown to Tier 1 High-Impact events (CPI, FOMC, NFP) with pre-news automatic lockout.</li>
+    <li><b>Live Streaming / Simulation Toggle:</b> Switch between live EP058 Strategy Intelligence (PostgreSQL <code>tradedb</code>) and stress-test scenarios.</li>
+  </ul>
+  <div class="btn-row" style="margin-top:14px">
+    <a class="btn pri" href="ui_02_trader_risk_guard/index.html?play=rules">▶ Play Rulebook Scenario</a>
+    <a class="btn sec" href="ui_02_trader_risk_guard/index.html">Open ApexGuard Sandbox</a>`r`n    <button class="btn" onclick="openWaitlistModal()" style="background:#238636;border:1px solid #2ea043;color:#fff;font-weight:700;cursor:pointer">⭐ Register Interest</button>
+  </div>
+</div>
+
+<div class="grid">
+  <!-- Card 1: Trailing Drawdown -->
+  <div class="card">
+    <span class="badge" style="background:#281816;color:#ff7b72;border-color:#5c221e">RISK MODULE 01 · TRAILING DRAWDOWN PROTECTION</span>
+    <h2><i>📉</i> Intraday High-Water Mark Trailing Floor</h2>
+    <p>Unrealized open profits ratchet up trailing drawdown floors during trade execution, causing sudden liquidation on pullbacks.</p>
+    <ul>
+      <li>Visual distance-to-breach meter (Green &gt;1.5k, Amber &lt;800, Red &lt;300)</li>
+      <li>Multi-account comparison: Intraday Peak-to-Valley (Apex) vs. EOD Close (Topstep) vs. Static Balance (MFFU)</li>
+      <li>Configurable buffer warnings with emergency auto-flatten triggers</li>
+    </ul>
+    <div class="highlight-box">
+      <b>The Payout Saver:</b>
+      <p>Simulates the exact intraday high-water mark calculation so you never get liquidated on a winning trade that retraced.</p>
+    </div>
+    <div class="btn-row">
+      <a class="btn pri" href="ui_02_trader_risk_guard/index.html?play=hwm">▶ Play Intraday Drawdown Demo</a>
+    </div>
+  </div>
+
+  <!-- Card 2: Behavioral Tilt -->
+  <div class="card">
+    <span class="badge" style="background:#261d11;color:#f2cc60;border-color:#5c4217">RISK MODULE 02 · BEHAVIORAL TILT &amp; COPIER KILL-SWITCH</span>
+    <h2><i>🚨</i> Behavioral Tilt Cadence &amp; Copier Sever</h2>
+    <p>A single string of losses triggers size doubling and revenge clicking that wipes out weeks of accumulated gains in minutes.</p>
+    <ul>
+      <li>Tilt score algorithm (0–100) monitoring rapid re-entries (&lt;60s), size escalation, and consecutive losses</li>
+      <li>Autonomous copier disconnection: cuts sub-accounts immediately when tilt score exceeds 75</li>
+      <li>Enforced mandatory cool-off periods before trade execution can resume</li>
+    </ul>
+    <div class="highlight-box">
+      <b>Kill-Switch Mechanism:</b>
+      <p>Hardwired safety that removes execution capability before emotional trading destroys your funded evaluations.</p>
+    </div>
+    <div class="btn-row">
+      <a class="btn pri" href="ui_02_trader_risk_guard/index.html?play=tilt">▶ Play Tilt Lockout Demo</a>
+    </div>
+  </div>
+
+  <!-- Card 3: Multi-Account Copier Correlation -->
+  <div class="card">
+    <span class="badge">RISK MODULE 03 · PORTFOLIO CORRELATION DE-RISKING</span>
+    <h2><i>🌐</i> Multi-Strategy Correlation Matrix</h2>
+    <p>Independent breakout strategies secretly converge and take the exact same losses during choppy market conditions.</p>
+    <ul>
+      <li>Live pairwise correlation matrix across all active strategies (-1.00 to +1.00)</li>
+      <li>Automated de-risking: disables redundant models when correlation exceeds 0.75</li>
+      <li>Directional filters: switch strategies between <code>BOTH</code>, <code>BUY_ONLY</code>, or <code>SELL_ONLY</code></li>
+    </ul>
+    <div class="btn-row">
+      <a class="btn pri" href="ui_02_trader_risk_guard/index.html?play=corr">▶ Play Correlation Demo</a>
+    </div>
+  </div>
+
+  <!-- Card 4: EP058 Strategy Intelligence -->
+  <div class="card">
+    <span class="badge" style="background:#122d1f;color:#3fb950;border-color:#245836">RISK MODULE 04 · LIVE STRATEGY STREAM</span>
+    <h2><i>⚡</i> Live Strategy Intelligence Stream</h2>
+    <p>Direct integration with EP058 algorithmic execution engine across 4 production models.</p>
+    <ul>
+      <li>Real-time trade telemetry streaming from PostgreSQL <code>tradedb</code></li>
+      <li>Dynamic rank tracking across active DNA models</li>
+      <li>Immediate audible &amp; visual indicators for trailing drawdown warnings</li>
+    </ul>
+    <div class="btn-row">
+      <a class="btn sec" href="ui_02_trader_risk_guard/index.html">Launch Live Monitor</a>
+    </div>
+  </div>
+</div>
+
+<div class="foot">
+  <div><b>ApexGuard v1.5.0</b> · Prop-Firm Drawdown &amp; Tilt Protection · Live EP058 Intelligence Stream · <a href="javascript:openWaitlistModal()" style="color:#3fb950;font-weight:600">Join Waitlist</a></div>
+</div>
+
+</div><!-- Register Interest / Waitlist Modal -->
+<div id="waitlistModalMask" style="position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:999;padding:16px;">
+  <div style="background:#111827;border:1px solid #2f4566;border-radius:14px;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;padding:20px;box-shadow:0 20px 40px #000a">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+      <div>
+        <span style="display:inline-block;background:#1f6feb22;color:#58a6ff;border:1px solid #388bfd44;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase">Early Access &amp; Feature Priority</span>
+        <h2 style="margin:6px 0 2px;font-size:19px;color:#fff">Join the ApexGuard Waitlist</h2>
+        <p style="margin:0;font-size:13px;color:#9ca3af">Help us prioritize development by voting on the functions you need most.</p>
+      </div>
+      <button onclick="closeWaitlistModal()" style="background:none;border:0;color:#9ca3af;font-size:22px;cursor:pointer;padding:0 6px">✕</button>
+    </div>
+
+    <form id="waitlistForm" onsubmit="handleWaitlistSubmit(event)" style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <label style="display:block;font-size:12.5px;color:#e5e7eb;margin-bottom:4px;font-weight:600">Email Address <span style="color:#ef4444">*</span></label>
+        <input type="email" id="wlEmail" required placeholder="trader@example.com" style="background:#0b0f19;border:1px solid #374151;color:#fff;border-radius:8px;padding:10px 12px;width:100%;font-size:14px;box-sizing:border-box">
+      </div>
+
+      <div>
+        <label style="display:block;font-size:12.5px;color:#e5e7eb;margin-bottom:4px;font-weight:600">Primary Prop Firm / Execution Platform</label>
+        <select id="wlPlatform" style="background:#0b0f19;border:1px solid #374151;color:#fff;border-radius:8px;padding:10px 12px;width:100%;font-size:13.5px;box-sizing:border-box">
+          <option value="Apex Trader Funding">Apex Trader Funding</option>
+          <option value="Topstep">Topstep</option>
+          <option value="FTMO">FTMO</option>
+          <option value="FundedNext">FundedNext</option>
+          <option value="MyFundedFutures">MyFundedFutures</option>
+          <option value="NinjaTrader 8">NinjaTrader 8 Desktop</option>
+          <option value="MetaTrader 5">MetaTrader 5 (MT5)</option>
+          <option value="TradingView">TradingView Webhooks</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label style="display:block;font-size:12.5px;color:#e5e7eb;margin-bottom:6px;font-weight:600">Vote on Priority Features (Demand Validation):</label>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;background:#0d1424;border:1px solid #1e3a5f;border-radius:8px;padding:12px">
+          <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+            <input type="checkbox" name="wlFeats" value="Consistency Rule Guard & Dilution Math" checked style="width:16px;height:16px;min-height:16px;margin-top:2px">
+            <span><b>Consistency Rule Guard &amp; Dilution Math:</b> Real-time single-day 30% profit cap alerts and execution lockout to protect payout eligibility.</span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+            <input type="checkbox" name="wlFeats" value="High-Impact News Auto-Flatten & Bracket Purge" checked style="width:16px;height:16px;min-height:16px;margin-top:2px">
+            <span><b>High-Impact News Shield:</b> Countdown to CPI/FOMC with auto-close and bracket order purge inside ±2m blackout.</span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+            <input type="checkbox" name="wlFeats" value="Copier Tilt Sever / Revenge Circuit-Breaker" style="width:16px;height:16px;min-height:16px;margin-top:2px">
+            <span><b>Copier Revenge Tilt Sever:</b> Instantly disconnects follower accounts when rapid over-leveraged sizing is detected.</span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+            <input type="checkbox" name="wlFeats" value="Intraday Peak Trailing Floor Cushion" style="width:16px;height:16px;min-height:16px;margin-top:2px">
+            <span><b>Intraday Trailing Floor Meter:</b> Visual distance-to-liquidation meter vs EOD closing balance models.</span>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <label style="display:block;font-size:12.5px;color:#e5e7eb;margin-bottom:4px;font-weight:600">Your Biggest Rule or Copier Headache (Optional)</label>
+        <textarea id="wlNotes" rows="2" placeholder="e.g. Lost a  payout to the 30% rule last week..." style="background:#0b0f19;border:1px solid #374151;color:#fff;border-radius:8px;padding:8px 12px;width:100%;font-size:13px;resize:none;box-sizing:border-box"></textarea>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px">
+        <input type="checkbox" id="wlConsent" checked required style="width:16px;height:16px;min-height:16px">
+        <label for="wlConsent" style="font-size:11.5px;color:#9ca3af">I agree to receive ApexGuard early access updates and beta invitations.</label>
+      </div>
+
+      <button type="submit" id="wlSubmitBtn" class="btn pri" style="background:#238636;border-color:#2ea043;font-weight:700;width:100%;min-height:44px;cursor:pointer">
+        Join Priority Waitlist <span>→</span>
+      </button>
+      <div id="wlStatus" style="font-size:12px;text-align:center;min-height:18px"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openWaitlistModal(){
+  document.getElementById('waitlistModalMask').style.display='flex';
+}
+function closeWaitlistModal(){
+  document.getElementById('waitlistModalMask').style.display='none';
+}
+document.getElementById('waitlistModalMask').addEventListener('click',function(e){
+  if(e.target===this) closeWaitlistModal();
+});
+
+async function handleWaitlistSubmit(e){
+  e.preventDefault();
+  const email=document.getElementById('wlEmail').value.trim();
+  const platform=document.getElementById('wlPlatform').value;
+  const feats=[...document.querySelectorAll('input[name="wlFeats"]:checked')].map(c=>c.value);
+  const notes=document.getElementById('wlNotes').value.trim();
+  const status=document.getElementById('wlStatus');
+  const btn=document.getElementById('wlSubmitBtn');
+
+  if(!email){return;}
+  btn.disabled=true;
+  status.style.color='#58a6ff';
+  status.textContent='Registering your interest...';
+
+  const lead={product:'apexguard',email,platform,features:feats,notes,date:new Date().toISOString(),path:location.pathname};
+  try{
+    const stored=JSON.parse(localStorage.getItem('apexguard_interest_leads')||'[]');
+    stored.push(lead);
+    localStorage.setItem('apexguard_interest_leads',JSON.stringify(stored));
+  }catch(err){}
+
+  try{
+    await fetch('https://ep052-agentic-arena.onrender.com/api/waitlist',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        email:email,
+        discoverySource:'apexguard_landing',
+        sourceDetail:`Platform: ${platform} | Feats: ${feats.join(', ')} | Note: ${notes}`,
+        landingPath:window.location.pathname,
+        referrer:document.referrer||null
+      })
+    });
+  }catch(err){}
+
+  status.style.color='#3fb950';
+  status.innerHTML='<b>🎉 You are on the priority waitlist!</b> We have logged your votes for '+feats.length+' features. We will email you at '+email+' as soon as beta spots open for '+platform+'.';
+  btn.textContent='✓ Registered';
+  btn.style.background='#1f6feb';
+  btn.style.borderColor='#388bfd';
+}
+</script>
+</body></html>

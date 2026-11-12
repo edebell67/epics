@@ -1,5 +1,5 @@
 <!--
-  epics/ep_064_reddit_oppourtunity/ui_01_siteledger_quote_jobcost/README.md — Documentation for SiteLedger mobile-first demo UI
+  epics/ep_064_business_solutions/ui_01_siteledger_quote_jobcost/README.md — Documentation for SiteLedger mobile-first demo UI
   
   VERSION HISTORY
   v1.3.0 · 2026-11-11 · Two-Track Workflow Visualizer (Track A: Solo Builder full mobile app vs Track B: Headless Zero-API WhatsApp), ?play=workflow scenario tour.
