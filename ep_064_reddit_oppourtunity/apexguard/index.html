@@ -1,0 +1,136 @@
+<!doctype html>
+<!--
+  epics/ep_064_reddit_oppourtunity/apexguard.html
+  — Dedicated Standalone Landing Page for ApexGuard (Prop Firm Drawdown, Tilt & Rule Protection).
+  Plan: workstream/200_inprogress/gemini/20261112_003600_ep064_997_split_offerings_option_a_siteledger_root_apexguard_dedicated.md
+  Version: v2.1.0 · 2026-11-12
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ApexGuard · Prop Firm Drawdown, Tilt &amp; Correlation Guard</title>
+<style>
+:root{--bg:#0b0f19;--card:#111827;--ink:#f3f4f6;--mut:#9ca3af;--line:#1f2937;--acc:#388bfd;--acc2:#1f6feb;--amb:#f59e0b;--red:#ef4444;--r:14px}
+*{box-sizing:border-box}body{margin:0;font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);padding:16px}
+.wrap{max-width:980px;margin:0 auto}
+header{padding:20px 0 24px;border-bottom:1px solid var(--line);margin-bottom:24px}
+.badge{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:#13253e;color:#58a6ff;border:1px solid #254b80;margin-bottom:10px}
+h1{margin:0 0 8px;font-size:26px;letter-spacing:-.02em}
+header p{margin:0;color:var(--mut);font-size:15px;max-width:760px;line-height:1.5}
+.grid{display:grid;gap:18px;grid-template-columns:1fr}
+@media(min-width:720px){.grid{grid-template-columns:1fr 1fr}body{padding:32px}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:12px}
+.card h2{margin:0;font-size:18px;display:flex;align-items:center;gap:8px}
+.card h2 i{font-size:20px;font-style:normal}
+.card p{margin:0;color:var(--mut);font-size:13.5px}
+.card ul{margin:0;padding-left:18px;color:var(--ink);font-size:13.5px;line-height:1.6}
+.highlight-box{background:#0d1424;border:1px solid #1e3a5f;border-radius:10px;padding:12px 14px;margin-top:6px}
+.highlight-box b{color:#58a6ff;font-size:13px;display:block;margin-bottom:3px}
+.highlight-box p{margin:0;font-size:12.5px;color:#c9d1d9}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;font-weight:600;padding:10px 14px;border-radius:8px;font-size:13.5px;min-height:42px}
+.btn.pri{background:var(--acc2);color:#fff;border:1px solid var(--acc)}
+.btn.pri:hover{background:#388bfd}
+.btn.sec{background:#1f2937;color:var(--ink);border:1px solid var(--line)}
+.btn.sec:hover{background:#374151}
+.feature-banner{background:linear-gradient(180deg,#132338,#111827);border:1px solid #23456b;border-radius:var(--r);padding:22px;margin-bottom:20px}
+.feature-banner h3{margin:0 0 8px;font-size:18px;color:#58a6ff}
+.feature-banner p{margin:0 0 14px;color:#c9d1d9;font-size:14px;line-height:1.5}
+.foot{margin-top:24px;border-top:1px solid var(--line);padding-top:18px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;color:var(--mut);font-size:13px}
+.foot a{color:#58a6ff;text-decoration:none}
+</style></head><body><div class="wrap">
+
+<header>
+  <span class="badge">PROP &amp; ALGO TRADING RISK SUITE</span>
+  <h1>ApexGuard · Prop-Firm Drawdown, Tilt &amp; Rule Protection</h1>
+  <p>Engineered directly from active pain points in <code>r/FuturesTrading</code>, <code>r/Daytrading</code>, and <code>r/PropFirmTester</code>. Prevents the 3 most common payout disqualifiers: Consistency Violations, Trailing Drawdown Traps, and Tilt Escalation.</p>
+</header>
+
+<div class="feature-banner">
+  <h3>⚡ New in v1.4.0: Prop Rulebook Engine (Consistency &amp; News Lockouts)</h3>
+  <p>Most funded traders lose their accounts not from poor strategy, but from obscure payout rule violations. ApexGuard tracks rules in real time:</p>
+  <ul>
+    <li><b>Consistency Rule Guard:</b> Live calculation of maximum allowed daily profit (30% / 40% / 50% caps) relative to total balance.</li>
+    <li><b>News Window Blackout:</b> Real-time countdown to Tier 1 High-Impact events (CPI, FOMC, NFP) with pre-news automatic lockout.</li>
+    <li><b>Live Streaming / Simulation Toggle:</b> Switch between live EP058 Strategy Intelligence (PostgreSQL <code>tradedb</code>) and stress-test scenarios.</li>
+  </ul>
+  <div class="btn-row" style="margin-top:14px">
+    <a class="btn pri" href="../ui_02_trader_risk_guard/index.html?play=rules">▶ Play Rulebook Scenario</a>
+    <a class="btn sec" href="../ui_02_trader_risk_guard/index.html">Open ApexGuard Sandbox</a>
+  </div>
+</div>
+
+<div class="grid">
+  <!-- Card 1: Trailing Drawdown -->
+  <div class="card">
+    <span class="badge" style="background:#281816;color:#ff7b72;border-color:#5c221e">PAIN POINT T1 · TRAILING DRAWDOWN</span>
+    <h2><i>📉</i> Intraday High-Water Mark Trailing Floor</h2>
+    <p>Unrealized open profits ratchet up trailing drawdown floors during trade execution, causing sudden liquidation on pullbacks.</p>
+    <ul>
+      <li>Visual distance-to-breach meter (Green &gt;1.5k, Amber &lt;800, Red &lt;300)</li>
+      <li>Multi-account comparison: Intraday Peak-to-Valley (Apex) vs. EOD Close (Topstep) vs. Static Balance (MFFU)</li>
+      <li>Configurable buffer warnings with emergency auto-flatten triggers</li>
+    </ul>
+    <div class="highlight-box">
+      <b>The Payout Saver:</b>
+      <p>Simulates the exact intraday high-water mark calculation so you never get liquidated on a winning trade that retraced.</p>
+    </div>
+    <div class="btn-row">
+      <a class="btn pri" href="../ui_02_trader_risk_guard/index.html?play=hwm">▶ Play Intraday Drawdown Demo</a>
+    </div>
+  </div>
+
+  <!-- Card 2: Behavioral Tilt -->
+  <div class="card">
+    <span class="badge" style="background:#261d11;color:#f2cc60;border-color:#5c4217">PAIN POINT T2 · REVENGE SPIRAL</span>
+    <h2><i>🚨</i> Behavioral Tilt Cadence &amp; Copier Sever</h2>
+    <p>A single string of losses triggers size doubling and revenge clicking that wipes out weeks of accumulated gains in minutes.</p>
+    <ul>
+      <li>Tilt score algorithm (0–100) monitoring rapid re-entries (&lt;60s), size escalation, and consecutive losses</li>
+      <li>Autonomous copier disconnection: cuts sub-accounts immediately when tilt score exceeds 75</li>
+      <li>Enforced mandatory cool-off periods before trade execution can resume</li>
+    </ul>
+    <div class="highlight-box">
+      <b>Kill-Switch Mechanism:</b>
+      <p>Hardwired safety that removes execution capability before emotional trading destroys your funded evaluations.</p>
+    </div>
+    <div class="btn-row">
+      <a class="btn pri" href="../ui_02_trader_risk_guard/index.html?play=tilt">▶ Play Tilt Lockout Demo</a>
+    </div>
+  </div>
+
+  <!-- Card 3: Multi-Account Copier Correlation -->
+  <div class="card">
+    <span class="badge">PAIN POINT T3 · CORRELATION RISK</span>
+    <h2><i>🌐</i> Multi-Strategy Correlation Matrix</h2>
+    <p>Independent breakout strategies secretly converge and take the exact same losses during choppy market conditions.</p>
+    <ul>
+      <li>Live pairwise correlation matrix across all active strategies (-1.00 to +1.00)</li>
+      <li>Automated de-risking: disables redundant models when correlation exceeds 0.75</li>
+      <li>Directional filters: switch strategies between <code>BOTH</code>, <code>BUY_ONLY</code>, or <code>SELL_ONLY</code></li>
+    </ul>
+    <div class="btn-row">
+      <a class="btn pri" href="../ui_02_trader_risk_guard/index.html?play=corr">▶ Play Correlation Demo</a>
+    </div>
+  </div>
+
+  <!-- Card 4: EP058 Strategy Intelligence -->
+  <div class="card">
+    <span class="badge" style="background:#122d1f;color:#3fb950;border-color:#245836">PAIN POINT T4 · LIVE INTELLIGENCE</span>
+    <h2><i>⚡</i> Live Strategy Intelligence Stream</h2>
+    <p>Direct integration with EP058 algorithmic execution engine across 4 production models.</p>
+    <ul>
+      <li>Real-time trade telemetry streaming from PostgreSQL <code>tradedb</code></li>
+      <li>Dynamic rank tracking across active DNA models</li>
+      <li>Immediate audible &amp; visual indicators for trailing drawdown warnings</li>
+    </ul>
+    <div class="btn-row">
+      <a class="btn sec" href="../ui_02_trader_risk_guard/index.html">Launch Live Monitor</a>
+    </div>
+  </div>
+</div>
+
+<div class="foot">
+  <div><b>ApexGuard v1.4.0</b> · Standalone Mobile-First Sandbox · Live EP058 PostgreSQL Streaming Ready</div>
+  <div><a href="../ui_02_trader_risk_guard/README.md">Technical Specification &amp; Setup</a></div>
+</div>
+
+</div></body></html>
