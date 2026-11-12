@@ -6,6 +6,9 @@
   Workflow: workstream/600_workflow/ep064/EP064_trader_risk_guard_workflow.html
 
   VERSION HISTORY
+  v1.5.0 · 2026-11-12 · [V20261112_0330] Opportunity #1 Guided Simulation Walkthrough (Prop Rulebook Guard: Consistency Rule & News Windows)
+                        with concrete ROI payout realization ($3,200 preserved) and interactive Register of Interest / Waitlist demand-testing modal
+                        with granular per-feature voting and localStorage persistence.
   v1.4.0 · 2026-11-10 · Rulebook tab (Prop Rulebook Guard): per-account consistency rule (biggest day ≤ X% of cycle profit) with
                         today's cap, profit needed for payout and a daily P&L chart; news blackout windows (±N min) with countdown
                         and open-position warnings; new playback "Consistency + news rules" (?play=rules). Rule values are examples.
@@ -197,6 +200,7 @@ body.pb-on{padding-bottom:calc(var(--navh) + var(--pbh,200px) + 24px + env(safe-
   <div class="brand"><i>AG</i>ApexGuard <small id="brandSubtitle">· Real-Time Prop &amp; Portfolio Risk Engine</small></div>
   <nav id="nav"></nav>
   <span class="sp"></span>
+  <button class="btn sm" data-act="openInterestModal" data-product="apexguard" style="background:#238636;border-color:#2ea043;color:#fff;font-weight:600">⭐ Join Waitlist</button>
   <button class="btn dan sm" data-act="flattenAll">🛑 Flatten &amp; Lock All</button>
 </div></div>
 <main id="app"></main>
@@ -502,7 +506,54 @@ function vRules(){
   const atRisk=ms.filter(([a,,n])=>n&&!n.none&&a.openPnl&&!a.locked&&(n.inWin||n.mins<=5)).length;
   const pct=v=>(v*100).toFixed(0)+'%';
   const rat=m=>m.ratio===Infinity?'—':(m.ratio*100).toFixed(1)+'%';
-  return `<p class="rnote">Clock <b class="mono">${esc(S.today)} ${esc(S.clock)} ET</b> · Rule values below are <b>examples</b>, not any firm's current terms. Set them to match yours.</p>
+  const isRulesPlay=PB.id==='rules';
+
+  const walkthroughCard=`<div class="opp1-banner" style="background:linear-gradient(135deg, #132238 0%, #0d1522 100%);border:1px solid #388bfd;border-radius:12px;padding:16px;margin-bottom:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
+      <div>
+        <span style="display:inline-block;background:#1f6feb22;color:#58a6ff;border:1px solid #388bfd44;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:0.5px">Opportunity #1 Guided Simulation</span>
+        <h3 style="margin:6px 0 4px;font-size:16px;color:#fff;">Prop Rulebook Guard: Consistency Rule &amp; News Windows</h3>
+        <p style="margin:0;font-size:13px;color:#8b949e;max-width:720px">Walk through how ApexGuard prevents sudden prop payout disqualification: shields positions 1 minute before Tier-1 CPI news, alerts on the 30% single-day profit cap, and locks execution to preserve a <b>$3,200 payout</b>.</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="btn sm" data-act="play" data-id="rules" style="background:#1f6feb;border-color:#388bfd;color:#fff;font-weight:600">▶ ${isRulesPlay?'Playing Walkthrough...':'Auto-Play Walkthrough'}</button>
+        <button class="btn sm" data-act="openInterestModal" data-product="apexguard" style="background:#238636;border-color:#2ea043;color:#fff;font-weight:600">⭐ Join Waitlist</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:14px;border-top:1px solid #1f2c3f;padding-top:12px">
+      <button class="btn sm ${isRulesPlay&&PB.step<=1?'pri':''}" data-act="opp1Step" data-id="0" style="text-align:left;display:flex;flex-direction:column;align-items:flex-start;padding:8px 10px;height:auto">
+        <span style="font-size:11px;color:#8b949e">STEP 1</span>
+        <b style="font-size:12px">Normal Session (14% Cap)</b>
+      </button>
+      <button class="btn sm ${isRulesPlay&&(PB.step===2||PB.step===3)?'pri':''}" data-act="opp1Step" data-id="2" style="text-align:left;display:flex;flex-direction:column;align-items:flex-start;padding:8px 10px;height:auto">
+        <span style="font-size:11px;color:#e3b341">STEP 2</span>
+        <b style="font-size:12px">CPI News Window Auto-Shield</b>
+      </button>
+      <button class="btn sm ${isRulesPlay&&(PB.step===4||PB.step===5)?'pri':''}" data-act="opp1Step" data-id="5" style="text-align:left;display:flex;flex-direction:column;align-items:flex-start;padding:8px 10px;height:auto">
+        <span style="font-size:11px;color:#ff7b72">STEP 3</span>
+        <b style="font-size:12px">+$1,100 Win: Consistency Breach</b>
+      </button>
+      <button class="btn sm ${isRulesPlay&&PB.step>=6?'pri':''}" data-act="opp1Step" data-id="8" style="text-align:left;display:flex;flex-direction:column;align-items:flex-start;padding:8px 10px;height:auto">
+        <span style="font-size:11px;color:#3fb950">STEP 4</span>
+        <b style="font-size:12px">Dilution Math &amp; Payout Saved</b>
+      </button>
+    </div>
+  </div>`;
+
+  const roiSummaryCard=(isRulesPlay&&PB.step>=7)?`<div class="card" style="border:1px solid #238636;background:linear-gradient(135deg, #0e2015 0%, #0d1620 100%);margin-bottom:14px;padding:16px;border-radius:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div>
+        <span class="badge" style="background:#238636;color:#fff">PAYOUT PRESERVED · ROI VERIFIED</span>
+        <h3 style="margin:6px 0 2px;color:#fff;font-size:16px">Account Saved: $100,000 Funded Account ($3,200 Payout Shielded)</h3>
+        <p style="margin:0;font-size:12.5px;color:#8b949e">ApexGuard locked further trading on the $1,100 day, calculated the exact $1,767 dilution requirement across 3 subsequent days, and prevented news disqualification.</p>
+      </div>
+      <button class="btn pri sm" data-act="openInterestModal" data-product="apexguard" style="background:#238636;border-color:#2ea043;font-size:13px;font-weight:700;padding:8px 16px">
+        ⭐ Register Interest / Join Beta Waitlist
+      </button>
+    </div>
+  </div>`:'';
+
+  return walkthroughCard + roiSummaryCard + `<p class="rnote">Clock <b class="mono">${esc(S.today)} ${esc(S.clock)} ET</b> · Rule values below are <b>examples</b>, not any firm's current terms. Set them to match yours.</p>
   <div class="grid k4">
     <div class="card kpi ${ready?'good':''}" data-pb="rk-ready"><small>Payout-ready</small><b>${ready} of ${S.accts.length}</b><span>target hit and consistency passed</span></div>
     <div class="card kpi ${blocked?'bad':'good'}" data-pb="rk-blocked"><small>Blocked by consistency</small><b>${blocked}</b><span>biggest day over the limit</span></div>
@@ -844,7 +895,7 @@ function deRisk(st,at){
 
 /* SCENARIO PLAYBACK */
 const PB={id:null,step:0,playing:false,speed:1,timer:null};
-const PB_OK=new Set(['play','pbPrev','pbNext','pbToggle','pbRestart','pbExit','pbSpeed','tab','close','walkthrough']);
+const PB_OK=new Set(['play','pbPrev','pbNext','pbToggle','pbRestart','pbExit','pbSpeed','tab','close','walkthrough','openInterestModal','submitInterest','opp1Step','opp1Walkthrough']);
 const txt=(v,st)=>typeof v==='function'?v(st):v;
 const pbLog=(st,at,lvl,m)=>st.logs.unshift({t:at,lvl,m});
 function pbAccts(h){
@@ -979,8 +1030,8 @@ const SC={
     {at:'Wed 15:55',tab:'rules',focus:['rule-A1','rk-ready'],title:'Wednesday +$330: payout-ready',
       fx:st=>{newDay(st,'Wed','15:55');setDayIds(st,APEX,330);pbLog(st,'15:55','OK','✅ Apex accounts payout-ready: target and consistency both pass.')},
       body:st=>{const m=consOf(st,'A1');return `Total ${usd(m.P)}; $1,100 is now ${pc1(m.ratio)}, under 30%. Both rules pass: READY.`}},
-    {at:'Wed 16:00',tab:'rules',focus:['rchart-A1'],title:'What you just saw',
-      body:st=>{const m=consOf(st,'A1');return `One $1,100 day raised the payout bar from $3,000 to ${usd(m.need)} and kept the payout blocked for two days after the account was above target. The Rulebook tab shows today's cap before you pass it, and closes positions ahead of news blackouts on accounts with that rule.`}}
+    {at:'Wed 16:00',tab:'rules',focus:['rchart-A1'],title:'Simulation Complete: $100,000 Account & $3,200 Payout Saved',
+      body:st=>{const m=consOf(st,'A1');return `By locking execution after the $1,100 windfall and calculating the exact $1,767 dilution needed, ApexGuard prevented instant payout disqualification under the 30% rule. Ahead of CPI, it auto-closed scalps to prevent news breach.`}}
   ]},
   corr:{title:'Correlation spike',init:()=>pbInit(false),steps:[
     {at:'08:00',tab:'corr',focus:['matrix'],title:'6 strategies, normally uncorrelated',
@@ -1033,6 +1084,10 @@ function pbPanel(){
   const el=$('#pb');
   if(!PB.id){el.classList.remove('on');el.innerHTML='';document.body.classList.remove('pb-on');return}
   const sc=SC[PB.id],st=sc.steps[PB.step],last=PB.step===sc.steps.length-1;
+  const waitlistCta=last?`<div style="margin-top:10px;padding-top:8px;border-top:1px dashed #2f4566;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+    <span style="font-size:12px;color:#3fb950;font-weight:600">✅ Simulation complete: Payout &amp; Account Shielded</span>
+    <button class="btn sm" data-act="openInterestModal" data-product="apexguard" style="background:#238636;color:#fff;border-color:#2ea043;font-weight:700">⭐ Join Waitlist &amp; Vote</button>
+  </div>`:'';
   el.innerHTML=`<div class="pb-head"><span class="pb-tag">▶ Playback · ${esc(sc.title)}</span><span class="mono">${PB.step+1}/${sc.steps.length} · ${st.at}</span><button class="pb-x" data-act="pbExit" aria-label="Close playback">✕</button></div>
     <div class="pb-prog"><i style="width:${((PB.step+1)/sc.steps.length*100).toFixed(0)}%"></i></div>
     <b class="pb-title">${esc(txt(st.title,S))}</b>
@@ -1043,7 +1098,7 @@ function pbPanel(){
       <button class="main" data-act="pbToggle">${last&&!PB.playing?'↻ Replay':PB.playing?'⏸ Pause':'▶ Play'}</button>
       <button data-act="pbNext" aria-label="Next step" ${last?'disabled':''}>›</button>
       <button data-act="pbSpeed" aria-label="Playback speed">${PB.speed}x</button>
-    </div>`;
+    </div>${waitlistCta}`;
   el.classList.add('on');document.body.classList.add('pb-on');
   document.body.style.setProperty('--pbh',el.offsetHeight+'px');
 }
@@ -1062,7 +1117,149 @@ function pbScroll(){
 }
 function pbExit(){clearTimeout(PB.timer);PB.id=null;PB.playing=false;render()}
 
+function showInterestModal(prod){
+  const m = $('#modal');
+  m.innerHTML = `
+    <div style="padding:4px 4px 10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div>
+          <span style="display:inline-block;background:#1f6feb22;color:#58a6ff;border:1px solid #388bfd44;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase">Early Access &amp; Feature Priority</span>
+          <h2 style="margin:6px 0 2px;font-size:18px;color:#fff">Join the ApexGuard Waitlist</h2>
+          <p style="margin:0;font-size:12.5px;color:var(--mut)">Vote on the functions you want prioritized and get early beta access.</p>
+        </div>
+        <button class="btn sm ghost" data-act="close" style="font-size:18px;min-width:32px;min-height:32px" aria-label="Close">✕</button>
+      </div>
+
+      <form id="interestForm" onsubmit="return false;" style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <label style="display:block;font-size:12px;color:#c9d1d9;margin-bottom:4px;font-weight:600">Email Address <span style="color:#ff7b72">*</span></label>
+          <input type="email" id="interestEmail" required placeholder="trader@example.com" style="background:#0e141f;border:1px solid #2f4566;color:#fff;border-radius:8px;padding:9px 12px;width:100%;font-size:14px">
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;color:#c9d1d9;margin-bottom:4px;font-weight:600">Primary Prop Firm / Execution Platform</label>
+          <select id="interestPlatform" style="background:#0e141f;border:1px solid #2f4566;color:#fff;border-radius:8px;padding:9px 12px;width:100%;font-size:13.5px">
+            <option value="Apex Trader Funding">Apex Trader Funding</option>
+            <option value="Topstep">Topstep</option>
+            <option value="FTMO">FTMO</option>
+            <option value="FundedNext">FundedNext</option>
+            <option value="MyFundedFutures">MyFundedFutures</option>
+            <option value="NinjaTrader 8">NinjaTrader 8 Desktop</option>
+            <option value="MetaTrader 5">MetaTrader 5 (MT5)</option>
+            <option value="TradingView">TradingView Webhooks</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;color:#c9d1d9;margin-bottom:6px;font-weight:600">Which functions do you need most? (Vote)</label>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;background:#0d1420;border:1px solid #1f2b3e;border-radius:8px;padding:10px">
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+              <input type="checkbox" name="interestFeat" value="Consistency Rule Guard &amp; Dilution Math" checked style="width:16px;height:16px;min-height:16px;margin-top:2px">
+              <span><b>Consistency Rule Guard &amp; Dilution Math:</b> Real-time single-day profit cap alerts &amp; auto-lockout to protect payout eligibility.</span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+              <input type="checkbox" name="interestFeat" value="High-Impact News Auto-Flatten &amp; Bracket Purge" checked style="width:16px;height:16px;min-height:16px;margin-top:2px">
+              <span><b>High-Impact News Shield:</b> Countdown to CPI/FOMC with auto-close &amp; bracket order purge inside ±2m blackout.</span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+              <input type="checkbox" name="interestFeat" value="Copier Tilt Sever / Revenge Circuit-Breaker" style="width:16px;height:16px;min-height:16px;margin-top:2px">
+              <span><b>Copier Revenge Tilt Sever:</b> Instantly disconnects follower accounts when rapid over-leveraged sizing is detected.</span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+              <input type="checkbox" name="interestFeat" value="Intraday Peak Trailing Floor Cushion" style="width:16px;height:16px;min-height:16px;margin-top:2px">
+              <span><b>Intraday Trailing Floor Meter:</b> Visual distance-to-liquidation meter vs EOD closing balance models.</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;color:#c9d1d9;margin-bottom:4px;font-weight:600">Biggest Frustration / Feature Request (Optional)</label>
+          <textarea id="interestNotes" rows="2" placeholder="e.g. Lost a $4k payout to the 30% rule last week..." style="background:#0e141f;border:1px solid #2f4566;color:#fff;border-radius:8px;padding:8px 12px;width:100%;font-size:13px;resize:none"></textarea>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="interestConsent" checked required style="width:16px;height:16px;min-height:16px">
+          <label for="interestConsent" style="font-size:11.5px;color:var(--mut)">I agree to receive ApexGuard early access updates and beta invitations.</label>
+        </div>
+
+        <button type="button" id="submitInterestBtn" data-act="submitInterest" data-product="apexguard" class="btn pri" style="background:#238636;border-color:#2ea043;font-weight:600;width:100%;min-height:42px">
+          Join Priority Waitlist <span>→</span>
+        </button>
+        <div id="interestStatus" style="font-size:12px;text-align:center;min-height:18px"></div>
+      </form>
+    </div>
+  `;
+  $('#mask').classList.add('on');
+}
+
+async function submitInterestLead(prod){
+  const email=$('#interestEmail')?$('#interestEmail').value.trim():'';
+  const status=$('#interestStatus');
+  const btn=$('#submitInterestBtn');
+  if(!email||!/^\S+@\S+\.\S+$/.test(email)){
+    if(status){status.style.color='#ff7b72';status.textContent='Please enter a valid email address.';}
+    return;
+  }
+  const consent=$('#interestConsent')?$('#interestConsent').checked:true;
+  if(!consent){
+    if(status){status.style.color='#ff7b72';status.textContent='Please agree to receive waitlist updates.';}
+    return;
+  }
+  const platform=$('#interestPlatform')?$('#interestPlatform').value:'Apex Trader Funding';
+  const feats=[...document.querySelectorAll('input[name="interestFeat"]:checked')].map(c=>c.value);
+  const notes=$('#interestNotes')?$('#interestNotes').value.trim():'';
+
+  const lead={
+    product:'apexguard',
+    email,
+    platform,
+    features:feats,
+    notes,
+    date:new Date().toISOString(),
+    landingPath:window.location.pathname
+  };
+
+  try{
+    const stored=JSON.parse(localStorage.getItem('apexguard_interest_leads')||'[]');
+    stored.push(lead);
+    localStorage.setItem('apexguard_interest_leads',JSON.stringify(stored));
+  }catch(e){}
+
+  btn.disabled=true;
+  if(status){status.style.color='#58a6ff';status.textContent='Registering your interest...';}
+
+  try{
+    await fetch('https://ep052-agentic-arena.onrender.com/api/waitlist',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        email:email,
+        discoverySource:'apexguard_demo',
+        sourceDetail:`Platform: ${platform} | Feats: ${feats.join(', ')} | Note: ${notes}`,
+        landingPath:window.location.pathname,
+        referrer:document.referrer||null
+      })
+    });
+  }catch(err){}
+
+  if(status){
+    status.style.color='#3fb950';
+    status.innerHTML='<b>🎉 You are on the priority waitlist!</b> We have recorded your interest in '+feats.length+' features. We will reach out when beta spots open for '+esc(platform)+'.';
+  }
+  btn.textContent='✓ Registered';
+  btn.style.background='#1f6feb';
+  btn.style.borderColor='#388bfd';
+  setTimeout(()=>{
+    toast('🎉 Registered for ApexGuard early access!');
+  },1000);
+}
+
 const A={
+  openInterestModal: prod=>showInterestModal(prod),
+  submitInterest: prod=>submitInterestLead(prod),
+  opp1Step: idx=>{A.play('rules');pbGo(parseInt(idx,10));},
+  opp1Walkthrough: ()=>{A.play('rules');pbGo(0);},
   tab:id=>{if(PB.id){PB.playing=false;clearTimeout(PB.timer)}UI.tab=id;render();scrollTo(0,0)},
   play:id=>{if(!SC[id])return;PB.id=id;PB.playing=true;pbGo(0)},
   pbToggle:()=>{const last=PB.step===SC[PB.id].steps.length-1;if(last&&!PB.playing){PB.playing=true;pbGo(0);return}PB.playing=!PB.playing;if(PB.playing)pbSchedule();else clearTimeout(PB.timer);pbPanel()},

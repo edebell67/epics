@@ -6,6 +6,7 @@
   Workflow: workstream/600_workflow/ep064/EP064_siteledger_quote_jobcost_workflow.html
 
   VERSION HISTORY
+  v1.4.0 · 2026-11-12 · [V20261112_0330] Interactive Register of Interest / Waitlist demand-testing modal with trade category selection and feature voting (WhatsApp Voice Quotes, Live Job Cost Burn, Automated Stage Payment Chasing, Fast Estimates) with localStorage persistence.
   v1.3.0 · 2026-11-11 · (V20261111_1715) Two-Track Workflow Visualizer & WhatsApp View: added interactive Track A (Solo Builder
                         full mobile app cockpit) vs Track B (Zero-API headless engine via email CC and conversational WhatsApp
                         feedback loop); simulated WhatsApp mobile phone chat; ?play=workflow scenario tour.
@@ -193,7 +194,7 @@ table.plain th{font-size:12px;text-align:left;color:var(--mut);font-weight:500;p
 <div class="top"><div class="topin">
  <div class="brand"><i>SL</i>SiteLedger <small>· Northfield Build &amp; Renovate</small></div>
  <nav id="nav"></nav><span class="sp"></span>
- <div class="hdr-actions"><button class="btn icon" data-act="captureNav" aria-label="Capture receipt">📷<span class="lbl">Capture receipt</span></button><button class="btn pri icon" data-act="newQuote" aria-label="New quote">＋<span class="lbl">New quote</span></button></div>
+ <div class="hdr-actions"><button class="btn sm" data-act="openInterestModal" data-product="siteledger" style="background:#1f6f5c;border-color:#1f6f5c;color:#fff;font-weight:600">⭐ Join Waitlist</button><button class="btn icon" data-act="captureNav" aria-label="Capture receipt">📷<span class="lbl">Capture receipt</span></button><button class="btn pri icon" data-act="newQuote" aria-label="New quote">＋<span class="lbl">New quote</span></button></div>
 </div></div>
 <main id="app"></main>
 <div class="mask" id="mask"><div class="modal" id="modal"></div></div>
@@ -778,7 +779,150 @@ function mWalk(){openModal(`<h2>Demo walkthrough (≈3 min)<button class="btn gh
  <p style="color:var(--mut);font-size:12.5px">Use "Reset demo data" in the black strip to start again.</p></div>`)}
 
 /* ---------- actions ---------- */
+function showInterestModal(prod){
+  const m = document.querySelector('#modal');
+  m.innerHTML = `
+    <div style="padding:4px 4px 10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div>
+          <span style="display:inline-block;background:#e7f2ee;color:#1f6f5c;border:1px solid #1f6f5c44;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase">Early Access &amp; Feature Priority</span>
+          <h2 style="margin:6px 0 2px;font-size:19px;color:var(--ink)">Join the SiteLedger Waitlist</h2>
+          <p style="margin:0;font-size:12.5px;color:var(--mut)">Vote on the functions you need most to help us prioritize our launch for UK trade contractors.</p>
+        </div>
+        <button class="btn sm ghost" data-act="close" style="font-size:18px;min-width:32px;min-height:32px" aria-label="Close">✕</button>
+      </div>
+
+      <form id="siteledgerInterestForm" onsubmit="return false;" style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <label style="display:block;font-size:12px;color:var(--ink);margin-bottom:4px;font-weight:600">Email Address <span style="color:var(--red)">*</span></label>
+          <input type="email" id="slInterestEmail" required placeholder="contractor@example.com" style="background:#fff;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:9px 12px;width:100%;font-size:14px">
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;color:var(--ink);margin-bottom:4px;font-weight:600">Your Primary Trade / Contracting Business</label>
+          <select id="slInterestTrade" style="background:#fff;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:9px 12px;width:100%;font-size:13.5px">
+            <option value="Carpentry & Joinery">Carpentry &amp; Joinery</option>
+            <option value="Electrical & Smart Home">Electrical &amp; Smart Home</option>
+            <option value="Plumbing, Heating & Gas">Plumbing, Heating &amp; Gas</option>
+            <option value="Building & General Contracting">Building &amp; General Contracting</option>
+            <option value="Roofing & Cladding">Roofing &amp; Cladding</option>
+            <option value="Landscaping & Groundworks">Landscaping &amp; Groundworks</option>
+            <option value="Painting & Decorating">Painting &amp; Decorating</option>
+            <option value="Other Trade">Other Trade</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;color:var(--ink);margin-bottom:6px;font-weight:600">Which features would save you the most time/money? (Vote)</label>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;background:#fbfaf7;border:1px solid var(--line);border-radius:8px;padding:10px">
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+              <input type="checkbox" name="slInterestFeat" value="WhatsApp Voice & Text Change Order Capture" checked style="width:16px;height:16px;min-height:16px;margin-top:2px">
+              <span><b>WhatsApp Voice Quotes:</b> Speak a 20-second voice note on site; SiteLedger turns it into a client-signed PDF variation in 30 seconds.</span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+              <input type="checkbox" name="slInterestFeat" value="Live Job Cost & Material Burn vs Quote" checked style="width:16px;height:16px;min-height:16px;margin-top:2px">
+              <span><b>Live Job Cost Tracking:</b> Photo merchant receipts from the van; real-time alert before material costs exceed your original quote.</span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+              <input type="checkbox" name="slInterestFeat" value="Automated Stage Payment Chasing" style="width:16px;height:16px;min-height:16px;margin-top:2px">
+              <span><b>Polite Payment Chaser:</b> Automated WhatsApp/SMS payment reminders with instant online payment links and deposit escrow.</span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+              <input type="checkbox" name="slInterestFeat" value="3-Minute Fast Estimates" style="width:16px;height:16px;min-height:16px;margin-top:2px">
+              <span><b>Fast Professional Estimates:</b> Pre-loaded trade materials and day rates so you can issue itemized quotes before leaving the driveway.</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;color:var(--ink);margin-bottom:4px;font-weight:600">Your Biggest Quoting or Payment Headache (Optional)</label>
+          <textarea id="slInterestNotes" rows="2" placeholder="e.g. Clients taking 40 days to pay or doing extra work that never gets billed..." style="background:#fff;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 12px;width:100%;font-size:13px;resize:none"></textarea>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="slInterestConsent" checked required style="width:16px;height:16px;min-height:16px">
+          <label for="slInterestConsent" style="font-size:11.5px;color:var(--mut)">I agree to receive SiteLedger early access updates and beta invitations.</label>
+        </div>
+
+        <button type="button" id="slSubmitInterestBtn" data-act="submitInterest" data-product="siteledger" class="btn pri" style="background:#1f6f5c;border-color:#1f6f5c;font-weight:600;width:100%;min-height:42px">
+          Join Priority Waitlist <span>→</span>
+        </button>
+        <div id="slInterestStatus" style="font-size:12px;text-align:center;min-height:18px"></div>
+      </form>
+    </div>
+  `;
+  document.querySelector('#mask').classList.add('on');
+}
+
+async function submitInterestLead(prod){
+  const emailInput = document.querySelector('#slInterestEmail');
+  const email = emailInput ? emailInput.value.trim() : '';
+  const status = document.querySelector('#slInterestStatus');
+  const btn = document.querySelector('#slSubmitInterestBtn');
+  if(!email||!/^\S+@\S+\.\S+$/.test(email)){
+    if(status){status.style.color='var(--red)';status.textContent='Please enter a valid email address.';}
+    return;
+  }
+  const consentEl = document.querySelector('#slInterestConsent');
+  const consent = consentEl ? consentEl.checked : true;
+  if(!consent){
+    if(status){status.style.color='var(--red)';status.textContent='Please agree to receive waitlist updates.';}
+    return;
+  }
+  const tradeEl = document.querySelector('#slInterestTrade');
+  const trade = tradeEl ? tradeEl.value : 'Carpentry & Joinery';
+  const feats=[...document.querySelectorAll('input[name="slInterestFeat"]:checked')].map(c=>c.value);
+  const notesEl = document.querySelector('#slInterestNotes');
+  const notes = notesEl ? notesEl.value.trim() : '';
+
+  const lead={
+    product:'siteledger',
+    email,
+    trade,
+    features:feats,
+    notes,
+    date:new Date().toISOString(),
+    landingPath:window.location.pathname
+  };
+
+  try{
+    const stored=JSON.parse(localStorage.getItem('siteledger_interest_leads')||'[]');
+    stored.push(lead);
+    localStorage.setItem('siteledger_interest_leads',JSON.stringify(stored));
+  }catch(e){}
+
+  btn.disabled=true;
+  if(status){status.style.color='var(--blue)';status.textContent='Registering your interest...';}
+
+  try{
+    await fetch('https://ep052-agentic-arena.onrender.com/api/waitlist',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        email:email,
+        discoverySource:'siteledger_demo',
+        sourceDetail:`Trade: ${trade} | Feats: ${feats.join(', ')} | Note: ${notes}`,
+        landingPath:window.location.pathname,
+        referrer:document.referrer||null
+      })
+    });
+  }catch(err){}
+
+  if(status){
+    status.style.color='var(--acc)';
+    status.innerHTML='<b>🎉 You are on the priority waitlist!</b> We have logged your votes for '+feats.length+' features. We will email '+email+' as soon as beta invites open for '+esc(trade)+'.';
+  }
+  btn.textContent='✓ Registered';
+  btn.style.background='var(--blue)';
+  btn.style.borderColor='var(--blue)';
+  setTimeout(()=>{
+    toast('🎉 Registered for SiteLedger early access!');
+  },1000);
+}
+
 const A={
+  openInterestModal: prod=>showInterestModal(prod),
+  submitInterest: prod=>submitInterestLead(prod),
  view:id=>{UI.view=id;closeModal();render();scrollTo(0,0)},
  qfilter:id=>{UI.qfilter=id;render()},
  close:closeModal,walkthrough:mWalk,workflowGuide:()=>mWorkflow("app"),setTrack:t=>mWorkflow(t),
@@ -842,7 +986,7 @@ const A={
 
 /* ---------- scenario playback (same engine as ApexGuard) ---------- */
 const PB={id:null,step:0,playing:false,speed:1,timer:null};
-const PB_OK=new Set(['play','pbPrev','pbNext','pbToggle','pbRestart','pbExit','pbSpeed','view','close','walkthrough','tq','workflowGuide','setTrack']);
+const PB_OK=new Set(['play','pbPrev','pbNext','pbToggle','pbRestart','pbExit','pbSpeed','view','close','walkthrough','tq','workflowGuide','setTrack','openInterestModal','submitInterest']);
 const txt=(v,st)=>typeof v==='function'?v(st):v;
 const setDay=n=>{TODAY=new Date(BASE);TODAY.setDate(TODAY.getDate()+n)};
 const invOf=no=>S.invoices.find(v=>v.no===no);
