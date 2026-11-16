@@ -114,7 +114,7 @@ table.plain th{font-size:12px;text-align:left;color:var(--mut);font-weight:500;p
 .walk ol{padding-left:18px}.walk li{margin-bottom:9px}
 /* invoices + tax */
 .p-Paid,.p-Ready,.p-Submitted{background:var(--acc2);color:var(--acc)}.p-Notdue,.p-Open{background:var(--blue2);color:var(--blue)}.p-Duesoon{background:var(--amb2);color:#8a5a12}
-.p-Chasedue,.p-Issues{background:#fde4cf;color:#9a4a0e;border-color:#f4c9a3}.p-Chased,.p-Prepared{background:#efeaf8;color:#5b4691}.p-Finalstage{background:var(--red2);color:var(--red)}.p-Future{background:#f0efeb;color:#7b7870}
+.p-Chasedue,.p-Issues{background:#fde4cf;color:#9a4a0e;border-color:#f4c9a3}.p-Paused{background:#fff2cd;color:#765500;border-color:#e8cf80}.p-Chased,.p-Prepared{background:#efeaf8;color:#5b4691}.p-Finalstage{background:var(--red2);color:var(--red)}.p-Future{background:#f0efeb;color:#7b7870}
 .rel{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:0}.rel.green{background:#2f9e6e}.rel.amber{background:#d69a2d}.rel.red{background:#c4453b}
 .tag2{font-size:10.5px;border:1px solid var(--line);border-radius:4px;padding:0 4px;color:var(--mut);margin-left:4px;vertical-align:1px}
 .disclaim{background:var(--amb2);border:1px solid #efd9ad;color:#7a4f0f;border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:12px}
@@ -363,6 +363,7 @@ const invDue=v=>addDays(v.issued,v.terms);
 const invOD=v=>diff(invDue(v));                 // days past due date (negative = not yet due)
 function invState(v){
  if(invOut(v)<=0.005)return 'Paid';
+ if(v.chasePaused)return 'Paused';
  const od=invOD(v);
  if(od<0)return od>=-3?'Due soon':'Not due';
  const step=S.settings.ladder[v.chases];
@@ -433,7 +434,7 @@ function render(){S.todayIso=iso(TODAY);$('#demoDate').textContent=TODAY.toLocal
 function vInvoices(){
  const st=S.invoices.map(v=>[v,invState(v)]);
  const outAll=S.invoices.reduce((a,v)=>a+invOut(v),0);
- const od=st.filter(([,s])=>['Chase due','Chased','Final stage'].includes(s)).sort((a,b)=>invOD(b[0])-invOD(a[0]));
+ const od=st.filter(([v])=>invOut(v)>0.005&&invOD(v)>=0).sort((a,b)=>invOD(b[0])-invOD(a[0]));
  const odAmt=od.reduce((a,[v])=>a+invOut(v),0),due=st.filter(([,s])=>s==='Chase due').length;
  const paid=S.invoices.filter(v=>invOut(v)<=0.005);
  const dtp=paid.length?paid.reduce((a,v)=>a+(diff(v.issued)-diff(v.payments[v.payments.length-1].t)),0)/paid.length:0;
@@ -455,14 +456,14 @@ function vInvoices(){
     <span class="mono">${v.no}</span> <span>· ${gbp2(invOut(v))} outstanding${invPaid(v)?' ('+gbp2(invPaid(v))+' paid)':''} · ${invOD(v)}d overdue · next: ${stepLabel(v)}${s==='Chased'?' in '+(S.settings.ladder[v.chases]-invOD(v))+'d':''}</span>
     ${l?`<span style="display:block;color:#7a4f0f">Statutory interest ${gbp2(l.interest)} (${(l.rate*100).toFixed(1)}% a year × ${l.od}d) + ${gbp(l.comp)} compensation</span>`:''}
     ${v.lastMsg?`<div class="msgq">Last sent: “${esc(v.lastMsg)}”</div>`:''}</div>
-    ${pill(s)}${ladder(v)}${s==='Final stage'?'':`<button class="btn sm ${s==='Chase due'?'pri':''}" data-act="chase" data-id="${v.no}">Chase</button>`}<button class="btn sm" data-act="payment" data-id="${v.no}">Payment</button></div>`}).join(''):'<div class="empty">✅ Nobody owes you anything overdue.</div>'}</div></div>
+    ${pill(s)}${ladder(v)}${['Final stage','Paused'].includes(s)?'':`<button class="btn sm ${s==='Chase due'?'pri':''}" data-act="chase" data-id="${v.no}">Chase</button>`}<button class="btn sm" data-act="toggleInvoicePause" data-id="${v.no}">${v.chasePaused?'Resume chasing':'Pause chasing'}</button><button class="btn sm" data-act="payment" data-id="${v.no}">Payment</button></div>`}).join(''):'<div class="empty">✅ Nobody owes you anything overdue.</div>'}</div></div>
   <div class="card" data-pb="iv-rel"><h3>Client reliability</h3><p style="margin:0 0 6px;color:var(--mut);font-size:12.5px">Worst lateness across a client's invoices: <span class="rel green"></span>≤5 days <span class="rel amber"></span>6–20 <span class="rel red"></span>21+</p>
    <div class="list">${clients.map(c=>{const r=clientRel(c),vs=S.invoices.filter(v=>v.cust===c);return `<div class="li"><div class="meta"><b><span class="rel ${r.col}"></span>${esc(c)}</b><span>${vs.length} invoice${vs.length>1?'s':''} · worst ${r.worst}d late · avg ${r.avg.toFixed(0)}d · ${gbp2(vs.reduce((a,v)=>a+invOut(v),0))} owed</span></div></div>`}).join('')}</div></div>
  </div>
  <h3 style="margin:18px 0 8px">All invoices</h3><div class="card tablewrap"><table class="rt"><thead><tr><th>No.</th><th>Client</th><th>For</th><th class="num">Amount</th><th class="num">Outstanding</th><th>Due</th><th>Status</th><th>Reminders</th><th>Actions</th></tr></thead><tbody>
  ${st.slice().reverse().map(([v,s])=>`<tr data-pb="invrow-${v.no}"><td data-label="Invoice" class="mono">${v.no}</td><td data-label="Client"><span class="rel ${clientRel(v.cust).col}"></span>${esc(v.cust)}${v.b2b?'<span class="tag2">B2B</span>':''}</td><td data-label="For">${esc(v.title)}${v.jobNo?` <span class="mono" style="color:var(--acc)">${v.jobNo}</span>`:''}</td>
  <td data-label="Amount" class="num">${gbp2(v.amount)}</td><td data-label="Outstanding" class="num"><b>${gbp2(invOut(v))}</b></td><td data-label="Due">${fmtD(invDue(v))}</td><td data-label="Status">${pill(s)}</td><td data-label="Reminders">${ladder(v)}</td>
- <td class="act-cell">${s==='Paid'?'<span style="color:var(--mut);font-size:12px">paid '+fmtD(v.payments[v.payments.length-1].t)+'</span>':`${['Chase due','Chased'].includes(s)?`<button class="btn sm" data-act="chase" data-id="${v.no}">Chase</button> `:''}<button class="btn sm" data-act="payment" data-id="${v.no}">Payment</button>`}</td></tr>`).join('')}</tbody></table></div>`}
+ <td class="act-cell">${s==='Paid'?'<span style="color:var(--mut);font-size:12px">paid '+fmtD(v.payments[v.payments.length-1].t)+'</span>':`${['Chase due','Chased'].includes(s)?`<button class="btn sm" data-act="chase" data-id="${v.no}">Chase</button> `:''}<button class="btn sm" data-act="toggleInvoicePause" data-id="${v.no}">${v.chasePaused?'Resume chasing':'Pause chasing'}</button> <button class="btn sm" data-act="payment" data-id="${v.no}">Payment</button>`}</td></tr>`).join('')}</tbody></table></div>`}
 
 function vTax(){
  const qi=UI.tq!=null?UI.tq:dueQ(),sm=qSum(qi),[q,s,e,dl]=TAXY.quarters[qi],stt=qStatus(qi),left=-diff(dl);
@@ -954,7 +955,8 @@ const A={
   const lad=[0,1,2,3].map(i=>Math.max(0,parseInt($('#lad'+i).value)||0));if(!(lad[0]<lad[1]&&lad[1]<lad[2]&&lad[2]<lad[3])){toast('Chase ladder days must increase (e.g. 0, 7, 14, 30)');return}
   S.settings.seq=seq;S.settings.templates=[0,1,2].map(i=>$('#tpl'+i).value);S.settings.ladder=lad;S.settings.invTemplates=[0,1,2,3].map(i=>$('#itpl'+i).value);
   S.settings.baseRate=Math.max(0,parseFloat($('#baseRate').value)||0);log(`Rules updated: follow-ups ${seq.join(', ')} · chase ladder ${lad.join(', ')}`);render();toast('Rules saved – statuses recalculated')},
- chase:id=>{UI.ch=null;mChase(id)},
+ toggleInvoicePause:id=>{const v=S.invoices.find(x=>x.no===id);if(!v||invOut(v)<=0.005)return;v.chasePaused=!v.chasePaused;v.hist.push({t:iso(TODAY),m:v.chasePaused?'Invoice chasing paused':'Invoice chasing resumed'});log(`${id} chasing ${v.chasePaused?'paused':'resumed'}`);render();toast(`${id} chasing ${v.chasePaused?'paused':'resumed'}`)},
+ chase:id=>{const v=S.invoices.find(x=>x.no===id);if(!v||v.chasePaused){toast('Resume chasing before sending a reminder');return}UI.ch=null;mChase(id)},
  chCh:c=>{UI.ch.ch=c;mChase(UI.ch.no)},
  sendChase:id=>{const c=UI.ch;doChase(id,c.ch,c.txt);closeModal();UI.ch=null;render();const v=S.invoices.find(x=>x.no===id);toast(`${c.ch} sent to ${first(v.cust)} – ${invState(v)}`)},
  payment:id=>mPayment(id),
@@ -981,7 +983,7 @@ const PB_OK=new Set(['play','pbPrev','pbNext','pbToggle','pbRestart','pbExit','p
 const txt=(v,st)=>typeof v==='function'?v(st):v;
 const setDay=n=>{TODAY=new Date(BASE);TODAY.setDate(TODAY.getDate()+n)};
 const invOf=no=>S.invoices.find(v=>v.no===no);
-function invTotals(){const od=S.invoices.filter(v=>['Chase due','Chased','Final stage'].includes(invState(v)));return {out:S.invoices.reduce((a,v)=>a+invOut(v),0),od:od.length,odAmt:od.reduce((a,v)=>a+invOut(v),0),due:S.invoices.filter(v=>invState(v)==='Chase due').length}}
+function invTotals(){const od=S.invoices.filter(v=>invOut(v)>0.005&&invOD(v)>=0);return {out:S.invoices.reduce((a,v)=>a+invOut(v),0),od:od.length,odAmt:od.reduce((a,v)=>a+invOut(v),0),due:S.invoices.filter(v=>invState(v)==='Chase due').length}}
 const SC={
  workflow:{title:'Two-Track Workflow (Full App vs Headless)',steps:[
   {at:'Sat 18 Oct',view:'invoices',focus:['iv-kpis'],title:'The Two-Track Architecture',
