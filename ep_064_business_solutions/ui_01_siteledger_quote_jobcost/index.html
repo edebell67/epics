@@ -157,7 +157,7 @@ table.plain th{font-size:12px;text-align:left;color:var(--mut);font-weight:500;p
 .wa-out{background:#dcf8c6;align-self:flex-end;border-top-right-radius:2px}
 .wa-time{display:block;text-align:right;font-size:10px;color:#888;margin-top:4px}
 .wa-pill{display:inline-flex;gap:6px;margin-top:6px}
-.wa-pill span{background:#f0f0f0;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;color:#075e54;border:1px solid #ddd}
+.wa-pill button{cursor:pointer;min-height:36px;background:#f0f0f0;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;color:#075e54;border:1px solid #ddd}
 
 /* ---------- tablet ≥700px ---------- */
 @media(min-width:700px){
@@ -659,6 +659,8 @@ function mNewQuote(){UI.nq=UI.nq||{items:[{d:'Materials & supplies',kind:'materi
  const sync=()=>{n.c=$('#nqC').value;n.t=$('#nqT').value;n.p=$('#nqP').value;n.e=$('#nqE').value;document.querySelectorAll('#nqItems [data-f]').forEach(el=>{n.items[+el.dataset.i][el.dataset.f]=el.value});$('#nqTot').textContent=gbp(n.items.reduce((a,i)=>a+Number(i.amt||0),0))};
  $('#modal').oninput=sync;$('#modal').onchange=sync}
 // v1.3.0 · 2026-11-11 · Two-Track Workflow Visualizer (Track A: Full App vs Track B: Headless WhatsApp)
+let waPaused = false;
+function setWaPaused(paused){waPaused=paused;mWorkflow("headless");const chat=document.querySelector(".wa-chat");if(chat)chat.scrollTop=chat.scrollHeight}
 function mWorkflow(track){
  track = track || 'app';
  const isApp = track === 'app';
@@ -708,7 +710,7 @@ function mWorkflow(track){
     <div class="wa-av">SL</div>
     <div class="wa-meta">
      <b>SiteLedger Assistant</b>
-     <small>Online · Autonomous Credit Control</small>
+     <small>Demo · Invoice chasing ${waPaused ? "paused" : "active"}</small>
     </div>
    </div>
    <div class="wa-chat">
@@ -730,21 +732,10 @@ function mWorkflow(track){
      No action needed from you!
      <span class="wa-time">25 Nov 09:20</span>
     </div>
-    <div class="wa-msg wa-in">
-     ⚠️ <b>Alert: Khan Stores is 14 days overdue (£2,400).</b><br>
-     We auto-generated & emailed revised invoice <code>INV-0026-REV</code> to AP with UK statutory penalties (1998 Act):<br>
-     • Statutory compensation: <b>+£70.00</b><br>
-     • Accrued interest (13% p.a.): <b>+£35.32</b><br>
-     • Total now claimed: <b>£2,505.32</b><br>
-     <div class="wa-pill"><span>HOLD</span><span>VIEW PDF</span></div>
-     <span class="wa-time">12 Dec 09:15</span>
-    </div>
-    <div class="wa-msg wa-in">
-     🎉 <b>Payment detected!</b> Khan Stores settled the £2,400 principal via BACS.<br>
-     Statutory fee waived as agreed. INV-0026 marked <b>PAID</b> and closed.<br>
-     Total time you spent chasing: <b>0 minutes</b>.
-     <span class="wa-time">14 Dec 11:42</span>
-    </div>
+    ${waPaused ? `<div class="wa-msg wa-out">PAUSE<span class="wa-time">Just now ✓✓</span></div>
+    <div class="wa-msg wa-in" role="status">⏸ <b>Chasing paused for INV-0026.</b><br>No further demo reminders will be sent while paused. Select Resume chasing when you are ready.</div>` : `<div class="wa-msg wa-in" role="status"><b>Chasing active for INV-0026.</b><br>The next reminder is scheduled in this demo. You can pause it at any time.</div>`}
+    <div class="wa-pill"><button type="button" data-act="waToggle">${waPaused ? '▶ Resume chasing' : '⏸ Pause chasing'}</button></div>
+    <small style="color:#555">Interactive simulation only · no WhatsApp messages are sent.</small>
    </div>
   </div>
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
@@ -925,7 +916,7 @@ const A={
   submitInterest: prod=>submitInterestLead(prod),
  view:id=>{UI.view=id;closeModal();render();scrollTo(0,0)},
  qfilter:id=>{UI.qfilter=id;render()},
- close:closeModal,walkthrough:mWalk,workflowGuide:()=>mWorkflow("app"),setTrack:t=>mWorkflow(t),
+ close:closeModal,walkthrough:mWalk,workflowGuide:()=>mWorkflow("app"),setTrack:t=>mWorkflow(t),waToggle:()=>setWaPaused(!waPaused),
  reset:()=>{if(confirm('Reset all demo data?')){localStorage.removeItem(KEY);S=seed();UI={view:'dashboard',qfilter:'All',preview:null,scanning:null,fu:null};render();toast('Demo data reset')}},
  newQuote:()=>{UI.nq=null;mNewQuote()},
  nqAdd:()=>{UI.nq.items.push({d:'',kind:'materials',amt:''});mNewQuote()},
@@ -986,7 +977,7 @@ const A={
 
 /* ---------- scenario playback (same engine as ApexGuard) ---------- */
 const PB={id:null,step:0,playing:false,speed:1,timer:null};
-const PB_OK=new Set(['play','pbPrev','pbNext','pbToggle','pbRestart','pbExit','pbSpeed','view','close','walkthrough','tq','workflowGuide','setTrack','openInterestModal','submitInterest']);
+const PB_OK=new Set(['play','pbPrev','pbNext','pbToggle','pbRestart','pbExit','pbSpeed','view','close','walkthrough','tq','workflowGuide','setTrack','waToggle','openInterestModal','submitInterest']);
 const txt=(v,st)=>typeof v==='function'?v(st):v;
 const setDay=n=>{TODAY=new Date(BASE);TODAY.setDate(TODAY.getDate()+n)};
 const invOf=no=>S.invoices.find(v=>v.no===no);
