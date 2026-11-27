@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<!--
+  epics/ep_064_business_solutions/app_01_chaseup/index.html — ChaseUp: self-contained invoice-chasing prototype for cold-email demand testing
+
+  VERSION HISTORY
+  v1.0.0 · 2026-11-25 · Initial version: 4-step chase ladder, statutory late-payment interest (business clients),
+                        part payments, client reliability, editable rules, sector presets (?sector=trades|salon|garage|agency),
+                        personalisation (?biz=&name=), guided tour (?play=tour), Request live access form → FormSubmit → edward.bell@thetechprinciple.com,
+                        campaign tagging (?src=&cid=).
+-->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ChaseUp · Get paid on time</title>
+<meta name="description" content="ChaseUp chases overdue invoices for you: friendly to firm reminders, late-payment interest for business clients, and a clear view of who owes what.">
+<meta name="theme-color" content="#0f3d3e">
+<style>
+:root{
+  --ink:#10201f; --ink2:#46605e; --mute:#7a8f8d; --line:#e2e9e8; --bg:#f4f7f6; --card:#fff;
+  --brand:#0f3d3e; --brand2:#14595b; --accent:#f2a93b; --accent-ink:#4a2f00;
+  --ok:#1d8a5a; --ok-bg:#e3f4ec; --warn:#b86e00; --warn-bg:#fdf1dc; --bad:#c0392b; --bad-bg:#fbe7e4; --info:#2463a6; --info-bg:#e5eef9;
+  --r:14px; --sh:0 1px 2px rgba(16,32,31,.06),0 4px 14px rgba(16,32,31,.06);
+  --nav:64px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;padding-bottom:calc(var(--nav) + 70px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--brand2)}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px}
+
+/* header */
+header.top{background:var(--brand);color:#fff;padding:14px 0 18px;position:relative}
+.top .row{display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:800;font-size:18px;flex:none}
+.brandname{font-weight:750;font-size:17px;letter-spacing:.2px}
+.for{font-size:12.5px;opacity:.8;margin-top:1px}
+.top .sp{flex:1}
+.pill{border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:7px 12px;font-size:13px;min-height:36px;white-space:nowrap}
+.pill.solid{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:650}
+.sectors{display:flex;gap:6px;margin-top:12px;overflow-x:auto;scrollbar-width:none}
+.sectors::-webkit-scrollbar{display:none}
+.sectors button{flex:none;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;border-radius:999px;padding:6px 12px;font-size:13px;min-height:34px;opacity:.85}
+.sectors button.on{background:#fff;color:var(--brand);opacity:1;font-weight:650}
+.demo-note{font-size:12px;opacity:.75;margin-top:10px}
+
+/* sections */
+main{padding-top:14px}
+.view{display:none}
+.view.on{display:block}
+h2{font-size:19px;margin:6px 0 10px}
+h3{font-size:15px;margin:0 0 8px}
+.sub{color:var(--ink2);font-size:13.5px;margin:-4px 0 12px}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-bottom:12px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.kpi{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:12px 13px}
+.kpi .l{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.4px}
+.kpi .v{font-size:22px;font-weight:750;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12.5px;color:var(--ink2)}
+.kpi.bad .v{color:var(--bad)} .kpi.ok .v{color:var(--ok)}
+
+.ageing{display:flex;flex-direction:column;gap:8px}
+.ag{display:grid;grid-template-columns:78px 1fr 70px;align-items:center;gap:8px;font-size:13px}
+.ag .bar{height:12px;border-radius:6px;background:var(--line);overflow:hidden}
+.ag .bar i{display:block;height:100%;border-radius:6px;transition:width .4s}
+.ag .amt{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink2)}
+
+.list{display:flex;flex-direction:column;gap:10px}
+.inv{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:12px 13px;display:block;width:100%;text-align:left;border:0}
+.inv .r1{display:flex;align-items:flex-start;gap:8px}
+.inv .who{font-weight:650}
+.inv .meta{font-size:12.5px;color:var(--mute)}
+.inv .amt{margin-left:auto;text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.inv .amt small{display:block;font-weight:500;font-size:12px;color:var(--mute)}
+.inv .r2{display:flex;align-items:center;gap:8px;margin-top:9px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:650;border-radius:999px;padding:3px 9px;white-space:nowrap}
+.b-ok{background:var(--ok-bg);color:var(--ok)} .b-warn{background:var(--warn-bg);color:var(--warn)} .b-bad{background:var(--bad-bg);color:var(--bad)} .b-info{background:var(--info-bg);color:var(--info)} .b-mute{background:#eef2f1;color:var(--ink2)}
+.ladder{display:flex;gap:4px;margin-left:auto}
+.ladder i{width:22px;height:6px;border-radius:3px;background:var(--line)}
+.ladder i.done{background:var(--brand2)} .ladder i.due{background:var(--accent);animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.45}}
+.btn{border:0;border-radius:11px;padding:10px 14px;min-height:44px;font-weight:650;background:var(--brand);color:#fff}
+.btn.sec{background:#eef2f1;color:var(--ink)}
+.btn.acc{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;color:var(--brand2);padding-left:6px;padding-right:6px}
+.btn.sm{min-height:36px;padding:7px 11px;font-size:13.5px;border-radius:9px}
+.btn.block{width:100%}
+.btn:disabled{opacity:.5}
+.rowbtns{display:flex;gap:8px;flex-wrap:wrap}
+.filters{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filters button{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;min-height:36px;font-size:13.5px}
+.filters button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.empty{text-align:center;color:var(--mute);padding:26px 8px}
+.due-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.due-item:first-of-type{border-top:0}
+.due-item .t{flex:1;min-width:0}
+.due-item .t b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.due-item .t span{font-size:12.5px;color:var(--mute)}
+.client{display:flex;align-items:center;gap:12px}
+.dot{width:12px;height:12px;border-radius:50%;flex:none}
+.client .t{flex:1;min-width:0}
+.client .t b{display:block}
+.client .t span{font-size:12.5px;color:var(--mute)}
+.client .n{text-align:right;font-variant-numeric:tabular-nums;font-weight:650}
+.client .n small{display:block;font-weight:500;color:var(--mute);font-size:12px}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--ink2);margin:2px 0 12px;flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.step{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.step .h{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.step .h b{flex:1}
+.num{width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700;flex:none}
+label.f{display:block;font-size:12.5px;color:var(--ink2);margin:8px 0 4px;font-weight:600}
+input.in,select.in,textarea.in{width:100%;border:1px solid #cfdad8;border-radius:10px;padding:10px 11px;background:#fff;min-height:44px}
+textarea.in{min-height:96px;resize:vertical}
+.inline{display:flex;gap:8px;align-items:center}
+.inline .in{flex:1}
+.note{font-size:12.5px;color:var(--ink2);background:#f0f5f4;border-radius:10px;padding:10px 12px;margin-top:10px}
+.small{font-size:12.5px;color:var(--mute)}
+.kv{display:grid;grid-template-columns:1fr auto;gap:6px 12px;font-size:14px}
+.kv span:nth-child(even){text-align:right;font-variant-numeric:tabular-nums}
+.kv .tot{font-weight:750;border-top:1px solid var(--line);padding-top:6px}
+.hist{font-size:13px;margin:0;padding-left:18px;color:var(--ink2)}
+.hist li{margin:3px 0}
+.msg{white-space:pre-wrap;background:#f6f9f8;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:14px;line-height:1.5}
+.chan{display:flex;gap:6px;margin:8px 0}
+.chan button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;min-height:36px;font-size:13px}
+.chan button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* nav */
+nav.bottom{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);z-index:30;padding-bottom:env(safe-area-inset-bottom)}
+nav.bottom .wrap{display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav);padding:0}
+nav.bottom button{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11.5px;color:var(--mute);position:relative}
+nav.bottom button .ic{font-size:20px;line-height:1}
+nav.bottom button.on{color:var(--brand);font-weight:700}
+nav.bottom .cnt{position:absolute;top:8px;left:calc(50% + 6px);background:var(--bad);color:#fff;border-radius:999px;font-size:10.5px;padding:0 5px;min-width:17px;height:17px;line-height:17px;font-weight:700}
+
+/* CTA bar */
+.cta{position:fixed;left:0;right:0;bottom:calc(var(--nav) + env(safe-area-inset-bottom));z-index:29;padding:8px 0;background:linear-gradient(180deg,rgba(244,247,246,0),var(--bg) 35%)}
+.cta .wrap{display:flex;gap:10px;align-items:center}
+.cta .box{flex:1;display:flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border-radius:14px;padding:8px 8px 8px 14px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.cta .box span{flex:1;font-size:13.5px;line-height:1.3}
+.cta .box span b{display:block;font-size:14px}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(10,20,20,.45);z-index:50;display:none;align-items:flex-end;justify-content:center}
+.scrim.on{display:flex}
+.sheet{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:8px 16px calc(18px + env(safe-area-inset-bottom));animation:up .22s ease}
+@keyframes up{from{transform:translateY(30px);opacity:.4}}
+.sheet .grab{width:42px;height:5px;border-radius:3px;background:#d6dfdd;margin:4px auto 10px}
+.sheet .sh{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.sheet .sh h3{flex:1;margin:0;font-size:17px}
+.x{border:0;background:#eef2f1;border-radius:50%;width:36px;height:36px;font-size:18px;line-height:1}
+.toast{position:fixed;left:50%;top:16px;transform:translateX(-50%) translateY(-120%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:80;transition:transform .25s;max-width:92vw;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.toast.on{transform:translateX(-50%) translateY(0)}
+
+/* tour */
+.tour{position:fixed;left:0;right:0;bottom:calc(var(--nav) + env(safe-area-inset-bottom) + 8px);z-index:45;display:none}
+.tour.on{display:block}
+.tour .box{background:var(--ink);color:#fff;border-radius:16px;padding:13px 14px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.tour .stp{font-size:12px;opacity:.7;margin-bottom:3px}
+.tour .cap{font-size:14.5px;line-height:1.45}
+.tour .ctl{display:flex;gap:6px;margin-top:10px;align-items:center}
+.tour .ctl button{border:0;border-radius:9px;min-height:38px;padding:6px 12px;background:rgba(255,255,255,.13);color:#fff;font-size:14px}
+.tour .ctl button.go{background:var(--accent);color:var(--accent-ink);font-weight:700;margin-left:auto}
+.tour .prog{height:3px;background:rgba(255,255,255,.15);border-radius:2px;margin-top:10px;overflow:hidden}
+.tour .prog i{display:block;height:100%;background:var(--accent);transition:width .3s}
+body.touring .cta{display:none}
+body.touring .tour{z-index:60}
+body.touring .scrim{align-items:flex-start}
+body.touring .sheet{border-radius:0 0 20px 20px;max-height:calc(100vh - 250px);animation:none}
+.hl{outline:3px solid var(--accent);outline-offset:3px;border-radius:var(--r);position:relative;z-index:2;transition:outline-color .2s}
+.datechip{display:inline-block;background:rgba(255,255,255,.14);border-radius:999px;padding:2px 9px;font-size:12px;margin-left:6px}
+
+/* form */
+.ok-state{text-align:center;padding:20px 4px}
+.ok-state .big{font-size:44px}
+.err{color:var(--bad);font-size:13px;margin-top:8px}
+.hp{position:absolute;left:-9999px;opacity:0;height:0;width:0}
+
+@media (min-width:700px){
+  .kpis{grid-template-columns:repeat(4,1fr)}
+  .twocol{display:grid;grid-template-columns:1.1fr 1fr;gap:12px;align-items:start}
+  .sheet{border-radius:20px;margin-bottom:5vh}
+  .scrim{align-items:center}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="row">
+      <div class="logo">£</div>
+      <div>
+        <div class="brandname">ChaseUp</div>
+        <div class="for" id="forLine">Get paid on time, without the awkward chasing</div>
+      </div>
+      <div class="sp"></div>
+      <button class="pill" id="tourBtn">▶ 60-sec tour</button>
+    </div>
+    <div class="sectors" id="sectors"></div>
+    <div class="demo-note">Demo with sample data. Nothing you do here sends a real message. <span class="datechip" id="todayChip"></span></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- HOME -->
+  <section class="view on" id="v-home">
+    <div class="kpis" id="kpis"></div>
+    <div class="twocol">
+      <div class="card" id="dueCard">
+        <div class="inline" style="margin-bottom:4px">
+          <h3 style="flex:1;margin:0">Reminders due today</h3>
+          <button class="btn sm acc" id="sendAll">Send all</button>
+        </div>
+        <div class="small" style="margin-bottom:6px">ChaseUp picks the right step for each invoice. You just approve.</div>
+        <div id="dueList"></div>
+      </div>
+      <div class="card" id="ageCard">
+        <h3>Who's late, and by how long</h3>
+        <div class="ageing" id="ageing"></div>
+        <div class="note" id="interestNote"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INVOICES -->
+  <section class="view" id="v-invoices">
+    <div class="inline"><h2 style="flex:1">Invoices</h2><button class="btn sm" id="newInv">+ New invoice</button></div>
+    <div class="filters" id="filters"></div>
+    <div class="list" id="invList"></div>
+  </section>
+
+  <!-- CLIENTS -->
+  <section class="view" id="v-clients">
+    <h2>Clients</h2>
+    <p class="sub">Colour shows how late each client has ever paid you.</p>
+    <div class="legend"><span><i class="dot" style="background:var(--ok)"></i>Up to 5 days</span><span><i class="dot" style="background:var(--warn)"></i>6–20 days</span><span><i class="dot" style="background:var(--bad)"></i>21+ days</span></div>
+    <div class="list" id="clientList"></div>
+  </section>
+
+  <!-- RULES -->
+  <section class="view" id="v-rules">
+    <h2>Chase rules</h2>
+    <p class="sub">Set when each reminder goes and what it says. ChaseUp follows these for every invoice.</p>
+    <div class="card" id="ladderCard"></div>
+    <div class="card" id="rateCard">
+      <h3>Late-payment interest (business clients)</h3>
+      <div class="small">Under the Late Payment of Commercial Debts (Interest) Act 1998, a business that pays late owes interest at 8% over the Bank of England reference rate, plus fixed compensation of £40, £70 or £100 depending on the debt. ChaseUp never adds this for private customers.</div>
+      <label class="f" for="baseRate">Reference rate (%)</label>
+      <div class="inline"><input class="in" id="baseRate" type="number" step="0.05" min="0" max="20"><span class="small" id="rateOut"></span></div>
+      <div class="note">The reference rate is the base rate on 30 June or 31 December, fixed for the next six months. For invoices due July–December 2026 that is 3.75% (11.75% in total). The base rate rose to 4% on 5 November 2026, so expect 4% from January 2027.</div>
+      <label class="f" for="signoff">Sign reminders as</label>
+      <input class="in" id="signoff" type="text">
+    </div>
+    <button class="btn sec block" id="resetBtn">Reset demo data</button>
+  </section>
+</main>
+
+<div class="cta" id="cta"><div class="wrap"><div class="box"><span><b>Want this chasing your invoices?</b>Ask for the live version, set up for your business.</span><button class="btn acc sm" data-open-access>Request access</button></div></div></div>
+
+<nav class="bottom"><div class="wrap">
+  <button data-v="home" class="on"><span class="ic">🏠</span>Home</button>
+  <button data-v="invoices"><span class="ic">🧾</span>Invoices<span class="cnt" id="navCnt" hidden></span></button>
+  <button data-v="clients"><span class="ic">👥</span>Clients</button>
+  <button data-v="rules"><span class="ic">⚙️</span>Rules</button>
+</div></nav>
+
+<div class="tour" id="tour"><div class="wrap"><div class="box">
+  <div class="stp" id="tStep"></div>
+  <div class="cap" id="tCap"></div>
+  <div class="ctl"><button id="tBack" aria-label="Back">‹</button><button id="tPlay">⏸</button><button id="tExit">Exit</button><button class="go" id="tNext">Next ›</button></div>
+  <div class="prog"><i id="tProg"></i></div>
+</div></div></div>
+
+<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div id="sheetBody"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============ CONFIG ============ */
+const CFG = {
+  app: 'ChaseUp',
+  appId: 'app_01_chaseup',
+  // FormSubmit AJAX endpoint. After the first request, FormSubmit emails an activation link; once clicked you can
+  // swap the address below for the random alias it gives you, so the address isn't visible in the page source.
+  formEndpoint: 'https://formsubmit.co/ajax/edward.bell@thetechprinciple.com',
+  fallbackEmail: 'edward.bell@thetechprinciple.com',
+  storeKey: 'chaseup_demo_v1'
+};
+
+/* ============ HELPERS ============ */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => '£' + (Math.round(n*100)/100).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});
+const money0 = n => '£' + Math.round(n).toLocaleString('en-GB');
+const DAY = 864e5;
+const params = new URLSearchParams(location.search);
+function midnight(d){ const x = new Date(d); x.setHours(0,0,0,0); return x; }
+const REAL_TODAY = midnight(new Date());
+let dayShift = 0; // tour time travel
+const today = () => new Date(REAL_TODAY.getTime() + dayShift*DAY);
+const iso = d => { const x = new Date(d); return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'); };
+const fromIso = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const fmtDate = s => fromIso(s).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+const daysBetween = (a,b) => Math.round((midnight(b) - midnight(a))/DAY);
+const rel = n => iso(new Date(REAL_TODAY.getTime() + n*DAY));
+function store(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function load(k){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; }catch(e){ return null; } }
+function toast(t, ms){ const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(()=>el.classList.remove('on'), ms || 2600); }
+
+/* ============ SECTORS & SEED DATA ============ */
+const SECTORS = {
+  trades: { label:'Trades', biz:'Harris Building Services', who:'builders, electricians and plumbers',
+    clients:[
+      ['Khan Stores Ltd','Imran','business'],['Lucy Grant','Lucy','private'],['Northgate Lettings Ltd','Priya','business'],
+      ['Ben Carter','Ben','private'],['Hughes & Co Builders Ltd','Gareth','business'],['Sarah Smith','Sarah','private']],
+    inv:[ // client idx, desc, amount, due offset, paid so far, paid offset (for paid ones)
+      [3,'Bathroom refit – final payment',2850,-61,0],
+      [0,'Shopfront rewire & lighting',1980,-22,0],
+      [2,'Void flat refresh – 14 Elm Rd',3640,-15,0],
+      [5,'Kitchen fit – stage 2',4200,-9,1500],
+      [1,'Boiler service & new valves',385,-2,0],
+      [4,'Subcontract labour – week 46',2400,5,0],
+      [2,'Emergency leak repair – Flat 3',460,12,0],
+      [0,'Fire alarm test & certificate',320,-40,320,-33],
+      [4,'Subcontract labour – week 42',2400,-30,2400,-27],
+      [1,'Fencing & side gate',1150,-50,1150,-47]
+    ]},
+  salon: { label:'Salons', biz:'Studio Nine Hair & Beauty', who:'salons, spas and beauty studios',
+    clients:[
+      ['The Grand Hotel Ltd','Martin','business'],['Emma Lewis (bridal party)','Emma','private'],['Bloom Events Ltd','Kate','business'],
+      ['Chloe Adams (chair rental)','Chloe','business'],['Riverside Photography','Dan','business'],['Hannah Price (bridal party)','Hannah','private']],
+    inv:[
+      [5,'Bridal hair & make-up – party of 6',980,-45,300],
+      [0,'Spa treatments – staff wellbeing day',1650,-22,0],
+      [3,'Chair rental – October',600,-16,0],
+      [2,'Event styling – product launch',1240,-9,0],
+      [1,'Bridal trial & wedding morning',540,-2,0],
+      [4,'Editorial shoot – hair & make-up',720,6,0],
+      [3,'Chair rental – November',600,10,0],
+      [0,'Spa treatments – September',1650,-52,1650,-44],
+      [2,'Event styling – awards night',890,-35,890,-31],
+      [4,'Headshot day styling',360,-28,360,-26]
+    ]},
+  garage: { label:'Garages', biz:'Westway Motors', who:'garages, MOT centres and body shops',
+    clients:[
+      ['Speedy Couriers Ltd','Ollie','business'],['Tom Ellis','Tom','private'],['City Cabs Ltd','Raj','business'],
+      ['Meadow Care Homes Ltd','Joanne','business'],['Priya Shah','Priya','private'],['Greenfield Landscapes Ltd','Mark','business']],
+    inv:[
+      [2,'Fleet servicing – 6 vehicles',3120,-48,0],
+      [0,'Van clutch replacement – LK19 ABC',1460,-21,0],
+      [3,'Minibus MOT & brake repairs',1090,-15,0],
+      [5,'Tipper truck – hydraulic repair',2275,-8,800],
+      [1,'Timing belt & water pump',640,-3,0],
+      [0,'Fleet MOTs – November batch',780,7,0],
+      [4,'Accident repair – rear bumper',1320,11,0],
+      [2,'Fleet servicing – September',2980,-55,2980,-47],
+      [3,'Minibus tyres x4',520,-34,520,-32],
+      [1,'Annual service',245,-60,245,-58]
+    ]},
+  agency: { label:'Agencies', biz:'Northlight Studio', who:'agencies, consultants and freelancers',
+    clients:[
+      ['Brightside Dental Ltd','Amira','business'],['Oakwood Estates Ltd','James','business'],['Fernhill Gin Co Ltd','Sophie','business'],
+      ['Marlow Physio','Rob','business'],['Harbour Café Ltd','Nina','business'],['Jones Legal LLP','Helen','business']],
+    inv:[
+      [1,'Website rebuild – final 50%',12400,-47,0],
+      [2,'Brand identity – phase 2',4800,-23,0],
+      [5,'SEO retainer – October',1500,-15,0],
+      [0,'Paid social – October management',2200,-9,1000],
+      [4,'Menu & signage design',650,-2,0],
+      [3,'Booking site – deposit',1800,6,0],
+      [5,'SEO retainer – November',1500,13,0],
+      [0,'Paid social – September',2200,-50,2200,-41],
+      [2,'Label design – limited edition',1350,-38,1350,-36],
+      [3,'Logo refresh',900,-31,900,-29]
+    ]}
+};
+
+function seed(sectorKey){
+  const S = SECTORS[sectorKey];
+  const clients = S.clients.map((c,i)=>({id:'c'+i, name:c[0], first:c[1], type:c[2]}));
+  let no = 1041;
+  const invoices = S.inv.map((r,i)=>{
+    const [ci,desc,amount,dueOff,paidAmt,paidOff] = r;
+    const due = rel(dueOff), issued = rel(dueOff-30);
+    const inv = {id:'i'+i, no:'INV-'+(no+i), clientId:'c'+ci, desc, amount, issued, due, payments:[], history:[], paused:false};
+    if (paidAmt){
+      inv.payments.push({amount:paidAmt, date: paidOff!=null ? rel(paidOff) : rel(Math.min(dueOff+3,0))});
+    }
+    return inv;
+  });
+  // pre-existing reminder history so ladders look lived-in
+  const byDue = invoices.filter(v=>outstanding(v)>0).sort((a,b)=>a.due<b.due?-1:1);
+  // oldest: friendly, firm, final already sent; LBC now due
+  if (byDue[0]){ const d=byDue[0].due; byDue[0].history = [{step:0,date:d,ch:'email'},{step:1,date:iso(fromIso(d).getTime()+7*DAY),ch:'email'},{step:2,date:iso(fromIso(d).getTime()+14*DAY),ch:'sms'}]; }
+  // 22 days: friendly & firm sent; final due
+  if (byDue[1]){ const d=byDue[1].due; byDue[1].history = [{step:0,date:d,ch:'email'},{step:1,date:iso(fromIso(d).getTime()+7*DAY),ch:'email'}]; }
+  // 15 days: friendly + firm sent; final due (14)
+  if (byDue[2]){ const d=byDue[2].due; byDue[2].history = [{step:0,date:d,ch:'email'},{step:1,date:iso(fromIso(d).getTime()+7*DAY),ch:'email'}]; }
+  // 9 days: friendly sent; firm due
+  if (byDue[3]){ const d=byDue[3].due; byDue[3].history = [{step:0,date:d,ch:'whatsapp'}]; }
+  // 2 days: nothing sent; friendly due
+  return {sector:sectorKey, clients, invoices, rules: defaultRules(), baseRate:3.75, signoff:null};
+}
+
+function defaultRules(){
+  return [
+    {key:'friendly', name:'Friendly nudge', day:0, ch:'email',
+     tpl:"Hi {first},\n\nJust a quick note that invoice {no} for {amount} was due on {due}. If it's already on its way, thank you, and please ignore this.\n\nThanks,\n{biz}"},
+    {key:'firm', name:'Firm reminder', day:7, ch:'email',
+     tpl:"Hi {first},\n\nInvoice {no} for {amount} is now {days} days overdue. Could you let me know when payment will be made? If there's a problem with the invoice, just reply and I'll sort it.\n{statutory}\nThanks,\n{biz}"},
+    {key:'final', name:'Final notice', day:14, ch:'email',
+     tpl:"Hi {first},\n\nThis is a final reminder that invoice {no} for {amount} is {days} days overdue.\n{statutory}\nPlease arrange payment of {total} within 7 days.\n\nRegards,\n{biz}"},
+    {key:'warning', name:'Formal letter warning', day:30, ch:'email',
+     tpl:"Dear {first},\n\nInvoice {no} remains unpaid {days} days after it was due, despite our earlier reminders. The balance is now {total}.\n\nIf payment is not received within 7 days, we will send a formal letter before claim, which is the first step towards recovering the debt through the courts.\n\nRegards,\n{biz}"}
+  ];
+}
+
+/* ============ STATE ============ */
+let state, playing = false;
+const startSector = SECTORS[params.get('sector')] ? params.get('sector') : 'trades';
+function init(){
+  const saved = !params.get('play') && load(CFG.storeKey);
+  state = (saved && saved.sector === startSector) ? saved : seed(startSector);
+}
+function save(){ if (!playing) store(CFG.storeKey, state); }
+const bizName = () => params.get('biz') || state.signoff || SECTORS[state.sector].biz;
+const signoff = () => state.signoff || bizName();
+const client = id => state.clients.find(c=>c.id===id);
+
+/* ============ CORE MATHS ============ */
+function paidTotal(v){ return v.payments.reduce((s,p)=>s+p.amount,0); }
+function outstanding(v){ return Math.max(0, Math.round((v.amount - paidTotal(v))*100)/100); }
+function daysOver(v){ return daysBetween(fromIso(v.due), today()); }
+function isBiz(v){ return client(v.clientId).type === 'business'; }
+function compFee(amount){ return amount < 1000 ? 40 : amount < 10000 ? 70 : 100; }
+function statutory(v){
+  const d = daysOver(v);
+  if (!isBiz(v) || d <= 0 || outstanding(v) <= 0) return null;
+  const rate = 8 + Number(state.baseRate);
+  const interest = outstanding(v) * rate/100 * d/365;
+  const comp = compFee(v.amount);
+  return {rate, interest, comp, daily: outstanding(v)*rate/100/365, total: outstanding(v)+interest+comp};
+}
+function currentStep(v){ // highest step reached by days overdue
+  const d = daysOver(v); let s = -1;
+  state.rules.forEach((r,i)=>{ if (d >= r.day) s = i; });
+  return s;
+}
+function sentSteps(v){ return new Set(v.history.map(h=>h.step)); }
+function stepDue(v){ // step index that should be sent now, or -1
+  if (outstanding(v) <= 0 || v.paused) return -1;
+  const s = currentStep(v);
+  if (s < 0) return -1;
+  return sentSteps(v).has(s) ? -1 : s;
+}
+function status(v){
+  if (outstanding(v) <= 0) return {k:'paid', t:'Paid', c:'b-ok'};
+  const d = daysOver(v);
+  if (v.paused) return {k:'paused', t:'Paused', c:'b-mute'};
+  if (d < 0) return d >= -3 ? {k:'soon', t:'Due in '+(-d)+'d', c:'b-info'} : {k:'notdue', t:'Due '+fmtDate(v.due), c:'b-mute'};
+  if (d === 0) return {k:'over', t:'Due today', c:'b-warn'};
+  return {k:'over', t: d+'d overdue', c: d > 20 ? 'b-bad' : 'b-warn'};
+}
+function paidDate(v){ return v.payments.length ? v.payments[v.payments.length-1].date : null; }
+function clientStats(c){
+  const inv = state.invoices.filter(v=>v.clientId===c.id);
+  let worst = 0, owed = 0, paidDays = [];
+  inv.forEach(v=>{
+    owed += outstanding(v);
+    if (outstanding(v) > 0) worst = Math.max(worst, daysOver(v));
+    else { const pd = paidDate(v); const late = daysBetween(fromIso(v.due), fromIso(pd)); worst = Math.max(worst, late); paidDays.push(daysBetween(fromIso(v.issued), fromIso(pd))); }
+  });
+  const avg = paidDays.length ? Math.round(paidDays.reduce((a,b)=>a+b,0)/paidDays.length) : null;
+  return {worst, owed, avg, count:inv.length};
+}
+function fill(tpl, v){
+  const st = statutory(v), d = Math.max(0,daysOver(v));
+  const stLine = st ? "\nAs we're both businesses, the Late Payment of Commercial Debts (Interest) Act 1998 applies. Statutory interest of "+money(st.interest)+" ("+st.rate.toFixed(2)+"% a year, "+money(st.daily)+" a day) and fixed compensation of "+money(st.comp)+" have been added.\n" : "";
+  return tpl.replace(/\{first\}/g, client(v.clientId).first).replace(/\{no\}/g, v.no).replace(/\{amount\}/g, money(outstanding(v)))
+    .replace(/\{due\}/g, fromIso(v.due).toLocaleDateString('en-GB',{day:'numeric',month:'long'})).replace(/\{days\}/g, d)
+    .replace(/\{interest\}/g, st?money(st.interest):'£0.00').replace(/\{comp\}/g, st?money(st.comp):'£0.00')
+    .replace(/\{total\}/g, money(st?st.total:outstanding(v))).replace(/\{biz\}/g, signoff()).replace(/\{statutory\}/g, stLine);
+}
+
+/* ============ RENDER ============ */
+const CH = {email:'✉️ Email', sms:'💬 SMS', whatsapp:'🟢 WhatsApp'};
+function render(){
+  const pb = params.get('biz');
+  $('#forLine').textContent = pb ? 'Prepared for ' + pb : 'Get paid on time, without the awkward chasing';
+  $('#todayChip').textContent = 'Today: ' + today().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+  $('#sectors').innerHTML = Object.entries(SECTORS).map(([k,s])=>`<button data-sector="${k}" class="${k===state.sector?'on':''}">${s.label}</button>`).join('');
+  renderHome(); renderInvoices(); renderClients(); renderRules();
+}
+function renderHome(){
+  const open = state.invoices.filter(v=>outstanding(v)>0);
+  const over = open.filter(v=>daysOver(v)>0);
+  const owed = open.reduce((s,v)=>s+outstanding(v),0), overAmt = over.reduce((s,v)=>s+outstanding(v),0);
+  const paid = state.invoices.filter(v=>outstanding(v)<=0);
+  const avg = paid.length ? Math.round(paid.reduce((s,v)=>s+daysBetween(fromIso(v.issued),fromIso(paidDate(v))),0)/paid.length) : 0;
+  const due = open.filter(v=>stepDue(v)>=0);
+  const interest = over.reduce((s,v)=>{ const st=statutory(v); return s + (st? st.interest+st.comp : 0); },0);
+  $('#kpis').innerHTML = `
+    <div class="kpi"><div class="l">Owed to you</div><div class="v">${money0(owed)}</div><div class="s">${open.length} unpaid invoices</div></div>
+    <div class="kpi bad"><div class="l">Overdue</div><div class="v">${money0(overAmt)}</div><div class="s">${over.length} invoices late</div></div>
+    <div class="kpi"><div class="l">Reminders due</div><div class="v">${due.length}</div><div class="s">ready to approve</div></div>
+    <div class="kpi ok"><div class="l">Avg days to pay</div><div class="v">${avg}</div><div class="s">from invoice date</div></div>`;
+  $('#dueList').innerHTML = due.length ? due.sort((a,b)=>daysOver(b)-daysOver(a)).map(v=>{
+    const s = stepDue(v), r = state.rules[s], c = client(v.clientId);
+    return `<div class="due-item"><div class="t"><b>${esc(c.name)}</b><span>${v.no} · ${money(outstanding(v))} · ${daysOver(v)}d late → ${esc(r.name)}</span></div><button class="btn sm" data-remind="${v.id}">Review</button></div>`;
+  }).join('') : '<div class="empty">✅ Nothing to send today. ChaseUp will tell you when the next reminder is due.</div>';
+  $('#sendAll').disabled = !due.length;
+  const buckets = [['Not due yet',v=>daysOver(v)<=0,'var(--info)'],['1–7 days',v=>daysOver(v)>=1&&daysOver(v)<=7,'var(--accent)'],['8–14 days',v=>daysOver(v)>=8&&daysOver(v)<=14,'#e08a1e'],['15–30 days',v=>daysOver(v)>=15&&daysOver(v)<=30,'#d4602a'],['30+ days',v=>daysOver(v)>30,'var(--bad)']];
+  const vals = buckets.map(b=>open.filter(b[1]).reduce((s,v)=>s+outstanding(v),0));
+  const max = Math.max(1,...vals);
+  $('#ageing').innerHTML = buckets.map((b,i)=>`<div class="ag"><span>${b[0]}</span><div class="bar"><i style="width:${vals[i]/max*100}%;background:${b[2]}"></i></div><span class="amt">${money0(vals[i])}</span></div>`).join('');
+  $('#interestNote').innerHTML = interest > 0 ? `Your late-paying <b>business</b> clients legally owe you an extra <b>${money(interest)}</b> in interest and compensation. ChaseUp adds it to their reminders automatically.` : 'No late-payment interest owed right now.';
+  const cnt = $('#navCnt'); cnt.hidden = !due.length; cnt.textContent = due.length;
+}
+let filter = 'all';
+const FILTERS = [['all','All'],['over','Overdue'],['due','Reminder due'],['notdue','Not due'],['paused','Paused'],['paid','Paid']];
+function renderInvoices(){
+  $('#filters').innerHTML = FILTERS.map(f=>`<button data-filter="${f[0]}" class="${filter===f[0]?'on':''}">${f[1]}</button>`).join('');
+  let list = state.invoices.slice();
+  const k = v => status(v).k;
+  if (filter==='over') list = list.filter(v=>k(v)==='over');
+  else if (filter==='due') list = list.filter(v=>stepDue(v)>=0);
+  else if (filter==='notdue') list = list.filter(v=>k(v)==='notdue'||k(v)==='soon');
+  else if (filter==='paused') list = list.filter(v=>v.paused && outstanding(v)>0);
+  else if (filter==='paid') list = list.filter(v=>k(v)==='paid');
+  list.sort((a,b)=>{ const pa=outstanding(a)>0?0:1, pb=outstanding(b)>0?0:1; return pa-pb || daysOver(b)-daysOver(a); });
+  $('#invList').innerHTML = list.length ? list.map(invCard).join('') : '<div class="empty">No invoices here.</div>';
+}
+function invCard(v){
+  const c = client(v.clientId), st = status(v), sent = sentSteps(v), due = stepDue(v), part = paidTotal(v) > 0 && outstanding(v) > 0;
+  const ladder = state.rules.map((r,i)=>`<i class="${sent.has(i)?'done':(i===due?'due':'')}" title="${esc(r.name)}"></i>`).join('');
+  return `<button class="inv" data-open="${v.id}">
+    <div class="r1"><div><div class="who">${esc(c.name)}</div><div class="meta">${v.no} · ${esc(v.desc)}</div></div>
+    <div class="amt">${money(outstanding(v)>0?outstanding(v):v.amount)}${part?`<small>of ${money(v.amount)}</small>`:''}</div></div>
+    <div class="r2"><span class="badge ${st.c}">${st.t}</span>${part?'<span class="badge b-info">Part paid</span>':''}${c.type==='business'?'<span class="badge b-mute">Business</span>':''}${due>=0?`<span class="badge b-warn">⏰ ${esc(state.rules[due].name)} due</span>`:''}${outstanding(v)>0?`<span class="ladder">${ladder}</span>`:''}</div>
+  </button>`;
+}
+function renderClients(){
+  const rows = state.clients.map(c=>({c, s:clientStats(c)})).sort((a,b)=>b.s.worst-a.s.worst);
+  $('#clientList').innerHTML = rows.map(({c,s})=>{
+    const col = s.worst <= 5 ? 'var(--ok)' : s.worst <= 20 ? 'var(--warn)' : 'var(--bad)';
+    return `<div class="card client" style="margin:0"><i class="dot" style="background:${col}"></i><div class="t"><b>${esc(c.name)}</b><span>${c.type==='business'?'Business':'Private customer'} · worst ${s.worst}d late${s.avg!=null?' · pays in '+s.avg+'d on average':''}</span></div><div class="n">${money0(s.owed)}<small>owed</small></div></div>`;
+  }).join('');
+}
+function renderRules(){
+  $('#ladderCard').innerHTML = '<h3>Reminder ladder</h3><div class="small" style="margin-bottom:10px">Days are counted from the due date. Tap a channel to change how each step is sent.</div>' + state.rules.map((r,i)=>`
+    <div class="step"><div class="h"><span class="num">${i+1}</span><b>${esc(r.name)}</b>
+      <span class="inline" style="flex:none"><input class="in" style="width:72px;min-height:38px;padding:6px 8px" type="number" min="0" max="120" value="${r.day}" data-rday="${i}"><span class="small">days</span></span></div>
+      <div class="chan">${Object.entries(CH).map(([k,t])=>`<button data-rch="${i}:${k}" class="${r.ch===k?'on':''}">${t}</button>`).join('')}</div>
+      <textarea class="in" data-rtpl="${i}" rows="5">${esc(r.tpl)}</textarea>
+    </div>`).join('') + `<div class="small">Placeholders: {first} {no} {amount} {due} {days} {total} {statutory} {biz}. {statutory} adds the interest line for business clients only.</div>
+    <div class="note">Step 4 only warns that a formal letter is coming. A real letter before claim to a private customer has to follow the Pre-Action Protocol for Debt Claims; the live version can prepare one for you to check.</div>`;
+  $('#baseRate').value = state.baseRate;
+  $('#rateOut').textContent = '= ' + (8+Number(state.baseRate)).toFixed(2) + '% a year';
+  $('#signoff').value = signoff();
+}
+
+/* ============ VIEWS ============ */
+function go(v){
+  $$('.view').forEach(s=>s.classList.toggle('on', s.id==='v-'+v));
+  $$('nav.bottom button').forEach(b=>b.classList.toggle('on', b.dataset.v===v));
+  window.scrollTo({top:0, behavior: playing ? 'smooth' : 'auto'});
+}
+
+/* ============ SHEETS ============ */
+function openSheet(html){ $('#sheetBody').innerHTML = html; $('#scrim').classList.add('on'); }
+function closeSheet(){ $('#scrim').classList.remove('on'); }
+function sheetHead(t){ return `<div class="sh"><h3>${t}</h3><button class="x" data-close aria-label="Close">×</button></div>`; }
+
+let remindCh = null;
+function openRemind(id, stepIdx){
+  const v = state.invoices.find(x=>x.id===id), c = client(v.clientId);
+  const s = stepIdx != null ? stepIdx : (stepDue(v) >= 0 ? stepDue(v) : Math.max(0,currentStep(v)));
+  const r = state.rules[s]; remindCh = remindCh || r.ch;
+  const st = statutory(v);
+  openSheet(sheetHead('Step '+(s+1)+': '+esc(r.name)) + `
+    <div class="small">To ${esc(c.name)} · ${v.no} · ${daysOver(v)>0?daysOver(v)+' days overdue':'due '+fmtDate(v.due)}</div>
+    <div class="chan">${Object.entries(CH).map(([k,t])=>`<button data-ch="${k}" data-rid="${id}" data-rs="${s}" class="${remindCh===k?'on':''}">${t}</button>`).join('')}</div>
+    <div class="msg" id="msgText">${esc(fill(r.tpl, v))}</div>
+    ${st && r.tpl.indexOf('{statutory}')>=0?`<div class="note"><b>Business client:</b> ${money(st.interest)} statutory interest (${st.rate.toFixed(2)}% a year for ${daysOver(v)} days) + ${money(st.comp)} fixed compensation are included.</div>`:(c.type!=='business'?'<div class="note">Private customer: ChaseUp doesn\'t add statutory interest.</div>':'')}
+    <div class="rowbtns" style="margin-top:12px"><button class="btn sec" data-copy>Copy text</button><button class="btn" style="flex:1" data-send="${id}" data-step="${s}">Send ${CH[remindCh].split(' ')[1]}</button></div>
+    <div class="small" style="margin-top:8px">Demo: this logs the reminder but sends nothing. The live version sends it from your own email address or number.</div>`);
+}
+function sendReminder(id, s, ch, quiet){
+  const v = state.invoices.find(x=>x.id===id);
+  v.history = v.history.filter(h=>h.step!==s);
+  v.history.push({step:s, date:iso(today()), ch: ch || state.rules[s].ch});
+  save(); render();
+  if (!quiet) toast('✓ '+state.rules[s].name+' logged for '+client(v.clientId).name+' (demo: nothing sent)');
+}
+function openInvoice(id){
+  const v = state.invoices.find(x=>x.id===id), c = client(v.clientId), st = statutory(v), stt = status(v);
+  const hist = v.history.slice().sort((a,b)=>a.date<b.date?-1:1).map(h=>`<li>${fmtDate(h.date)} · ${esc(state.rules[h.step]?state.rules[h.step].name:'Reminder')} by ${CH[h.ch]||h.ch}</li>`)
+    .concat(v.payments.map(p=>`<li>${fmtDate(p.date)} · 💷 Payment received ${money(p.amount)}</li>`));
+  openSheet(sheetHead(v.no+' · '+esc(c.name)) + `
+    <div class="small" style="margin-bottom:10px">${esc(v.desc)}</div>
+    <div class="rowbtns" style="margin-bottom:12px"><span class="badge ${stt.c}">${stt.t}</span>${c.type==='business'?'<span class="badge b-mute">Business client</span>':'<span class="badge b-mute">Private customer</span>'}</div>
+    <div class="kv">
+      <span>Invoice total</span><span>${money(v.amount)}</span>
+      <span>Paid so far</span><span>${money(paidTotal(v))}</span>
+      <span>Issued / due</span><span>${fmtDate(v.issued)} / ${fmtDate(v.due)}</span>
+      ${st?`<span>Statutory interest (${st.rate.toFixed(2)}%)</span><span>${money(st.interest)}</span><span>Fixed compensation</span><span>${money(st.comp)}</span>`:''}
+      <span class="tot">Now owed</span><span class="tot">${money(st?st.total:outstanding(v))}</span>
+    </div>
+    <h3 style="margin-top:16px">History</h3>
+    ${hist.length?`<ul class="hist">${hist.join('')}</ul>`:'<div class="small">No reminders sent yet.</div>'}
+    ${outstanding(v)>0?`<div class="rowbtns" style="margin-top:14px">
+      <button class="btn" data-remind="${v.id}">Send reminder</button>
+      <button class="btn sec" data-pay="${v.id}">Record payment</button>
+      <button class="btn sec" data-pause="${v.id}">${v.paused?'Resume chasing':'Pause chasing'}</button></div>
+      ${v.paused?'<div class="note">Chasing is paused. The invoice still counts as overdue but no reminders will be suggested.</div>':''}`:''}
+  `);
+}
+function openPay(id){
+  const v = state.invoices.find(x=>x.id===id);
+  openSheet(sheetHead('Record payment · '+v.no) + `
+    <label class="f" for="payAmt">Amount received</label>
+    <input class="in" id="payAmt" type="number" step="0.01" min="0.01" value="${outstanding(v)}">
+    <div class="small" style="margin-top:6px">Outstanding ${money(outstanding(v))}. Enter less for a part payment; chasing continues on the balance.</div>
+    <button class="btn block" style="margin-top:14px" data-paysave="${id}">Save payment</button>
+    <div class="small" style="margin-top:8px">The live version can mark invoices paid automatically from your bank feed or Xero / QuickBooks.</div>`);
+}
+function recordPayment(id, amt, quiet){
+  const v = state.invoices.find(x=>x.id===id);
+  amt = Math.min(Number(amt)||0, outstanding(v));
+  if (amt <= 0) return;
+  v.payments.push({amount: amt, date: iso(today())});
+  save(); render();
+  if (!quiet) toast(outstanding(v)>0 ? '💷 Part payment saved. '+money(outstanding(v))+' left to chase.' : '🎉 '+v.no+' paid in full. Chasing stopped.');
+}
+function openNew(){
+  openSheet(sheetHead('New invoice') + `
+    <label class="f" for="nClient">Client</label>
+    <select class="in" id="nClient">${state.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}<option value="__new">+ New client…</option></select>
+    <div id="nNewWrap" hidden><label class="f" for="nName">Client name</label><input class="in" id="nName" placeholder="e.g. Taylor Plumbing Ltd">
+      <label class="f" for="nType">Client type</label><select class="in" id="nType"><option value="business">Business (statutory interest applies)</option><option value="private">Private customer</option></select></div>
+    <label class="f" for="nDesc">What it's for</label><input class="in" id="nDesc" placeholder="e.g. Loft conversion – stage 1">
+    <div class="inline"><div style="flex:1"><label class="f" for="nAmt">Amount (£)</label><input class="in" id="nAmt" type="number" step="0.01" min="1" value="750"></div>
+    <div style="flex:1"><label class="f" for="nTerms">Payment terms</label><select class="in" id="nTerms"><option value="7">7 days</option><option value="14" selected>14 days</option><option value="30">30 days</option></select></div></div>
+    <button class="btn block" style="margin-top:14px" id="nSave">Add invoice</button>
+    <div class="small" style="margin-top:8px">The live version picks invoices up automatically: CC it on the email you already send, or connect Xero / QuickBooks.</div>`);
+  $('#nClient').onchange = e => { $('#nNewWrap').hidden = e.target.value !== '__new'; };
+  $('#nSave').onclick = () => {
+    let cid = $('#nClient').value;
+    if (cid === '__new'){
+      const nm = $('#nName').value.trim(); if (!nm) return toast('Add a client name');
+      cid = 'c'+Date.now(); state.clients.push({id:cid, name:nm, first:nm.split(' ')[0], type:$('#nType').value});
+    }
+    const amt = Number($('#nAmt').value); if (!(amt>0)) return toast('Add an amount');
+    const terms = Number($('#nTerms').value);
+    const n = Math.max(...state.invoices.map(v=>Number(v.no.split('-')[1])))+1;
+    state.invoices.push({id:'i'+Date.now(), no:'INV-'+n, clientId:cid, desc:$('#nDesc').value.trim()||'Work completed', amount:amt, issued:iso(today()), due:iso(today().getTime()+terms*DAY), payments:[], history:[], paused:false});
+    save(); closeSheet(); filter='all'; render(); go('invoices'); toast('Invoice INV-'+n+' added. First nudge goes on the due date.');
+  };
+}
+
+/* ============ ACCESS REQUEST (lead capture) ============ */
+let tourDone = false;
+function openAccess(){
+  const pb = params.get('biz') || '';
+  openSheet(sheetHead('Get ChaseUp for your business') + `
+    <div class="small" style="margin-bottom:6px">Tell us a little about your business and we'll set up the live version for you to try, using your own invoices. No card needed.</div>
+    <form id="accForm" novalidate>
+      <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off">
+      <label class="f" for="aName">Your name *</label><input class="in" id="aName" name="name" autocomplete="name" required value="${esc(params.get('name')||'')}">
+      <label class="f" for="aBiz">Business name *</label><input class="in" id="aBiz" name="business" autocomplete="organization" required value="${esc(pb)}">
+      <label class="f" for="aEmail">Email *</label><input class="in" id="aEmail" name="email" type="email" autocomplete="email" required>
+      <label class="f" for="aPhone">Phone (optional)</label><input class="in" id="aPhone" name="phone" type="tel" autocomplete="tel">
+      <div class="inline"><div style="flex:1"><label class="f" for="aSector">Type of business</label><select class="in" id="aSector" name="sector">${Object.entries(SECTORS).map(([k,s])=>`<option value="${s.label}" ${k===state.sector?'selected':''}>${s.label}</option>`).join('')}<option>Other</option></select></div>
+      <div style="flex:1"><label class="f" for="aVol">Invoices a month</label><select class="in" id="aVol" name="volume"><option>1–10</option><option selected>11–30</option><option>31–100</option><option>100+</option></select></div></div>
+      <label class="f" for="aUse">What would you most want it to do? (optional)</label>
+      <textarea class="in" id="aUse" name="message" placeholder="e.g. chase my commercial clients, work with Xero, send by WhatsApp…"></textarea>
+      <div class="err" id="aErr" hidden></div>
+      <button class="btn acc block" style="margin-top:14px" type="submit" id="aSend">Request live access</button>
+      <div class="small" style="margin-top:8px">We'll only use these details to contact you about ChaseUp. The Tech Principle, London.</div>
+    </form>`);
+  $('#accForm').onsubmit = submitAccess;
+}
+async function submitAccess(e){
+  e.preventDefault();
+  const f = e.target, err = $('#aErr'), btn = $('#aSend');
+  const data = Object.fromEntries(new FormData(f).entries());
+  if (data._honey) return; // bot
+  err.hidden = true;
+  if (!data.name.trim() || !data.business.trim()) { err.textContent = 'Please add your name and business name.'; err.hidden = false; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) { err.textContent = 'Please check your email address.'; err.hidden = false; return; }
+  delete data._honey;
+  const payload = Object.assign({
+    _subject: CFG.app + ' access request: ' + data.business,
+    _template: 'table',
+    _captcha: 'false',
+    app: CFG.app,
+    campaign_source: params.get('src') || 'direct',
+    campaign_id: params.get('cid') || '',
+    emailed_business: params.get('biz') || '',
+    demo_sector_viewed: SECTORS[state.sector].label,
+    watched_tour: tourDone ? 'yes' : 'no',
+    page: location.href,
+    submitted_at: new Date().toISOString()
+  }, data);
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    const res = await fetch(CFG.formEndpoint, {method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body: JSON.stringify(payload)});
+    const j = await res.json().catch(()=>({}));
+    if (!res.ok || String(j.success) === 'false') throw new Error(j.message || 'Send failed');
+    store('chaseup_requested', {at: payload.submitted_at});
+    openSheet(sheetHead('Request sent') + `<div class="ok-state"><div class="big">✅</div><h3>Thanks, ${esc(data.name.split(' ')[0])}.</h3>
+      <p class="small">We'll be in touch within one working day to set ChaseUp up for ${esc(data.business)}.</p>
+      <button class="btn sec" data-close>Back to the demo</button></div>`);
+  } catch(ex){
+    btn.disabled = false; btn.textContent = 'Request live access';
+    const body = encodeURIComponent(Object.entries(payload).filter(([k])=>!k.startsWith('_')).map(([k,v])=>k+': '+v).join('\n'));
+    err.innerHTML = `We couldn't send that just now. <a href="mailto:${CFG.fallbackEmail}?subject=${encodeURIComponent(payload._subject)}&body=${body}">Email your request instead</a>.`;
+    err.hidden = false;
+  }
+}
+
+/* ============ TOUR ============ */
+let T = {i:0, timer:null, auto:true, steps:[]};
+function hl(sel){ $$('.hl').forEach(e=>e.classList.remove('hl')); if (sel){ const el = $(sel); if (el){ el.classList.add('hl'); el.scrollIntoView({behavior:'smooth', block:'center'}); } } }
+function byStep(n){ // invoice at nth position in "due" ordering (by days overdue desc)
+  return state.invoices.filter(v=>outstanding(v)>0 && daysOver(v)>0).sort((a,b)=>daysOver(b)-daysOver(a))[n];
+}
+function buildTour(){
+  const S = SECTORS[state.sector];
+  return [
+    {cap:`This is every invoice ${esc(bizName())} is waiting on, in one place. Right now ${money0(state.invoices.filter(v=>daysOver(v)>0).reduce((s,v)=>s+outstanding(v),0))} is overdue.`, run:()=>{ closeSheet(); go('home'); hl('#kpis'); }},
+    {cap:'You can see at a glance who is late and by how long. The older a debt gets, the harder it is to collect, so ChaseUp starts on the due date.', run:()=>{ hl('#ageCard'); }},
+    {cap:'Each morning ChaseUp lists the reminders that are due. It picks the right step for each invoice, so you never have to work out who to chase or what to say.', run:()=>{ hl('#dueCard'); }},
+    {cap:'An invoice just past due gets a friendly nudge. It\'s polite enough that good customers aren\'t put off.', run:()=>{ hl(null); const v = byStep(state.invoices.filter(v=>outstanding(v)>0&&daysOver(v)>0).length-1); if (v) openRemind(v.id); }},
+    {cap:'A business client 2–3 weeks late gets a firmer notice, with the late-payment interest and compensation the law entitles you to, worked out to the penny.', run:()=>{ const v = state.invoices.filter(v=>outstanding(v)>0&&daysOver(v)>=14&&isBiz(v)).sort((a,b)=>daysOver(a)-daysOver(b))[0] || byStep(1); if (v) openRemind(v.id); }},
+    {cap:'Happy with them? One tap approves them all. They go from your own email or phone number, in your words.', run:()=>{ closeSheet(); go('home'); hl('#sendAll'); }},
+    {cap:'Done. Every invoice\'s progress up the ladder is tracked, so nothing gets missed and nobody gets chased twice.', run:()=>{ const due = state.invoices.filter(v=>stepDue(v)>=0); due.forEach(v=>sendReminder(v.id, stepDue(v), null, true)); toast('✓ '+due.length+' reminders approved (demo: nothing sent)'); filter='all'; render(); go('invoices'); hl('#invList'); }},
+    {cap:'Five days later: two clients have paid and another made a part payment. ChaseUp stops chasing the moment money lands.', run:()=>{ dayShift = 5; const over = state.invoices.filter(v=>outstanding(v)>0&&daysOver(v)>0).sort((a,b)=>daysOver(b)-daysOver(a)); if (over[1]) recordPayment(over[1].id, outstanding(over[1]), true); if (over[over.length-1]) recordPayment(over[over.length-1].id, outstanding(over[over.length-1]), true); if (over[0]) recordPayment(over[0].id, Math.round(outstanding(over[0])/2), true); render(); go('home'); hl('#kpis'); }},
+    {cap:'Over time you learn who pays on time and who doesn\'t, so you can ask for deposits from the slow payers.', run:()=>{ go('clients'); hl('#clientList'); }},
+    {cap:'You stay in control: change the timing, the wording and the channel (email, text or WhatsApp) for each step.', run:()=>{ go('rules'); hl('#ladderCard'); }},
+    {cap:`That's ChaseUp. Want it chasing ${params.get('biz') ? esc(params.get('biz'))+"'s" : 'your'} invoices? Request the live version and we'll set it up with you.`, cta:true, run:()=>{ hl(null); go('home'); tourDone = true; }}
+  ];
+}
+function tourShow(){
+  const s = T.steps[T.i];
+  $('#tStep').textContent = 'Step '+(T.i+1)+' of '+T.steps.length;
+  $('#tCap').innerHTML = s.cap;
+  $('#tProg').style.width = ((T.i+1)/T.steps.length*100)+'%';
+  $('#tNext').textContent = s.cta ? 'Request access' : 'Next ›';
+  $('#tBack').disabled = T.i === 0;
+  s.run();
+  clearTimeout(T.timer);
+  if (T.auto && !s.cta) T.timer = setTimeout(()=>tourGo(T.i+1), 5200);
+}
+function tourGo(i){
+  if (i < T.i){ // replay from start to keep state consistent
+    const target = Math.max(0,i); startTour(true); T.steps[0].run(); while (T.i < target-1){ T.i++; T.steps[T.i].run(); } T.i = target; tourShow(); return;
+  }
+  if (i >= T.steps.length) return;
+  T.i = i; tourShow();
+}
+function startTour(silent){
+  playing = true; dayShift = 0;
+  state = seed(state.sector); render();
+  document.body.classList.add('touring');
+  T.steps = buildTour(); T.i = 0; $('#tour').classList.add('on'); $('#tPlay').textContent = T.auto ? '⏸' : '▶';
+  if (!silent) tourShow();
+}
+function endTour(){
+  clearTimeout(T.timer); playing = false; dayShift = 0; hl(null);
+  $('#tour').classList.remove('on'); document.body.classList.remove('touring');
+  closeSheet(); init(); render(); go('home');
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener('click', e=>{
+  const t = e.target.closest('button,a'); if (!t) { if (e.target.id==='scrim') closeSheet(); return; }
+  const d = t.dataset;
+  if (playing && !t.closest('.tour') && !t.closest('#scrim') && !('openAccess' in d)) { /* interacting exits tour */ endTour(); }
+  if (d.v) go(d.v);
+  else if (d.sector){ state = seed(d.sector); if (!playing) save(); const u = new URL(location); u.searchParams.set('sector', d.sector); history.replaceState(null,'',u); render(); toast('Showing sample invoices for '+SECTORS[d.sector].who); }
+  else if (d.filter){ filter = d.filter; renderInvoices(); }
+  else if (d.open) openInvoice(d.open);
+  else if (d.remind){ remindCh = null; openRemind(d.remind); }
+  else if (d.ch){ remindCh = d.ch; openRemind(d.rid, Number(d.rs)); }
+  else if (d.send){ sendReminder(d.send, Number(d.step), remindCh); remindCh = null; closeSheet(); }
+  else if ('copy' in d){ const txt = $('#msgText').textContent; (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(()=>toast('Copied'), ()=>toast('Select the text to copy it')); }
+  else if (d.pay) openPay(d.pay);
+  else if (d.paysave){ recordPayment(d.paysave, $('#payAmt').value); closeSheet(); }
+  else if (d.pause){ const v = state.invoices.find(x=>x.id===d.pause); v.paused = !v.paused; save(); render(); openInvoice(v.id); toast(v.paused?'Chasing paused for '+v.no:'Chasing resumed for '+v.no); }
+  else if (d.rch){ const [i,k] = d.rch.split(':'); state.rules[i].ch = k; save(); renderRules(); }
+  else if ('close' in d) closeSheet();
+  else if ('openAccess' in d){ if (playing) endTour(); openAccess(); }
+  else if (t.id==='sendAll'){ const due = state.invoices.filter(v=>stepDue(v)>=0); due.forEach(v=>sendReminder(v.id, stepDue(v), null, true)); toast('✓ '+due.length+' reminders approved (demo: nothing sent)'); }
+  else if (t.id==='newInv') openNew();
+  else if (t.id==='tourBtn'){ T.auto = true; startTour(); }
+  else if (t.id==='tNext'){ if (T.steps[T.i].cta){ endTour(); openAccess(); } else { T.auto = false; $('#tPlay').textContent='▶'; tourGo(T.i+1); } }
+  else if (t.id==='tBack'){ T.auto = false; $('#tPlay').textContent='▶'; clearTimeout(T.timer); tourGo(T.i-1); }
+  else if (t.id==='tPlay'){ T.auto = !T.auto; t.textContent = T.auto ? '⏸' : '▶'; if (T.auto) tourGo(T.i+1 < T.steps.length ? T.i+1 : T.i); else clearTimeout(T.timer); }
+  else if (t.id==='tExit') endTour();
+  else if (t.id==='resetBtn'){ state = seed(state.sector); save(); render(); toast('Demo data reset'); }
+});
+$('#scrim').addEventListener('click', e=>{ if (e.target.id === 'scrim') closeSheet(); });
+document.addEventListener('keydown', e=>{ if (e.key === 'Escape') closeSheet(); });
+document.addEventListener('change', e=>{
+  const t = e.target, d = t.dataset;
+  if (d.rday != null){ state.rules[d.rday].day = Math.max(0, Number(t.value)||0); save(); renderHome(); renderInvoices(); }
+  else if (d.rtpl != null){ state.rules[d.rtpl].tpl = t.value; save(); }
+  else if (t.id === 'baseRate'){ state.baseRate = Math.max(0, Number(t.value)||0); save(); render(); }
+  else if (t.id === 'signoff'){ state.signoff = t.value.trim() || null; save(); }
+});
+
+/* ============ BOOT ============ */
+init(); render();
+if (params.get('play')) { T.auto = true; setTimeout(()=>startTour(), 500); }
+if (params.get('access') === '1') setTimeout(openAccess, 400);
+
+})();
+</script>
+</body>
+</html>

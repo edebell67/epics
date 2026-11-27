@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<!--
+  epics/ep_064_business_solutions/agent_02_frontdesk/index.html — Frontdesk: enquiry-handling agent demo (agent 2 of 5) for cold-email demand testing
+
+  VERSION HISTORY
+  v1.x.2 · 2026-11-27 · Six-agent chain (adds Bookkeeper), all marked 'Demo ready', with a SiteLedger note on the All agents tab.
+  v1.0.0 · 2026-11-27 · Initial version: simulated busy day (7 enquiries across missed calls, voicemail, web form, WhatsApp, Facebook/Instagram, email),
+                        replies in under a minute, qualifies and books into the diary, turns away out-of-scope work, flags emergencies and complaints,
+                        asks the owner only when outside its rules (default: zero or one tap a day), full conversation viewer, pinned overview strip,
+                        Overview tab with diary, effort meter, channel mix and handover to Closer, sector presets, personalisation (?biz=&name=),
+                        autonomy (?auto=0|1|2), "Put Frontdesk to work" form → FormSubmit → edward.bell@thetechprinciple.com, campaign tags (?src=&cid=).
+-->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frontdesk · never miss an enquiry</title>
+<meta name="description" content="Frontdesk is an AI agent that answers every call, form and message within 2 minutes, asks the right questions and books the job into your diary.">
+<meta name="theme-color" content="#1d3557">
+<style>
+:root{
+  --ink:#122220; --ink2:#4a5f5b; --mute:#7d8f8b; --line:#e1e8e6; --bg:#eef2f6; --card:#fff;
+  --brand:#1d3557; --brand2:#2a5b8c; --accent:#f2a93b; --accent-ink:#4a2f00;
+  --chat:#e6ecf2; --me:#d9f4c7; --ok:#1d8a5a; --ok-bg:#e3f4ec; --warn:#b86e00; --warn-bg:#fdf1dc; --bad:#b03a2e; --bad-bg:#fbe7e4; --info:#2463a6; --info-bg:#e5eef9;
+  --r:14px; --sh:0 1px 2px rgba(16,32,31,.06),0 4px 14px rgba(16,32,31,.07); --nav:62px;
+}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;padding-bottom:calc(var(--nav) + 104px)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:720px;margin:0 auto;padding:0 12px}
+
+header.top{background:var(--brand);color:#fff;padding:12px 0 14px;position:sticky;top:0;z-index:20}
+.top .row{display:flex;align-items:center;gap:10px}
+.av{width:40px;height:40px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:800;font-size:17px;flex:none;position:relative}
+.av::after{content:"";position:absolute;right:0;bottom:0;width:11px;height:11px;border-radius:50%;background:#5ee08a;border:2px solid var(--brand)}
+.nm{font-weight:750;font-size:16.5px}
+.st{font-size:12.5px;opacity:.82}
+.sp{flex:1}
+.pill{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:7px 12px;font-size:13px;min-height:36px;white-space:nowrap}
+.pill.solid{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.chips{display:flex;gap:6px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;border-radius:999px;padding:5px 11px;font-size:12.5px;min-height:32px;opacity:.85}
+.chips button.on{background:#fff;color:var(--brand);opacity:1;font-weight:700}
+.settings{background:var(--brand);color:#fff;border-radius:14px;padding:4px 10px 10px;margin-bottom:8px}
+.auto{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12.5px}
+.seg{display:flex;background:rgba(255,255,255,.1);border-radius:10px;padding:3px;flex:1}
+.seg button{flex:1;border:0;background:transparent;color:#fff;border-radius:8px;padding:6px 4px;font-size:12.5px;min-height:32px;opacity:.85}
+.seg button.on{background:#fff;color:var(--brand);font-weight:700;opacity:1}
+
+.view{display:none}.view.on{display:block}
+main{padding-top:12px}
+
+/* chat */
+.chat{background:var(--chat);border-radius:18px;padding:12px 10px 16px;min-height:60vh;background-image:radial-gradient(rgba(29,53,87,.06) 1px,transparent 1px);background-size:14px 14px}
+.day{text-align:center;margin:14px 0 8px}
+.day span{background:#fff;border-radius:8px;padding:3px 10px;font-size:12px;color:var(--ink2);box-shadow:0 1px 1px rgba(0,0,0,.06)}
+.msg{max-width:88%;background:#fff;border-radius:4px 14px 14px 14px;padding:9px 11px 6px;margin:6px 0;box-shadow:0 1px 1px rgba(0,0,0,.07);animation:pop .22s ease}
+.msg.me{margin-left:auto;background:var(--me);border-radius:14px 4px 14px 14px}
+.msg.sys{max-width:100%;background:transparent;box-shadow:none;text-align:center;font-size:12.5px;color:var(--ink2);padding:2px}
+@keyframes pop{from{transform:translateY(6px);opacity:0}}
+.msg .tm{font-size:11px;color:var(--mute);text-align:right;margin-top:2px}
+.msg p{margin:0 0 4px}
+.msg b{font-weight:650}
+.card{border:1px solid var(--line);border-radius:12px;padding:10px;margin:6px 0 4px;background:#fbfcfb}
+.card .ct{font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px}
+.card .cs{font-size:12.5px;color:var(--ink2);margin-top:2px}
+.pv{white-space:pre-wrap;background:#fff;border-left:3px solid var(--brand2);padding:8px 10px;margin:8px 0;font-size:13.5px;border-radius:0 8px 8px 0}
+.who{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.who span{background:#eef3f1;border-radius:999px;padding:2px 8px;font-size:12px}
+.acts{display:flex;gap:6px;margin-top:8px}
+.acts button{flex:1;border:0;border-radius:9px;min-height:40px;font-weight:650;font-size:13.5px;background:#eef2f1}
+.acts button.yes{background:var(--brand);color:#fff}
+.done{font-size:12.5px;font-weight:650;margin-top:8px;padding:6px 9px;border-radius:8px}
+.done.ok{background:var(--ok-bg);color:var(--ok)} .done.skip{background:#eef2f1;color:var(--ink2)} .done.wait{background:var(--warn-bg);color:var(--warn)}
+.cd{height:4px;background:#e9efec;border-radius:2px;overflow:hidden;margin-top:8px}
+.cd i{display:block;height:100%;background:var(--accent);width:100%;transition:width linear}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
+.stats div{background:#f2f6f4;border-radius:9px;padding:7px 9px}
+.stats b{display:block;font-size:19px;font-variant-numeric:tabular-nums}
+.stats small{font-size:11.5px;color:var(--ink2)}
+.hand{border:1px dashed var(--brand2);background:#f3faf7}
+.hand ul{margin:6px 0 0;padding-left:18px;font-size:13.5px}
+.typing{display:inline-flex;gap:4px;background:#fff;border-radius:14px;padding:10px 12px;margin:6px 0;box-shadow:0 1px 1px rgba(0,0,0,.07)}
+.typing i{width:7px;height:7px;border-radius:50%;background:#9fb0ab;animation:bl 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bl{50%{opacity:.25}}
+.playbar{display:flex;gap:8px;align-items:center;margin:10px 0 2px}
+.playbar .prog{flex:1;height:6px;background:#dfe7e3;border-radius:3px;overflow:hidden}
+.playbar .prog i{display:block;height:100%;background:var(--brand2);transition:width .3s}
+.btn{border:0;border-radius:11px;padding:10px 14px;min-height:44px;font-weight:650;background:var(--brand);color:#fff}
+.btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.acc{background:var(--accent);color:var(--accent-ink)}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:13.5px;border-radius:9px}
+.btn.block{width:100%}
+
+/* panels */
+h2{font-size:19px;margin:4px 0 6px}
+.sub{color:var(--ink2);font-size:13.5px;margin:0 0 12px}
+.panel{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-bottom:12px}
+.funnel .fr{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) 3.4em;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.funnel .fr:last-child{border:0}
+.funnel .bar{height:12px;background:#edf2f0;border-radius:6px;overflow:hidden}
+.funnel .bar i{display:block;height:100%;background:var(--brand2);border-radius:6px;transition:width .4s}
+.funnel .fr.off{opacity:.45}
+.funnel .n{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.kpi{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:11px 12px}
+.kpi .l{font-size:11.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.3px}
+.kpi .v{font-size:22px;font-weight:750;font-variant-numeric:tabular-nums}
+.chain{display:flex;flex-direction:column;gap:0}
+.ag{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:start;position:relative;padding-bottom:16px}
+.ag:not(:last-child)::before{content:"";position:absolute;left:21px;top:44px;bottom:0;width:2px;background:var(--line)}
+.ag .b{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:#e8eeec;color:var(--ink2)}
+.ag.me .b{background:var(--accent);color:var(--accent-ink)}
+.ag h3{margin:2px 0 2px;font-size:15.5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ag p{margin:0;font-size:13.5px;color:var(--ink2)}
+.tag{font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;background:#eef2f1;color:var(--ink2)}
+.tag.live{background:var(--accent);color:var(--accent-ink)}
+.rules li{margin:6px 0;font-size:14px}
+.note{font-size:12.5px;color:var(--ink2);background:#f0f5f3;border-radius:10px;padding:10px 12px;margin-top:10px}
+
+.ovr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;background:#fff;border-radius:12px;padding:6px;margin-top:10px;border:0;width:100%;text-align:center;color:var(--ink)}
+.ovr div{padding:2px}.ovr b{display:block;font-size:16px;font-variant-numeric:tabular-nums}.ovr small{font-size:10.5px;color:var(--ink2)}
+.ovr .need b{color:var(--bad)}
+.item{border-top:1px solid var(--line);padding:8px 0}
+.item:first-of-type{border-top:0}
+.item .ih{display:flex;gap:9px;align-items:flex-start}
+.tog{flex:none;width:24px;height:24px;border-radius:7px;border:2px solid var(--brand2);background:var(--brand2);color:#fff;font-size:14px;line-height:1;display:grid;place-items:center;padding:0}
+.tog.off{background:#fff;color:transparent}
+.item.off .it{text-decoration:line-through;color:var(--mute)}
+.it{font-weight:650;font-size:14px}
+details summary{cursor:pointer;font-size:12.5px;color:var(--brand2);margin-top:4px}
+.edl{border:0;background:none;color:var(--brand2);font-size:12.5px;padding:2px 0;text-decoration:underline}
+.meter{height:14px;background:#edf2f0;border-radius:7px;overflow:hidden;display:flex}
+.meter i{display:block;height:100%}
+.log li{font-size:13.5px;margin:4px 0}
+nav.bottom{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);z-index:30}
+nav.bottom .wrap{display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav);padding:0}
+nav.bottom button{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11.5px;color:var(--mute);position:relative}
+nav.bottom .ic{font-size:19px;line-height:1}
+nav.bottom button.on{color:var(--brand);font-weight:700}
+nav.bottom .cnt{position:absolute;top:7px;left:calc(50% + 6px);background:var(--bad);color:#fff;border-radius:999px;font-size:10.5px;padding:0 5px;min-width:17px;height:17px;line-height:17px;font-weight:700}
+.cta{position:fixed;left:0;right:0;bottom:var(--nav);z-index:29;padding:8px 0;background:linear-gradient(180deg,rgba(238,242,246,0),var(--bg) 40%)}
+.cta .box{display:flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border-radius:14px;padding:8px 8px 8px 14px;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.cta .box span{flex:1;font-size:13.5px;line-height:1.3}
+.cta .box b{display:block}
+
+.scrim{position:fixed;inset:0;background:rgba(10,20,20,.45);z-index:50;display:none;align-items:flex-end;justify-content:center}
+.scrim.on{display:flex}
+.sheet{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:8px 16px 18px;animation:up .22s ease}
+@keyframes up{from{transform:translateY(30px);opacity:.4}}
+.grab{width:42px;height:5px;border-radius:3px;background:#d6dfdd;margin:4px auto 10px}
+.sh{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.sh h3{flex:1;margin:0;font-size:17px}
+.x{border:0;background:#eef2f1;border-radius:50%;width:36px;height:36px;font-size:18px}
+label.f{display:block;font-size:12.5px;color:var(--ink2);margin:8px 0 4px;font-weight:600}
+.in{width:100%;border:1px solid #cfdad8;border-radius:10px;padding:10px 11px;background:#fff;min-height:44px;font-size:16px}
+textarea.in{min-height:140px;resize:vertical;font-size:15px}
+.inline{display:flex;gap:8px}
+.inline>div{flex:1}
+.small{font-size:12.5px;color:var(--mute)}
+.err{color:var(--bad);font-size:13px;margin-top:8px}
+.hp{position:absolute;left:-9999px;width:0;height:0;opacity:0}
+.ok-state{text-align:center;padding:18px 4px}
+.toast{position:fixed;left:50%;top:14px;transform:translateX(-50%) translateY(-140%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:80;transition:transform .25s;max-width:92vw}
+.toast.on{transform:translateX(-50%) translateY(0)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (min-width:700px){.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.scrim{align-items:center}.sheet{border-radius:20px}}
+@media (max-width:380px){.st{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}.ovr small{font-size:10px}.ovr b{font-size:15px}}
+@media (max-height:700px){.cta .box span{font-size:13px}.cta .box span>span,.cta .sub2{display:none}.cta{padding:4px 0}.cta .box{padding:6px 6px 6px 12px}header.top{padding:8px 0 10px}.ovr{margin-top:8px;padding:4px}body{padding-bottom:calc(var(--nav) + 70px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.enq .enqh{display:block;width:100%;text-align:left;border:0;background:none;padding:0}
+.tg{font-size:10.5px;font-weight:700;border-radius:999px;padding:1px 7px;background:#eef2f1;color:var(--ink2);margin-left:2px}
+.tg.sc{background:#fff3dc;color:#7a4a00}.tg.ur{background:var(--bad-bg);color:var(--bad)}.tg.cp{background:var(--info-bg);color:var(--info)}
+.q{font-size:13.5px;margin:8px 0 2px;font-weight:600}
+.acts.col{flex-direction:column}.acts.col button{text-align:left;padding:8px 12px}
+.convo{background:var(--chat);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.cl{max-width:85%;padding:8px 10px;border-radius:12px;font-size:14px;background:#fff}
+.cl.c{align-self:flex-start;border-radius:4px 12px 12px 12px}
+.cl.a{align-self:flex-end;background:#d7e6f7;border-radius:12px 4px 12px 12px}
+.dr{display:grid;grid-template-columns:6.5em minmax(0,1fr) auto;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:14px;align-items:baseline}
+.dr:first-child{border-top:0}.dt{font-weight:700;white-space:nowrap}.dr .n{font-variant-numeric:tabular-nums;color:var(--ink2)}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="row">
+    <div class="av">F</div>
+    <div><div class="nm">Frontdesk</div><div class="st" id="stLine">answers every enquiry · online</div></div>
+    <div class="sp"></div>
+    <button class="pill" id="replay">↺ Replay</button>
+  </div>
+  <button class="ovr" id="ovr" data-v="pipe" aria-label="Open overview"></button>
+</div></header>
+
+<main class="wrap">
+  <section class="view on" id="v-feed">
+    <div class="settings">
+      <div class="auto"><span>Replies:</span><div class="seg" id="seg">
+        <button data-auto="0">Ask me first</button><button data-auto="1" class="on">Only ask if unsure</button><button data-auto="2">Just do it</button>
+      </div></div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="playbar"><button class="btn sm sec" id="pp">⏸ Pause</button><div class="prog"><i id="prog"></i></div><button class="btn sm sec" id="skip">Skip ›</button></div>
+    <div class="chat" id="chat" aria-live="polite"></div>
+    <p class="small" style="text-align:center;margin:10px 0">Demo with sample data. Nothing is sent. Tap any enquiry to read the full conversation.</p>
+  </section>
+
+  <section class="view" id="v-pipe">
+    <h2>Overview</h2>
+    <p class="sub">Today's enquiries, how fast they were answered, and what's now in your diary.</p>
+    <div class="kpis" id="kpis"></div>
+    <div class="panel"><b>Your diary, booked by Frontdesk</b><div id="diary" style="margin-top:6px"></div></div>
+    <div class="panel"><b>Who did the work</b><div class="small" style="margin:2px 0 8px" id="effTxt"></div><div class="meter" id="meter"></div></div>
+    <div class="panel funnel" id="funnel"></div>
+    <div class="panel"><b>Handed to Closer</b><div class="small" style="margin:2px 0 8px">These need a written quote. The next agent sends it and follows it up.</div><div id="handList"></div></div>
+  </section>
+
+  <section class="view" id="v-chain">
+    <h2>Six agents, one job each</h2>
+    <p class="sub">Each agent hands over to the next, so nothing that leads to money gets dropped. Start with the one that hurts most.</p>
+    <div class="panel chain" id="chain"></div>
+  </section>
+
+  <section class="view" id="v-rules">
+    <h2>Rules Frontdesk always follows</h2>
+    <div class="panel"><ul class="rules">
+      <li><b>Every enquiry gets a reply within 2 minutes,</b> day or night: missed calls, web forms, WhatsApp, Facebook and email. The live version can also answer calls by voice.</li>
+      <li><b>It only books into free slots in your diary,</b> and only for jobs, areas and hours you've set.</li>
+      <li><b>It only quotes prices from your price list,</b> always as a range when the job needs seeing first. Anything else comes to you.</li>
+      <li><b>You're told straight away about emergencies and complaints.</b> It apologises, offers a fix and books it, then lets you know.</li>
+      <li><b>It politely turns away work you don't do</b> or areas you don't cover.</li>
+      <li><b>It always says it's your booking assistant,</b> never pretends to be you, and hands over to you whenever a customer asks for a person.</li>
+      <li><b>It doesn't take card details.</b> Deposits go through your own payment link.</li>
+    </ul>
+    <div class="note">The live version connects to your phone line or WhatsApp Business, your website form, Facebook page and your calendar or booking app.</div></div>
+  </section>
+</main>
+
+<div class="cta" id="cta"><div class="wrap"><div class="box"><span><b id="ctaT">Put Frontdesk to work for your business</b><span class="sub2">Never miss another enquiry.</span></span><button class="btn acc sm" data-hire>Get started</button></div></div></div>
+
+<nav class="bottom"><div class="wrap">
+  <button data-v="feed" class="on"><span class="ic">💬</span>Frontdesk<span class="cnt" id="navCnt" hidden></span></button>
+  <button data-v="pipe"><span class="ic">📊</span>Overview</button>
+  <button data-v="chain"><span class="ic">🔗</span>All agents</button>
+  <button data-v="rules"><span class="ic">🛡️</span>Rules</button>
+</div></nav>
+
+<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div id="sheet"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+{
+const CFG = { app:'Frontdesk (enquiry agent)', formEndpoint:'https://formsubmit.co/ajax/edward.bell@thetechprinciple.com', fallbackEmail:'edward.bell@thetechprinciple.com' };
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const gbp = n => '£' + Math.round(n).toLocaleString('en-GB');
+const P = new URLSearchParams(location.search);
+function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(()=>el.classList.remove('on'), 2600); }
+const CH = {call:['📞','Missed call'], vm:['📞','Voicemail'], form:['🌐','Website form'], wa:['🟢','WhatsApp'], fb:['💬','Facebook'], ig:['📸','Instagram'], email:['✉️','Email']};
+
+/* ===== sectors: one busy day each ===== */
+const S = {
+ trades:{label:'Trades', biz:'Harris Plumbing & Heating', owner:'Dan', ownerBusy:'on a bathroom job all day', ev:[
+  {t:'08:12', ch:'call', who:'Sarah K.', from:'Scout', secs:31, msg:'Missed call, no voicemail', out:'booked', slot:'Thu 10:00', what:'Boiler service', val:85, conv:[
+    ['a',"Hi Sarah, sorry we missed your call. {owner}'s on a job, and I'm the booking assistant for {biz}. Was it about your boiler service?"],['c','Yes please, any day next week'],['a','I can do Thursday at 10:00 or Friday at 14:00.'],['c','Thursday 10 is great'],['a',"Booked: annual boiler service, Thursday 10:00, £85. I'll send a reminder the day before."]]},
+  {t:'09:40', ch:'form', who:'Mr Grant', secs:44, msg:"Water leaking under the kitchen sink and I can't stop it", out:'booked', urgent:true, slot:'Today 14:30', what:'Emergency leak', val:140, conv:[
+    ['a',"Sorry to hear that. First, turn off the stopcock, which is usually under the kitchen sink, to stop the water. {owner} can be with you today at 14:30. Call-out is £75 plus parts. Shall I book it?"],['c','Yes please, stopcock is off'],['a',"Booked for 14:30 today. {owner} will text when he's on his way."]]},
+  {t:'11:05', ch:'wa', who:'Priya M.', secs:38, msg:'How much for a new combi boiler?', out:'booked', slot:'Wed 17:00', what:'Boiler survey (free)', val:0, closer:true, pipeline:2800, conv:[
+    ['a',"Most combi swaps we fit are £2,400 to £3,200, depending on the boiler and pipework. {owner} would do a free 20-minute survey to give you an exact quote. Would Wednesday at 17:00 work?"],['c','Yes that works'],['a',"Booked: free boiler survey, Wednesday 17:00. You'll get a written quote after the visit."]]},
+  {t:'12:20', ch:'fb', who:'Leon', secs:52, msg:'Do you cover Brighton?', out:'declined', conv:[
+    ['a',"Thanks for asking, Leon. We only cover Croydon and about 10 miles around it, so Brighton's too far for us. Sorry we can't help this time."]]},
+  {t:'13:10', ch:'email', who:'Northgate Lettings Ltd', from:'Scout', secs:40, msg:'Could you send your rates for landlord gas safety checks? We manage 40 properties.', out:'needs', what:'Landlord contract (40 properties)', pipeline:2600, closer:true,
+    q:'A letting agent wants rates for 40 gas safety checks. Commercial rates aren\'t on your price list.', opts:['Send my landlord rate sheet (£65 per check, 10% off 20+)','I\'ll call them myself'], conv:[
+    ['a',"Thanks for getting in touch. I'll get our landlord rates to you shortly."]]},
+  {t:'15:45', ch:'vm', who:'Tom Reid', secs:35, msg:'The tap you fitted last week is dripping again', out:'booked', complaint:true, slot:'Fri 08:30', what:'Free return visit', val:0, conv:[
+    ['a',"Sorry about that, Tom, that shouldn't happen. We'll come back and fix it free of charge. Is Friday at 08:30 OK?"],['c',"Yes, thanks"],['a',"Booked: return visit, Friday 08:30, no charge. I've told {owner}."]]},
+  {t:'19:20', ch:'form', who:'Mrs Okafor', secs:29, msg:'Radiators upstairs are cold', out:'booked', slot:'Fri 11:00', what:'Heating diagnosis', val:85, conv:[
+    ['a',"Thanks for the message. It's often air or a balancing issue. {owner} can come and diagnose it on Friday at 11:00, which is £85 including the first half hour. Shall I book it?"],['c','Please do'],['a','Booked for Friday 11:00.']]}
+ ]},
+ salon:{label:'Salons', biz:'Studio Nine Hair & Beauty', owner:'Sam', ownerBusy:'with clients all day', ev:[
+  {t:'08:12', ch:'call', who:'Lucy', from:'Scout', secs:28, msg:'Missed call, no voicemail', out:'booked', slot:'Thu 10:00', what:'Cut & colour', val:120, conv:[
+    ['a',"Hi Lucy, sorry we missed you, we're with clients. I'm the booking assistant at {biz}. Did you want to book in?"],['c','Yes, my usual cut and colour'],['a','Thursday 10:00 or Saturday 13:00?'],['c','Thursday please'],['a',"Booked: cut & colour, Thursday 10:00, £120. See you then!"]]},
+  {t:'09:40', ch:'form', who:'Hannah', secs:41, msg:'Need a blow-dry before a wedding on Saturday morning', out:'booked', slot:'Sat 08:15', what:'Blow-dry', val:45, conv:[
+    ['a',"Lovely, congratulations to the couple! I can do 08:15 on Saturday, which gives you plenty of time. Blow-dry is £45. Shall I book it?"],['c','Perfect'],['a','Booked: Saturday 08:15.']]},
+  {t:'11:05', ch:'wa', who:'Kate', secs:36, msg:'How much is balayage?', out:'booked', slot:'Sat 12:00', what:'Balayage (patch test Wed)', val:160, conv:[
+    ['a',"Balayage starts from £150 depending on length. We do a quick patch test at least 48 hours before. I can do the patch test on Wednesday at 17:00 and the balayage on Saturday at 12:00?"],['c','Yes please'],['a','Both booked. See you Wednesday for the patch test.']]},
+  {t:'12:20', ch:'fb', who:'Marcus', secs:50, msg:'Do you do men\'s barbering?', out:'declined', conv:[
+    ['a',"Thanks for asking, Marcus. We don't offer barbering at the moment, sorry we can't help this time."]]},
+  {t:'13:10', ch:'email', who:'The Common Hotel Ltd', from:'Scout', secs:44, msg:'Could you quote for a bridal party of 8 in May?', out:'needs', what:'Bridal party of 8', pipeline:1200, closer:true,
+    q:'A hotel wants a quote for a bridal party of 8. Group bridal pricing isn\'t on your price list.', opts:['Send my bridal package price list','I\'ll call them myself'], conv:[
+    ['a',"Thank you, we'd love to help. I'll send our bridal packages shortly."]]},
+  {t:'15:45', ch:'vm', who:'Jess', secs:33, msg:'My colour has faded really quickly', out:'booked', complaint:true, slot:'Fri 16:00', what:'Free toner', val:0, conv:[
+    ['a',"Sorry, Jess, that's not what we want. Pop in for a free toner and we'll make it right. Friday at 16:00?"],['c','Thank you'],['a',"Booked: Friday 16:00, no charge. I've let {owner} know."]]},
+  {t:'21:10', ch:'ig', who:'Nadia', secs:25, msg:'Can I book a cut on Friday?', out:'booked', slot:'Fri 18:00', what:'Cut & finish', val:55, conv:[
+    ['a','Hi Nadia! Friday at 18:00 is free. Cut & finish is £55. Shall I book it?'],['c','Yes!'],['a','Booked: Friday 18:00.']]}
+ ]},
+ garage:{label:'Garages', biz:'Westway Motors', owner:'Raj', ownerBusy:'in the workshop all day', ev:[
+  {t:'08:12', ch:'call', who:'Ben Hart', from:'Scout', secs:30, msg:'Missed call, no voicemail', out:'booked', slot:'Thu 09:00', what:'MOT', val:54.85, conv:[
+    ['a',"Hi Ben, sorry we missed you, we're in the workshop. I'm the booking assistant at {biz}. Is it about your MOT?"],['c','Yes it runs out next week'],['a','Thursday 09:00 or Friday 13:00?'],['c','Thursday'],['a',"Booked: MOT, Thursday 09:00, £54.85. Leave the car with us and we'll text you when it's done."]]},
+  {t:'09:40', ch:'form', who:'Ms Lewis', secs:42, msg:'Car is making a grinding noise when I brake', out:'booked', urgent:true, slot:'Today 15:00', what:'Brake check', val:280, conv:[
+    ['a',"That's worth checking quickly. Try to keep driving to a minimum. We can do a free brake check today at 15:00. Shall I book it?"],['c','Yes please'],['a',"Booked for 15:00 today. If it needs pads or discs, we'll call you with a price before doing anything."]]},
+  {t:'11:05', ch:'wa', who:'Callum', secs:39, msg:'How much for a clutch on a 2017 Focus?', out:'booked', slot:'Wed 08:30', what:'Clutch inspection', val:0, closer:true, pipeline:650, conv:[
+    ['a',"A clutch on a 2017 Focus is usually £550 to £750 fitted. We'd want a quick look first to confirm it's the clutch. Wednesday at 08:30?"],['c','OK'],['a',"Booked: clutch inspection, Wednesday 08:30. We'll send you an exact quote after."]]},
+  {t:'12:20', ch:'fb', who:'Aisha', secs:55, msg:'Do you repair Teslas?', out:'declined', conv:[
+    ['a',"Thanks for asking, Aisha. We're not an EV specialist, so we'd recommend a Tesla-approved centre for that. Sorry we can't help this time."]]},
+  {t:'13:10', ch:'email', who:'Swift Parcels Ltd', from:'Scout', secs:41, msg:'Could you send rates for servicing 12 vans?', out:'needs', what:'Fleet contract (12 vans)', pipeline:2640, closer:true,
+    q:'A courier firm wants fleet rates for 12 vans. Fleet pricing isn\'t on your price list.', opts:['Send my fleet rate card (£220 per van service)','I\'ll call them myself'], conv:[
+    ['a',"Thanks for getting in touch. I'll send our fleet rates shortly."]]},
+  {t:'15:45', ch:'vm', who:'Dave Collins', secs:34, msg:'Warning light came back on after the service', out:'booked', complaint:true, slot:'Fri 08:30', what:'Free recheck', val:0, conv:[
+    ['a',"Sorry about that, Dave. Bring it in and we'll check it free of charge. Friday at 08:30?"],['c','Fine'],['a',"Booked: Friday 08:30, no charge. I've told {owner}."]]},
+  {t:'19:20', ch:'form', who:'Sophie T.', secs:27, msg:'Can I get a service and MOT on Friday?', out:'booked', slot:'Fri 10:00', what:'Service + MOT', val:230, conv:[
+    ['a','Friday at 10:00 is free. A full service with MOT is £230. Shall I book it?'],['c','Yes'],['a','Booked: Friday 10:00.']]}
+ ]},
+ agency:{label:'Agencies', biz:'Northlight Studio', owner:'Alex', ownerBusy:'in client workshops all day', ev:[
+  {t:'08:12', ch:'call', who:'Amira (Brightside Dental)', from:'Scout', secs:32, msg:'Missed call, no voicemail', out:'booked', slot:'Thu 10:00', what:'Website check-up call', val:0, conv:[
+    ['a',"Hi Amira, sorry we missed you, {owner}'s in a workshop. I'm the booking assistant at {biz}. Was it about the website check-up?"],['c','Yes, keen to chat'],['a','Thursday 10:00 or Friday 15:00 for a 20-minute call?'],['c','Thursday'],['a','Booked: Thursday 10:00. You\'ll get a video link by email.']]},
+  {t:'09:40', ch:'form', who:'Harbour Café Ltd', secs:45, msg:'Our website is down and we have a launch tomorrow!', out:'booked', urgent:true, slot:'Today 14:30', what:'Emergency support', val:190, conv:[
+    ['a',"Sorry, that's stressful. I've flagged it as urgent. {owner} can take a support call at 14:30 today. Emergency support is £95 an hour. Shall I book it?"],['c','Yes please'],['a','Booked for 14:30 today. I\'ve sent {owner} your details now.']]},
+  {t:'11:05', ch:'wa', who:'Ollie (Fernhill Gin)', secs:37, msg:'How much for a Shopify store?', out:'booked', slot:'Wed 16:00', what:'Discovery call', val:0, closer:true, pipeline:4500, conv:[
+    ['a',"Most of our Shopify builds are £3,500 to £6,000, depending on products and integrations. A 30-minute discovery call would let {owner} send a fixed proposal. Wednesday at 16:00?"],['c','Sounds good'],['a','Booked: discovery call, Wednesday 16:00.']]},
+  {t:'12:20', ch:'fb', who:'Marta', secs:51, msg:'Do you build mobile apps?', out:'declined', conv:[
+    ['a',"Thanks for asking, Marta. We focus on websites and brands rather than native apps, so we're not the right fit this time. Good luck with it!"]]},
+  {t:'13:10', ch:'email', who:'Kiln & Co Ltd', from:'Scout', secs:43, msg:'Can you send examples and prices for a brand and website?', out:'needs', what:'Brand + website', pipeline:2400, closer:true,
+    q:'A new company wants examples and prices for a brand and website. Your starter package may or may not fit.', opts:['Send portfolio + starter package (£2,400)','I\'ll call them myself'], conv:[
+    ['a','Thanks for getting in touch. I\'ll send some examples and our packages shortly.']]},
+  {t:'15:45', ch:'vm', who:'Helen (Jones Legal)', secs:36, msg:'The contact form on our site has stopped sending', out:'booked', complaint:true, slot:'Fri 09:00', what:'Bug fix (care plan)', val:0, conv:[
+    ['a',"Sorry, Helen, we'll fix that under your care plan. {owner} has a slot on Friday at 09:00, and I've flagged it."],['c','Thanks'],['a','Booked: Friday 09:00, no charge.']]},
+  {t:'19:20', ch:'form', who:'Rob (Marlow Physio)', secs:30, msg:'Thinking about a booking page for our second clinic', out:'booked', slot:'Fri 11:00', what:'Discovery call', val:0, closer:true, pipeline:1800, conv:[
+    ['a',"Great to hear from you, Rob. A 30-minute call would let {owner} scope it. Friday at 11:00?"],['c','Yes'],['a','Booked: Friday 11:00.']]}
+ ]}
+};
+const sector = S[P.get('sector')] ? P.get('sector') : 'trades';
+const X = S[sector];
+const biz = () => P.get('biz') || X.biz;
+const owner = () => P.get('name') || X.owner;
+const sub = t => t.replace(/\{biz\}/g, biz()).replace(/\{owner\}/g, owner());
+
+/* ===== state ===== */
+let auto = 1, idx = 0, paused = false, timer = null, cdTimer = null, waiting = null, taps = 0;
+const decision = {}; // event index -> 'ok' | option index
+const handled = new Set();
+const log = [];
+
+/* ===== the day ===== */
+const STEPS = [{kind:'intro'}].concat(X.ev.map((e,i)=>({kind:'ev', i}))).concat([{kind:'hand'},{kind:'report'}]);
+
+const chat = () => $('#chat');
+function scrollEnd(){ if (!$('#v-feed').classList.contains('on')) return; window.scrollTo({top:document.body.scrollHeight, behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth'}); }
+function bubble(inner, t, cls, id){ chat().insertAdjacentHTML('beforeend', `<div class="msg ${cls||''}" ${id?`id="${id}"`:''}>${inner}<div class="tm">${t}</div></div>`); scrollEnd(); }
+function typing(){ chat().insertAdjacentHTML('beforeend','<div class="typing" id="typ"><i></i><i></i><i></i></div>'); scrollEnd(); }
+function untype(){ const t = $('#typ'); if (t) t.remove(); }
+
+function needsOwner(e){ return e.out === 'needs'; }
+function isWaiting(i){ return waiting === i; }
+
+function evCard(e, i){
+  const [ic, chName] = CH[e.ch];
+  const tags = [e.from?`<span class="tg sc">from ${e.from}</span>`:'', e.urgent?'<span class="tg ur">urgent</span>':'', e.complaint?'<span class="tg cp">complaint</span>':''].join('');
+  return `<div class="card enq" id="e-${i}"><button class="enqh" data-conv="${i}" aria-label="Open conversation">
+      <div class="ct">${ic} ${esc(e.who)} ${tags}</div><div class="cs">${chName}: "${esc(e.msg)}"</div></button>
+    <div id="ctl-${i}"></div></div>`;
+}
+function result(e, i){
+  if (e.out === 'booked') return `<div class="done ok">✓ Replied in ${e.secs}s · Booked ${esc(e.slot)}: ${esc(e.what)}${e.val?' · '+gbp(e.val):''}${e.urgent?' · you\'ve been texted':''}${e.complaint?' · flagged to you':''}</div>`;
+  if (e.out === 'declined') return `<div class="done skip">✓ Replied in ${e.secs}s · Politely turned down (${/cover/i.test(e.msg)?'outside your area':'not a service you offer'})</div>`;
+  if (e.out === 'needs'){ const d = decision[i]; return d === 1 ? `<div class="done wait">✓ Replied in ${e.secs}s · You're calling them. Added to your list for today.</div>` : `<div class="done ok">✓ Replied in ${e.secs}s · Sent: ${esc(e.opts[0])}</div>`; }
+  return '';
+}
+function setCtl(i, h){ const c = $('#ctl-'+i); if (c){ c.innerHTML = h; scrollEnd(); } }
+
+function runEvent(i){
+  const e = X.ev[i];
+  bubble(evCard(e, i), e.t);
+  if (auto === 0){ // every reply waits
+    waiting = i; updateNav();
+    if (needsOwner(e)) askOwner(i); else setCtl(i, `<div class="pv">${esc(sub(e.conv.find(c=>c[0]==='a')[1]))}</div><div class="acts"><button class="yes" data-send="${i}">Send reply</button><button data-conv="${i}">See full chat</button></div><div class="done wait">Reply drafted. Waiting for your OK.</div>`);
+    return true;
+  }
+  if (needsOwner(e) && auto === 2){ decision[i] = 0; finishEvent(i, true); return false; }
+  if (needsOwner(e)){ waiting = i; updateNav(); askOwner(i); return true; }
+  finishEvent(i, true); return false;
+}
+function askOwner(i){
+  const e = X.ev[i];
+  const btns = `<div class="q">❓ ${esc(e.q)}</div><div class="acts col">${e.opts.map((o,k)=>`<button class="${k===0?'yes':''}" data-opt="${i}:${k}">${esc(o)}</button>`).join('')}</div>`;
+  if (auto === 1){
+    const secs = 7;
+    setCtl(i, btns + `<div class="small" style="margin-top:6px">If you don't answer within ${secs}s (2 hours in real life), I'll go with the first option.</div><div class="cd"><i id="cd-${i}"></i></div>`);
+    requestAnimationFrame(()=>{ const bar = $('#cd-'+i); if (bar){ bar.style.transitionDuration = secs+'s'; bar.style.width = '0%'; } });
+    clearTimeout(cdTimer); cdTimer = setTimeout(()=>{ if (waiting === i && !paused) choose(i, 0, true); }, secs*1000);
+  } else setCtl(i, btns + `<div class="done wait">This one needs you.</div>`);
+}
+function choose(i, k, byAgent){
+  if (handled.has(i)) return;
+  clearTimeout(cdTimer); decision[i] = k; if (!byAgent) taps++;
+  if (!byAgent) bubble(`<p>${k===0?'Yes: '+esc(X.ev[i].opts[0].split(' (')[0].toLowerCase()):'I\'ll call them'}</p>`, X.ev[i].t, 'me');
+  finishEvent(i, byAgent);
+}
+function finishEvent(i, byAgent){
+  const e = X.ev[i]; if (handled.has(i)) return;
+  handled.add(i); if (decision[i] == null) decision[i] = 'ok';
+  setCtl(i, result(e, i));
+  log.push(`${e.t} ${CH[e.ch][1]} from ${e.who}: ${e.out==='booked'?'booked '+e.slot:e.out==='declined'?'turned down politely':'handled with you'}`);
+  const wasWaiting = waiting === i; waiting = null; updateNav(); renderPipe();
+  if (wasWaiting && !paused) schedule(700);
+}
+function sendReply(i){ taps++; finishEvent(i, false); }
+
+function convSheet(i){
+  const e = X.ev[i], [ic, chName] = CH[e.ch];
+  const lines = e.conv.map(([w,t])=>`<div class="cl ${w}">${esc(sub(t))}</div>`).join('');
+  openSheet(head(`${ic} ${esc(e.who)}`) + `<div class="small" style="margin-bottom:8px">${chName} at ${e.t}. Frontdesk replied in ${e.secs} seconds.</div><div class="convo"><div class="cl c">${esc(e.msg)}</div>${lines}</div>`);
+}
+
+function handCard(){
+  const L = X.ev.map((e,i)=>({e,i})).filter(o=>o.e.closer && handled.has(o.i) && !(o.e.out==='needs' && decision[o.i]===1));
+  if (!L.length) return '';
+  return `<div class="card hand"><div class="ct">🤝 Passed to Closer (agent 3)</div><div class="cs">These need a written quote. Closer sends it and follows it up on day 3, 7 and 14.</div><ul>${L.map(o=>`<li><b>${esc(o.e.who)}</b>: ${esc(o.e.what)} (about ${gbp(o.e.pipeline)})</li>`).join('')}</ul></div>`;
+}
+function stats(){
+  const done = X.ev.filter((e,i)=>handled.has(i));
+  const booked = done.filter(e=>e.out==='booked');
+  const avg = done.length ? Math.round(done.reduce((a,e)=>a+e.secs,0)/done.length) : 0;
+  const val = booked.reduce((a,e)=>a+(e.val||0),0);
+  const pipe = X.ev.reduce((a,e,i)=>a+((e.closer && handled.has(i) && !(e.out==='needs'&&decision[i]===1))?e.pipeline:0),0);
+  const agentTasks = done.reduce((a,e)=>a+e.conv.filter(c=>c[0]==='a').length+1,0) + booked.length; // replies + reading + diary entries
+  const pct = (taps+agentTasks) ? taps/(taps+agentTasks)*100 : 0;
+  return {done, booked, avg, val, pipe, agentTasks, pct};
+}
+function reportCard(){
+  const s = stats();
+  return `<div class="card"><div class="ct">📊 Your day with Frontdesk</div>
+    <div class="stats"><div><b>${s.done.length}/${X.ev.length}</b><small>enquiries answered</small></div><div><b>${s.avg}s</b><small>average reply time</small></div>
+    <div><b>${s.booked.length}</b><small>booked into your diary (${gbp(s.val)})</small></div><div><b>${gbp(s.pipe)}</b><small>passed to Closer to quote</small></div>
+    <div><b>${s.pct.toFixed(0)}%</b><small>of the work done by you</small></div><div><b>${taps}</b><small>${taps===1?'tap':'taps'} from you all day</small></div></div>
+    <div class="cs" style="margin-top:8px">Figures are sample data for the demo.</div></div>`;
+}
+
+function next(){
+  timer = null;
+  if (paused || waiting != null) return;
+  if (idx >= STEPS.length){ finish(); return; }
+  const s = STEPS[idx++]; progress();
+  if (s.kind === 'hand' && !handCard()){ schedule(10); return; }
+  if (s.kind === 'intro'){ chat().insertAdjacentHTML('beforeend', `<div class="day"><span>Tuesday</span></div>`); bubble(`<p>Morning ${esc(owner())}. You're ${esc(X.ownerBusy)}, so I'll look after enquiries. I'll only message you if something needs you.</p>`, '07:55'); schedule(1100); return; }
+  typing();
+  timer = setTimeout(()=>{
+    untype();
+    if (s.kind === 'ev'){ if (runEvent(s.i)) return; }
+    else if (s.kind === 'hand') bubble(handCard(), '18:00');
+    else if (s.kind === 'report') bubble(reportCard(), '18:01');
+    renderPipe(); schedule(1250);
+  }, 700);
+}
+function schedule(ms){ clearTimeout(timer); timer = setTimeout(next, ms); }
+function progress(){ $('#prog').style.width = (idx/STEPS.length*100)+'%'; }
+function finish(){
+  progress(); $('#pp').textContent = '↺ Replay';
+  if (!finish.shown){ finish.shown = true; bubble(`<p>Want me answering ${esc(biz())}'s enquiries? I'll learn your prices, diary and areas first, and start on "ask me first" until you trust me.</p><div class="acts"><button class="yes" data-hire>Put Frontdesk to work</button></div>`, 'now'); }
+}
+function restart(){
+  clearTimeout(timer); clearTimeout(cdTimer);
+  Object.keys(decision).forEach(k=>delete decision[k]); handled.clear(); log.length = 0;
+  idx = 0; taps = 0; waiting = null; paused = false; finish.shown = false;
+  chat().innerHTML = ''; $('#pp').textContent = '⏸ Pause';
+  renderPipe(); updateNav(); progress(); schedule(400);
+}
+function updateNav(){ const c = $('#navCnt'); c.hidden = waiting == null; c.textContent = '1'; renderOvr(); }
+function renderOvr(){
+  const s = stats();
+  $('#ovr').innerHTML = `<div><b>${s.done.length}</b><small>answered</small></div><div><b>${s.avg}s</b><small>avg reply</small></div><div><b>${s.booked.length}</b><small>booked</small></div><div class="${waiting!=null?'need':''}"><b>${waiting!=null?1:0}</b><small>needs you</small></div>`;
+}
+
+/* ===== overview ===== */
+function renderPipe(){
+  renderOvr();
+  const s = stats();
+  $('#kpis').innerHTML = `<div class="kpi"><div class="l">Answered</div><div class="v">${s.done.length}/${X.ev.length}</div></div><div class="kpi"><div class="l">Avg reply</div><div class="v">${s.avg}s</div></div><div class="kpi"><div class="l">Booked</div><div class="v">${s.booked.length} · ${gbp(s.val)}</div></div><div class="kpi"><div class="l">Your share of work</div><div class="v">${s.pct.toFixed(0)}%</div></div>`;
+  const bk = X.ev.map((e,i)=>({e,i})).filter(o=>o.e.out==='booked' && handled.has(o.i));
+  const order = ['Today','Wed','Thu','Fri','Sat'];
+  bk.sort((a,b)=>order.indexOf(a.e.slot.split(' ')[0])-order.indexOf(b.e.slot.split(' ')[0]) || a.e.slot.localeCompare(b.e.slot));
+  $('#diary').innerHTML = bk.length ? bk.map(o=>`<div class="dr"><span class="dt">${esc(o.e.slot)}</span><span>${esc(o.e.what)} · ${esc(o.e.who)}${o.e.urgent?' <span class="tg ur">urgent</span>':''}${o.e.complaint?' <span class="tg cp">fix</span>':''}</span><span class="n">${o.e.val?gbp(o.e.val):'—'}</span></div>`).join('') : '<div class="small">Nothing booked yet.</div>';
+  $('#effTxt').textContent = `Frontdesk: ${s.agentTasks} tasks (reading enquiries, ${s.done.reduce((a,e)=>a+e.conv.filter(c=>c[0]==='a').length,0)} replies, diary entries). You: ${taps} ${taps===1?'tap':'taps'}. Target: under 5%.`;
+  $('#meter').innerHTML = `<i style="width:${100-s.pct}%;background:var(--brand2)"></i><i style="width:${s.pct}%;background:var(--accent)"></i>`;
+  const chans = {};
+  X.ev.forEach((e,i)=>{ if (!handled.has(i)) return; const k = CH[e.ch][1].replace('Voicemail','Missed call'); chans[k] = (chans[k]||0)+1; });
+  const max = Math.max(1, ...Object.values(chans));
+  $('#funnel').innerHTML = '<b>Where enquiries came from</b>' + (Object.keys(chans).length ? Object.entries(chans).map(([k,v])=>`<div class="fr"><span>${k}</span><div class="bar"><i style="width:${v/max*100}%"></i></div><span class="n">${v}</span></div>`).join('') : '<div class="small" style="margin-top:6px">None yet.</div>');
+  const L = X.ev.map((e,i)=>({e,i})).filter(o=>o.e.closer && handled.has(o.i) && !(o.e.out==='needs' && decision[o.i]===1));
+  $('#handList').innerHTML = L.length ? L.map(o=>`<div style="padding:6px 0;border-top:1px solid var(--line);font-size:14px"><b>${esc(o.e.who)}</b> <span class="small">· ${esc(o.e.what)} · about ${gbp(o.e.pipeline)}</span></div>`).join('') : '<div class="small">Nothing yet.</div>';
+}
+const AGENTS = [
+  ['S','Scout','Finds new work: win-back, reviews, referrals, Google profile, local B2B outreach.','demo'],
+  ['F','Frontdesk','Answers every call, form and WhatsApp within 2 minutes, qualifies the job and books the visit.','live'],
+  ['C','Closer','Sends the quote, follows it up on day 3, 7 and 14, and turns a yes into a booked job.','demo'],
+  ['$','Collector','Invoices, chases politely then firmly, adds late-payment interest for business clients, tells you when money lands.','demo'],
+  ['K','Keeper','Remembers when each customer is next due (service, MOT, colour, renewal) and fills your diary with repeat work.','demo'],
+  ['B','Bookkeeper','Reads your receipts, codes them to jobs, keeps job profit up to date and prepares your quarterly Making Tax Digital update.','demo']
+];
+$('#chain').innerHTML = AGENTS.map(([b,n,d,s])=>`<div class="ag ${s==='live'?'me':''}"><div class="b">${b}</div><div><h3>${n} <span class="tag ${s==='live'?'live':''}">${s==='live'?'You are here':s==='next'?'Coming next':s==='demo'?'Demo ready':'Coming soon'}</span></h3><p>${d}</p></div></div>`).join('') + `<div class="note">For trades, all six agents work on top of <a href="../ui_01_siteledger_quote_jobcost/index.html?play=workflow" target="_blank" rel="noopener">SiteLedger</a>, which holds the quotes, jobs, costs, invoices and tax records, so you can see the detail behind anything an agent did.</div>`
+
+/* ===== sheets & hire form ===== */
+function openSheet(h){ $('#sheet').innerHTML = h; $('#scrim').classList.add('on'); }
+function closeSheet(){ $('#scrim').classList.remove('on'); }
+const head = t => `<div class="sh"><h3>${t}</h3><button class="x" data-close aria-label="Close">×</button></div>`;
+function openHire(){
+  openSheet(head('Put Frontdesk to work') + `
+  <div class="small" style="margin-bottom:6px">We'll set Frontdesk up with your prices, diary, areas and wording, on "ask me first", and run the first week with you. No card needed.</div>
+  <form id="hf" novalidate>
+    <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off">
+    <label class="f" for="hName">Your name *</label><input class="in" id="hName" name="name" autocomplete="name" value="${esc(P.get('name')||'')}">
+    <label class="f" for="hBiz">Business name *</label><input class="in" id="hBiz" name="business" autocomplete="organization" value="${esc(P.get('biz')||'')}">
+    <label class="f" for="hEmail">Email *</label><input class="in" id="hEmail" name="email" type="email" autocomplete="email">
+    <label class="f" for="hPhone">Mobile for WhatsApp (optional)</label><input class="in" id="hPhone" name="phone" type="tel" autocomplete="tel">
+    <div class="inline"><div><label class="f" for="hSec">Type of business</label><select class="in" id="hSec" name="sector">${Object.keys(S).map(k=>`<option ${k===sector?'selected':''}>${S[k].label}</option>`).join('')}<option>Other</option></select></div>
+    <div><label class="f" for="hMiss">Enquiries you miss a week</label><select class="in" id="hMiss" name="missed_per_week"><option>Not sure</option><option>1–5</option><option>6–15</option><option>15+</option></select></div></div>
+    <label class="f" for="hMsg">Where do most enquiries come in? (optional)</label>
+    <textarea class="in" id="hMsg" name="message" style="min-height:80px" placeholder="e.g. phone while I'm on jobs, Facebook, Checkatrade"></textarea>
+    <div class="err" id="hErr" hidden></div>
+    <button class="btn acc block" style="margin-top:14px" id="hSend" type="submit">Send</button>
+    <div class="small" style="margin-top:8px">We'll only use these details to contact you about this. The Tech Principle, London.</div>
+  </form>`);
+  $('#hf').onsubmit = submitHire;
+}
+async function submitHire(e){
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target).entries()), err = $('#hErr'), btn = $('#hSend');
+  if (data._honey) return; delete data._honey; err.hidden = true;
+  if (!data.name.trim() || !data.business.trim()){ err.textContent = 'Please add your name and business name.'; err.hidden = false; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)){ err.textContent = 'Please check your email address.'; err.hidden = false; return; }
+  const payload = Object.assign({
+    _subject:'Frontdesk request: ' + data.business, _template:'table', _captcha:'false',
+    app:CFG.app, campaign_source:P.get('src')||'direct', campaign_id:P.get('cid')||'', emailed_business:P.get('biz')||'',
+    demo_sector_viewed:X.label, autonomy_chosen:['Ask me first','Only ask if unsure','Just do it'][auto],
+    demo_taps:String(taps), demo_day_finished: idx >= STEPS.length ? 'yes' : 'no', page:location.href, submitted_at:new Date().toISOString()
+  }, data);
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try{
+    const r = await fetch(CFG.formEndpoint, {method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body:JSON.stringify(payload)});
+    const j = await r.json().catch(()=>({}));
+    if (!r.ok || String(j.success) === 'false') throw new Error('fail');
+    openSheet(head('Sent') + `<div class="ok-state"><div style="font-size:42px">✅</div><h3>Thanks, ${esc(data.name.split(' ')[0])}.</h3><p class="small">We'll be in touch within one working day to set Frontdesk up for ${esc(data.business)}.</p><button class="btn sec" data-close>Back to the demo</button></div>`);
+  }catch(ex){
+    btn.disabled = false; btn.textContent = 'Send';
+    const body = encodeURIComponent(Object.entries(payload).filter(([k])=>k[0]!=='_').map(([k,v])=>k+': '+v).join('\n'));
+    err.innerHTML = `Couldn't send just now. <a href="mailto:${CFG.fallbackEmail}?subject=${encodeURIComponent(payload._subject)}&body=${body}">Email it instead</a> (${CFG.fallbackEmail}).`;
+    err.hidden = false;
+  }
+}
+
+/* ===== events ===== */
+function go(v){ document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on', x.id==='v-'+v)); document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on', b.dataset.v===v)); if (v!=='feed') window.scrollTo(0,0); else scrollEnd(); }
+function rearm(){ if (waiting != null && auto===1 && !paused && needsOwner(X.ev[waiting])) askOwner(waiting); }
+document.addEventListener('click', e=>{
+  const t = e.target.closest('button,a'); if (!t) return;
+  const d = t.dataset;
+  if (d.v) go(d.v);
+  else if (d.conv != null) convSheet(Number(d.conv));
+  else if (d.send != null) sendReply(Number(d.send));
+  else if (d.opt){ const [i,k] = d.opt.split(':').map(Number); choose(i, k, false); }
+  else if (d.auto != null){ auto = Number(d.auto); document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on', b===t)); toast(['Frontdesk drafts every reply and waits for your OK','Frontdesk replies on its own and only asks when unsure','Frontdesk handles everything and reports back'][auto]);
+    if (waiting != null){ const i = waiting; if (auto===2){ choose(i,0,true); } else if (auto===1 && !needsOwner(X.ev[i])){ finishEvent(i,true); } else if (needsOwner(X.ev[i])) askOwner(i); } updateNav(); }
+  else if (d.sector){ const u = new URL(location); u.searchParams.set('sector', d.sector); location.href = u.toString(); }
+  else if ('hire' in d) openHire();
+  else if ('close' in d){ closeSheet(); rearm(); }
+  else if (t.id === 'pp'){ if (idx >= STEPS.length && waiting == null){ restart(); return; } paused = !paused; t.textContent = paused ? '▶ Play' : '⏸ Pause'; if (!paused){ if (waiting != null) rearm(); else schedule(200); } else { clearTimeout(timer); clearTimeout(cdTimer); } }
+  else if (t.id === 'skip'){ if (waiting != null){ needsOwner(X.ev[waiting]) ? choose(waiting,0,true) : finishEvent(waiting,true); } else { clearTimeout(timer); untype(); next(); } }
+  else if (t.id === 'replay') restart();
+});
+$('#scrim').addEventListener('click', e=>{ if (e.target.id==='scrim'){ closeSheet(); rearm(); } });
+document.addEventListener('keydown', e=>{ if (e.key==='Escape'){ closeSheet(); rearm(); } });
+
+/* ===== boot ===== */
+$('#chips').innerHTML = Object.keys(S).map(k=>`<button data-sector="${k}" class="${k===sector?'on':''}">${S[k].label}</button>`).join('');
+$('#stLine').textContent = 'answers every enquiry for ' + biz() + ' · online';
+$('#ctaT').textContent = 'Put Frontdesk to work for ' + (P.get('biz') || 'your business');
+if (['0','1','2'].includes(P.get('auto'))){ auto = Number(P.get('auto')); document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on', Number(b.dataset.auto)===auto)); }
+renderPipe(); restart();
+if (P.get('hire') === '1') setTimeout(openHire, 400);
+}
+
+</script>
+</body>
+</html>

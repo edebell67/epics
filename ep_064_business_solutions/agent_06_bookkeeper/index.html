@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<!--
+  epics/ep_064_business_solutions/agent_06_bookkeeper/index.html — Bookkeeper: books & tax agent demo (agent 6 of 6) for cold-email demand testing
+
+  VERSION HISTORY
+  v1.0.0 · 2026-11-27 · Initial version: a month played in about a minute. Receipts read and coded to jobs and categories (unclear one matched from the diary),
+                        bank feed reconciled with personal spend excluded, mileage logged from the diary at 45p, job profit with a pricing tip,
+                        tax set-aside estimate, Making Tax Digital quarterly update that always needs the owner's OK (submit, or send to the accountant first).
+                        Overview with spend by category, job profit, MTD status, effort meter and log. Trades version links to SiteLedger (?play=tax). Shared engine.
+-->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bookkeeper · books and tax done as you go</title>
+<meta name="description" content="Bookkeeper is an AI agent that reads your receipts, codes them to jobs, keeps job profit up to date and prepares your quarterly Making Tax Digital update for your OK.">
+<meta name="theme-color" content="#243746">
+<style>
+:root{
+  --ink:#122220; --ink2:#4a5f5b; --mute:#7d8f8b; --line:#e1e8e6; --bg:#eff2f4; --card:#fff;
+  --brand:#243746; --brand2:#3d5a6e; --accent:#f2a93b; --accent-ink:#4a2f00;
+  --chat:#e8edf0; --me:#d9f4c7; --ok:#1d8a5a; --ok-bg:#e3f4ec; --warn:#b86e00; --warn-bg:#fdf1dc; --bad:#b03a2e; --bad-bg:#fbe7e4; --info:#2463a6; --info-bg:#e5eef9;
+  --r:14px; --sh:0 1px 2px rgba(16,32,31,.06),0 4px 14px rgba(16,32,31,.07); --nav:62px;
+}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;padding-bottom:calc(var(--nav) + 104px)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:720px;margin:0 auto;padding:0 12px}
+
+header.top{background:var(--brand);color:#fff;padding:12px 0 14px;position:sticky;top:0;z-index:20}
+.top .row{display:flex;align-items:center;gap:10px}
+.av{width:40px;height:40px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:800;font-size:17px;flex:none;position:relative}
+.av::after{content:"";position:absolute;right:0;bottom:0;width:11px;height:11px;border-radius:50%;background:#5ee08a;border:2px solid var(--brand)}
+.nm{font-weight:750;font-size:16.5px}
+.st{font-size:12.5px;opacity:.82}
+.sp{flex:1}
+.pill{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:7px 12px;font-size:13px;min-height:36px;white-space:nowrap}
+.pill.solid{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.chips{display:flex;gap:6px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;border-radius:999px;padding:5px 11px;font-size:12.5px;min-height:32px;opacity:.85}
+.chips button.on{background:#fff;color:var(--brand);opacity:1;font-weight:700}
+.settings{background:var(--brand);color:#fff;border-radius:14px;padding:4px 10px 10px;margin-bottom:8px}
+.auto{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12.5px}
+.seg{display:flex;background:rgba(255,255,255,.1);border-radius:10px;padding:3px;flex:1}
+.seg button{flex:1;border:0;background:transparent;color:#fff;border-radius:8px;padding:6px 4px;font-size:12.5px;min-height:32px;opacity:.85}
+.seg button.on{background:#fff;color:var(--brand);font-weight:700;opacity:1}
+
+.view{display:none}.view.on{display:block}
+main{padding-top:12px}
+
+/* chat */
+.chat{background:var(--chat);border-radius:18px;padding:12px 10px 16px;min-height:60vh;background-image:radial-gradient(rgba(36,55,70,.06) 1px,transparent 1px);background-size:14px 14px}
+.day{text-align:center;margin:14px 0 8px}
+.day span{background:#fff;border-radius:8px;padding:3px 10px;font-size:12px;color:var(--ink2);box-shadow:0 1px 1px rgba(0,0,0,.06)}
+.msg{max-width:88%;background:#fff;border-radius:4px 14px 14px 14px;padding:9px 11px 6px;margin:6px 0;box-shadow:0 1px 1px rgba(0,0,0,.07);animation:pop .22s ease}
+.msg.me{margin-left:auto;background:var(--me);border-radius:14px 4px 14px 14px}
+.msg.sys{max-width:100%;background:transparent;box-shadow:none;text-align:center;font-size:12.5px;color:var(--ink2);padding:2px}
+@keyframes pop{from{transform:translateY(6px);opacity:0}}
+.msg .tm{font-size:11px;color:var(--mute);text-align:right;margin-top:2px}
+.msg p{margin:0 0 4px}
+.msg b{font-weight:650}
+.card{border:1px solid var(--line);border-radius:12px;padding:10px;margin:6px 0 4px;background:#fbfcfb}
+.card .ct{font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px}
+.card .cs{font-size:12.5px;color:var(--ink2);margin-top:2px}
+.pv{white-space:pre-wrap;background:#fff;border-left:3px solid var(--brand2);padding:8px 10px;margin:8px 0;font-size:13.5px;border-radius:0 8px 8px 0}
+.who{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.who span{background:#eef3f1;border-radius:999px;padding:2px 8px;font-size:12px}
+.acts{display:flex;gap:6px;margin-top:8px}
+.acts button{flex:1;border:0;border-radius:9px;min-height:40px;font-weight:650;font-size:13.5px;background:#eef2f1}
+.acts button.yes{background:var(--brand);color:#fff}
+.done{font-size:12.5px;font-weight:650;margin-top:8px;padding:6px 9px;border-radius:8px}
+.done.ok{background:var(--ok-bg);color:var(--ok)} .done.skip{background:#eef2f1;color:var(--ink2)} .done.wait{background:var(--warn-bg);color:var(--warn)}
+.cd{height:4px;background:#e9efec;border-radius:2px;overflow:hidden;margin-top:8px}
+.cd i{display:block;height:100%;background:var(--accent);width:100%;transition:width linear}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
+.stats div{background:#f2f6f4;border-radius:9px;padding:7px 9px}
+.stats b{display:block;font-size:19px;font-variant-numeric:tabular-nums}
+.stats small{font-size:11.5px;color:var(--ink2)}
+.hand{border:1px dashed var(--brand2);background:#f3faf7}
+.hand ul{margin:6px 0 0;padding-left:18px;font-size:13.5px}
+.typing{display:inline-flex;gap:4px;background:#fff;border-radius:14px;padding:10px 12px;margin:6px 0;box-shadow:0 1px 1px rgba(0,0,0,.07)}
+.typing i{width:7px;height:7px;border-radius:50%;background:#9fb0ab;animation:bl 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bl{50%{opacity:.25}}
+.playbar{display:flex;gap:8px;align-items:center;margin:10px 0 2px}
+.playbar .prog{flex:1;height:6px;background:#dfe7e3;border-radius:3px;overflow:hidden}
+.playbar .prog i{display:block;height:100%;background:var(--brand2);transition:width .3s}
+.btn{border:0;border-radius:11px;padding:10px 14px;min-height:44px;font-weight:650;background:var(--brand);color:#fff}
+.btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.acc{background:var(--accent);color:var(--accent-ink)}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:13.5px;border-radius:9px}
+.btn.block{width:100%}
+
+/* panels */
+h2{font-size:19px;margin:4px 0 6px}
+.sub{color:var(--ink2);font-size:13.5px;margin:0 0 12px}
+.panel{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-bottom:12px}
+.funnel .fr{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) 3.4em;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.funnel .fr:last-child{border:0}
+.funnel .bar{height:12px;background:#edf2f0;border-radius:6px;overflow:hidden}
+.funnel .bar i{display:block;height:100%;background:var(--brand2);border-radius:6px;transition:width .4s}
+.funnel .fr.off{opacity:.45}
+.funnel .n{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.kpi{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:11px 12px}
+.kpi .l{font-size:11.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.3px}
+.kpi .v{font-size:22px;font-weight:750;font-variant-numeric:tabular-nums}
+.chain{display:flex;flex-direction:column;gap:0}
+.ag{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:start;position:relative;padding-bottom:16px}
+.ag:not(:last-child)::before{content:"";position:absolute;left:21px;top:44px;bottom:0;width:2px;background:var(--line)}
+.ag .b{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:#e8eeec;color:var(--ink2)}
+.ag.me .b{background:var(--accent);color:var(--accent-ink)}
+.ag h3{margin:2px 0 2px;font-size:15.5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ag p{margin:0;font-size:13.5px;color:var(--ink2)}
+.tag{font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;background:#eef2f1;color:var(--ink2)}
+.tag.live{background:var(--accent);color:var(--accent-ink)}
+.rules li{margin:6px 0;font-size:14px}
+.note{font-size:12.5px;color:var(--ink2);background:#f0f5f3;border-radius:10px;padding:10px 12px;margin-top:10px}
+
+.ovr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;background:#fff;border-radius:12px;padding:6px;margin-top:10px;border:0;width:100%;text-align:center;color:var(--ink)}
+.ovr div{padding:2px}.ovr b{display:block;font-size:16px;font-variant-numeric:tabular-nums}.ovr small{font-size:10.5px;color:var(--ink2)}
+.ovr .need b{color:var(--bad)}
+.item{border-top:1px solid var(--line);padding:8px 0}
+.item:first-of-type{border-top:0}
+.item .ih{display:flex;gap:9px;align-items:flex-start}
+.tog{flex:none;width:24px;height:24px;border-radius:7px;border:2px solid var(--brand2);background:var(--brand2);color:#fff;font-size:14px;line-height:1;display:grid;place-items:center;padding:0}
+.tog.off{background:#fff;color:transparent}
+.item.off .it{text-decoration:line-through;color:var(--mute)}
+.it{font-weight:650;font-size:14px}
+details summary{cursor:pointer;font-size:12.5px;color:var(--brand2);margin-top:4px}
+.edl{border:0;background:none;color:var(--brand2);font-size:12.5px;padding:2px 0;text-decoration:underline}
+.meter{height:14px;background:#edf2f0;border-radius:7px;overflow:hidden;display:flex}
+.meter i{display:block;height:100%}
+.log li{font-size:13.5px;margin:4px 0}
+nav.bottom{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);z-index:30}
+nav.bottom .wrap{display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav);padding:0}
+nav.bottom button{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11.5px;color:var(--mute);position:relative}
+nav.bottom .ic{font-size:19px;line-height:1}
+nav.bottom button.on{color:var(--brand);font-weight:700}
+nav.bottom .cnt{position:absolute;top:7px;left:calc(50% + 6px);background:var(--bad);color:#fff;border-radius:999px;font-size:10.5px;padding:0 5px;min-width:17px;height:17px;line-height:17px;font-weight:700}
+.cta{position:fixed;left:0;right:0;bottom:var(--nav);z-index:29;padding:8px 0;background:linear-gradient(180deg,rgba(239,242,244,0),var(--bg) 40%)}
+.cta .box{display:flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border-radius:14px;padding:8px 8px 8px 14px;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.cta .box span{flex:1;font-size:13.5px;line-height:1.3}
+.cta .box b{display:block}
+
+.scrim{position:fixed;inset:0;background:rgba(10,20,20,.45);z-index:50;display:none;align-items:flex-end;justify-content:center}
+.scrim.on{display:flex}
+.sheet{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:8px 16px 18px;animation:up .22s ease}
+@keyframes up{from{transform:translateY(30px);opacity:.4}}
+.grab{width:42px;height:5px;border-radius:3px;background:#d6dfdd;margin:4px auto 10px}
+.sh{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.sh h3{flex:1;margin:0;font-size:17px}
+.x{border:0;background:#eef2f1;border-radius:50%;width:36px;height:36px;font-size:18px}
+label.f{display:block;font-size:12.5px;color:var(--ink2);margin:8px 0 4px;font-weight:600}
+.in{width:100%;border:1px solid #cfdad8;border-radius:10px;padding:10px 11px;background:#fff;min-height:44px;font-size:16px}
+textarea.in{min-height:140px;resize:vertical;font-size:15px}
+.inline{display:flex;gap:8px}
+.inline>div{flex:1}
+.small{font-size:12.5px;color:var(--mute)}
+.err{color:var(--bad);font-size:13px;margin-top:8px}
+.hp{position:absolute;left:-9999px;width:0;height:0;opacity:0}
+.ok-state{text-align:center;padding:18px 4px}
+.toast{position:fixed;left:50%;top:14px;transform:translateX(-50%) translateY(-140%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:80;transition:transform .25s;max-width:92vw}
+.toast.on{transform:translateX(-50%) translateY(0)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (min-width:700px){.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.scrim{align-items:center}.sheet{border-radius:20px}}
+@media (max-width:380px){.st{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}.ovr small{font-size:10px}.ovr b{font-size:15px}}
+@media (max-height:700px){.cta .box span{font-size:13px}.cta .box span>span,.cta .sub2{display:none}.cta{padding:4px 0}.cta .box{padding:6px 6px 6px 12px}header.top{padding:8px 0 10px}.ovr{margin-top:8px;padding:4px}body{padding-bottom:calc(var(--nav) + 70px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.enq .enqh{display:block;width:100%;text-align:left;border:0;background:none;padding:0}
+.tg{font-size:10.5px;font-weight:700;border-radius:999px;padding:1px 7px;background:#eef2f1;color:var(--ink2);margin-left:2px}
+.tg.sc{background:#fff3dc;color:#7a4a00}.tg.ur{background:var(--bad-bg);color:var(--bad)}.tg.cp{background:var(--info-bg);color:var(--info)}
+.q{font-size:13.5px;margin:8px 0 2px;font-weight:600}
+.acts.col{flex-direction:column}.acts.col button{text-align:left;padding:8px 12px}
+.convo{background:var(--chat);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.cl{max-width:85%;padding:8px 10px;border-radius:12px;font-size:14px;background:#fff}
+.cl.c{align-self:flex-start;border-radius:4px 12px 12px 12px}
+.cl.a{align-self:flex-end;background:#d9e4ec;border-radius:12px 4px 12px 12px}
+.dr{display:grid;grid-template-columns:6.5em minmax(0,1fr) auto;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:14px;align-items:baseline}
+.dr:first-child{border-top:0}.dt{font-weight:700;white-space:nowrap}.dr .n{font-variant-numeric:tabular-nums;color:var(--ink2)}
+
+.opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}
+.opt{border:1px solid var(--line);border-radius:10px;padding:8px;background:#fff;display:flex;flex-direction:column;gap:2px;font-size:12.5px}
+.opt b{font-size:13.5px}.opt span{color:var(--ink2);line-height:1.3}.opt em{font-style:normal;font-weight:750;font-size:16px;margin-top:auto;font-variant-numeric:tabular-nums}
+.opt.rec{border:2px solid var(--brand2)}.opt small{color:var(--brand2);font-weight:700;font-size:11px}
+.big{font-size:26px;font-weight:750;font-variant-numeric:tabular-nums;margin:4px 0}
+.card.okc{border-color:#bfe3cf;background:#f3fbf6}.card.skc{background:#f4f4f6}
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:8px}
+.col{background:#f5f4f8;border-radius:10px;padding:6px;min-height:80px}
+.ch{font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:6px}.ch span{background:#fff;border-radius:999px;padding:0 6px;margin-left:2px}
+.qc{background:#fff;border-radius:8px;padding:6px;margin-bottom:6px;font-size:12px;display:flex;flex-direction:column;border-left:3px solid var(--brand2)}
+.qc span{color:var(--ink2);line-height:1.25}.qc em{font-style:normal;font-weight:700;font-variant-numeric:tabular-nums}
+.qc.won{border-left-color:var(--ok)}.qc.lost{border-left-color:var(--bad);opacity:.8}
+@media (max-width:560px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}.col.empty{display:none}.opts{grid-template-columns:1fr}.opt{flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:6px}.opt em{margin-left:auto;margin-top:0}.opt span{flex-basis:100%;order:3}}
+
+.card.wnc{border-color:#f1d9a8;background:#fffaf0}
+.badge{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;white-space:nowrap;vertical-align:1px}
+.b-ok{background:var(--ok-bg);color:var(--ok)}.b-bad{background:var(--bad-bg);color:var(--bad)}.b-info{background:var(--info-bg);color:var(--info)}.b-mute{background:#eef2f1;color:var(--ink2)}
+.ir{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line);font-size:14px}.ir:first-child{border-top:0}.ir>div{flex:1}.ir .n{font-weight:650;font-variant-numeric:tabular-nums}
+.sl{display:inline-flex;align-items:center;gap:6px;margin:0 0 12px;text-decoration:none;font-weight:650;font-size:14px;color:var(--brand2);border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="row">
+    <div class="av">B</div>
+    <div><div class="nm">Bookkeeper</div><div class="st" id="stLine">keeps your books · online</div></div>
+    <div class="sp"></div>
+    <button class="pill" id="replay">↺ Replay</button>
+  </div>
+  <button class="ovr" id="ovr" data-v="pipe" aria-label="Open overview"></button>
+</div></header>
+
+<main class="wrap">
+  <section class="view on" id="v-feed">
+    <div class="settings">
+      <div class="auto"><span>Filing:</span><div class="seg" id="seg">
+        <button data-auto="0">Ask me first</button><button data-auto="1" class="on">Only ask when needed</button><button data-auto="2">Just do it</button>
+      </div></div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="playbar"><button class="btn sm sec" id="pp">⏸ Pause</button><div class="prog"><i id="prog"></i></div><button class="btn sm sec" id="skip">Skip ›</button></div>
+    <div class="chat" id="chat" aria-live="polite"></div>
+    <p class="small" style="text-align:center;margin:10px 0">Demo with sample data. Nothing is sent to HMRC. A month of bookkeeping, played in about a minute.</p>
+  </section>
+
+  <section class="view" id="v-pipe">
+    <h2>Overview</h2>
+    <p class="sub">Your books, live: what you spent, what each job made, what to set aside, and where your tax return stands.</p>
+    <a id="slLink" class="sl" hidden target="_blank" rel="noopener">📒 See the detail in SiteLedger ›</a>
+    <div class="kpis" id="kpis"></div>
+    <div class="panel funnel"><b>Spending this week, by category</b><div id="cats" style="margin-top:4px"></div></div>
+    <div class="panel"><b>Job profit</b><div id="jobs" style="margin-top:6px"></div></div>
+    <div class="panel"><b>Making Tax Digital</b><div id="mtd" style="margin-top:6px"></div></div>
+    <div class="panel"><b>Who did the work</b><div class="small" style="margin:2px 0 8px" id="effTxt"></div><div class="meter" id="meter"></div></div>
+    <div class="panel"><b>What Bookkeeper did</b><ul class="log" id="log"></ul></div>
+  </section>
+
+  <section class="view" id="v-chain">
+    <h2>Six agents, one job each</h2>
+    <p class="sub">Each agent hands over to the next, so nothing that leads to money gets dropped. Start with the one that hurts most.</p>
+    <div class="panel chain" id="chain"></div>
+  </section>
+
+  <section class="view" id="v-rules">
+    <h2>Rules Bookkeeper always follows</h2>
+    <div class="panel"><ul class="rules">
+      <li><b>Every receipt is read, kept digitally and coded</b> to a category and, where it can tell, to the job it was bought for. You never need to keep the paper.</li>
+      <li><b>When it's unsure, it uses your diary and bank feed to work it out,</b> and asks you only if it still can't tell.</li>
+      <li><b>Personal spending is kept out of the business books.</b></li>
+      <li><b>Mileage is logged from the jobs in your diary</b> at HMRC's approved rate.</li>
+      <li><b>Nothing is ever sent to HMRC without your OK,</b> whatever setting you choose, and you can always send it to your accountant first.</li>
+      <li><b>Tax set-aside figures are estimates.</b> Your accountant confirms the real numbers. Bookkeeper works with them, not instead of them.</li>
+    </ul>
+    <div class="note">Making Tax Digital for Income Tax applies to sole traders and landlords above HMRC's income threshold. For limited companies, Bookkeeper keeps the same records ready for VAT returns and year-end accounts. The live version connects to your bank feed and a receipts inbox, and works alongside Xero, QuickBooks or FreeAgent if you use them.</div></div>
+  </section>
+</main>
+
+<div class="cta" id="cta"><div class="wrap"><div class="box"><span><b id="ctaT">Put Bookkeeper to work for your business</b><span class="sub2">Receipts, job profit and tax, done as you go.</span></span><button class="btn acc sm" data-hire>Get started</button></div></div></div>
+
+<nav class="bottom"><div class="wrap">
+  <button data-v="feed" class="on"><span class="ic">💬</span>Bookkeeper<span class="cnt" id="navCnt" hidden></span></button>
+  <button data-v="pipe"><span class="ic">📊</span>Overview</button>
+  <button data-v="chain"><span class="ic">🔗</span>All agents</button>
+  <button data-v="rules"><span class="ic">🛡️</span>Rules</button>
+</div></nav>
+
+<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div id="sheet"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+{
+const AG = {
+  name:'Bookkeeper', app:'Bookkeeper (books & tax agent)', chainIdx:5, status:'keeps the books for', siteledger:'tax',
+  modes:['Ask me first','Only ask when needed','Just do it'],
+  modeToasts:['Bookkeeper checks with you before filing anything away','Bookkeeper files and codes everything itself and only asks when it must','Bookkeeper handles everything (HMRC submissions still need your OK)'],
+  taskWords:'reading receipts, coding them to jobs, matching bank transactions, logging mileage, working out job profit, preparing the quarterly update',
+  hireIntro:"We'll connect Bookkeeper to your bank feed and receipts inbox, set up your job list and categories, and start on \"ask me first\". It works with your accountant, not instead of them. No card needed.",
+  hireQ:['How do you keep your books now?','books_now',['Shoebox of receipts','Spreadsheet','Xero / QuickBooks / FreeAgent','My accountant does it'],'Anything that worries you about Making Tax Digital?','e.g. quarterly updates, keeping receipts, knowing what to set aside'],
+  sectors:{
+    trades:{label:'Trades', biz:'Harris Plumbing & Heating', owner:'Dan', receipts:23, cats:[['Materials',1210],['Fuel',286],['Tools',190],['Other',160]],
+      unclear:'£64 Screwfix receipt with no job written on it', matched:'the job at 14 Elm Rd, since you were booked there that morning',
+      job:{who:'Priya M.', what:'Combi boiler', price:2850, cost:1640}, low:{who:'Mr Grant', what:'Emergency leak', price:140, cost:123, tip:"Your £75 call-out hasn't changed since 2023. Most firms nearby now charge £90–£95."},
+      miles:312, personal:'2 personal payments (streaming subscription, supermarket)', inc:38400, exp:9650},
+    salon:{label:'Salons', biz:'Studio Nine Hair & Beauty', owner:'Sam', receipts:31, cats:[['Products & colour',1480],['Towels & laundry',310],['Equipment',260],['Other',190]],
+      unclear:'£86 Salon Services receipt', matched:"colour stock for this week's bookings",
+      job:{who:'Emma (bride)', what:'Bridal package', price:520, cost:68}, low:{who:'Balayage appointments', what:'Balayage', price:150, cost:132, tip:'Balayage takes about 3.5 hours with product. At £150 it earns less per hour than a cut and colour. Most salons nearby charge £170–£190.'},
+      miles:48, personal:'2 personal payments', inc:41200, exp:14800},
+    garage:{label:'Garages', biz:'Westway Motors', owner:'Raj', receipts:44, cats:[['Parts',5210],['Oils & fluids',480],['Tools',390],['Other',340]],
+      unclear:'£212 Euro Car Parts invoice', matched:'the Focus clutch job, since the part number matches',
+      job:{who:'Callum', what:'Clutch + flywheel', price:890, cost:480}, low:{who:'City Cabs Ltd', what:'Fleet servicing', price:3120, cost:2780, tip:'Parts prices are up about 9% since you set the fleet rate. Worth reviewing at renewal.'},
+      miles:96, personal:'2 personal payments', inc:62500, exp:28900},
+    agency:{label:'Agencies', biz:'Northlight Studio', owner:'Alex', receipts:18, cats:[['Software',640],['Freelancers',520],['Hosting',140],['Other',90]],
+      unclear:'£79 card payment to "PADDLE.NET"', matched:'the font licence for the Kiln & Co brand',
+      job:{who:'Ollie (Fernhill Gin)', what:'Shopify store', price:4800, cost:380}, low:{who:'Harbour Café Ltd', what:'Menu & signage', price:650, cost:560, tip:'This took 3 days against 1.5 quoted. Fixed-price design jobs are running over, so a revision limit might help.'},
+      miles:40, personal:'2 personal payments', inc:44800, exp:7300}
+  },
+  st:{},
+  reset(){ const s = this.st; s.coded = 0; s.rec = false; s.miles = false; s.pot = false; s.filed = null; s.insights = 0; },
+  closing(){ return `Want me keeping ${esc(biz())}'s books as you go? I'll connect to your bank and receipts, and you'll never face a shoebox at the end of the quarter again.`; },
+  profit(){ return X.inc - X.exp - (this.st.miles ? X.miles*0.45 : 0); },
+  strip(){ const s = this.st; return [[s.coded,'receipts coded'],[s.rec?'✓':'–','bank matched'],[s.filed===0?'Filed':s.filed===1?'With accountant':'Due','quarterly update'],[0,'needs you']]; },
+  steps(){
+    const s = this.st, self = this, spend = X.cats.reduce((a,c)=>a+c[1],0);
+    const jm = X.job.price - X.job.cost, lm = X.low.price - X.low.cost;
+    return [
+      {d:'Week 1 · Monday', t:'07:45', run:()=>{ addTasks(1); bubble(`<p>Morning ${esc(owner())}. I'll keep the books as you go. Snap any receipt on WhatsApp or forward it to <b>receipts@${esc(biz().toLowerCase().replace(/[^a-z]/g,''))}.co.uk</b>, and I'll do the rest.</p>`); }},
+      {d:'Week 1 · Friday', t:'17:30', run:()=>{ s.coded = X.receipts; addTasks(X.receipts*2);
+        bubble(card(`🧾 ${X.receipts} receipts read and coded this week (${gbp(spend)})`, X.cats.map(c=>`${esc(c[0])}: <b>${gbp(c[1])}</b>`).join(' · ') + `<div class="cs" style="margin-top:6px">Materials are allocated to the jobs they were bought for. One unclear one, a ${esc(X.unclear)}, I matched to ${esc(X.matched)}.</div>`, 'ok'));
+        log('Wk1 Fri: read and coded '+X.receipts+' receipts'); }},
+      {d:'Week 2 · Monday', t:'08:00', run:()=>{ s.rec = true; s.miles = true; addTasks(45);
+        bubble(card('🏦 Bank feed matched', `Every payment in and out this month matched to an invoice, receipt or bill. I spotted ${esc(X.personal)} and kept them out of the business books.`, 'ok') +
+          card('🚐 Mileage logged from your diary', `${X.miles} business miles this month, so <b>${gbp2(X.miles*0.45)}</b> you can claim at HMRC's 45p a mile. No logbook needed.`, 'ok'));
+        log('Wk2 Mon: bank reconciled, '+X.miles+' miles logged'); }},
+      {d:'Week 2 · Thursday', t:'18:00', run:()=>{ s.insights = 2; addTasks(6);
+        bubble(card('📈 Job profit, now that costs are in', `<b>${esc(X.job.who)}</b> (${esc(X.job.what)}): ${gbp(X.job.price)} price, ${gbp(X.job.cost)} costs, so <b>${gbp(jm)} profit (${Math.round(jm/X.job.price*100)}%)</b>.<br><b>${esc(X.low.who)}</b> (${esc(X.low.what)}): only <b>${gbp(lm)} (${Math.round(lm/X.low.price*100)}%)</b> after costs.`) +
+          card('💡 Worth a look', esc(X.low.tip), 'warn'));
+        log('Wk2 Thu: job profit updated, 1 pricing tip'); }},
+      {d:'Week 3 · Monday', t:'08:00', run:()=>{ s.pot = true; addTasks(3);
+        const p = self.profit();
+        bubble(card('🏺 Tax pot', `Profit so far this quarter is about <b>${gbp(p)}</b>. As a rough guide, set aside around <b>${gbp(p*0.25)}</b> for income tax and National Insurance. I'll remind you each month. Your accountant confirms the real figure.`));
+        log('Wk3 Mon: tax set-aside estimate sent'); }},
+      {d:'Week 4 · Friday', t:'10:00', run:()=>{
+        addTasks(8);
+        const p = self.profit();
+        bubble(card('📤 Quarterly update ready for HMRC', `Making Tax Digital update for this quarter: income <b>${gbp(X.inc)}</b>, expenses <b>${gbp(X.exp + X.miles*0.45)}</b> (including mileage), profit <b>${gbp(p)}</b>. Every figure links back to the receipts and invoices behind it.`, '', 'qT'));
+        return ask({id:'qT', always:true, alwaysNote:'Anything sent to HMRC always needs your OK, whatever setting you choose.', q:'Submit the quarterly update, or send it to your accountant first?', opts:['Approve and submit to HMRC','Send to my accountant to check first'], def:0,
+          onChoose:(k)=>{ s.filed = k; addTasks(2); setCtl('qT', `<div class="done ok">${k===0?'✓ Submitted. HMRC receipt saved with your records.':'✓ Sent to your accountant with every receipt attached. I\'ll submit once they OK it.'} <span class="small">(demo)</span></div>`); log('Wk4 Fri: quarterly update '+(k===0?'submitted':'sent to accountant')); }});
+      }},
+      {d:'Week 4 · Friday', t:'17:00', run:()=>{ bubble(self.report()); }}
+    ];
+  },
+  report(){
+    const pct = effort();
+    return `<div class="card"><div class="ct">📊 Your month with Bookkeeper</div>
+      <div class="stats"><div><b>${this.st.coded}</b><small>receipts read and coded</small></div><div><b>${gbp2(X.miles*0.45)}</b><small>mileage claimed</small></div>
+      <div><b>${this.st.filed===0?'Filed':this.st.filed===1?'With accountant':'Ready'}</b><small>quarterly update</small></div><div><b>${pct.toFixed(0)}%</b><small>of the work done by you (${E.taps} ${E.taps===1?'tap':'taps'})</small></div></div>
+      <div class="cs" style="margin-top:8px">Figures are sample data for the demo.</div></div>`;
+  },
+  overview(){
+    const pct = effort(), s = this.st, spend = X.cats.reduce((a,c)=>a+c[1],0), max = Math.max(...X.cats.map(c=>c[1]));
+    $('#kpis').innerHTML = `<div class="kpi"><div class="l">Receipts coded</div><div class="v">${s.coded}</div></div><div class="kpi"><div class="l">Profit this quarter</div><div class="v">${s.rec?gbp(this.profit()):'–'}</div></div><div class="kpi"><div class="l">Set aside for tax</div><div class="v">${s.pot?gbp(this.profit()*0.25):'–'}</div></div><div class="kpi"><div class="l">Your share of work</div><div class="v">${pct.toFixed(0)}%</div></div>`;
+    $('#cats').innerHTML = s.coded ? X.cats.map(c=>`<div class="fr"><span>${esc(c[0])}</span><div class="bar"><i style="width:${c[1]/max*100}%"></i></div><span class="n">${gbp(c[1])}</span></div>`).join('') + `<div class="small" style="margin-top:6px">${gbp(spend)} this week, every receipt kept digitally.</div>` : '<div class="small" style="margin-top:6px">Nothing yet.</div>';
+    const jm = X.job.price - X.job.cost, lm = X.low.price - X.low.cost;
+    $('#jobs').innerHTML = s.insights ? [[X.job, jm],[X.low, lm]].map(([j,m])=>`<div class="ir"><div><b>${esc(j.who)}</b><br><span class="small">${esc(j.what)} · ${gbp(j.price)} price, ${gbp(j.cost)} costs</span></div><span class="n" style="color:${m/j.price<0.2?'var(--bad)':'var(--ok)'}">${Math.round(m/j.price*100)}%</span></div>`).join('') : '<div class="small">Appears once costs are matched.</div>';
+    $('#mtd').innerHTML = `<div class="ir"><div>Quarterly update (Making Tax Digital)</div><span class="badge ${s.filed===0?'b-ok':s.filed===1?'b-info':'b-mute'}">${s.filed===0?'Submitted':s.filed===1?'With accountant':'Being prepared'}</span></div>`;
+  }
+};
+
+/* ===== shared agent-demo engine (Collector, Keeper) ===== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const gbp = n => '£' + Math.round(n).toLocaleString('en-GB');
+const gbp2 = n => '£' + (Math.round(n*100)/100).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});
+const P = new URLSearchParams(location.search);
+function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(()=>el.classList.remove('on'), 2600); }
+
+const E = { auto:1, idx:0, paused:false, timer:null, cdTimer:null, waiting:null, taps:0, tasks:0, log:[], pending:null, lastDay:null, finished:false };
+const sectorKey = AG.sectors[P.get('sector')] ? P.get('sector') : Object.keys(AG.sectors)[0];
+const X = AG.sectors[sectorKey];
+const biz = () => P.get('biz') || X.biz;
+const owner = () => P.get('name') || X.owner;
+const sub = t => String(t).replace(/\{biz\}/g, biz()).replace(/\{owner\}/g, owner());
+
+const chat = () => $('#chat');
+function scrollEnd(){ if (!$('#v-feed').classList.contains('on')) return; window.scrollTo({top:document.body.scrollHeight, behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth'}); }
+function curStep(){ return E.steps[Math.max(0,E.idx-1)]; }
+function bubble(inner, cls){
+  const s = curStep();
+  if (s && s.d !== E.lastDay){ E.lastDay = s.d; chat().insertAdjacentHTML('beforeend', `<div class="day"><span>${esc(s.d)}</span></div>`); }
+  chat().insertAdjacentHTML('beforeend', `<div class="msg ${cls||''}">${inner}<div class="tm">${s?s.t:'now'}</div></div>`); scrollEnd();
+}
+function card(title, body, tone, id){ return `<div class="card ${tone==='ok'?'okc':tone==='skip'?'skc':tone==='warn'?'wnc':''}" ${id?`id="${id}"`:''}><div class="ct">${title}</div><div class="cs" style="color:var(--ink)">${body}</div>${id?`<div id="ctl-${id}"></div>`:''}</div>`; }
+function handCard(title, subt, rows){ return `<div class="card hand"><div class="ct">🤝 ${title}</div><div class="cs">${subt}</div><ul>${rows.map(r=>`<li>${r}</li>`).join('')}</ul></div>`; }
+function setCtl(id, h){ const c = $('#ctl-'+id); if (c){ c.innerHTML = h; scrollEnd(); } }
+function addTasks(n){ E.tasks += n; }
+function log(t){ E.log.push(t); }
+
+/* ask: the one-decision pattern. Returns true (step is waiting) unless auto mode resolves it immediately. */
+function ask(o){
+  E.pending = o;
+  if (E.auto === 2 && !o.always){ resolve(o.def||0, true); return false; }
+  E.waiting = o.id; updateNav();
+  armAsk();
+  return true;
+}
+function armAsk(){
+  const o = E.pending; if (!o) return;
+  const btns = `<div class="q">❓ ${o.q}</div><div class="acts col">${o.opts.map((t,k)=>`<button class="${k===(o.def||0)?'yes':''}" data-ans="${k}">${esc(t)}</button>`).join('')}</div>`;
+  if (E.auto === 0 || o.always){ setCtl(o.id, btns + `<div class="done wait">${o.always ? (o.alwaysNote || 'This one always needs you.') : 'This one needs you.'}</div>`); return; }
+  const secs = 7;
+  setCtl(o.id, btns + `<div class="small" style="margin-top:6px">${o.note || ''} If you don't answer within ${secs}s (a few hours in real life), I'll go with "${esc(o.opts[o.def||0])}".</div><div class="cd"><i id="cd-${o.id}"></i></div>`);
+  requestAnimationFrame(()=>{ const bar = $('#cd-'+o.id); if (bar){ bar.style.transitionDuration = secs+'s'; bar.style.width = '0%'; } });
+  clearTimeout(E.cdTimer); E.cdTimer = setTimeout(()=>{ if (E.waiting === o.id && !E.paused) resolve(o.def||0, true); }, secs*1000);
+}
+/* gate: routine action that only waits in "ask me first" mode */
+function gate(o){
+  if (E.auto !== 0){ o.onOk(true); return false; }
+  E.pending = Object.assign({gate:true}, o); E.waiting = o.id; updateNav();
+  setCtl(o.id, `<div class="acts"><button class="yes" data-ans="0">${esc(o.label||'Approve')}</button></div><div class="done wait">Waiting for your OK.</div>`);
+  return true;
+}
+function resolve(k, byAgent){
+  const o = E.pending; if (!o) return;
+  clearTimeout(E.cdTimer); E.pending = null;
+  if (!byAgent){ E.taps++; chat().insertAdjacentHTML('beforeend', `<div class="msg me"><p>${esc(o.gate ? '👍 Go ahead' : o.opts[k])}</p><div class="tm">${curStep().t}</div></div>`); }
+  if (o.gate) o.onOk(byAgent); else o.onChoose(k, byAgent);
+  const was = E.waiting != null; E.waiting = null; updateNav(); renderAll();
+  if (was && !E.paused) schedule(800);
+}
+
+/* ===== engine ===== */
+function typing(){ chat().insertAdjacentHTML('beforeend','<div class="typing" id="typ"><i></i><i></i><i></i></div>'); scrollEnd(); }
+function untype(){ const t = $('#typ'); if (t) t.remove(); }
+function schedule(ms){ clearTimeout(E.timer); E.timer = setTimeout(next, ms); }
+function progress(){ $('#prog').style.width = (E.idx/E.steps.length*100)+'%'; }
+function next(){
+  E.timer = null;
+  if (E.paused || E.waiting != null) return;
+  if (E.idx >= E.steps.length){ finish(); return; }
+  const s = E.steps[E.idx++]; progress();
+  typing();
+  E.timer = setTimeout(()=>{ untype(); const w = s.run(); renderAll(); if (!w && E.waiting == null) schedule(1500); }, 700);
+}
+function finish(){
+  progress(); $('#pp').textContent = '↺ Replay';
+  if (!E.finished){ E.finished = true; chat().insertAdjacentHTML('beforeend', `<div class="msg"><p>${AG.closing()}</p><div class="acts"><button class="yes" data-hire>Put ${AG.name} to work</button></div><div class="tm">now</div></div>`); scrollEnd(); }
+}
+function restart(){
+  clearTimeout(E.timer); clearTimeout(E.cdTimer);
+  Object.assign(E, {idx:0, paused:false, waiting:null, taps:0, tasks:0, log:[], pending:null, lastDay:null, finished:false});
+  AG.reset(); E.steps = AG.steps();
+  chat().innerHTML = ''; $('#pp').textContent = '⏸ Pause';
+  renderAll(); updateNav(); progress(); schedule(400);
+}
+function effort(){ const pct = (E.taps+E.tasks) ? E.taps/(E.taps+E.tasks)*100 : 0; return pct; }
+function updateNav(){ const c = $('#navCnt'); c.hidden = E.waiting == null; c.textContent = '1'; renderOvr(); }
+function renderOvr(){ const cells = AG.strip(); cells[3] = [E.waiting!=null?1:0, 'needs you', E.waiting!=null]; $('#ovr').innerHTML = cells.map(c=>`<div class="${c[2]?'need':''}"><b>${c[0]}</b><small>${c[1]}</small></div>`).join(''); }
+function renderAll(){
+  renderOvr();
+  AG.overview();
+  const pct = effort();
+  $('#effTxt').textContent = `${AG.name}: ${E.tasks} tasks (${AG.taskWords}). You: ${E.taps} ${E.taps===1?'tap':'taps'}. Target: under 5%.`;
+  $('#meter').innerHTML = `<i style="width:${100-pct}%;background:var(--brand2)"></i><i style="width:${pct}%;background:var(--accent)"></i>`;
+  $('#log').innerHTML = E.log.length ? E.log.map(l=>`<li>${esc(l)}</li>`).join('') : '<li class="small">Nothing yet.</li>';
+}
+
+/* ===== chain ===== */
+const AGENTS = [
+  ['S','Scout','Finds new work: win-back, reviews, referrals, Google profile, local B2B outreach.'],
+  ['F','Frontdesk','Answers every call, form and WhatsApp within 2 minutes, qualifies the job and books the visit.'],
+  ['C','Closer','Sends the quote, follows it up on day 3, 7 and 14, and turns a yes into a booked job.'],
+  ['$','Collector','Invoices, chases politely then firmly, adds late-payment interest for business clients, tells you when money lands.'],
+  ['K','Keeper','Remembers when each customer is next due (service, MOT, colour, renewal) and fills your diary with repeat work.'],
+  ['B','Bookkeeper','Reads your receipts, codes them to jobs, keeps job profit up to date and prepares your quarterly Making Tax Digital update.']
+];
+const SL = '../ui_01_siteledger_quote_jobcost/index.html';
+$('#chain').innerHTML = AGENTS.map(([b,n,d],i)=>{ const me = i === AG.chainIdx; return `<div class="ag ${me?'me':''}"><div class="b">${b}</div><div><h3>${n} <span class="tag ${me?'live':''}">${me?'You are here':'Demo ready'}</span></h3><p>${d}</p></div></div>`; }).join('') + `<div class="note">For trades, all six agents work on top of <a href="${SL}?play=workflow" target="_blank" rel="noopener">SiteLedger</a>, which holds the quotes, jobs, costs, invoices and tax records, so you can see the detail behind anything an agent did.</div>`;
+if (AG.siteledger && sectorKey === 'trades'){ const el = document.getElementById('slLink'); if (el){ el.href = SL + '?play=' + AG.siteledger; el.hidden = false; } }
+
+/* ===== sheets & hire ===== */
+function openSheet(h){ $('#sheet').innerHTML = h; $('#scrim').classList.add('on'); }
+function closeSheet(){ $('#scrim').classList.remove('on'); }
+const head = t => `<div class="sh"><h3>${t}</h3><button class="x" data-close aria-label="Close">×</button></div>`;
+function openHire(){
+  openSheet(head('Put '+AG.name+' to work') + `
+  <div class="small" style="margin-bottom:6px">${AG.hireIntro}</div>
+  <form id="hf" novalidate>
+    <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off">
+    <label class="f" for="hName">Your name *</label><input class="in" id="hName" name="name" autocomplete="name" value="${esc(P.get('name')||'')}">
+    <label class="f" for="hBiz">Business name *</label><input class="in" id="hBiz" name="business" autocomplete="organization" value="${esc(P.get('biz')||'')}">
+    <label class="f" for="hEmail">Email *</label><input class="in" id="hEmail" name="email" type="email" autocomplete="email">
+    <label class="f" for="hPhone">Mobile for WhatsApp (optional)</label><input class="in" id="hPhone" name="phone" type="tel" autocomplete="tel">
+    <div class="inline"><div><label class="f" for="hSec">Type of business</label><select class="in" id="hSec" name="sector">${Object.keys(AG.sectors).map(k=>`<option ${k===sectorKey?'selected':''}>${AG.sectors[k].label}</option>`).join('')}<option>Other</option></select></div>
+    <div><label class="f" for="hX">${AG.hireQ[0]}</label><select class="in" id="hX" name="${AG.hireQ[1]}">${AG.hireQ[2].map(o=>`<option>${o}</option>`).join('')}</select></div></div>
+    <label class="f" for="hMsg">${AG.hireQ[3]} (optional)</label>
+    <textarea class="in" id="hMsg" name="message" style="min-height:80px" placeholder="${esc(AG.hireQ[4])}"></textarea>
+    <div class="err" id="hErr" hidden></div>
+    <button class="btn acc block" style="margin-top:14px" id="hSend" type="submit">Send</button>
+    <div class="small" style="margin-top:8px">We'll only use these details to contact you about this. The Tech Principle, London.</div>
+  </form>`);
+  $('#hf').onsubmit = submitHire;
+}
+async function submitHire(e){
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target).entries()), err = $('#hErr'), btn = $('#hSend');
+  if (data._honey) return; delete data._honey; err.hidden = true;
+  if (!data.name.trim() || !data.business.trim()){ err.textContent = 'Please add your name and business name.'; err.hidden = false; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)){ err.textContent = 'Please check your email address.'; err.hidden = false; return; }
+  const payload = Object.assign({
+    _subject: AG.name+' request: ' + data.business, _template:'table', _captcha:'false',
+    app: AG.app, campaign_source:P.get('src')||'direct', campaign_id:P.get('cid')||'', emailed_business:P.get('biz')||'',
+    demo_sector_viewed:X.label, autonomy_chosen:AG.modes[E.auto], demo_taps:String(E.taps), demo_finished: E.idx >= E.steps.length ? 'yes' : 'no',
+    page:location.href, submitted_at:new Date().toISOString()
+  }, data);
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try{
+    const r = await fetch('https://formsubmit.co/ajax/edward.bell@thetechprinciple.com', {method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body:JSON.stringify(payload)});
+    const j = await r.json().catch(()=>({}));
+    if (!r.ok || String(j.success) === 'false') throw new Error('fail');
+    openSheet(head('Sent') + `<div class="ok-state"><div style="font-size:42px">✅</div><h3>Thanks, ${esc(data.name.split(' ')[0])}.</h3><p class="small">We'll be in touch within one working day to set ${AG.name} up for ${esc(data.business)}.</p><button class="btn sec" data-close>Back to the demo</button></div>`);
+  }catch(ex){
+    btn.disabled = false; btn.textContent = 'Send';
+    const body = encodeURIComponent(Object.entries(payload).filter(([k])=>k[0]!=='_').map(([k,v])=>k+': '+v).join('\n'));
+    err.innerHTML = `Couldn't send just now. <a href="mailto:edward.bell@thetechprinciple.com?subject=${encodeURIComponent(payload._subject)}&body=${body}">Email it instead</a> (edward.bell@thetechprinciple.com).`;
+    err.hidden = false;
+  }
+}
+
+/* ===== events ===== */
+function go(v){ document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on', x.id==='v-'+v)); document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on', b.dataset.v===v)); if (v!=='feed') window.scrollTo(0,0); else scrollEnd(); }
+function rearm(){ if (E.pending && !E.pending.gate && E.auto === 1 && !E.paused) armAsk(); }
+document.addEventListener('click', e=>{
+  const t = e.target.closest('button,a'); if (!t) return;
+  const d = t.dataset;
+  if (d.v) go(d.v);
+  else if (d.ans != null) resolve(Number(d.ans), false);
+  else if (d.auto != null){
+    E.auto = Number(d.auto); document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on', b===t)); toast(AG.modeToasts[E.auto]);
+    if (E.pending && !E.pending.always){ if (E.auto === 2 || (E.pending.gate && E.auto !== 0)) resolve(E.pending.def||0, true); else if (E.pending.gate) {} else armAsk(); }
+    updateNav();
+  }
+  else if (d.sector){ const u = new URL(location); u.searchParams.set('sector', d.sector); location.href = u.toString(); }
+  else if ('hire' in d) openHire();
+  else if ('close' in d){ closeSheet(); rearm(); }
+  else if (t.id === 'pp'){ if (E.idx >= E.steps.length && E.waiting == null){ restart(); return; } E.paused = !E.paused; t.textContent = E.paused ? '▶ Play' : '⏸ Pause'; if (!E.paused){ if (E.waiting != null) rearm(); else schedule(200); } else { clearTimeout(E.timer); clearTimeout(E.cdTimer); } }
+  else if (t.id === 'skip'){ if (E.pending) resolve(E.pending.def||0, !E.pending.always); else { clearTimeout(E.timer); untype(); next(); } }
+  else if (t.id === 'replay') restart();
+});
+$('#scrim').addEventListener('click', e=>{ if (e.target.id==='scrim'){ closeSheet(); rearm(); } });
+document.addEventListener('keydown', e=>{ if (e.key==='Escape'){ closeSheet(); rearm(); } });
+
+/* ===== boot ===== */
+$('#chips').innerHTML = Object.keys(AG.sectors).map(k=>`<button data-sector="${k}" class="${k===sectorKey?'on':''}">${AG.sectors[k].label}</button>`).join('');
+$('#stLine').textContent = AG.status + ' ' + biz() + ' · online';
+$('#ctaT').textContent = 'Put ' + AG.name + ' to work for ' + (P.get('biz') || 'your business');
+if (['0','1','2'].includes(P.get('auto'))){ E.auto = Number(P.get('auto')); document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on', Number(b.dataset.auto)===E.auto)); }
+restart();
+if (P.get('hire') === '1') setTimeout(openHire, 400);
+
+}
+</script>
+</body>
+</html>

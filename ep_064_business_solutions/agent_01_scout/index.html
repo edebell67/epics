@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<!--
+  epics/ep_064_business_solutions/agent_01_scout/index.html — Scout: lead-generation agent demo (agent 1 of 5) for cold-email demand testing
+
+  VERSION HISTORY
+  v1.x.2 · 2026-11-27 · Six-agent chain (adds Bookkeeper), all marked 'Demo ready', with a SiteLedger note on the All agents tab.
+  v1.1.1 · 2026-11-27 · Compact header and CTA on small/short phones (320px wide, 568px tall).
+  v1.1.0 · 2026-11-27 · Under-5%-effort design: one daily plan per day instead of per-message approvals, default "go ahead unless I stop it" (zero taps),
+                        untick/edit optional, pinned overview strip + Overview tab with effort meter (your taps vs Scout tasks) and activity log.
+  v1.0.0 · 2026-11-27 · Initial version: simulated working week in a WhatsApp-style feed, approval cards (approve / edit / skip),
+                        3 autonomy levels, outcomes that depend on what you approve, pipeline view, 5-agent chain, rules page,
+                        sector presets (?sector=trades|salon|garage|agency), personalisation (?biz=&name=&area=),
+                        autoplay (?play=1), "Put Scout to work" form → FormSubmit → edward.bell@thetechprinciple.com, campaign tags (?src=&cid=).
+-->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scout · finds new work for you</title>
+<meta name="description" content="Scout is an AI agent that finds new work for local businesses: win-back, reviews, referrals, Google profile and local B2B outreach. You approve, it does the rest.">
+<meta name="theme-color" content="#123d33">
+<style>
+:root{
+  --ink:#122220; --ink2:#4a5f5b; --mute:#7d8f8b; --line:#e1e8e6; --bg:#eef2f0; --card:#fff;
+  --brand:#123d33; --brand2:#1b5e4e; --accent:#f2a93b; --accent-ink:#4a2f00;
+  --chat:#e7ede4; --me:#d9f4c7; --ok:#1d8a5a; --ok-bg:#e3f4ec; --warn:#b86e00; --warn-bg:#fdf1dc; --bad:#b03a2e; --bad-bg:#fbe7e4; --info:#2463a6; --info-bg:#e5eef9;
+  --r:14px; --sh:0 1px 2px rgba(16,32,31,.06),0 4px 14px rgba(16,32,31,.07); --nav:62px;
+}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;padding-bottom:calc(var(--nav) + 104px)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:720px;margin:0 auto;padding:0 12px}
+
+header.top{background:var(--brand);color:#fff;padding:12px 0 14px;position:sticky;top:0;z-index:20}
+.top .row{display:flex;align-items:center;gap:10px}
+.av{width:40px;height:40px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:800;font-size:17px;flex:none;position:relative}
+.av::after{content:"";position:absolute;right:0;bottom:0;width:11px;height:11px;border-radius:50%;background:#5ee08a;border:2px solid var(--brand)}
+.nm{font-weight:750;font-size:16.5px}
+.st{font-size:12.5px;opacity:.82}
+.sp{flex:1}
+.pill{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:7px 12px;font-size:13px;min-height:36px;white-space:nowrap}
+.pill.solid{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.chips{display:flex;gap:6px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;border-radius:999px;padding:5px 11px;font-size:12.5px;min-height:32px;opacity:.85}
+.chips button.on{background:#fff;color:var(--brand);opacity:1;font-weight:700}
+.settings{background:var(--brand);color:#fff;border-radius:14px;padding:4px 10px 10px;margin-bottom:8px}
+.auto{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12.5px}
+.seg{display:flex;background:rgba(255,255,255,.1);border-radius:10px;padding:3px;flex:1}
+.seg button{flex:1;border:0;background:transparent;color:#fff;border-radius:8px;padding:6px 4px;font-size:12.5px;min-height:32px;opacity:.85}
+.seg button.on{background:#fff;color:var(--brand);font-weight:700;opacity:1}
+
+.view{display:none}.view.on{display:block}
+main{padding-top:12px}
+
+/* chat */
+.chat{background:var(--chat);border-radius:18px;padding:12px 10px 16px;min-height:60vh;background-image:radial-gradient(rgba(18,61,51,.05) 1px,transparent 1px);background-size:14px 14px}
+.day{text-align:center;margin:14px 0 8px}
+.day span{background:#fff;border-radius:8px;padding:3px 10px;font-size:12px;color:var(--ink2);box-shadow:0 1px 1px rgba(0,0,0,.06)}
+.msg{max-width:88%;background:#fff;border-radius:4px 14px 14px 14px;padding:9px 11px 6px;margin:6px 0;box-shadow:0 1px 1px rgba(0,0,0,.07);animation:pop .22s ease}
+.msg.me{margin-left:auto;background:var(--me);border-radius:14px 4px 14px 14px}
+.msg.sys{max-width:100%;background:transparent;box-shadow:none;text-align:center;font-size:12.5px;color:var(--ink2);padding:2px}
+@keyframes pop{from{transform:translateY(6px);opacity:0}}
+.msg .tm{font-size:11px;color:var(--mute);text-align:right;margin-top:2px}
+.msg p{margin:0 0 4px}
+.msg b{font-weight:650}
+.card{border:1px solid var(--line);border-radius:12px;padding:10px;margin:6px 0 4px;background:#fbfcfb}
+.card .ct{font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px}
+.card .cs{font-size:12.5px;color:var(--ink2);margin-top:2px}
+.pv{white-space:pre-wrap;background:#fff;border-left:3px solid var(--brand2);padding:8px 10px;margin:8px 0;font-size:13.5px;border-radius:0 8px 8px 0}
+.who{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.who span{background:#eef3f1;border-radius:999px;padding:2px 8px;font-size:12px}
+.acts{display:flex;gap:6px;margin-top:8px}
+.acts button{flex:1;border:0;border-radius:9px;min-height:40px;font-weight:650;font-size:13.5px;background:#eef2f1}
+.acts button.yes{background:var(--brand);color:#fff}
+.done{font-size:12.5px;font-weight:650;margin-top:8px;padding:6px 9px;border-radius:8px}
+.done.ok{background:var(--ok-bg);color:var(--ok)} .done.skip{background:#eef2f1;color:var(--ink2)} .done.wait{background:var(--warn-bg);color:var(--warn)}
+.cd{height:4px;background:#e9efec;border-radius:2px;overflow:hidden;margin-top:8px}
+.cd i{display:block;height:100%;background:var(--accent);width:100%;transition:width linear}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
+.stats div{background:#f2f6f4;border-radius:9px;padding:7px 9px}
+.stats b{display:block;font-size:19px;font-variant-numeric:tabular-nums}
+.stats small{font-size:11.5px;color:var(--ink2)}
+.hand{border:1px dashed var(--brand2);background:#f3faf7}
+.hand ul{margin:6px 0 0;padding-left:18px;font-size:13.5px}
+.typing{display:inline-flex;gap:4px;background:#fff;border-radius:14px;padding:10px 12px;margin:6px 0;box-shadow:0 1px 1px rgba(0,0,0,.07)}
+.typing i{width:7px;height:7px;border-radius:50%;background:#9fb0ab;animation:bl 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bl{50%{opacity:.25}}
+.playbar{display:flex;gap:8px;align-items:center;margin:10px 0 2px}
+.playbar .prog{flex:1;height:6px;background:#dfe7e3;border-radius:3px;overflow:hidden}
+.playbar .prog i{display:block;height:100%;background:var(--brand2);transition:width .3s}
+.btn{border:0;border-radius:11px;padding:10px 14px;min-height:44px;font-weight:650;background:var(--brand);color:#fff}
+.btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.acc{background:var(--accent);color:var(--accent-ink)}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:13.5px;border-radius:9px}
+.btn.block{width:100%}
+
+/* panels */
+h2{font-size:19px;margin:4px 0 6px}
+.sub{color:var(--ink2);font-size:13.5px;margin:0 0 12px}
+.panel{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-bottom:12px}
+.funnel .fr{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) 3.4em;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.funnel .fr:last-child{border:0}
+.funnel .bar{height:12px;background:#edf2f0;border-radius:6px;overflow:hidden}
+.funnel .bar i{display:block;height:100%;background:var(--brand2);border-radius:6px;transition:width .4s}
+.funnel .fr.off{opacity:.45}
+.funnel .n{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.kpi{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:11px 12px}
+.kpi .l{font-size:11.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.3px}
+.kpi .v{font-size:22px;font-weight:750;font-variant-numeric:tabular-nums}
+.chain{display:flex;flex-direction:column;gap:0}
+.ag{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:start;position:relative;padding-bottom:16px}
+.ag:not(:last-child)::before{content:"";position:absolute;left:21px;top:44px;bottom:0;width:2px;background:var(--line)}
+.ag .b{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:#e8eeec;color:var(--ink2)}
+.ag.me .b{background:var(--accent);color:var(--accent-ink)}
+.ag h3{margin:2px 0 2px;font-size:15.5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ag p{margin:0;font-size:13.5px;color:var(--ink2)}
+.tag{font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;background:#eef2f1;color:var(--ink2)}
+.tag.live{background:var(--accent);color:var(--accent-ink)}
+.rules li{margin:6px 0;font-size:14px}
+.note{font-size:12.5px;color:var(--ink2);background:#f0f5f3;border-radius:10px;padding:10px 12px;margin-top:10px}
+
+.ovr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;background:#fff;border-radius:12px;padding:6px;margin-top:10px;border:0;width:100%;text-align:center;color:var(--ink)}
+.ovr div{padding:2px}.ovr b{display:block;font-size:16px;font-variant-numeric:tabular-nums}.ovr small{font-size:10.5px;color:var(--ink2)}
+.ovr .need b{color:var(--bad)}
+.item{border-top:1px solid var(--line);padding:8px 0}
+.item:first-of-type{border-top:0}
+.item .ih{display:flex;gap:9px;align-items:flex-start}
+.tog{flex:none;width:24px;height:24px;border-radius:7px;border:2px solid var(--brand2);background:var(--brand2);color:#fff;font-size:14px;line-height:1;display:grid;place-items:center;padding:0}
+.tog.off{background:#fff;color:transparent}
+.item.off .it{text-decoration:line-through;color:var(--mute)}
+.it{font-weight:650;font-size:14px}
+details summary{cursor:pointer;font-size:12.5px;color:var(--brand2);margin-top:4px}
+.edl{border:0;background:none;color:var(--brand2);font-size:12.5px;padding:2px 0;text-decoration:underline}
+.meter{height:14px;background:#edf2f0;border-radius:7px;overflow:hidden;display:flex}
+.meter i{display:block;height:100%}
+.log li{font-size:13.5px;margin:4px 0}
+nav.bottom{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);z-index:30}
+nav.bottom .wrap{display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav);padding:0}
+nav.bottom button{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11.5px;color:var(--mute);position:relative}
+nav.bottom .ic{font-size:19px;line-height:1}
+nav.bottom button.on{color:var(--brand);font-weight:700}
+nav.bottom .cnt{position:absolute;top:7px;left:calc(50% + 6px);background:var(--bad);color:#fff;border-radius:999px;font-size:10.5px;padding:0 5px;min-width:17px;height:17px;line-height:17px;font-weight:700}
+.cta{position:fixed;left:0;right:0;bottom:var(--nav);z-index:29;padding:8px 0;background:linear-gradient(180deg,rgba(238,242,240,0),var(--bg) 40%)}
+.cta .box{display:flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border-radius:14px;padding:8px 8px 8px 14px;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.cta .box span{flex:1;font-size:13.5px;line-height:1.3}
+.cta .box b{display:block}
+
+.scrim{position:fixed;inset:0;background:rgba(10,20,20,.45);z-index:50;display:none;align-items:flex-end;justify-content:center}
+.scrim.on{display:flex}
+.sheet{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:8px 16px 18px;animation:up .22s ease}
+@keyframes up{from{transform:translateY(30px);opacity:.4}}
+.grab{width:42px;height:5px;border-radius:3px;background:#d6dfdd;margin:4px auto 10px}
+.sh{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.sh h3{flex:1;margin:0;font-size:17px}
+.x{border:0;background:#eef2f1;border-radius:50%;width:36px;height:36px;font-size:18px}
+label.f{display:block;font-size:12.5px;color:var(--ink2);margin:8px 0 4px;font-weight:600}
+.in{width:100%;border:1px solid #cfdad8;border-radius:10px;padding:10px 11px;background:#fff;min-height:44px;font-size:16px}
+textarea.in{min-height:140px;resize:vertical;font-size:15px}
+.inline{display:flex;gap:8px}
+.inline>div{flex:1}
+.small{font-size:12.5px;color:var(--mute)}
+.err{color:var(--bad);font-size:13px;margin-top:8px}
+.hp{position:absolute;left:-9999px;width:0;height:0;opacity:0}
+.ok-state{text-align:center;padding:18px 4px}
+.toast{position:fixed;left:50%;top:14px;transform:translateX(-50%) translateY(-140%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:80;transition:transform .25s;max-width:92vw}
+.toast.on{transform:translateX(-50%) translateY(0)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (min-width:700px){.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.scrim{align-items:center}.sheet{border-radius:20px}}
+@media (max-width:380px){.st{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}.ovr small{font-size:10px}.ovr b{font-size:15px}}
+@media (max-height:700px){.cta .box span{font-size:13px}.cta .box span>span,.cta .sub2{display:none}.cta{padding:4px 0}.cta .box{padding:6px 6px 6px 12px}header.top{padding:8px 0 10px}.ovr{margin-top:8px;padding:4px}body{padding-bottom:calc(var(--nav) + 70px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <div class="row">
+    <div class="av">S</div>
+    <div><div class="nm">Scout</div><div class="st" id="stLine">finds new work for you · online</div></div>
+    <div class="sp"></div>
+    <button class="pill" id="replay">↺ Replay</button>
+  </div>
+
+  <button class="ovr" id="ovr" data-v="pipe" aria-label="Open overview"></button>
+</div></header>
+
+<main class="wrap">
+  <section class="view on" id="v-feed">
+    <div class="settings"><div class="auto"><span>Plans:</span><div class="seg" id="seg">
+    <button data-auto="0">Ask me first</button><button data-auto="1" class="on">Go ahead unless I stop it</button><button data-auto="2">Just do it</button>
+  </div></div>
+  <div class="chips" id="chips"></div></div>
+    <div class="playbar"><button class="btn sm sec" id="pp">⏸ Pause</button><div class="prog"><i id="prog"></i></div><button class="btn sm sec" id="skip">Skip ›</button></div>
+    <div class="chat" id="chat" aria-live="polite"></div>
+    <p class="small" style="text-align:center;margin:10px 0">Demo with sample data. Nothing is sent. The live version messages you on WhatsApp.</p>
+  </section>
+
+  <section class="view" id="v-pipe">
+    <h2>Overview</h2>
+    <p class="sub">Everything Scout has done and found this week, live.</p>
+    <div class="kpis" id="kpis"></div>
+    <div class="panel"><b>Who did the work</b><div class="small" style="margin:2px 0 8px" id="effTxt"></div><div class="meter" id="meter"></div></div>
+    <div class="panel funnel" id="funnel"></div>
+    <div class="panel"><b>Handed to Frontdesk</b><div class="small" style="margin:2px 0 8px">The next agent replies within 2 minutes and books them in.</div><div id="handList"></div></div>
+    <div class="panel"><b>What Scout did</b><ul class="log" id="log"></ul></div>
+  </section>
+
+  <section class="view" id="v-chain">
+    <h2>Six agents, one job each</h2>
+    <p class="sub">Each agent hands over to the next, so nothing that leads to money gets dropped. Start with the one that hurts most.</p>
+    <div class="panel chain" id="chain"></div>
+  </section>
+
+  <section class="view" id="v-rules">
+    <h2>Rules Scout always follows</h2>
+    <div class="panel"><ul class="rules">
+      <li><b>You stay in charge, with almost no effort.</b> Scout sends one plan a day. On the default setting it goes ahead after an hour unless you stop it, so a normal week needs no taps. Every new business starts on "ask me first" until they trust it.</li>
+      <li><b>You can see everything at any time.</b> The overview shows what Scout did, what it found and what's waiting.</li>
+      <li><b>Messages go from your own number and email,</b> written in your voice. You can edit any message before it goes.</li>
+      <li><b>Cold outreach only to companies,</b> using business addresses, always with an opt-out. Sole traders and members of the public are only contacted if they're already your customers.</li>
+      <li><b>Anyone who opts out is never contacted again,</b> by any agent.</li>
+      <li><b>Every recent customer is asked for a review,</b> not only the happy ones, and nobody is offered anything for one. That's Google's rule. Unhappy customers also get a way to tell you directly.</li>
+      <li><b>Referral thank-yous are fine</b> and are kept separate from reviews.</li>
+      <li><b>It never invents a review, a result or a testimonial,</b> and never posts anything about a customer without permission.</li>
+    </ul>
+    <div class="note">The live version connects to the jobs, invoices or bookings you already keep (Xero, QuickBooks, your booking app, or a spreadsheet), your Google Business Profile and WhatsApp Business.</div></div>
+  </section>
+</main>
+
+<div class="cta" id="cta"><div class="wrap"><div class="box"><span><b id="ctaT">Put Scout to work for your business</b><span class="sub2">Set up for you, using your own customer list.</span></span><button class="btn acc sm" data-hire>Get started</button></div></div></div>
+
+<nav class="bottom"><div class="wrap">
+  <button data-v="feed" class="on"><span class="ic">💬</span>Scout<span class="cnt" id="navCnt" hidden></span></button>
+  <button data-v="pipe"><span class="ic">📊</span>Overview</button>
+  <button data-v="chain"><span class="ic">🔗</span>All agents</button>
+  <button data-v="rules"><span class="ic">🛡️</span>Rules</button>
+</div></nav>
+
+<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div id="sheet"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+{
+const CFG = {
+  app: 'Scout (lead generation agent)',
+  formEndpoint: 'https://formsubmit.co/ajax/edward.bell@thetechprinciple.com',
+  fallbackEmail: 'edward.bell@thetechprinciple.com'
+};
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const gbp = n => '£' + Math.round(n).toLocaleString('en-GB');
+const P = new URLSearchParams(location.search);
+function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(()=>el.classList.remove('on'), 2600); }
+
+/* ===== sector presets ===== */
+const S = {
+  trades: {label:'Trades', biz:'Harris Plumbing & Heating', area:'Croydon', job:420, unit:'job', custWord:'customers',
+    total:214, lapsed:38, due:11, dueWhat:'their annual boiler service is due', search:'plumber near me',
+    recent:['Mrs Patel','Tom Reid','Ade Okafor','Claire Hunt','Gary Moss','Lena Byrne'],
+    winTxt:"Hi {first}, it's {owner} from {biz}. It's about a year since we serviced your boiler, so it's due again. I've got slots next week if you'd like one booked in. Just reply with a day that suits.",
+    revTxt:"Hi {first}, thanks for having us out this week. If you were happy with the work, a quick Google review would really help a small local business: {link}\nIf anything wasn't right, just reply here and I'll sort it.",
+    gbpTxt:"Bathroom finished in {area} this week: new walk-in shower, thermostatic valve and heated towel rail. Planning a bathroom for the new year? We're booking January now.",
+    refTxt:"Hi {first}, thanks again for using us. If you know anyone who needs a plumber, we'd be grateful for the recommendation, and we'll take £25 off your next service for every one who books.",
+    b2bWho:'letting agents and property managers in {area}', b2bN:8, b2bVal:3,
+    b2bTxt:"Hello,\n\nWe're a Gas Safe registered plumbing and heating firm based in {area}. We work with letting agents on landlord gas safety checks, boiler breakdowns and void-property repairs, usually same or next day.\n\nWould it help to have a reliable firm on call for your managed properties? Happy to send our rates.\n\n{owner}, {biz}\nNot relevant? Reply STOP and we won't contact you again.",
+    b2bOrg:'Northgate Lettings Ltd', winNames:['Sarah K.','Ian Brooks'], refName:'Mia (referred by Tom Reid)'},
+  salon: {label:'Salons', biz:'Studio Nine Hair & Beauty', area:'Clapham', job:85, unit:'visit', custWord:'clients',
+    total:640, lapsed:96, due:24, dueWhat:"it's 10+ weeks since their last colour or cut", search:'hair salon near me',
+    recent:['Amira','Jess','Holly','Priya','Nadia','Kate'],
+    winTxt:"Hi {first}, it's {owner} at {biz}. It's been a little while since your last appointment, so we'd love to see you again. We've got some gaps next week. Want me to pop you in?",
+    revTxt:"Hi {first}, lovely to see you this week! If you're happy with your hair, a quick Google review would mean a lot to us: {link}\nAnd if anything wasn't quite right, just reply and tell me.",
+    gbpTxt:"Fresh balayage this week in {area}: soft, low-maintenance blonde for winter. Christmas party season is filling up, so book soon to get your slot.",
+    refTxt:"Hi {first}, thank you for being such a loyal client. Bring a friend in for their first visit and you'll both get 15% off.",
+    b2bWho:'hotels and wedding venues near {area}', b2bN:6, b2bVal:6,
+    b2bTxt:"Hello,\n\nWe're a hair and beauty studio in {area} offering bridal parties and on-site styling for events and guests.\n\nWould a trusted local partner for wedding hair and make-up be useful for your couples? Happy to send our package prices.\n\n{owner}, {biz}\nNot relevant? Reply STOP and we won't contact you again.",
+    b2bOrg:'The Common Hotel Ltd', winNames:['Lucy','Rachel'], refName:'Ellie (referred by Jess)'},
+  garage: {label:'Garages', biz:'Westway Motors', area:'Ealing', job:260, unit:'job', custWord:'customers',
+    total:880, lapsed:140, due:31, dueWhat:'their MOT is due this month', search:'MOT near me',
+    recent:['Raj','Dave Collins','Mr Ahmed','Sophie T.','Mark','Olu'],
+    winTxt:"Hi {first}, it's {owner} at {biz}. Your MOT is due this month. Want me to book you in? We can do a service at the same visit and save you a second trip.",
+    revTxt:"Hi {first}, thanks for bringing the car in this week. If you were happy with us, a quick Google review really helps a local garage: {link}\nIf anything wasn't right, reply here and I'll look into it.",
+    gbpTxt:"Winter check special in {area}: tyres, battery, lights and coolant for £29. Book before the cold snap.",
+    refTxt:"Hi {first}, thanks for trusting us with your car. If you send a friend our way, we'll take £20 off your next service for every one who books.",
+    b2bWho:'courier and fleet firms around {area}', b2bN:7, b2bVal:8,
+    b2bTxt:"Hello,\n\nWe're an independent garage in {area} looking after van and car fleets: MOTs, servicing and repairs, with collection and a courtesy vehicle so your drivers stay on the road.\n\nWould it be worth comparing us with your current arrangement? Happy to send fleet rates.\n\n{owner}, {biz}\nNot relevant? Reply STOP and we won't contact you again.",
+    b2bOrg:'Swift Parcels Ltd', winNames:['Ben Hart','Jo Clarke'], refName:'Kwame (referred by Dave Collins)'},
+  agency: {label:'Agencies', biz:'Northlight Studio', area:'Shoreditch', job:2400, unit:'project', custWord:'clients',
+    total:62, lapsed:14, due:5, dueWhat:'their website is 3+ years old', search:'web designer near me',
+    recent:['Amira (Brightside Dental)','James (Oakwood Estates)','Sophie (Fernhill Gin)','Rob (Marlow Physio)','Nina (Harbour Café)','Helen (Jones Legal)'],
+    winTxt:"Hi {first}, it's {owner} from {biz}. It's been about three years since we built your site, and a lot has changed in how people find businesses since then. Fancy a free 20-minute check-up call to see what's worth refreshing?",
+    revTxt:"Hi {first}, thanks for working with us on this project. If you were happy with it, a short Google review would really help us: {link}\nAnd if anything could have been better, I'd love to hear that too.",
+    gbpTxt:"Just launched: a new booking website for a {area} physio clinic, with online booking live in week one. Planning a site for 2027? We have two slots in January.",
+    refTxt:"Hi {first}, really enjoyed working together. If you know a business that needs a website or rebrand, an intro would mean a lot, and we'll give you a month's care plan free for every one that goes ahead.",
+    b2bWho:'companies newly registered in {area} on Companies House', b2bN:10, b2bVal:1,
+    b2bTxt:"Hello,\n\nCongratulations on setting up the company. We're a small studio in {area} that builds websites and brands for new businesses, and we can usually have a site live within three weeks.\n\nWould a quick call about getting online be useful? Happy to send examples.\n\n{owner}, {biz}\nNot relevant? Reply STOP and we won't contact you again.",
+    b2bOrg:'Kiln & Co Ltd', winNames:['Amira','Rob'], refName:'Tom (referred by Helen, Jones Legal)'}
+};
+const sector = S[P.get('sector')] ? P.get('sector') : 'trades';
+let X = S[sector];
+const biz = () => P.get('biz') || X.biz;
+const area = () => P.get('area') || X.area;
+const owner = () => P.get('name') || 'Sam';
+const sub = (t, extra) => t.replace(/\{biz\}/g, biz()).replace(/\{area\}/g, area()).replace(/\{owner\}/g, owner()).replace(/\{link\}/g, 'g.page/r/review').replace(/\{first\}/g, (extra&&extra.first)||'there');
+
+/* ===== state ===== */
+let auto = 1, idx = 0, paused = false, timer = null, cdTimer = null, waiting = null, taps = 0;
+const decision = {}, edits = {}, held = new Set(), logItems = [];
+const okd = id => decision[id] === 'ok';
+
+/* ===== what Scout can do (items) ===== */
+const ITEMS = {
+  win:{title:()=>`Win back ${X.due} past ${X.custWord}`, subt:()=>`Personal message to each, from your number`, n:()=>X.due, who:()=>X.winNames.concat(['+'+(X.due-2)+' more']), text:()=>sub(X.winTxt,{first:X.winNames[0].split(' ')[0]})},
+  rev:{title:()=>`Ask ${X.recent.length} recent ${X.custWord} for a Google review`, subt:()=>`Everyone from this week, happy or not (Google's rule)`, n:()=>X.recent.length, who:()=>X.recent, text:()=>sub(X.revTxt,{first:X.recent[0].split(' ')[0]})},
+  gbp:{title:()=>`Post this week's work on your Google profile`, subt:()=>`Uses your latest job photo (approved for marketing)`, n:()=>1, text:()=>sub(X.gbpTxt)},
+  ref:{title:()=>`Ask your 3 best ${X.custWord} for a referral`, subt:()=>`Picked by how often they book and spend`, n:()=>3, who:()=>X.recent.slice(1,4), text:()=>sub(X.refTxt,{first:X.recent[1].split(' ')[0]})},
+  b2b:{title:()=>`Introduce you to ${X.b2bN} ${sub(X.b2bWho)}`, subt:()=>`Companies only, business addresses, opt-out included`, n:()=>X.b2bN, text:()=>sub(X.b2bTxt)}
+};
+const LOGTXT = {win:()=>`Messaged ${X.due} lapsed ${X.custWord}`, rev:()=>`Asked ${X.recent.length} ${X.custWord} for reviews`, gbp:()=>`Posted on your Google profile`, ref:()=>`Asked 3 ${X.custWord} for referrals`, b2b:()=>`Emailed ${X.b2bN} local companies`};
+
+/* ===== outcomes ===== */
+function leads(){
+  const L = [];
+  if (okd('win')) X.winNames.forEach(n => L.push({name:n, src:'Win-back', val:X.job, note:'wants booking in'}));
+  if (okd('gbp')) L.push({name:'New caller via Google', src:'Google profile', val:X.job, note:'found you searching "'+X.search+'"'});
+  if (okd('ref')) L.push({name:X.refName, src:'Referral', val:X.job, note:'asked for a price'});
+  if (okd('b2b')) L.push({name:X.b2bOrg, src:'B2B outreach', val:X.job*X.b2bVal, note:'asked for your rates'});
+  return L;
+}
+const reviews = () => okd('rev') ? 4 : 0;
+function agentTasks(){ // things Scout did itself: analysis + every message sent + reading replies
+  let n = 3; Object.keys(ITEMS).forEach(k=>{ if (okd(k)) n += ITEMS[k].n() + 1; }); return n + leads().length;
+}
+
+/* ===== the week ===== */
+function steps(){
+  return [
+    {day:'Monday', t:'08:02', kind:'msg', html:()=>`<p>Morning ${esc(owner())} 👋 I've been through your last 12 months: <b>${X.total}</b> ${X.custWord}. <b>${X.lapsed}</b> haven't been back in over a year, and <b>${X.due}</b> of those are due now (${X.dueWhat}).</p>`},
+    {day:'Monday', t:'08:03', kind:'plan', id:'mon', items:['win','rev']},
+    {day:'Tuesday', t:'10:15', kind:'msg', html:()=> okd('rev') ? `<p>⭐ <b>4 new Google reviews</b> overnight, all five stars. One customer replied privately about a late arrival, so I've flagged it for you to call them.</p>` : `<p>No review requests went out, so no new reviews this week. Reviews are the main thing that moves you up "${esc(X.search)}" searches.</p>`},
+    {day:'Tuesday', t:'12:40', kind:'plan', id:'tue', items:['gbp']},
+    {day:'Wednesday', t:'09:05', kind:'plan', id:'wed', items:['ref','b2b']},
+    {day:'Thursday', t:'11:30', kind:'msg', html:()=>{ const L = leads(); return L.length ? `<p>Replies are coming in 📬 <b>${L.length} new ${L.length===1?'enquiry':'enquiries'}</b> so far.</p>` : `<p>Quiet week: everything was held, so there's nothing new to pass on.</p>`; }},
+    {day:'Thursday', t:'11:31', kind:'hand', cond:()=>leads().length>0},
+    {day:'Friday', t:'16:00', kind:'report'},
+    {day:'Friday', t:'16:01', kind:'msg', html:()=>`<p>Next week I'll follow up anyone who didn't reply and post on Google again. Same as this week unless you tell me otherwise.</p>`},
+  ];
+}
+let STEPS = steps();
+
+/* ===== rendering ===== */
+const chat = () => $('#chat');
+let lastDay = null;
+function addDay(d){ if (d !== lastDay){ lastDay = d; chat().insertAdjacentHTML('beforeend', `<div class="day"><span>${d}</span></div>`); } }
+function bubble(inner, t, cls){ chat().insertAdjacentHTML('beforeend', `<div class="msg ${cls||''}">${inner}<div class="tm">${t}</div></div>`); scrollEnd(); }
+function scrollEnd(){ if (!$('#v-feed').classList.contains('on')) return; window.scrollTo({top: document.body.scrollHeight, behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth'}); }
+function planCard(s){
+  return `<div class="card" id="c-${s.id}"><div class="ct">🗓️ Today's plan: ${s.items.length} ${s.items.length===1?'thing':'things'}</div>
+    ${s.items.map(k=>{ const it = ITEMS[k]; return `<div class="item" id="it-${k}"><div class="ih"><button class="tog" data-tog="${k}" aria-label="Include or leave out">✓</button><div style="flex:1"><div class="it">${esc(it.title())}</div><div class="cs">${esc(it.subt())}</div>
+      <details><summary>Preview message</summary>${it.who?`<div class="who">${it.who().map(w=>`<span>${esc(w)}</span>`).join('')}</div>`:''}<div class="pv" id="pv-${k}">${esc(edits[k]||it.text())}</div><button class="edl" data-edit="${k}">Edit wording</button></details></div></div></div>`; }).join('')}
+    <div id="ctl-${s.id}"></div></div>`;
+}
+function setCtl(id, html){ const c = $('#ctl-'+id); if (c) c.innerHTML = html; }
+function awaitPlan(s){
+  waiting = s.id; updateNav();
+  if (auto === 2){ decidePlan(s.id, true); return; }
+  if (auto === 0){ setCtl(s.id, `<div class="acts"><button class="yes" data-okp="${s.id}">Approve plan</button><button data-holdp="${s.id}">Hold all</button></div><div class="done wait">Waiting for your OK.</div>`); return; }
+  const secs = 6;
+  setCtl(s.id, `<div class="small" style="margin-top:6px">Going ahead in ${secs}s (an hour in real life). Untick anything you don't want. Nothing else needed from you.</div><div class="cd"><i id="cd-${s.id}"></i></div><div class="acts"><button data-okp="${s.id}">Go now</button><button data-holdp="${s.id}">Hold all</button></div>`);
+  requestAnimationFrame(()=>{ const bar = $('#cd-'+s.id); if (bar){ bar.style.transitionDuration = secs+'s'; bar.style.width = '0%'; } });
+  clearTimeout(cdTimer);
+  cdTimer = setTimeout(()=>{ if (waiting === s.id && !paused) decidePlan(s.id, true); }, secs*1000);
+}
+function decidePlan(id, byAgent, holdAll){
+  const s = STEPS.find(x=>x.id===id); if (!s || s.decided) return;
+  s.decided = true; clearTimeout(cdTimer);
+  if (!byAgent) taps++;
+  s.items.forEach(k=>{ decision[k] = (holdAll || held.has(k)) ? 'skip' : 'ok'; if (decision[k]==='ok') logItems.push(s.day+': '+LOGTXT[k]()); });
+  const sent = s.items.filter(okd).length;
+  const tmsg = holdAll ? '⏸ Held. Nothing sent.' : (byAgent ? (auto===2 ? `✓ Done: ${sent} of ${s.items.length} sent automatically` : `✓ Went ahead: ${sent} of ${s.items.length} sent`) : `✓ Approved: ${sent} of ${s.items.length} sent`);
+  setCtl(id, `<div class="done ${holdAll?'skip':'ok'}">${tmsg} <span class="small">(demo)</span></div>`);
+  document.querySelectorAll(`#c-${id} .tog`).forEach(b=>b.disabled = true);
+  if (!byAgent) bubble(`<p>${holdAll?'Hold those for now':'👍 Go ahead'}</p>`, s.t, 'me');
+  waiting = null; updateNav(); renderPipe();
+  if (!paused) schedule(700);
+}
+function handCard(){
+  const L = leads();
+  return `<div class="card hand"><div class="ct">🤝 Passed to Frontdesk (agent 2)</div><div class="cs">It replies within 2 minutes, asks the right questions and books them in. You don't need to do anything.</div>
+    <ul>${L.map(l=>`<li><b>${esc(l.name)}</b>: ${esc(l.src)}, ${esc(l.note)}</li>`).join('')}</ul></div>`;
+}
+function effort(){ const a = agentTasks(), pct = taps/(taps+a)*100; return {a, pct}; }
+function reportCard(){
+  const L = leads(), val = L.reduce((x,l)=>x+l.val,0), e = effort();
+  return `<div class="card"><div class="ct">📊 Your week with Scout</div>
+    <div class="stats"><div><b>${L.length}</b><small>new enquiries</small></div><div><b>${gbp(val)}</b><small>possible work (at your average ${X.unit})</small></div>
+    <div><b>${reviews()}</b><small>new Google reviews</small></div><div><b>${e.pct.toFixed(0)}%</b><small>of the work done by you (${taps} ${taps===1?'tap':'taps'} vs ${e.a} tasks by Scout)</small></div></div>
+    <div class="cs" style="margin-top:8px">Figures are sample data for the demo.</div></div>`;
+}
+function typing(){ chat().insertAdjacentHTML('beforeend','<div class="typing" id="typ"><i></i><i></i><i></i></div>'); scrollEnd(); }
+function untype(){ const t = $('#typ'); if (t) t.remove(); }
+function next(){
+  timer = null;
+  if (paused || waiting) return;
+  if (idx >= STEPS.length){ finish(); return; }
+  const s = STEPS[idx++];
+  progress();
+  if (s.cond && !s.cond()) { schedule(10); return; }
+  addDay(s.day); typing();
+  timer = setTimeout(()=>{
+    untype();
+    if (s.kind === 'msg') bubble(s.html(), s.t);
+    else if (s.kind === 'plan'){ bubble(planCard(s), s.t); awaitPlan(s); if (waiting) return; }
+    else if (s.kind === 'hand') bubble(handCard(), s.t);
+    else if (s.kind === 'report') bubble(reportCard(), s.t);
+    renderPipe();
+    if (!waiting) schedule(1300);
+  }, 750);
+}
+function schedule(ms){ clearTimeout(timer); timer = setTimeout(next, ms); }
+function progress(){ $('#prog').style.width = (idx/STEPS.length*100)+'%'; }
+function finish(){
+  progress(); $('#pp').textContent = '↺ Replay';
+  if (!finish.shown){ finish.shown = true; bubble(`<p>Want me doing this for ${esc(biz())}? I'll start with your own customer list, on "ask me first" until you trust me.</p><div class="acts"><button class="yes" data-hire>Put Scout to work</button></div>`, 'now'); }
+}
+function restart(){
+  clearTimeout(timer); clearTimeout(cdTimer);
+  Object.keys(decision).forEach(k=>delete decision[k]); Object.keys(edits).forEach(k=>delete edits[k]); held.clear(); logItems.length = 0;
+  idx = 0; taps = 0; waiting = null; paused = false; lastDay = null; finish.shown = false;
+  STEPS = steps(); chat().innerHTML = ''; $('#pp').textContent = '⏸ Pause';
+  renderPipe(); updateNav(); progress(); schedule(400);
+}
+function updateNav(){ const c = $('#navCnt'); c.hidden = !waiting || auto !== 0; c.textContent = '1'; renderOvr(); }
+function renderOvr(){
+  const L = leads(), val = L.reduce((x,l)=>x+l.val,0), need = (waiting && auto===0) ? 1 : 0;
+  $('#ovr').innerHTML = `<div><b>${L.length}</b><small>enquiries</small></div><div><b>${gbp(val)}</b><small>work found</small></div><div><b>${reviews()}★</b><small>reviews</small></div><div class="${need?'need':''}"><b>${need}</b><small>needs you</small></div>`;
+}
+
+/* ===== overview ===== */
+function renderPipe(){
+  renderOvr();
+  const L = leads(), val = L.reduce((a,l)=>a+l.val,0), e = effort();
+  $('#kpis').innerHTML = `<div class="kpi"><div class="l">Enquiries</div><div class="v">${L.length}</div></div><div class="kpi"><div class="l">Possible work</div><div class="v">${gbp(val)}</div></div><div class="kpi"><div class="l">New reviews</div><div class="v">${reviews()}</div></div><div class="kpi"><div class="l">Your share of work</div><div class="v">${e.pct.toFixed(0)}%</div></div>`;
+  $('#effTxt').textContent = `Scout: ${e.a} tasks (checking your records, writing and sending ${Object.keys(ITEMS).filter(okd).reduce((n,k)=>n+ITEMS[k].n(),0)} messages, reading replies). You: ${taps} ${taps===1?'tap':'taps'}. Target: under 5%.`;
+  $('#meter').innerHTML = `<i style="width:${100-e.pct}%;background:var(--brand2)" title="Scout"></i><i style="width:${e.pct}%;background:var(--accent)" title="You"></i>`;
+  const ch = [['Win-back','win'],['Reviews','rev'],['Google profile','gbp'],['Referrals','ref'],['B2B outreach','b2b']];
+  const map = {win:'Win-back',gbp:'Google profile',ref:'Referral',b2b:'B2B outreach'};
+  const cnt = k => k==='rev' ? reviews() : L.filter(l=>l.src===map[k]).length;
+  const max = Math.max(1, ...ch.map(c=>cnt(c[1])));
+  $('#funnel').innerHTML = '<b>Where new work came from</b>' + ch.map(([n,k])=>{ const v = cnt(k), st = decision[k]; return `<div class="fr ${st==='skip'?'off':''}"><span>${n}${st==='skip'?' (held)':!st?' (later this week)':''}</span><div class="bar"><i style="width:${v/max*100}%"></i></div><span class="n">${v}${k==='rev'?'★':''}</span></div>`; }).join('');
+  $('#handList').innerHTML = L.length ? L.map(l=>`<div style="padding:6px 0;border-top:1px solid var(--line);font-size:14px"><b>${esc(l.name)}</b> <span class="small">· ${esc(l.src)} · ${gbp(l.val)}</span></div>`).join('') : '<div class="small">Nothing yet.</div>';
+  $('#log').innerHTML = (['Monday: Checked '+X.total+' '+X.custWord+' for anyone lapsed or due'].concat(logItems)).map(t=>`<li>${esc(t)}</li>`).join('');
+}
+const AGENTS = [
+  ['S','Scout','Finds new work: win-back, reviews, referrals, Google profile, local B2B outreach.','live'],
+  ['F','Frontdesk','Answers every call, form and WhatsApp within 2 minutes, qualifies the job and books the visit.','demo'],
+  ['C','Closer','Sends the quote, follows it up on day 3, 7 and 14, and turns a yes into a booked job.','demo'],
+  ['$','Collector','Invoices, chases politely then firmly, adds late-payment interest for business clients, tells you when money lands.','demo'],
+  ['K','Keeper','Remembers when each customer is next due (service, MOT, colour, renewal) and fills your diary with repeat work.','demo'],
+  ['B','Bookkeeper','Reads your receipts, codes them to jobs, keeps job profit up to date and prepares your quarterly Making Tax Digital update.','demo']
+];
+$('#chain').innerHTML = AGENTS.map(([b,n,d,s])=>`<div class="ag ${s==='live'?'me':''}"><div class="b">${b}</div><div><h3>${n} <span class="tag ${s==='live'?'live':''}">${s==='live'?'You are here':s==='next'?'Coming next':s==='demo'?'Demo ready':'Coming soon'}</span></h3><p>${d}</p></div></div>`).join('') + `<div class="note">For trades, all six agents work on top of <a href="../ui_01_siteledger_quote_jobcost/index.html?play=workflow" target="_blank" rel="noopener">SiteLedger</a>, which holds the quotes, jobs, costs, invoices and tax records, so you can see the detail behind anything an agent did.</div>`
+
+/* ===== hire form ===== */
+function openSheet(h){ $('#sheet').innerHTML = h; $('#scrim').classList.add('on'); }
+function closeSheet(){ $('#scrim').classList.remove('on'); }
+const head = t => `<div class="sh"><h3>${t}</h3><button class="x" data-close aria-label="Close">×</button></div>`;
+function openHire(){
+  openSheet(head('Put Scout to work') + `
+  <div class="small" style="margin-bottom:6px">We'll set Scout up on your own customer list, on "ask me first", and run your first week with you. No card needed.</div>
+  <form id="hf" novalidate>
+    <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off">
+    <label class="f" for="hName">Your name *</label><input class="in" id="hName" name="name" autocomplete="name" value="${esc(P.get('name')||'')}">
+    <label class="f" for="hBiz">Business name *</label><input class="in" id="hBiz" name="business" autocomplete="organization" value="${esc(P.get('biz')||'')}">
+    <label class="f" for="hEmail">Email *</label><input class="in" id="hEmail" name="email" type="email" autocomplete="email">
+    <label class="f" for="hPhone">Mobile for WhatsApp (optional)</label><input class="in" id="hPhone" name="phone" type="tel" autocomplete="tel">
+    <div class="inline"><div><label class="f" for="hSec">Type of business</label><select class="in" id="hSec" name="sector">${Object.keys(S).map(k=>`<option ${k===sector?'selected':''}>${S[k].label}</option>`).join('')}<option>Other</option></select></div>
+    <div><label class="f" for="hList">Customer list kept in</label><select class="in" id="hList" name="customer_list"><option>Xero / QuickBooks</option><option>Booking app</option><option>Spreadsheet</option><option>Phone / paper</option></select></div></div>
+    <label class="f" for="hMsg">Which agent would help most? (optional)</label>
+    <textarea class="in" id="hMsg" name="message" style="min-height:80px" placeholder="e.g. Scout and Frontdesk. We miss calls while on jobs."></textarea>
+    <div class="err" id="hErr" hidden></div>
+    <button class="btn acc block" style="margin-top:14px" id="hSend" type="submit">Send</button>
+    <div class="small" style="margin-top:8px">We'll only use these details to contact you about this. The Tech Principle, London.</div>
+  </form>`);
+  $('#hf').onsubmit = submitHire;
+}
+async function submitHire(e){
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target).entries()), err = $('#hErr'), btn = $('#hSend');
+  if (data._honey) return; delete data._honey; err.hidden = true;
+  if (!data.name.trim() || !data.business.trim()){ err.textContent = 'Please add your name and business name.'; err.hidden = false; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)){ err.textContent = 'Please check your email address.'; err.hidden = false; return; }
+  const L = leads();
+  const payload = Object.assign({
+    _subject: 'Scout request: ' + data.business, _template: 'table', _captcha: 'false',
+    app: CFG.app, campaign_source: P.get('src')||'direct', campaign_id: P.get('cid')||'', emailed_business: P.get('biz')||'',
+    demo_sector_viewed: X.label, autonomy_chosen: ['Ask me first','Go ahead unless I stop it','Just do it'][auto],
+    demo_approved: Object.keys(decision).filter(k=>decision[k]==='ok').join(', ') || 'none', demo_taps: String(taps), demo_week_finished: idx >= STEPS.length ? 'yes' : 'no',
+    page: location.href, submitted_at: new Date().toISOString()
+  }, data);
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try{
+    const r = await fetch(CFG.formEndpoint, {method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body:JSON.stringify(payload)});
+    const j = await r.json().catch(()=>({}));
+    if (!r.ok || String(j.success) === 'false') throw new Error('fail');
+    openSheet(head('Sent') + `<div class="ok-state"><div style="font-size:42px">✅</div><h3>Thanks, ${esc(data.name.split(' ')[0])}.</h3><p class="small">We'll be in touch within one working day to set Scout up for ${esc(data.business)}.</p><button class="btn sec" data-close>Back to the demo</button></div>`);
+  }catch(ex){
+    btn.disabled = false; btn.textContent = 'Send';
+    const body = encodeURIComponent(Object.entries(payload).filter(([k])=>k[0]!=='_').map(([k,v])=>k+': '+v).join('\n'));
+    err.innerHTML = `Couldn't send just now. <a href="mailto:${CFG.fallbackEmail}?subject=${encodeURIComponent(payload._subject)}&body=${body}">Email it instead</a> (${CFG.fallbackEmail}).`;
+    err.hidden = false;
+  }
+}
+
+/* ===== events ===== */
+function go(v){ document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on', x.id==='v-'+v)); document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on', b.dataset.v===v)); if (v!=='feed') window.scrollTo(0,0); else scrollEnd(); }
+function rearm(){ if (waiting && auto===1 && !paused){ const s = STEPS.find(x=>x.id===waiting); waiting = null; awaitPlan(s); } }
+document.addEventListener('click', e=>{
+  const t = e.target.closest('button,a'); if (!t) return;
+  const d = t.dataset;
+  if (d.v) go(d.v);
+  else if (d.okp) decidePlan(d.okp, false);
+  else if (d.holdp) decidePlan(d.holdp, false, true);
+  else if (d.tog){ if (t.disabled) return; taps++; if (held.has(d.tog)) held.delete(d.tog); else held.add(d.tog); t.classList.toggle('off', held.has(d.tog)); $('#it-'+d.tog).classList.toggle('off', held.has(d.tog)); renderPipe(); }
+  else if (d.edit){ clearTimeout(cdTimer); const it = ITEMS[d.edit];
+    openSheet(head('Edit wording') + `<textarea class="in" id="edTxt">${esc(edits[d.edit]||it.text())}</textarea><div class="inline" style="margin-top:12px"><button class="btn sec" data-close>Cancel</button><button class="btn" data-edsave="${d.edit}">Save</button></div>`); }
+  else if (d.edsave){ taps++; edits[d.edsave] = $('#edTxt').value; const pv = $('#pv-'+d.edsave); if (pv) pv.textContent = edits[d.edsave]; closeSheet(); toast('Saved. Scout will use your wording from now on.'); renderPipe(); rearm(); }
+  else if (d.auto != null){ auto = Number(d.auto); document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on', b===t)); toast(['Scout waits for your OK on each daily plan','Scout goes ahead after an hour unless you stop it','Scout goes ahead straight away and reports back'][auto]); if (waiting){ const s = STEPS.find(x=>x.id===waiting); waiting = null; awaitPlan(s); } updateNav(); }
+  else if (d.sector){ const u = new URL(location); u.searchParams.set('sector', d.sector); location.href = u.toString(); }
+  else if ('hire' in d) openHire();
+  else if ('close' in d){ closeSheet(); rearm(); }
+  else if (t.id === 'pp'){ if (idx >= STEPS.length && !waiting){ restart(); return; } paused = !paused; t.textContent = paused ? '▶ Play' : '⏸ Pause'; if (!paused){ if (waiting) rearm(); else schedule(200); } else { clearTimeout(timer); clearTimeout(cdTimer); } }
+  else if (t.id === 'skip'){ if (waiting) decidePlan(waiting, true); else { clearTimeout(timer); untype(); next(); } }
+  else if (t.id === 'replay') restart();
+});
+$('#scrim').addEventListener('click', e=>{ if (e.target.id==='scrim'){ closeSheet(); rearm(); } });
+document.addEventListener('keydown', e=>{ if (e.key==='Escape'){ closeSheet(); rearm(); } });
+
+/* ===== boot ===== */
+$('#chips').innerHTML = Object.keys(S).map(k=>`<button data-sector="${k}" class="${k===sector?'on':''}">${S[k].label}</button>`).join('');
+$('#stLine').textContent = 'finds new work for ' + biz() + ' · online';
+$('#ctaT').textContent = 'Put Scout to work for ' + (P.get('biz') || 'your business');
+if (P.get('auto') && ['0','1','2'].includes(P.get('auto'))){ auto = Number(P.get('auto')); document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on', Number(b.dataset.auto)===auto)); }
+renderPipe(); restart();
+if (P.get('hire') === '1') setTimeout(openHire, 400);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<!--
+  epics/ep_064_business_solutions/agent_03_closer/index.html — Closer: quoting agent demo (agent 3 of 5) for cold-email demand testing
+
+  VERSION HISTORY
+  v1.x.2 · 2026-11-27 · Six-agent chain (adds Bookkeeper), all marked 'Demo ready', with a SiteLedger note on the All agents tab.
+  v1.0.0 · 2026-11-27 · Initial version: two weeks of quoting played in about a minute. Picks up Frontdesk's handovers, builds good/better/best quotes
+                        from the price list and visit notes, asks the owner only on custom pricing (one tap, auto-sends after a countdown),
+                        day-3/7/final follow-ups, objection handled with a pre-approved option (never a discount), won/lost with reason logged,
+                        deposit link and handover to Collector. Overview tab with quote board, win rate, effort meter, lost reasons and log.
+                        Sector presets, ?biz=&name=, ?auto=0|1|2, "Put Closer to work" form → FormSubmit → edward.bell@thetechprinciple.com, ?src=&cid=.
+-->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Closer · every quote sent and followed up</title>
+<meta name="description" content="Closer is an AI agent that sends your quotes within hours, follows them up on day 3, 7 and 14, and turns a yes into a booked job.">
+<meta name="theme-color" content="#3b2a5c">
+<style>
+:root{
+  --ink:#122220; --ink2:#4a5f5b; --mute:#7d8f8b; --line:#e1e8e6; --bg:#f1eff5; --card:#fff;
+  --brand:#3b2a5c; --brand2:#5a438a; --accent:#f2a93b; --accent-ink:#4a2f00;
+  --chat:#ebe8f2; --me:#d9f4c7; --ok:#1d8a5a; --ok-bg:#e3f4ec; --warn:#b86e00; --warn-bg:#fdf1dc; --bad:#b03a2e; --bad-bg:#fbe7e4; --info:#2463a6; --info-bg:#e5eef9;
+  --r:14px; --sh:0 1px 2px rgba(16,32,31,.06),0 4px 14px rgba(16,32,31,.07); --nav:62px;
+}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;padding-bottom:calc(var(--nav) + 104px)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:720px;margin:0 auto;padding:0 12px}
+
+header.top{background:var(--brand);color:#fff;padding:12px 0 14px;position:sticky;top:0;z-index:20}
+.top .row{display:flex;align-items:center;gap:10px}
+.av{width:40px;height:40px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:800;font-size:17px;flex:none;position:relative}
+.av::after{content:"";position:absolute;right:0;bottom:0;width:11px;height:11px;border-radius:50%;background:#5ee08a;border:2px solid var(--brand)}
+.nm{font-weight:750;font-size:16.5px}
+.st{font-size:12.5px;opacity:.82}
+.sp{flex:1}
+.pill{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:7px 12px;font-size:13px;min-height:36px;white-space:nowrap}
+.pill.solid{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.chips{display:flex;gap:6px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;border-radius:999px;padding:5px 11px;font-size:12.5px;min-height:32px;opacity:.85}
+.chips button.on{background:#fff;color:var(--brand);opacity:1;font-weight:700}
+.settings{background:var(--brand);color:#fff;border-radius:14px;padding:4px 10px 10px;margin-bottom:8px}
+.auto{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12.5px}
+.seg{display:flex;background:rgba(255,255,255,.1);border-radius:10px;padding:3px;flex:1}
+.seg button{flex:1;border:0;background:transparent;color:#fff;border-radius:8px;padding:6px 4px;font-size:12.5px;min-height:32px;opacity:.85}
+.seg button.on{background:#fff;color:var(--brand);font-weight:700;opacity:1}
+
+.view{display:none}.view.on{display:block}
+main{padding-top:12px}
+
+/* chat */
+.chat{background:var(--chat);border-radius:18px;padding:12px 10px 16px;min-height:60vh;background-image:radial-gradient(rgba(59,42,92,.06) 1px,transparent 1px);background-size:14px 14px}
+.day{text-align:center;margin:14px 0 8px}
+.day span{background:#fff;border-radius:8px;padding:3px 10px;font-size:12px;color:var(--ink2);box-shadow:0 1px 1px rgba(0,0,0,.06)}
+.msg{max-width:88%;background:#fff;border-radius:4px 14px 14px 14px;padding:9px 11px 6px;margin:6px 0;box-shadow:0 1px 1px rgba(0,0,0,.07);animation:pop .22s ease}
+.msg.me{margin-left:auto;background:var(--me);border-radius:14px 4px 14px 14px}
+.msg.sys{max-width:100%;background:transparent;box-shadow:none;text-align:center;font-size:12.5px;color:var(--ink2);padding:2px}
+@keyframes pop{from{transform:translateY(6px);opacity:0}}
+.msg .tm{font-size:11px;color:var(--mute);text-align:right;margin-top:2px}
+.msg p{margin:0 0 4px}
+.msg b{font-weight:650}
+.card{border:1px solid var(--line);border-radius:12px;padding:10px;margin:6px 0 4px;background:#fbfcfb}
+.card .ct{font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px}
+.card .cs{font-size:12.5px;color:var(--ink2);margin-top:2px}
+.pv{white-space:pre-wrap;background:#fff;border-left:3px solid var(--brand2);padding:8px 10px;margin:8px 0;font-size:13.5px;border-radius:0 8px 8px 0}
+.who{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.who span{background:#eef3f1;border-radius:999px;padding:2px 8px;font-size:12px}
+.acts{display:flex;gap:6px;margin-top:8px}
+.acts button{flex:1;border:0;border-radius:9px;min-height:40px;font-weight:650;font-size:13.5px;background:#eef2f1}
+.acts button.yes{background:var(--brand);color:#fff}
+.done{font-size:12.5px;font-weight:650;margin-top:8px;padding:6px 9px;border-radius:8px}
+.done.ok{background:var(--ok-bg);color:var(--ok)} .done.skip{background:#eef2f1;color:var(--ink2)} .done.wait{background:var(--warn-bg);color:var(--warn)}
+.cd{height:4px;background:#e9efec;border-radius:2px;overflow:hidden;margin-top:8px}
+.cd i{display:block;height:100%;background:var(--accent);width:100%;transition:width linear}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
+.stats div{background:#f2f6f4;border-radius:9px;padding:7px 9px}
+.stats b{display:block;font-size:19px;font-variant-numeric:tabular-nums}
+.stats small{font-size:11.5px;color:var(--ink2)}
+.hand{border:1px dashed var(--brand2);background:#f3faf7}
+.hand ul{margin:6px 0 0;padding-left:18px;font-size:13.5px}
+.typing{display:inline-flex;gap:4px;background:#fff;border-radius:14px;padding:10px 12px;margin:6px 0;box-shadow:0 1px 1px rgba(0,0,0,.07)}
+.typing i{width:7px;height:7px;border-radius:50%;background:#9fb0ab;animation:bl 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bl{50%{opacity:.25}}
+.playbar{display:flex;gap:8px;align-items:center;margin:10px 0 2px}
+.playbar .prog{flex:1;height:6px;background:#dfe7e3;border-radius:3px;overflow:hidden}
+.playbar .prog i{display:block;height:100%;background:var(--brand2);transition:width .3s}
+.btn{border:0;border-radius:11px;padding:10px 14px;min-height:44px;font-weight:650;background:var(--brand);color:#fff}
+.btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.acc{background:var(--accent);color:var(--accent-ink)}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:13.5px;border-radius:9px}
+.btn.block{width:100%}
+
+/* panels */
+h2{font-size:19px;margin:4px 0 6px}
+.sub{color:var(--ink2);font-size:13.5px;margin:0 0 12px}
+.panel{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-bottom:12px}
+.funnel .fr{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) 3.4em;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.funnel .fr:last-child{border:0}
+.funnel .bar{height:12px;background:#edf2f0;border-radius:6px;overflow:hidden}
+.funnel .bar i{display:block;height:100%;background:var(--brand2);border-radius:6px;transition:width .4s}
+.funnel .fr.off{opacity:.45}
+.funnel .n{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.kpi{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:11px 12px}
+.kpi .l{font-size:11.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.3px}
+.kpi .v{font-size:22px;font-weight:750;font-variant-numeric:tabular-nums}
+.chain{display:flex;flex-direction:column;gap:0}
+.ag{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:start;position:relative;padding-bottom:16px}
+.ag:not(:last-child)::before{content:"";position:absolute;left:21px;top:44px;bottom:0;width:2px;background:var(--line)}
+.ag .b{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:#e8eeec;color:var(--ink2)}
+.ag.me .b{background:var(--accent);color:var(--accent-ink)}
+.ag h3{margin:2px 0 2px;font-size:15.5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ag p{margin:0;font-size:13.5px;color:var(--ink2)}
+.tag{font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;background:#eef2f1;color:var(--ink2)}
+.tag.live{background:var(--accent);color:var(--accent-ink)}
+.rules li{margin:6px 0;font-size:14px}
+.note{font-size:12.5px;color:var(--ink2);background:#f0f5f3;border-radius:10px;padding:10px 12px;margin-top:10px}
+
+.ovr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;background:#fff;border-radius:12px;padding:6px;margin-top:10px;border:0;width:100%;text-align:center;color:var(--ink)}
+.ovr div{padding:2px}.ovr b{display:block;font-size:16px;font-variant-numeric:tabular-nums}.ovr small{font-size:10.5px;color:var(--ink2)}
+.ovr .need b{color:var(--bad)}
+.item{border-top:1px solid var(--line);padding:8px 0}
+.item:first-of-type{border-top:0}
+.item .ih{display:flex;gap:9px;align-items:flex-start}
+.tog{flex:none;width:24px;height:24px;border-radius:7px;border:2px solid var(--brand2);background:var(--brand2);color:#fff;font-size:14px;line-height:1;display:grid;place-items:center;padding:0}
+.tog.off{background:#fff;color:transparent}
+.item.off .it{text-decoration:line-through;color:var(--mute)}
+.it{font-weight:650;font-size:14px}
+details summary{cursor:pointer;font-size:12.5px;color:var(--brand2);margin-top:4px}
+.edl{border:0;background:none;color:var(--brand2);font-size:12.5px;padding:2px 0;text-decoration:underline}
+.meter{height:14px;background:#edf2f0;border-radius:7px;overflow:hidden;display:flex}
+.meter i{display:block;height:100%}
+.log li{font-size:13.5px;margin:4px 0}
+nav.bottom{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);z-index:30}
+nav.bottom .wrap{display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav);padding:0}
+nav.bottom button{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11.5px;color:var(--mute);position:relative}
+nav.bottom .ic{font-size:19px;line-height:1}
+nav.bottom button.on{color:var(--brand);font-weight:700}
+nav.bottom .cnt{position:absolute;top:7px;left:calc(50% + 6px);background:var(--bad);color:#fff;border-radius:999px;font-size:10.5px;padding:0 5px;min-width:17px;height:17px;line-height:17px;font-weight:700}
+.cta{position:fixed;left:0;right:0;bottom:var(--nav);z-index:29;padding:8px 0;background:linear-gradient(180deg,rgba(241,239,245,0),var(--bg) 40%)}
+.cta .box{display:flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border-radius:14px;padding:8px 8px 8px 14px;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.cta .box span{flex:1;font-size:13.5px;line-height:1.3}
+.cta .box b{display:block}
+
+.scrim{position:fixed;inset:0;background:rgba(10,20,20,.45);z-index:50;display:none;align-items:flex-end;justify-content:center}
+.scrim.on{display:flex}
+.sheet{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:8px 16px 18px;animation:up .22s ease}
+@keyframes up{from{transform:translateY(30px);opacity:.4}}
+.grab{width:42px;height:5px;border-radius:3px;background:#d6dfdd;margin:4px auto 10px}
+.sh{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.sh h3{flex:1;margin:0;font-size:17px}
+.x{border:0;background:#eef2f1;border-radius:50%;width:36px;height:36px;font-size:18px}
+label.f{display:block;font-size:12.5px;color:var(--ink2);margin:8px 0 4px;font-weight:600}
+.in{width:100%;border:1px solid #cfdad8;border-radius:10px;padding:10px 11px;background:#fff;min-height:44px;font-size:16px}
+textarea.in{min-height:140px;resize:vertical;font-size:15px}
+.inline{display:flex;gap:8px}
+.inline>div{flex:1}
+.small{font-size:12.5px;color:var(--mute)}
+.err{color:var(--bad);font-size:13px;margin-top:8px}
+.hp{position:absolute;left:-9999px;width:0;height:0;opacity:0}
+.ok-state{text-align:center;padding:18px 4px}
+.toast{position:fixed;left:50%;top:14px;transform:translateX(-50%) translateY(-140%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:80;transition:transform .25s;max-width:92vw}
+.toast.on{transform:translateX(-50%) translateY(0)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (min-width:700px){.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.scrim{align-items:center}.sheet{border-radius:20px}}
+@media (max-width:380px){.st{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}.ovr small{font-size:10px}.ovr b{font-size:15px}}
+@media (max-height:700px){.cta .box span{font-size:13px}.cta .box span>span,.cta .sub2{display:none}.cta{padding:4px 0}.cta .box{padding:6px 6px 6px 12px}header.top{padding:8px 0 10px}.ovr{margin-top:8px;padding:4px}body{padding-bottom:calc(var(--nav) + 70px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.enq .enqh{display:block;width:100%;text-align:left;border:0;background:none;padding:0}
+.tg{font-size:10.5px;font-weight:700;border-radius:999px;padding:1px 7px;background:#eef2f1;color:var(--ink2);margin-left:2px}
+.tg.sc{background:#fff3dc;color:#7a4a00}.tg.ur{background:var(--bad-bg);color:var(--bad)}.tg.cp{background:var(--info-bg);color:var(--info)}
+.q{font-size:13.5px;margin:8px 0 2px;font-weight:600}
+.acts.col{flex-direction:column}.acts.col button{text-align:left;padding:8px 12px}
+.convo{background:var(--chat);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.cl{max-width:85%;padding:8px 10px;border-radius:12px;font-size:14px;background:#fff}
+.cl.c{align-self:flex-start;border-radius:4px 12px 12px 12px}
+.cl.a{align-self:flex-end;background:#e2daf2;border-radius:12px 4px 12px 12px}
+.dr{display:grid;grid-template-columns:6.5em minmax(0,1fr) auto;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:14px;align-items:baseline}
+.dr:first-child{border-top:0}.dt{font-weight:700;white-space:nowrap}.dr .n{font-variant-numeric:tabular-nums;color:var(--ink2)}
+
+.opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}
+.opt{border:1px solid var(--line);border-radius:10px;padding:8px;background:#fff;display:flex;flex-direction:column;gap:2px;font-size:12.5px}
+.opt b{font-size:13.5px}.opt span{color:var(--ink2);line-height:1.3}.opt em{font-style:normal;font-weight:750;font-size:16px;margin-top:auto;font-variant-numeric:tabular-nums}
+.opt.rec{border:2px solid var(--brand2)}.opt small{color:var(--brand2);font-weight:700;font-size:11px}
+.big{font-size:26px;font-weight:750;font-variant-numeric:tabular-nums;margin:4px 0}
+.card.okc{border-color:#bfe3cf;background:#f3fbf6}.card.skc{background:#f4f4f6}
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:8px}
+.col{background:#f5f4f8;border-radius:10px;padding:6px;min-height:80px}
+.ch{font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:6px}.ch span{background:#fff;border-radius:999px;padding:0 6px;margin-left:2px}
+.qc{background:#fff;border-radius:8px;padding:6px;margin-bottom:6px;font-size:12px;display:flex;flex-direction:column;border-left:3px solid var(--brand2)}
+.qc span{color:var(--ink2);line-height:1.25}.qc em{font-style:normal;font-weight:700;font-variant-numeric:tabular-nums}
+.qc.won{border-left-color:var(--ok)}.qc.lost{border-left-color:var(--bad);opacity:.8}
+@media (max-width:560px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}.col.empty{display:none}.opts{grid-template-columns:1fr}.opt{flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:6px}.opt em{margin-left:auto;margin-top:0}.opt span{flex-basis:100%;order:3}}
+.sl{display:inline-flex;align-items:center;gap:6px;margin:0 0 12px;text-decoration:none;font-weight:650;font-size:14px;color:var(--brand2);border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="row">
+    <div class="av">C</div>
+    <div><div class="nm">Closer</div><div class="st" id="stLine">sends and chases quotes · online</div></div>
+    <div class="sp"></div>
+    <button class="pill" id="replay">↺ Replay</button>
+  </div>
+  <button class="ovr" id="ovr" data-v="pipe" aria-label="Open overview"></button>
+</div></header>
+
+<main class="wrap">
+  <section class="view on" id="v-feed">
+    <div class="settings">
+      <div class="auto"><span>Quotes:</span><div class="seg" id="seg">
+        <button data-auto="0">Ask me first</button><button data-auto="1" class="on">Ask only on custom prices</button><button data-auto="2">Just do it</button>
+      </div></div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="playbar"><button class="btn sm sec" id="pp">⏸ Pause</button><div class="prog"><i id="prog"></i></div><button class="btn sm sec" id="skip">Skip ›</button></div>
+    <div class="chat" id="chat" aria-live="polite"></div>
+    <p class="small" style="text-align:center;margin:10px 0">Demo with sample data. Nothing is sent. Two weeks of quoting, played in about a minute.</p>
+  </section>
+
+  <section class="view" id="v-pipe">
+    <h2>Overview</h2>
+    <p class="sub">Every quote, where it stands, and what you won.</p>
+    <a id="slLink" class="sl" hidden target="_blank" rel="noopener" href="../ui_01_siteledger_quote_jobcost/index.html?play=workflow">📒 See the detail in SiteLedger ›</a>
+    <div class="kpis" id="kpis"></div>
+    <div class="panel"><b>Quote board</b><div class="board" id="board"></div></div>
+    <div class="panel"><b>Who did the work</b><div class="small" style="margin:2px 0 8px" id="effTxt"></div><div class="meter" id="meter"></div></div>
+    <div class="panel"><b>Why you lost</b><div id="lostList" style="margin-top:6px"></div></div>
+    <div class="panel"><b>What Closer did</b><ul class="log" id="log"></ul></div>
+  </section>
+
+  <section class="view" id="v-chain">
+    <h2>Six agents, one job each</h2>
+    <p class="sub">Each agent hands over to the next, so nothing that leads to money gets dropped. Start with the one that hurts most.</p>
+    <div class="panel chain" id="chain"></div>
+  </section>
+
+  <section class="view" id="v-rules">
+    <h2>Rules Closer always follows</h2>
+    <div class="panel"><ul class="rules">
+      <li><b>Quotes go out within hours of the visit,</b> built from your notes or voice memo and your price list, in your template.</li>
+      <li><b>Prices only come from your price list.</b> Anything custom comes to you once, with the maths shown, before it's sent.</li>
+      <li><b>It offers good, better and best options</b> where it makes sense, so the customer is choosing between your options, not between you and another firm.</li>
+      <li><b>It follows up on days 3, 7 and 14,</b> politely, then closes the quote off. Nobody gets chased more than that.</li>
+      <li><b>It never cuts your price on its own.</b> When asked for a discount, it only offers alternatives you've pre-approved (smaller scope, own materials, payment plans).</li>
+      <li><b>Every lost quote gets a reason logged,</b> so you can see whether you lose on price, timing or trust.</li>
+      <li><b>A "yes" becomes a booked job:</b> date in the diary, deposit link sent, invoice handed to Collector.</li>
+    </ul>
+    <div class="note">The live version uses your existing quote template, or Xero, QuickBooks or Tradify quotes, and sends from your own email address.</div></div>
+  </section>
+</main>
+
+<div class="cta" id="cta"><div class="wrap"><div class="box"><span><b id="ctaT">Put Closer to work for your business</b><span class="sub2">Every quote sent fast and followed up.</span></span><button class="btn acc sm" data-hire>Get started</button></div></div></div>
+
+<nav class="bottom"><div class="wrap">
+  <button data-v="feed" class="on"><span class="ic">💬</span>Closer<span class="cnt" id="navCnt" hidden></span></button>
+  <button data-v="pipe"><span class="ic">📊</span>Overview</button>
+  <button data-v="chain"><span class="ic">🔗</span>All agents</button>
+  <button data-v="rules"><span class="ic">🛡️</span>Rules</button>
+</div></nav>
+
+<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div id="sheet"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+{
+const CFG = { app:'Closer (quote agent)', formEndpoint:'https://formsubmit.co/ajax/edward.bell@thetechprinciple.com', fallbackEmail:'edward.bell@thetechprinciple.com' };
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const gbp = n => '£' + Math.round(n).toLocaleString('en-GB');
+const P = new URLSearchParams(location.search);
+function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(()=>el.classList.remove('on'), 2600); }
+
+/* ===== sectors: three quotes each =====
+   A = from Frontdesk, built from the price list, good/better/best → won (picks the middle option)
+   B = business customer, custom pricing → owner OKs once → won on day 7
+   C = older quote → objection handled with a pre-approved option → lost on day 14, reason logged */
+const S = {
+ trades:{label:'Trades', biz:'Harris Plumbing & Heating', owner:'Dan', visit:'survey', start:'Tue 08:00',
+  A:{who:'Priya M.', what:'Combi boiler replacement', note:'1998 Baxi in kitchen cupboard, flue OK, wants faster hot water', opts:[['Good','Ideal Logic 30kW, 7-yr warranty',2450],['Better','Worcester 4000 30kW + magnetic filter, 10-yr warranty',2850],['Best','Worcester 8000 + smart thermostat, 12-yr warranty',3300]], why:'the 10-year warranty and the filter protecting it'},
+  B:{who:'Northgate Lettings Ltd', what:'Landlord gas safety checks, 40 properties', price:2340, detail:'40 checks at £58.50 (your £65 rate less 10% for 20+), invoiced monthly as they are done', recur:'monthly invoices as checks are done'},
+  C:{who:'Mr Hughes', what:'Bathroom refit', price:6800, objection:'Can you do it any cheaper?', alt:'If you supply your own tiles, the price comes down to £6,400. Same fitting and guarantee.', lost:'Price: went with a cheaper quote'}},
+ salon:{label:'Salons', biz:'Studio Nine Hair & Beauty', owner:'Sam', visit:'trial', start:'14 May 07:30',
+  A:{who:'Emma (bride)', what:'Bridal hair & make-up, 14 May', note:'Soft waves, natural make-up, 4 bridesmaids interested', opts:[['Bride','Bride only, with trial',280],['Bride + 2','Bride + 2 bridesmaids, with trial',520],['Full party','Bride + 4 + mother of the bride',790]], why:'the trial and having the bridesmaids done together'},
+  B:{who:'The Common Hotel Ltd', what:'Preferred bridal partner, party of 8', price:1200, detail:'8 people at £150 each, on-site at the hotel, 10% referral fee to the venue', recur:'invoices per wedding'},
+  C:{who:'Bloom Events Ltd', what:'Hair & make-up team for a fashion show', price:1850, objection:'Budget is tight, can you do it cheaper?', alt:'With 3 stylists instead of 4 and a slightly earlier start, it comes to £1,450.', lost:'Date: they moved the show'}},
+ garage:{label:'Garages', biz:'Westway Motors', owner:'Raj', visit:'inspection', start:'Tue 08:30',
+  A:{who:'Callum', what:'Clutch replacement, 2017 Focus', note:'Clutch slipping, dual-mass flywheel worn (rattle at idle)', opts:[['Good','Clutch kit only',560],['Better','Clutch + dual-mass flywheel (recommended)',890],['Best','Clutch + flywheel + full service',1020]], why:'replacing the worn flywheel now so he doesn\'t pay twice for labour'},
+  B:{who:'Swift Parcels Ltd', what:'Fleet servicing, 12 vans', price:2640, detail:'12 services at £220, priority booking and a courtesy van', recur:'monthly invoices per van serviced'},
+  C:{who:'Mr Ahmed', what:'Timing chain replacement', price:1450, objection:'The main dealer quoted about the same. Why should I use you?', alt:'We can include a free courtesy car and a 2-year parts and labour warranty.', lost:'Went to the main dealer under warranty'}},
+ agency:{label:'Agencies', biz:'Northlight Studio', owner:'Alex', visit:'discovery call', start:'5 Jan',
+  A:{who:'Ollie (Fernhill Gin)', what:'Shopify store', note:'40 products, wants subscriptions and gift cards, launch before Valentine\'s', opts:[['Starter','Theme setup, 40 products, payments',3500],['Growth','Starter + subscriptions, gift cards, reviews',4800],['Scale','Growth + custom design + email flows',6200]], why:'subscriptions and gift cards for the Valentine\'s launch'},
+  B:{who:'Kiln & Co Ltd', what:'Brand identity + 5-page website', price:2400, detail:'Logo, colours and type, plus a 5-page site, delivered in 3 weeks', recur:'50% deposit and 50% on launch'},
+  C:{who:'Harbour Café Ltd', what:'Website + online ordering', price:5200, objection:'Can we spread the cost?', alt:'Yes: three monthly payments of £1,733, starting when the project begins.', lost:'Timing: decided to wait until spring'}}
+};
+const sector = S[P.get('sector')] ? P.get('sector') : 'trades';
+const X = S[sector];
+const biz = () => P.get('biz') || X.biz;
+const owner = () => P.get('name') || X.owner;
+
+/* ===== state ===== */
+let auto = 1, idx = 0, paused = false, timer = null, cdTimer = null, waiting = null, taps = 0;
+let bPrice = X.B.price, aPick = 1, follows = 0;
+const status = {A:'draft', B:'draft', C:'sent'}; // draft | sent | following | won | lost
+const log = [];
+const A = X.A, B = X.B, C = X.C;
+
+/* ===== the fortnight ===== */
+const STEPS = [
+ {d:'Week 1 · Wednesday', t:'18:05', run:()=>{ bubble(`<p>${esc(owner())}, you've got 3 quotes on: <b>${esc(A.who)}</b> and <b>${esc(B.who)}</b> from Frontdesk, plus <b>${esc(C.who)}</b>, quoted on Monday. I'll handle them and only check with you on anything outside your price list.</p>`); }},
+ {d:'Week 1 · Wednesday', t:'18:20', run:()=>{
+   bubble(`<p>I've built ${esc(A.who)}'s quote from your ${esc(X.visit)} voice note, using your price list.</p>`+quoteCard('A'));
+   if (auto === 0){ return wait('A', `<div class="acts"><button class="yes" data-okq="A">Send quote</button></div><div class="done wait">Waiting for your OK.</div>`); }
+   sendQ('A', true);
+ }},
+ {d:'Week 1 · Wednesday', t:'18:22', run:()=>{
+   bubble(`<p>${esc(B.who)} is custom pricing, so I'd like your OK on this one.</p>`+quoteCard('B'));
+   return armB();
+ }},
+ {d:'Week 1 · Thursday', t:'09:00', run:()=>{
+   follows++; status.C = 'following';
+   bubble(card('📨 Day-3 follow-up sent to '+esc(C.who), `"Hi, just checking you got the quote for the ${esc(C.what.toLowerCase())} and whether you have any questions."`) +
+     card('💬 '+esc(C.who)+' replied', `"${esc(C.objection)}"`) +
+     card('↩️ I replied within your rules', `"${esc(C.alt)}"<div class="cs" style="margin-top:6px">I never cut your price without you. I offered the option you pre-approved.</div>`, 'ok'));
+   log.push('Wk1 Thu: followed up '+C.who+', handled "'+C.objection+'"');
+ }},
+ {d:'Week 1 · Friday', t:'12:30', run:()=>{
+   bubble(card('👀 '+esc(A.who)+' opened the quote 3 times', `So I sent a short note explaining why most people choose <b>${esc(A.opts[1][0])}</b>: ${esc(A.why)}.`));
+ }},
+ {d:'Week 1 · Friday', t:'15:10', run:()=>{
+   status.A = 'won'; aPick = 1;
+   bubble(card('🎉 '+esc(A.who)+' accepted', `<b>${esc(A.opts[1][0])}: ${gbp(A.opts[1][2])}</b>. Booked ${esc(X.start)}. 20% deposit link sent (${gbp(A.opts[1][2]*0.2)}).`, 'ok') + handCard([[A.who, A.what+' ('+A.opts[1][0]+')', A.opts[1][2], 'deposit invoice now, balance on completion']]));
+   log.push('Wk1 Fri: '+A.who+' accepted '+A.opts[1][0]+' ('+gbp(A.opts[1][2])+')');
+ }},
+ {d:'Week 2 · Wednesday', t:'10:00', run:()=>{
+   follows++;
+   if (status.B !== 'sent' && status.B !== 'following'){ bubble(`<p>${esc(B.who)}'s quote was never sent, so there's nothing to follow up.</p>`); return; }
+   status.B = 'won';
+   bubble(card('📨 Day-7 follow-up sent to '+esc(B.who), `"Hi, following up on the quote for ${esc(B.what.toLowerCase())}. Happy to answer any questions."`) +
+     card('🎉 '+esc(B.who)+' approved it', `<b>${gbp(bPrice)}</b>. Contract signed online and first work scheduled.`, 'ok') + handCard([[B.who, B.what, bPrice, B.recur]]));
+   log.push('Wk2 Wed: '+B.who+' approved ('+gbp(bPrice)+')');
+ }},
+ {d:'Week 2 · Friday', t:'09:00', run:()=>{
+   follows++; status.C = 'lost';
+   bubble(card('📨 Final follow-up sent to '+esc(C.who), `"Shall I keep this quote open for you, or close it off for now? No problem either way."`) +
+     card('📝 '+esc(C.who)+' said no', `Reason logged: <b>${esc(C.lost)}</b>. I've closed the quote and asked Keeper to check back in 3 months.`, 'skip'));
+   log.push('Wk2 Fri: '+C.who+' lost ('+C.lost+')');
+ }},
+ {d:'Week 2 · Friday', t:'16:00', run:()=>{ bubble(reportCard()); }}
+];
+
+function armB(){
+  if (status.B !== 'draft') return false;
+  const btns = `<div class="acts"><button class="yes" data-okq="B">Send at ${gbp(bPrice)}</button><button data-chq="B">Change price</button></div>`;
+  if (auto === 2){ sendQ('B', true); return false; }
+  if (auto === 0) return wait('B', btns + `<div class="done wait">Waiting for your OK.</div>`);
+  const secs = 7;
+  wait('B', btns + `<div class="small" style="margin-top:6px">Built from the rate sheet you already approved. If you don't reply within ${secs}s (2 hours in real life), I'll send it as it is.</div><div class="cd"><i id="cd-B"></i></div>`);
+  requestAnimationFrame(()=>{ const bar = $('#cd-B'); if (bar){ bar.style.transitionDuration = secs+'s'; bar.style.width = '0%'; } });
+  clearTimeout(cdTimer); cdTimer = setTimeout(()=>{ if (waiting === 'B' && !paused) sendQ('B', true); }, secs*1000);
+  return true;
+}
+
+/* ===== cards ===== */
+const chat = () => $('#chat');
+let lastDay = null;
+function scrollEnd(){ if (!$('#v-feed').classList.contains('on')) return; window.scrollTo({top:document.body.scrollHeight, behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth'}); }
+function bubble(inner, cls){ const s = STEPS[idx-1]; if (s && s.d !== lastDay){ lastDay = s.d; chat().insertAdjacentHTML('beforeend', `<div class="day"><span>${esc(s.d)}</span></div>`); } chat().insertAdjacentHTML('beforeend', `<div class="msg ${cls||''}">${inner}<div class="tm">${s?s.t:'now'}</div></div>`); scrollEnd(); }
+function card(title, body, tone){ return `<div class="card ${tone==='ok'?'okc':tone==='skip'?'skc':''}"><div class="ct">${title}</div><div class="cs" style="color:var(--ink)">${body}</div></div>`; }
+function quoteCard(k){
+  if (k === 'A') return `<div class="card quote"><div class="ct">🧾 Quote · ${esc(A.who)}</div><div class="cs">${esc(A.what)} · from notes: "${esc(A.note)}"</div>
+    <div class="opts">${A.opts.map((o,i)=>`<div class="opt ${i===1?'rec':''}"><b>${esc(o[0])}</b><span>${esc(o[1])}</span><em>${gbp(o[2])}</em>${i===1?'<small>Most choose this</small>':''}</div>`).join('')}</div>
+    <div id="ctl-A"></div></div>`;
+  return `<div class="card quote"><div class="ct">🧾 Quote · ${esc(B.who)}</div><div class="cs">${esc(B.what)}</div><div class="pv">${esc(B.detail)}</div>
+    <div class="big" id="bPrice">${gbp(bPrice)}</div><div id="ctl-B"></div></div>`;
+}
+function setCtl(k, h){ const c = $('#ctl-'+k); if (c){ c.innerHTML = h; scrollEnd(); } }
+function wait(k, h){ waiting = k; updateNav(); setCtl(k, h); return true; }
+function sendQ(k, byAgent){
+  if (status[k] !== 'draft') return;
+  clearTimeout(cdTimer); if (!byAgent) taps++;
+  status[k] = 'sent';
+  const msg = k==='A' ? (byAgent ? `✓ Sent with an accept button and deposit link · ${auto===2?'just-do-it mode':'all prices from your price list'}` : '✓ Approved and sent') : (byAgent ? `✓ Sent at ${gbp(bPrice)}${auto===1?' (no reply from you, as agreed)':''}` : `✓ Approved and sent at ${gbp(bPrice)}`);
+  setCtl(k, `<div class="done ok">${msg} <span class="small">(demo)</span></div>`);
+  log.push('Wk1 Wed: sent quote to '+(k==='A'?A.who:B.who));
+  if (!byAgent) bubbleMe('👍 Send it');
+  const was = waiting === k; waiting = null; updateNav(); renderPipe();
+  if (was && !paused) schedule(700);
+}
+function bubbleMe(t){ chat().insertAdjacentHTML('beforeend', `<div class="msg me"><p>${esc(t)}</p><div class="tm">${STEPS[idx-1].t}</div></div>`); scrollEnd(); }
+function handCard(rows){ return `<div class="card hand"><div class="ct">🤝 Passed to Collector (agent 4)</div><div class="cs">It sends the invoices, chases if needed and tells you when money lands.</div><ul>${rows.map(r=>`<li><b>${esc(r[0])}</b>: ${esc(r[1])}, ${gbp(r[2])} (${esc(r[3])})</li>`).join('')}</ul></div>`; }
+
+/* ===== numbers ===== */
+function stats(){
+  const quoted = (status.A!=='draft'?A.opts[1][2]:0) + (status.B!=='draft'?bPrice:0) + C.price;
+  const won = (status.A==='won'?A.opts[aPick][2]:0) + (status.B==='won'?bPrice:0);
+  const decided = ['A','B','C'].filter(k=>status[k]==='won'||status[k]==='lost');
+  const wins = decided.filter(k=>status[k]==='won').length;
+  const agentTasks = 4 + (status.A!=='draft'?3:0) + (status.B!=='draft'?2:0) + follows*2 + decided.length*2;
+  const pct = (taps+agentTasks) ? taps/(taps+agentTasks)*100 : 0;
+  return {quoted, won, decided, wins, rate: decided.length ? Math.round(wins/decided.length*100) : 0, agentTasks, pct};
+}
+function reportCard(){
+  const s = stats();
+  return `<div class="card"><div class="ct">📊 Your fortnight with Closer</div>
+    <div class="stats"><div><b>${gbp(s.won)}</b><small>won (${s.wins} of ${s.decided.length} decided)</small></div><div><b>2h</b><small>from visit to quote sent</small></div>
+    <div><b>${follows}</b><small>follow-ups you didn't have to remember</small></div><div><b>${s.pct.toFixed(0)}%</b><small>of the work done by you (${taps} ${taps===1?'tap':'taps'})</small></div></div>
+    <div class="cs" style="margin-top:8px">Figures are sample data for the demo.</div></div>`;
+}
+
+/* ===== engine ===== */
+function next(){
+  timer = null;
+  if (paused || waiting) return;
+  if (idx >= STEPS.length){ finish(); return; }
+  const s = STEPS[idx++]; progress();
+  typing();
+  timer = setTimeout(()=>{ untype(); const w = s.run(); renderPipe(); if (!w && !waiting) schedule(1500); }, 700);
+}
+function typing(){ chat().insertAdjacentHTML('beforeend','<div class="typing" id="typ"><i></i><i></i><i></i></div>'); scrollEnd(); }
+function untype(){ const t = $('#typ'); if (t) t.remove(); }
+function schedule(ms){ clearTimeout(timer); timer = setTimeout(next, ms); }
+function progress(){ $('#prog').style.width = (idx/STEPS.length*100)+'%'; }
+function finish(){
+  progress(); $('#pp').textContent = '↺ Replay';
+  if (!finish.shown){ finish.shown = true; chat().insertAdjacentHTML('beforeend', `<div class="msg"><p>Want me sending and chasing ${esc(biz())}'s quotes? I'll learn your price list and wording first, and start on "ask me first".</p><div class="acts"><button class="yes" data-hire>Put Closer to work</button></div><div class="tm">now</div></div>`); scrollEnd(); }
+}
+function restart(){
+  clearTimeout(timer); clearTimeout(cdTimer);
+  status.A = 'draft'; status.B = 'draft'; status.C = 'sent'; bPrice = X.B.price; aPick = 1; follows = 0; log.length = 0;
+  idx = 0; taps = 0; waiting = null; paused = false; lastDay = null; finish.shown = false;
+  chat().innerHTML = ''; $('#pp').textContent = '⏸ Pause';
+  renderPipe(); updateNav(); progress(); schedule(400);
+}
+function updateNav(){ const c = $('#navCnt'); c.hidden = !waiting; c.textContent = '1'; renderOvr(); }
+function renderOvr(){
+  const s = stats();
+  $('#ovr').innerHTML = `<div><b>${gbp(s.quoted)}</b><small>quoted</small></div><div><b>${gbp(s.won)}</b><small>won</small></div><div><b>${s.decided.length?s.rate+'%':'–'}</b><small>win rate</small></div><div class="${waiting?'need':''}"><b>${waiting?1:0}</b><small>needs you</small></div>`;
+}
+function renderPipe(){
+  renderOvr();
+  const s = stats();
+  $('#kpis').innerHTML = `<div class="kpi"><div class="l">Quoted</div><div class="v">${gbp(s.quoted)}</div></div><div class="kpi"><div class="l">Won</div><div class="v">${gbp(s.won)}</div></div><div class="kpi"><div class="l">Win rate</div><div class="v">${s.decided.length?s.rate+'%':'–'}</div></div><div class="kpi"><div class="l">Your share of work</div><div class="v">${s.pct.toFixed(0)}%</div></div>`;
+  const cols = [['Draft','draft'],['Sent','sent'],['Following up','following'],['Won','won'],['Lost','lost']];
+  const items = [['A',A.who,A.what,status.A==='won'?A.opts[aPick][2]:A.opts[1][2]],['B',B.who,B.what,bPrice],['C',C.who,C.what,C.price]];
+  $('#board').innerHTML = cols.map(([n,k])=>{ const its = items.filter(it=>status[it[0]]===k); return `<div class="col ${its.length?'':'empty'}"><div class="ch">${n} <span>${its.length}</span></div>${its.map(it=>`<div class="qc ${k}"><b>${esc(it[1])}</b><span>${esc(it[2])}</span><em>${gbp(it[3])}</em></div>`).join('')||'<div class="small">–</div>'}</div>`; }).join('');
+  $('#effTxt').textContent = `Closer: ${s.agentTasks} tasks (building quotes, sending, tracking opens, ${follows} follow-ups, handling replies). You: ${taps} ${taps===1?'tap':'taps'}. Target: under 5%.`;
+  $('#meter').innerHTML = `<i style="width:${100-s.pct}%;background:var(--brand2)"></i><i style="width:${s.pct}%;background:var(--accent)"></i>`;
+  $('#lostList').innerHTML = status.C==='lost' ? `<div style="font-size:14px"><b>${esc(C.who)}</b>: ${esc(C.lost)}</div><div class="small" style="margin-top:4px">Over time this shows whether you lose on price, timing or trust, so you know what to change.</div>` : '<div class="small">None yet.</div>';
+  $('#log').innerHTML = log.length ? log.map(l=>`<li>${esc(l)}</li>`).join('') : '<li class="small">Nothing yet.</li>';
+}
+const AGENTS = [
+  ['S','Scout','Finds new work: win-back, reviews, referrals, Google profile, local B2B outreach.','demo'],
+  ['F','Frontdesk','Answers every call, form and WhatsApp within 2 minutes, qualifies the job and books the visit.','demo'],
+  ['C','Closer','Sends the quote, follows it up on day 3, 7 and 14, and turns a yes into a booked job.','live'],
+  ['$','Collector','Invoices, chases politely then firmly, adds late-payment interest for business clients, tells you when money lands.','demo'],
+  ['K','Keeper','Remembers when each customer is next due (service, MOT, colour, renewal) and fills your diary with repeat work.','demo'],
+  ['B','Bookkeeper','Reads your receipts, codes them to jobs, keeps job profit up to date and prepares your quarterly Making Tax Digital update.','demo']
+];
+$('#chain').innerHTML = AGENTS.map(([b,n,d,s])=>`<div class="ag ${s==='live'?'me':''}"><div class="b">${b}</div><div><h3>${n} <span class="tag ${s==='live'?'live':''}">${s==='live'?'You are here':s==='next'?'Coming next':s==='demo'?'Demo ready':'Coming soon'}</span></h3><p>${d}</p></div></div>`).join('') + `<div class="note">For trades, all six agents work on top of <a href="../ui_01_siteledger_quote_jobcost/index.html?play=workflow" target="_blank" rel="noopener">SiteLedger</a>, which holds the quotes, jobs, costs, invoices and tax records, so you can see the detail behind anything an agent did.</div>`
+
+/* ===== sheets & hire ===== */
+function openSheet(h){ $('#sheet').innerHTML = h; $('#scrim').classList.add('on'); }
+function closeSheet(){ $('#scrim').classList.remove('on'); }
+const head = t => `<div class="sh"><h3>${t}</h3><button class="x" data-close aria-label="Close">×</button></div>`;
+function openHire(){
+  openSheet(head('Put Closer to work') + `
+  <div class="small" style="margin-bottom:6px">We'll set Closer up with your price list, quote template and wording, on "ask me first", and run the first fortnight with you. No card needed.</div>
+  <form id="hf" novalidate>
+    <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off">
+    <label class="f" for="hName">Your name *</label><input class="in" id="hName" name="name" autocomplete="name" value="${esc(P.get('name')||'')}">
+    <label class="f" for="hBiz">Business name *</label><input class="in" id="hBiz" name="business" autocomplete="organization" value="${esc(P.get('biz')||'')}">
+    <label class="f" for="hEmail">Email *</label><input class="in" id="hEmail" name="email" type="email" autocomplete="email">
+    <label class="f" for="hPhone">Mobile for WhatsApp (optional)</label><input class="in" id="hPhone" name="phone" type="tel" autocomplete="tel">
+    <div class="inline"><div><label class="f" for="hSec">Type of business</label><select class="in" id="hSec" name="sector">${Object.keys(S).map(k=>`<option ${k===sector?'selected':''}>${S[k].label}</option>`).join('')}<option>Other</option></select></div>
+    <div><label class="f" for="hQ">Quotes a month</label><select class="in" id="hQ" name="quotes_per_month"><option>1–5</option><option selected>6–20</option><option>21–50</option><option>50+</option></select></div></div>
+    <label class="f" for="hTool">How do you quote now? (optional)</label>
+    <textarea class="in" id="hTool" name="message" style="min-height:80px" placeholder="e.g. Word template, Xero quotes, Tradify, on the back of a van"></textarea>
+    <div class="err" id="hErr" hidden></div>
+    <button class="btn acc block" style="margin-top:14px" id="hSend" type="submit">Send</button>
+    <div class="small" style="margin-top:8px">We'll only use these details to contact you about this. The Tech Principle, London.</div>
+  </form>`);
+  $('#hf').onsubmit = submitHire;
+}
+async function submitHire(e){
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target).entries()), err = $('#hErr'), btn = $('#hSend');
+  if (data._honey) return; delete data._honey; err.hidden = true;
+  if (!data.name.trim() || !data.business.trim()){ err.textContent = 'Please add your name and business name.'; err.hidden = false; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)){ err.textContent = 'Please check your email address.'; err.hidden = false; return; }
+  const payload = Object.assign({
+    _subject:'Closer request: ' + data.business, _template:'table', _captcha:'false',
+    app:CFG.app, campaign_source:P.get('src')||'direct', campaign_id:P.get('cid')||'', emailed_business:P.get('biz')||'',
+    demo_sector_viewed:X.label, autonomy_chosen:['Ask me first','Only ask if unsure','Just do it'][auto],
+    demo_taps:String(taps), demo_finished: idx >= STEPS.length ? 'yes' : 'no', page:location.href, submitted_at:new Date().toISOString()
+  }, data);
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try{
+    const r = await fetch(CFG.formEndpoint, {method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body:JSON.stringify(payload)});
+    const j = await r.json().catch(()=>({}));
+    if (!r.ok || String(j.success) === 'false') throw new Error('fail');
+    openSheet(head('Sent') + `<div class="ok-state"><div style="font-size:42px">✅</div><h3>Thanks, ${esc(data.name.split(' ')[0])}.</h3><p class="small">We'll be in touch within one working day to set Closer up for ${esc(data.business)}.</p><button class="btn sec" data-close>Back to the demo</button></div>`);
+  }catch(ex){
+    btn.disabled = false; btn.textContent = 'Send';
+    const body = encodeURIComponent(Object.entries(payload).filter(([k])=>k[0]!=='_').map(([k,v])=>k+': '+v).join('\n'));
+    err.innerHTML = `Couldn't send just now. <a href="mailto:${CFG.fallbackEmail}?subject=${encodeURIComponent(payload._subject)}&body=${body}">Email it instead</a> (${CFG.fallbackEmail}).`;
+    err.hidden = false;
+  }
+}
+
+/* ===== events ===== */
+function go(v){ document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on', x.id==='v-'+v)); document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on', b.dataset.v===v)); if (v!=='feed') window.scrollTo(0,0); else scrollEnd(); }
+function rearm(){ if (waiting === 'B' && auto === 1 && !paused) armB(); }
+document.addEventListener('click', e=>{
+  const t = e.target.closest('button,a'); if (!t) return;
+  const d = t.dataset;
+  if (d.v) go(d.v);
+  else if (d.okq) sendQ(d.okq, false);
+  else if (d.chq){ clearTimeout(cdTimer); openSheet(head('Change price') + `<label class="f" for="np">New total for ${esc(B.who)} (£)</label><input class="in" id="np" type="number" min="1" step="1" value="${bPrice}"><div class="inline" style="margin-top:12px"><button class="btn sec" data-close>Cancel</button><button class="btn" data-savep="1">Save and send</button></div>`); }
+  else if (d.savep){ const v = Math.round(Number($('#np').value)); if (!(v>0)) return toast('Enter a price'); bPrice = v; closeSheet(); const el = $('#bPrice'); if (el) el.textContent = gbp(bPrice); sendQ('B', false); }
+  else if (d.auto != null){ auto = Number(d.auto); document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on', b===t)); toast(['Closer waits for your OK on every quote','Closer sends price-list quotes itself and asks about custom ones','Closer sends everything and reports back'][auto]);
+    if (waiting && auto === 2) sendQ(waiting, true); else if (waiting === 'A' && auto === 1) sendQ('A', true); else if (waiting === 'B') armB(); updateNav(); }
+  else if (d.sector){ const u = new URL(location); u.searchParams.set('sector', d.sector); location.href = u.toString(); }
+  else if ('hire' in d) openHire();
+  else if ('close' in d){ closeSheet(); rearm(); }
+  else if (t.id === 'pp'){ if (idx >= STEPS.length && !waiting){ restart(); return; } paused = !paused; t.textContent = paused ? '▶ Play' : '⏸ Pause'; if (!paused){ if (waiting) rearm(); else schedule(200); } else { clearTimeout(timer); clearTimeout(cdTimer); } }
+  else if (t.id === 'skip'){ if (waiting) sendQ(waiting, true); else { clearTimeout(timer); untype(); next(); } }
+  else if (t.id === 'replay') restart();
+});
+$('#scrim').addEventListener('click', e=>{ if (e.target.id==='scrim'){ closeSheet(); rearm(); } });
+document.addEventListener('keydown', e=>{ if (e.key==='Escape'){ closeSheet(); rearm(); } });
+
+/* ===== boot ===== */
+$('#chips').innerHTML = Object.keys(S).map(k=>`<button data-sector="${k}" class="${k===sector?'on':''}">${S[k].label}</button>`).join('');
+$('#stLine').textContent = 'sends and chases quotes for ' + biz() + ' · online';
+$('#ctaT').textContent = 'Put Closer to work for ' + (P.get('biz') || 'your business');
+if (['0','1','2'].includes(P.get('auto'))){ auto = Number(P.get('auto')); document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on', Number(b.dataset.auto)===auto)); }
+if (sector === 'trades') $('#slLink').hidden = false;
+renderPipe(); restart();
+if (P.get('hire') === '1') setTimeout(openHire, 400);
+}
+
+</script>
+</body>
+</html>
