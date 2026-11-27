@@ -906,7 +906,7 @@ function deRisk(st,at){
 
 /* SCENARIO PLAYBACK */
 const PB={id:null,step:0,playing:false,speed:1,timer:null};
-const PB_OK=new Set(['play','pbPrev','pbNext','pbToggle','pbRestart','pbExit','pbSpeed','tab','close','walkthrough','openInterestModal','submitInterest','opp1Step','opp1Walkthrough','unlockAll','toggleLock','confirmUnlock','cancelUnlock','reset','selectPair','switchMode']);
+const PB_OK=new Set(['play','pbPrev','pbNext','pbToggle','pbRestart','pbExit','pbSpeed','tab','close','walkthrough','openInterestModal','submitInterest','opp1Step','opp1Walkthrough','unlockAll','toggleLock','confirmUnlock','cancelUnlock','reset','selectPair','switchMode','cycleSide']);
 const txt=(v,st)=>typeof v==='function'?v(st):v;
 const pbLog=(st,at,lvl,m)=>st.logs.unshift({t:at,lvl,m});
 function pbAccts(h){
@@ -1338,7 +1338,9 @@ const A={
   coolDown:()=>{Object.assign(S.tilt,{trades10m:1,sizeMult:1,lossStreak:0,reentrySec:300,lockoutUntil:null,reason:'Cool-down completed; cadence normalized.'});render();toast('Tilt score reset')},
   selectPair:id=>{UI.selPair=id.split(',').map(Number);if(PB.id){PB.playing=false;clearTimeout(PB.timer)}render()},
   toggleStrat:id=>{const s=S.strats.find(x=>x.id===id);s.active=!s.active;render();toast(`${s.name} ${s.active?'resumed':'paused'}`)},
-  cycleSide:id=>{const s=S.strats.find(x=>x.id===id);const order=['BOTH','BUY_ONLY','SELL_ONLY'];s.side=order[(order.indexOf(s.side)+1)%3];render();toast(`${s.name} filter → ${s.side}`)},
+  cycleSide:id=>{
+    if(PB.id){PB.playing=false;clearTimeout(PB.timer)}
+    const s=S.strats.find(x=>x.id===id);const order=['BOTH','BUY_ONLY','SELL_ONLY'];s.side=order[(order.indexOf(s.side)+1)%3];render();toast(`${s.name} filter → ${s.side}`)},
   deRiskCorrelated:()=>{
     const r=deRisk(S);
     render();toast(r.paused.length?`Paused ${r.paused.join(', ')}: ρ ${r.before.toFixed(2)} → ${r.after.toFixed(2)}`:`No de-risk needed (ρ ${r.after.toFixed(2)})`);
