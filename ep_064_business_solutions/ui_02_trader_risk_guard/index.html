@@ -1,7 +1,7 @@
 <!doctype html>
 <!--
   epics/ep_064_business_solutions/ui_02_trader_risk_guard/index.html
-  — Trader Risk Control demo: Prop-Firm Trailing Drawdown & Behavioral Tilt Lockout (T2) + Multi-Strategy Correlation & Regime Monitor (T1).
+  — Trader Risk Guard demo: Prop-Firm Trailing Drawdown & Behavioral Tilt Lockout (T2) + Multi-Strategy Correlation & Regime Monitor (T1).
   Plan: workstream/200_inprogress/20261102_052200_ep064_997_ep058_live_prop_guard_sync.md
   Workflow: workstream/600_workflow/ep064/EP064_trader_risk_guard_workflow.html
 
@@ -26,7 +26,7 @@
                         rolling correlation matrix, regime detector, synchronized drawdown alerts, 1-click de-risk actions).
 -->
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0d1117">
-<title>Trader Risk Control · Prop Drawdown &amp; Correlation Monitor (EP058 Live)</title>
+<title>Trader Risk Guard · Prop Drawdown &amp; Correlation Monitor (EP058 Live)</title>
 <style>
 /* MOBILE-FIRST: base rules target 375px–430px phones; min-width 700px (tablet) and 1100px (desktop) scale up */
 :root{
@@ -187,7 +187,7 @@ body.pb-on{padding-bottom:calc(var(--navh) + 24px + env(safe-area-inset-bottom))
 }
 </style></head><body>
 <div class="demo-strip">
-  <b>TRADER RISK CONTROL</b><span class="hide-sm">· Prop Trailing DD &amp; Tilt Guard (T2) + Correlation Monitor (T1)</span>
+  <b>TRADER RISK GUARD</b><span class="hide-sm">· Prop Trailing DD &amp; Tilt Guard (T2) + Correlation Monitor (T1)</span>
   <span id="livePill" class="live-pill off"><span class="live-pulse" style="display:none"></span><span id="liveText">Simulated</span></span>
   <span class="sp"></span>
   <button id="liveToggleBtn" data-act="toggleLive" style="font-weight:600">📡 Connect Live EP058</button>
@@ -196,7 +196,7 @@ body.pb-on{padding-bottom:calc(var(--navh) + 24px + env(safe-area-inset-bottom))
   <button data-act="reset">↺ Reset</button>
 </div>
 <div class="top"><div class="topin">
-  <div class="brand"><i>TRC</i>Trader Risk Control <small id="brandSubtitle">· Real-Time Prop &amp; Portfolio Risk Engine</small></div>
+  <div class="brand"><i>TRG</i>Trader Risk Guard <small id="brandSubtitle">· Real-Time Prop &amp; Portfolio Risk Engine</small></div>
   <nav id="nav"></nav>
   <span class="sp"></span>
   <button class="btn sm" data-act="openInterestModal" data-product="apexguard" style="background:#238636;border-color:#2ea043;color:#fff;font-weight:600">⭐ Join Waitlist</button>
@@ -209,7 +209,7 @@ body.pb-on{padding-bottom:calc(var(--navh) + 24px + env(safe-area-inset-bottom))
 <script>
 'use strict';
 /*
-  Trader Risk Control UI Controller with Live EP058 Strategy Intelligence Synchronisation
+  Trader Risk Guard UI Controller with Live EP058 Strategy Intelligence Synchronisation
   DateTime: 2026-11-02 05:30:00 UTC
   Version: v1.2.0 (V20261102_0530)
 */
@@ -405,7 +405,7 @@ function vProp(){
   const first=news[0];
   const newsCard=`<div class="card ${first&&(first.n.inWin||first.n.mins<=NEWS_WARNING_MINUTES)?'warn':''}" data-pb="prop-news"><h3>📰 News guard · example calendar</h3><p class="rnote">${esc(clockLabel(S))}</p><p>${first?`${esc(first.n.e.n)} at ${esc(first.n.e.t)} ET · ${eventCountdown(S,first.n)}. Earliest blackout: ${esc(first.a.name)} ${first.n.inWin?'open now':'starts in '+first.n.mins+' min'}.`:'No more example events today; see the calendar in Rulebook.'}</p><button class="btn sm" data-act="tab" data-id="news">View news calendar</button></div>`;
   const intro=(!PB.id&&!isL)?`<div class="card intro" data-pb="intro">
-    <b>What Trader Risk Control does</b>
+    <b>What Trader Risk Guard does</b>
     <p>It keeps track of where every prop account's trailing drawdown floor is, how far you are from it, and locks trading before you breach it, including when revenge trading or correlated strategies are about to eat the cushion. It also tracks the consistency and news rules that block payouts. Watch it work:</p>
     <div class="btnrow">
       <button class="btn sm pri" data-act="play" data-id="hwm">▶ Intraday HWM trap</button>
@@ -522,7 +522,7 @@ function vRules(){
       <div>
         <span style="display:inline-block;background:#1f6feb22;color:#58a6ff;border:1px solid #388bfd44;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:0.5px">Opportunity #1 Guided Simulation</span>
         <h3 style="margin:6px 0 4px;font-size:16px;color:#fff;">Prop Rulebook Guard: Consistency Rule &amp; News Windows</h3>
-        <p style="margin:0;font-size:13px;color:#8b949e;max-width:720px">Walk through how Trader Risk Control prevents sudden prop payout disqualification: closes example Apex positions 1 minute before their blackout starts (2 minutes before CPI), alerts on the 30% single-day profit cap, and shows the profit needed to restore payout eligibility.</p>
+        <p style="margin:0;font-size:13px;color:#8b949e;max-width:720px">Walk through how Trader Risk Guard prevents sudden prop payout disqualification: closes example Apex positions 1 minute before their blackout starts (2 minutes before CPI), alerts on the 30% single-day profit cap, and shows the profit needed to restore payout eligibility.</p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
         <button class="btn sm" data-act="play" data-id="rules" style="background:#1f6feb;border-color:#388bfd;color:#fff;font-weight:600">▶ ${isRulesPlay?'Playing Walkthrough...':'Auto-Play Walkthrough'}</button>
@@ -692,7 +692,7 @@ function vTilt(){
         <div class="f-row"><span>Auto De-Risk pauses sleeves until</span><b class="mono">active ρ ≤ 0.60</b></div>
         <div class="f-row"><span>Mandatory cool-down timer</span><b class="mono">30 minutes</b></div>
       </div>
-      <p style="margin-top:12px;font-size:12.5px;color:var(--mut)">Why traders on <code>r/FuturesTrading</code> &amp; <code>r/Daytrading</code> ask for this: traditional journals only show mistakes after the account is blown. Trader Risk Control enforces pre-breach lockouts across all copy-traded accounts simultaneously.</p>
+      <p style="margin-top:12px;font-size:12.5px;color:var(--mut)">Why traders on <code>r/FuturesTrading</code> &amp; <code>r/Daytrading</code> ask for this: traditional journals only show mistakes after the account is blown. Trader Risk Guard enforces pre-breach lockouts across all copy-traded accounts simultaneously.</p>
     </div>
   </div>`;
 }
@@ -705,7 +705,7 @@ function vLogs(){
 }
 
 function mWalk(){
-  $('#modal').innerHTML=`<h2>Trader Risk Control Demo Walkthrough <button class="btn ghost sm" data-act="close">✕</button></h2>
+  $('#modal').innerHTML=`<h2>Trader Risk Guard Demo Walkthrough <button class="btn ghost sm" data-act="close">✕</button></h2>
   <ol style="padding-left:18px;line-height:1.6;font-size:13.5px">
     <li><b>▶ Playback</b>: tap <b>▶ Intraday HWM trap</b>, <b>▶ Revenge tilt lockout</b> or <b>▶ Correlation spike</b>. Each plays step by step with a caption, highlights the panel that matters and draws equity vs trailing floor. Use ‹ › to step and 1x/2x for speed. Share a direct link with <code>?play=hwm</code>, <code>?play=tilt</code> or <code>?play=corr</code>.</li>
     <li><b>Live EP058 Feed</b>: Tap <b>🟢 Connect Live EP058</b> to stream 4 active DNA models from PostgreSQL <code>tradedb</code> (:8149) into prop-firm evaluation rules.</li>
@@ -983,18 +983,18 @@ const SC={
       body:st=>`Equity drops back but the floor stays at the peak level. Apex-01's distance to breach is now ${usd(floorOf(st,'A1').dist)}, down from $2,500 at the open.`},
     {at:'10:24',tab:'prop',focus:['kpi-buf','acct-A1','acct-A3'],title:'Closed at +$300: a winner that cost $900 of cushion',
       fx:st=>{closeOpen(st);pbLog(st,'10:24','WARN','Trade closed +$300. Apex cushion now '+usd(floorOf(st,'A1').dist)+' (was $2,500).')},
-      body:st=>`This is the trap. Your journal shows a green trade. Trader Risk Control shows Apex-01 has ${floorOf(st,'A1').bufPct.toFixed(0)}% of its drawdown left, while Topstep still has its full cushion.`},
+      body:st=>`This is the trap. Your journal shows a green trade. Trader Risk Guard shows Apex-01 has ${floorOf(st,'A1').bufPct.toFixed(0)}% of its drawdown left, while Topstep still has its full cushion.`},
     {at:'10:40',tab:'prop',focus:['acct-A1','acct-A2'],title:'Next trade goes −$1,100',
       fx:st=>{setOpen(st,-1100);pbLog(st,'10:40','WARN',`Apex accounts ${usd(floorOf(st,'A1').dist)} from their floors (${floorOf(st,'A1').bufPct.toFixed(0)}% cushion).`)},
       body:st=>`Apex-01 is now ${usd(floorOf(st,'A1').dist)} (${floorOf(st,'A1').bufPct.toFixed(0)}%) above its floor. On the same trade Topstep still has ${usd(floorOf(st,'A3').dist)} and MFFU ${usd(floorOf(st,'A4').dist)}.`},
-    {at:'10:44',tab:'prop',focus:['lock','acct-A1','acct-A2'],title:'−$1,450: Trader Risk Control flattens both Apex accounts',fx:st=>setOpen(st,-1450),
+    {at:'10:44',tab:'prop',focus:['lock','acct-A1','acct-A2'],title:'−$1,450: Trader Risk Guard flattens both Apex accounts',fx:st=>setOpen(st,-1450),
       body:st=>`Rule: when the cushion falls to 15% of max drawdown or less, close the position and lock the account. Both Apex accounts were closed with ${usd(floorOf(st,'A1').dist)} left. Topstep remains open; MFFU is flattened if its daily loss limit is reached.`},
     {at:'10:45',tab:'prop',focus:['floorchart'],title:'What you just saw',
-      body:'Same trades on every account, different outcome: the intraday floor rose with the open-profit peak and never came back down. Trader Risk Control shows where every floor is at all times and acts before you breach it.'}
+      body:'Same trades on every account, different outcome: the intraday floor rose with the open-profit peak and never came back down. Trader Risk Guard shows where every floor is at all times and acts before you breach it.'}
   ]},
   tilt:{title:'Revenge tilt lockout',init:()=>{const b=pbInit(false);b.pbChart=['A1','A4'];return b},steps:[
     {at:'13:00',tab:'tilt',focus:['tilt'],title:'How the tilt score works',
-      body:'Trader Risk Control scores 4 things every time you trade: orders in the last 10 minutes, size vs your normal, losses in a row, and how fast you re-enter after a loss. At 75/100 it locks every account.'},
+      body:'Trader Risk Guard scores 4 things every time you trade: orders in the last 10 minutes, size vs your normal, losses in a row, and how fast you re-enter after a loss. At 75/100 it locks every account.'},
     {at:'13:04',tab:'tilt',focus:['tf-loss','tf-cadence'],title:'Stopped out: −$450 on all 4 accounts',
       fx:st=>{bookLoss(st,-450);Object.assign(st.tilt,{trades10m:3,lossStreak:1,reason:'Stop-out −$450, copied to all 4 accounts.'});pbLog(st,'13:04','WARN','Stop-out −$450 on all 4 accounts (copier).')},
       body:st=>`The copier puts the same loss on every account. One loss in a row (+8) and a third order (+4). Score ${tiltCalc(st.tilt).total}.`},
@@ -1012,7 +1012,7 @@ const SC={
         st.tilt.reason=`LOCKOUT: ${tiltCalc(st.tilt).total}/100. 2.5x order blocked, copier cut, all accounts locked until 13:38.`;
         st.accts.forEach(a=>a.locked=true);st.lockTitle='🛑 TILT LOCKOUT · COPIER SEVERED';st.lockReason=st.tilt.reason;
         pbLog(st,'13:08','CRIT',`🛑 TILT LOCKOUT (${tiltCalc(st.tilt).total}/100): 2.5x order blocked, copier severed, 4 accounts locked for a 30-minute cool-down.`)},
-      body:st=>`3 losses in a row (+24), 2.5x size (+24), 9 orders (+28), 11s re-entry (+19) = ${tiltCalc(st.tilt).total}/100. Trader Risk Control blocks the order, cuts the copier and locks all 4 accounts for 30 minutes.`},
+      body:st=>`3 losses in a row (+24), 2.5x size (+24), 9 orders (+28), 11s re-entry (+19) = ${tiltCalc(st.tilt).total}/100. Trader Risk Guard blocks the order, cuts the copier and locks all 4 accounts for 30 minutes.`},
     {at:'13:08',tab:'prop',focus:['acct-A1','acct-A4','floorchart'],title:'Where the floors are now',
       body:st=>`The copied losses affect each account until its own risk limit locks it. Apex-01 has ${usd(floorOf(st,'A1').dist)} left and MFFU ${usd(floorOf(st,'A4').dist)}. One more 2.5x loss would have breached them both at once; the lockout fired before that order went in.`}
   ]},
@@ -1026,13 +1026,13 @@ const SC={
       body:st=>{const m=consOf(st,'A1');return `Consistency: no single day may be more than 30% of the cycle's profit (example value). Apex-01 has made ${usd(m.P)}; its biggest day (${usd(m.B)}) is ${pc1(m.ratio)}. Today it can make up to ${usd(m.capTotal)} before today itself breaks the rule.`}},
     {at:'Fri 08:24',tab:'rules',focus:['rnews-A1'],title:'Long NQ opened 6 minutes before CPI',
       fx:st=>{st.clock='08:24';onIds(st,APEX,a=>a.openPnl=150);pbLog(st,'08:24','WARN','Apex accounts hold a position into the 08:28–08:32 CPI blackout.')},
-      body:'CPI is at 08:30. With a ±2-minute news rule, Apex-01 can\'t hold a position from 08:28 to 08:32. Trader Risk Control warns: close by 08:28.'},
-    {at:'Fri 08:27',tab:'rules',focus:['rnews-A1','rnews-A4'],title:'08:27: Trader Risk Control closes the trade before the blackout',
+      body:'CPI is at 08:30. With a ±2-minute news rule, Apex-01 can\'t hold a position from 08:28 to 08:32. Trader Risk Guard warns: close by 08:28.'},
+    {at:'Fri 08:27',tab:'rules',focus:['rnews-A1','rnews-A4'],title:'08:27: Trader Risk Guard closes the trade before the blackout',
       fx:st=>{st.clock='08:27';demoNewsEntry(st,['A4'],'08:27',100);onIds(st,APEX,a=>{a.openPnl=180;a.bal+=a.openPnl;a.openPnl=0});pbLog(st,'08:27','OK','📰 Closed Apex positions at +$180, 1 minute before their 08:28 blackout.')},
       body:'It closes the position on both Apex accounts at +$180, a minute before the window opens. MFFU’s ±5-minute blackout opened at 08:25: a simulated MFFU entry is blocked and logged. Topstep has no news rule in this example.'},
     {at:'Fri 09:45',tab:'rules',focus:['rcap-A1'],title:'+$600 on the day: near the cap',
       fx:st=>{st.clock='09:45';setDayIds(st,APEX,600);pbLog(st,'09:45','WARN',`Apex-01 near today's consistency cap: ${usd(consOf(st,'A1').capLeft)} left.`)},
-      body:st=>{const m=consOf(st,'A1');return `Today's cap is ${usd(m.capTotal)}; ${usd(m.capLeft)} left. Past that, today becomes the day that breaks the rule. Trader Risk Control flags NEAR CAP: stop, or size down.`}},
+      body:st=>{const m=consOf(st,'A1');return `Today's cap is ${usd(m.capTotal)}; ${usd(m.capLeft)} left. Past that, today becomes the day that breaks the rule. Trader Risk Guard flags NEAR CAP: stop, or size down.`}},
     {at:'Fri 10:40',tab:'rules',focus:['rule-A1','rneed-A1'],title:'+$1,100 on the day: the rule is broken',
       fx:st=>{st.clock='10:40';setDayIds(st,APEX,1100);const m=consOf(st,'A1');pbLog(st,'10:40','CRIT',`⚠ Consistency breach on Apex accounts: biggest day ${usd(m.B)} = ${pc1(m.ratio)} of ${usd(m.P)}. Payout blocked until total reaches ${usd(m.need)}.`)},
       body:st=>{const m=consOf(st,'A1');return `Today is ${pc1(m.ratio)} of ${usd(m.P)}, over the 30% limit, so the payout is blocked. To fix it, total profit has to reach ${usd(m.need)} (${usd(m.B)} ÷ 30%). The ${usd(st.accts[0].rules.target)} target is no longer the number that matters.`}},
@@ -1063,7 +1063,7 @@ const SC={
       body:'Rule: 4 or more sleeves in drawdown at the same time and average ρ above 0.70. Your 6 strategies are now effectively one big position.'},
     {at:'10:46',tab:'corr',focus:['book','matrix'],title:'Auto De-Risk pauses the correlated cluster',
       fx:st=>{deRisk(st,'10:46');cStep(st,[0,0,30,-20,0,10],1,0.19,89)},
-      body:st=>`Trader Risk Control pauses the sleeve with the highest average correlation, one at a time, until the rest are at or below ρ 0.60. Paused: ${st.strats.filter(s=>!s.active).map(s=>s.id).join(', ')}. Remaining ρ: ${st.regime.avgCorr.toFixed(2)}.`},
+      body:st=>`Trader Risk Guard pauses the sleeve with the highest average correlation, one at a time, until the rest are at or below ρ 0.60. Paused: ${st.strats.filter(s=>!s.active).map(s=>s.id).join(', ')}. Remaining ρ: ${st.regime.avgCorr.toFixed(2)}.`},
     {at:'11:30',tab:'corr',focus:['curves','book'],title:'The paused sleeves stop bleeding',
       fx:st=>{cStep(st,[0,0,40,30,0,20],1,0.21,85);st.regime.msg='Breakout cluster paused; mean-reversion sleeves still trading.'},
       body:'The mean-reversion sleeves keep trading. The breakout sleeves stay paused until resumed. Day Net follows each simulated trade; synchronized drawdown counts active sleeves over $100 below their curve peak. Side filters are unchanged.'}
@@ -1140,7 +1140,7 @@ function showInterestModal(prod){
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
         <div>
           <span style="display:inline-block;background:#1f6feb22;color:#58a6ff;border:1px solid #388bfd44;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase">Early Access &amp; Feature Priority</span>
-          <h2 style="margin:6px 0 2px;font-size:18px;color:#fff">Join the Trader Risk Control Waitlist</h2>
+          <h2 style="margin:6px 0 2px;font-size:18px;color:#fff">Join the Trader Risk Guard Waitlist</h2>
           <p style="margin:0;font-size:12.5px;color:var(--mut)">Vote on the functions you want prioritized and get early beta access.</p>
         </div>
         <button class="btn sm ghost" data-act="close" style="font-size:18px;min-width:32px;min-height:32px" aria-label="Close">✕</button>
@@ -1196,7 +1196,7 @@ function showInterestModal(prod){
 
         <div style="display:flex;align-items:center;gap:8px">
           <input type="checkbox" id="interestConsent" required style="width:16px;height:16px;min-height:16px">
-          <label for="interestConsent" style="font-size:11.5px;color:var(--mut)">I agree to receive Trader Risk Control early access updates and beta invitations.</label>
+          <label for="interestConsent" style="font-size:11.5px;color:var(--mut)">I agree to receive Trader Risk Guard early access updates and beta invitations.</label>
         </div>
 
         <button type="button" id="submitInterestBtn" data-act="submitInterest" data-product="apexguard" class="btn pri" style="background:#238636;border-color:#2ea043;font-weight:600;width:100%;min-height:42px">
@@ -1267,7 +1267,7 @@ async function submitInterestLead(prod){
   btn.style.background='#1f6feb';
   btn.style.borderColor='#388bfd';
   setTimeout(()=>{
-    toast('🎉 Registered for Trader Risk Control early access!');
+    toast('🎉 Registered for Trader Risk Guard early access!');
   },1000);
 }
 
