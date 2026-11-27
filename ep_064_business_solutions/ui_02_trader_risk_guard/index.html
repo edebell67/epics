@@ -59,7 +59,7 @@ input,select{background:#0e141f;border:1px solid var(--line);border-radius:10px;
 .brand small{display:none;font-weight:400;color:var(--mut);font-size:12.5px}
 .sp{flex:1}
 /* bottom tab bar on mobile */
-nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#101723;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);height:calc(var(--navh) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#101723;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(6,minmax(0,1fr));height:calc(var(--navh) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
 nav button{border:0;background:none;color:var(--mut);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;position:relative}
 nav button .ic{font-size:19px;line-height:1}
 nav button.on{color:#58a6ff;font-weight:600}
@@ -338,6 +338,7 @@ const TABS=[
   ['rules','📏','Rulebook'],
   ['corr','🔀','Correlation'],
   ['tilt','🧠','Tilt & Rules'],
+  ['news','📰','News'],
   ['logs','📜','Event Log']
 ];
 
@@ -382,12 +383,12 @@ function render(){
     <button class="${PB.id==='corr'?'on':''}" data-act="play" data-id="corr">▶ Correlation spike</button>
     <button data-act="simLoss">⚡ Simulate -$350 loss tick</button>
   </div>`;
-  const lockBanner=(S.tilt.score>=75||S.accts.some(a=>a.locked))?`<div class="lock-banner" data-pb="lock">
-    <div><b>${esc(S.tilt.score>=75?(S.lockTitle||'🛑 TILT LOCKOUT · COPIER SEVERED'):'⚠ ACCOUNT LOCK · TILT BELOW 75')}</b><span>${esc(S.lockReason||(S.accts.find(a=>a.locked&&a.lockReason)||{}).lockReason||S.tilt.reason)}</span></div>
+  const lockBanner=(S.tilt.score>=75||(UI.tab!=='tilt'&&S.accts.some(a=>a.locked)))?`<div class="lock-banner" data-pb="lock">
+    <div><b>${esc(S.tilt.score>=75?(S.lockTitle||'🛑 TILT LOCKOUT · COPIER SEVERED'):(S.lockTitle||'Account risk lock'))}</b><span>${esc(S.lockReason||(S.accts.find(a=>a.locked&&a.lockReason)||{}).lockReason||S.tilt.reason)}</span></div>
     <button class="btn sm" data-act="unlockAll">${S.tilt.score>=75?'Override / Reset Lock':'Override account locks'}</button>
   </div>`:'';
   ensureRules(S);
-  const body=UI.tab==='prop'?vProp():UI.tab==='rules'?vRules():UI.tab==='corr'?vCorr():UI.tab==='tilt'?vTilt():vLogs();
+  const body=UI.tab==='prop'?vProp():UI.tab==='news'?vNews():UI.tab==='rules'?vRules():UI.tab==='corr'?vCorr():UI.tab==='tilt'?vTilt():vLogs();
   $('#app').innerHTML=sc+`<p class="rnote" data-pb="shared-clock">${esc(clockLabel(S))} · Example events; not a live calendar</p>`+lockBanner+body;
   pbPanel();
   pbHighlight();
@@ -402,7 +403,7 @@ function vProp(){
   const isL=S.mode==='live';
   const news= S.accts.map(a=>({a,n:newsInfo(S,a)})).filter(x=>x.n&&!x.n.none).sort((a,b)=>a.n.mins-b.n.mins);
   const first=news[0];
-  const newsCard=`<div class="card ${first&&(first.n.inWin||first.n.mins<=NEWS_WARNING_MINUTES)?'warn':''}" data-pb="prop-news"><h3>📰 News guard · example calendar</h3><p class="rnote">${esc(clockLabel(S))}</p><p>${first?`${esc(first.n.e.n)} at ${esc(first.n.e.t)} ET · ${eventCountdown(S,first.n)}. Earliest blackout: ${esc(first.a.name)} ${first.n.inWin?'open now':'starts in '+first.n.mins+' min'}.`:'No more example events today; see the calendar in Rulebook.'}</p><button class="btn sm" data-act="tab" data-id="rules">View event calendar &amp; account windows</button></div>`;
+  const newsCard=`<div class="card ${first&&(first.n.inWin||first.n.mins<=NEWS_WARNING_MINUTES)?'warn':''}" data-pb="prop-news"><h3>📰 News guard · example calendar</h3><p class="rnote">${esc(clockLabel(S))}</p><p>${first?`${esc(first.n.e.n)} at ${esc(first.n.e.t)} ET · ${eventCountdown(S,first.n)}. Earliest blackout: ${esc(first.a.name)} ${first.n.inWin?'open now':'starts in '+first.n.mins+' min'}.`:'No more example events today; see the calendar in Rulebook.'}</p><button class="btn sm" data-act="tab" data-id="news">View news calendar</button></div>`;
   const intro=(!PB.id&&!isL)?`<div class="card intro" data-pb="intro">
     <b>What ApexGuard does</b>
     <p>It keeps track of where every prop account's trailing drawdown floor is, how far you are from it, and locks trading before you breach it, including when revenge trading or correlated strategies are about to eat the cushion. It also tracks the consistency and news rules that block payouts. Watch it work:</p>
@@ -504,6 +505,7 @@ function vCorr(){
   </tbody></table>`;
 }
 
+function vNews(){return `<div class="card" data-pb="news-calendar"><h3>Example news calendar</h3><p class="rnote">Fictional recurring events for this simulation, not a live economic calendar. Passed events remain visible; tomorrow’s examples are included.</p><div class="list">${[0,1].flatMap(offset=>S.news.map(e=>{const day=new Date(dateFor(S)+'T00:00:00Z');day.setUTCDate(day.getUTCDate()+offset);const date=day.toISOString().slice(0,10),passed=offset===0&&hm(e.t)<hm(S.clock);return `<div class="f-row"><span>${date} · ${esc(e.t)} ET · ${esc(e.n)}</span><b>${passed?'Passed':offset?'Upcoming tomorrow':eventCountdown(S,{e})} · High impact (example)</b></div>`})).join('')}</div></div>`}
 function vRules(){
   const ms=S.accts.map(a=>[a,consMetrics(a),newsInfo(S,a)]);
   const ready=ms.filter(([,m])=>m.ready).length,blocked=ms.filter(([,m])=>m.breach).length;
@@ -567,7 +569,7 @@ function vRules(){
     <div class="card kpi ${nx&&(nx.n.inWin||nx.n.mins<=NEWS_WARNING_MINUTES)?'warn':''}" data-pb="rk-news"><small>Next news event (same time for all accounts)</small><b class="mono">${nx?esc(nx.n.e.n)+' · '+fmtHM(hm(nx.n.e.t))+' ET':'—'}</b><span>${nx?eventCountdown(S,nx.n)+' · Earliest blackout: '+esc(nx.a.name)+' (±'+nx.a.rules.newsMin+' min), '+(nx.n.inWin?'open now':'starts in '+nx.n.mins+' min'):'no more events today'}</span></div>
     <div class="card kpi ${atRisk?'bad':'good'}" data-pb="rk-open"><small>Positions into news</small><b>${atRisk}</b><span>open during or within 1 min before their own blackout</span></div>
   </div>
-  <div class="card" data-pb="news-calendar"><h3>Example news calendar</h3><p class="rnote">Fictional recurring events for this simulation, not a live economic calendar. Passed events remain visible; tomorrow’s examples are included.</p><div class="list">${[0,1].flatMap(offset=>S.news.map(e=>{const day=new Date(dateFor(S)+'T00:00:00Z');day.setUTCDate(day.getUTCDate()+offset);const date=day.toISOString().slice(0,10),passed=offset===0&&hm(e.t)<hm(S.clock);return `<div class="f-row"><span>${date} · ${esc(e.t)} ET · ${esc(e.n)}</span><b>${passed?'Passed':offset?'Upcoming tomorrow':eventCountdown(S,{e})} · High impact (example)</b></div>`})).join('')}</div></div>
+  ${vNews()}
   <p class="rnote">The event happens at the same time for every account. Blackout countdowns can differ because each account’s example window starts a different number of minutes before it. For example, MFFU’s ±5-minute window starts three minutes before Apex’s ±2-minute window. Topstep has no blackout rule in this demo.</p>
   <p class="rnote">The dashed line is today’s total profit cap. Additional profit is the unused portion; the cap accounts for that profit increasing cycle profit.</p>
   <div class="grid c2" style="margin-top:14px">${ms.map(([a,m,n])=>{
@@ -870,7 +872,7 @@ function stopLivePolling(){
 }
 
 /* RISK RULES (shared by sandbox, presets and playback) */
-const nowT=()=>new Date().toTimeString().slice(0,8);
+const nowT=()=>S.mode==='sim'?S.clock.padEnd(8,':00'):new Date().toTimeString().slice(0,8);
 function tiltCalc(t){
   const c=Math.min(30,Math.max(0,(t.trades10m||0)-2)*4);
   const z=Math.min(25,Math.max(0,(t.sizeMult||1)-1)*16);
@@ -1351,8 +1353,14 @@ document.addEventListener('click',e=>{
   const f=A[act];if(f)f(b.dataset.id);
 });
 let clockState=null,clockStarted=0,clockSeconds=0;
-function tickDemoClock(){if(clockState!==S){clockState=S;clockStarted=Date.now();const parts=S.clock.split(':').map(Number);clockSeconds=(parts[0]||0)*3600+(parts[1]||0)*60+(parts[2]||0)}const total=clockSeconds+Math.floor((Date.now()-clockStarted)/1000);const sec=total%86400;S.clock=String(Math.floor(sec/3600)).padStart(2,'0')+':'+String(Math.floor(sec%3600/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');if(total>=86400){const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];S.today=days[(days.indexOf(S.today)+Math.floor(total/86400))%7];clockState=null}render()}
+function tickDemoClock(){const previousMinute=S.clock.slice(0,5);if(clockState!==S){clockState=S;clockStarted=Date.now();const parts=S.clock.split(':').map(Number);clockSeconds=(parts[0]||0)*3600+(parts[1]||0)*60+(parts[2]||0)}const total=clockSeconds+Math.floor((Date.now()-clockStarted)/1000);const sec=total%86400;S.clock=String(Math.floor(sec/3600)).padStart(2,'0')+':'+String(Math.floor(sec%3600/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');if(total>=86400){const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];S.today=days[(days.indexOf(S.today)+Math.floor(total/86400))%7];clockState=null}
+  if(previousMinute!==S.clock.slice(0,5)){render();return}
+  const clock=document.querySelector('[data-pb=shared-clock]');if(clock)clock.textContent=clockLabel(S)+' · Example events; not a live calendar';
+  const prop=document.querySelector('[data-pb=prop-news] .rnote');if(prop)prop.textContent=clockLabel(S);
+  const ruleClock=document.querySelector('.rnote b.mono');if(ruleClock&&ruleClock.textContent.includes('simulated clock'))ruleClock.textContent=clockLabel(S);
+}
 render();
 setInterval(tickDemoClock,1000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)tickDemoClock()});
 (()=>{const q=new URLSearchParams(location.search);const p=q.get('play');if(p&&SC[p])A.play(p);else if(q.get('live')==='1'&&S.mode!=='live')A.toggleLive()})();
 </script></body></html>
