@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<!--
+  epics/ep_064_business_solutions/agents.html — EP064 hub: one page to open all six agent demos, SiteLedger and ChaseUp
+
+  VERSION HISTORY
+  v1.0.0 · 2026-11-27 · Initial version: the six agents shown as one chain (find → answer → quote → get paid → repeat → books),
+                        SiteLedger as the records layer underneath, sector picker and URL passthrough (?sector=&biz=&name=&src=&cid=)
+                        so personalised cold-email links carry through to every demo, "Get the whole team" form → FormSubmit.
+-->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your AI office team · The Tech Principle</title>
+<meta name="description" content="Six AI agents that run the office side of a small business: find work, answer enquiries, send quotes, get paid, fill the diary with repeat work and keep the books.">
+<meta name="theme-color" content="#14232b">
+<style>
+/* VOICE: plain, confident, for busy owners. IDEA: a job's journey through the business, one agent per stage.
+   PICTURE: the chain of six agents with the money path drawn through it. COLOUR: deep ink, warm amber accent, each agent keeps its own colour.
+   TYPE: system sans, four sizes. LAYOUT: title + picker, chain grid, SiteLedger band, how-it-works row, CTA. */
+:root{--ink:#14232b;--ink2:#4b5d66;--mute:#7c8c94;--line:#e2e8eb;--bg:#f5f7f8;--card:#fff;--acc:#f2a93b;--acc-ink:#4a2f00;--r:16px}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:0 max(4vw,16px)}
+header{background:var(--ink);color:#fff;padding:clamp(28px,5vw,56px) 0 clamp(80px,9vw,110px)}
+.brand{font-size:14px;opacity:.75;margin-bottom:14px}
+h1{font-size:clamp(30px,4.6vw,48px);line-height:1.06;margin:0 0 12px;max-width:17ch;text-wrap:balance}
+.lede{font-size:17px;opacity:.85;max-width:60ch;margin:0 0 22px}
+.lede b{color:var(--acc)}
+.picker{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.picker span{font-size:14px;opacity:.75;margin-right:4px}
+.picker button{border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;border-radius:999px;padding:8px 14px;min-height:40px;font:inherit;font-size:14px;cursor:pointer}
+.picker button.on{background:#fff;color:var(--ink);font-weight:700}
+.picker button:focus-visible,.go:focus-visible,.btn:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.for{margin-top:14px;font-size:14px;color:var(--acc)}
+
+main{margin-top:calc(-1 * clamp(60px,7vw,80px))}
+.chain{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;counter-reset:n}
+.ag{background:var(--card);border-radius:var(--r);box-shadow:0 1px 2px rgba(20,35,43,.06),0 8px 24px rgba(20,35,43,.08);padding:18px;display:flex;flex-direction:column;gap:8px;border-top:6px solid var(--c);position:relative}
+.ag .top{display:flex;align-items:center;gap:12px}
+.av{width:44px;height:44px;border-radius:50%;background:var(--acc);color:var(--acc-ink);display:grid;place-items:center;font-weight:800;font-size:18px;flex:none}
+.ag h2{font-size:20px;margin:0;line-height:1.1}
+.ag .stage{font-size:13px;color:var(--c);font-weight:700}
+.ag p{margin:0;color:var(--ink2);font-size:15px}
+.ag .you{font-size:13px;color:var(--mute)}
+.ag .you b{color:var(--ink)}
+.go{margin-top:auto;display:flex;align-items:center;justify-content:space-between;text-decoration:none;background:var(--c);color:#fff;border-radius:11px;padding:11px 14px;font-weight:700;min-height:46px}
+.go small{font-weight:500;opacity:.85;white-space:nowrap}
+.go{flex-wrap:wrap;gap:4px 10px}
+.ag .num{position:absolute;top:14px;right:16px;font-size:13px;color:var(--mute);font-weight:700}
+.arrow{color:var(--mute);font-size:13px;margin-top:2px}
+
+.ledger{margin-top:18px;background:#fff;border-radius:var(--r);padding:20px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px;align-items:center;border:2px dashed #c9d3d8}
+.ledger h2{margin:0 0 6px;font-size:22px}
+.ledger p{margin:0;color:var(--ink2)}
+.ledger .tag{display:inline-block;font-size:12px;font-weight:700;background:#fff3dc;color:#7a4a00;border-radius:999px;padding:2px 9px;margin-bottom:8px}
+.links{display:flex;flex-direction:column;gap:8px}
+.btn{display:flex;justify-content:space-between;align-items:center;gap:10px;text-decoration:none;border:1px solid var(--line);border-radius:11px;padding:10px 14px;min-height:46px;font-weight:650;background:#fff}
+.btn:hover{border-color:var(--ink)}
+.btn small{font-weight:500;color:var(--mute)}
+.btn.main{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.main small{color:#cfd8dc}
+
+.how{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:34px 0}
+.how div{background:#fff;border-radius:var(--r);padding:16px 18px}
+.how b{display:block;font-size:17px;margin-bottom:4px}
+.how p{margin:0;color:var(--ink2);font-size:15px}
+
+.cta{background:var(--ink);color:#fff;border-radius:var(--r);padding:clamp(20px,4vw,34px);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;margin-bottom:40px}
+.cta h2{margin:0 0 4px;font-size:clamp(22px,3vw,30px)}
+.cta p{margin:0;opacity:.8}
+.cta button{border:0;border-radius:12px;background:var(--acc);color:var(--acc-ink);font:inherit;font-weight:800;padding:14px 20px;min-height:48px;cursor:pointer}
+footer{color:var(--mute);font-size:13px;padding:0 0 40px}
+footer a{color:var(--ink2)}
+
+.scrim{position:fixed;inset:0;background:rgba(10,20,25,.5);display:none;align-items:center;justify-content:center;z-index:50;padding:12px}
+.scrim.on{display:flex}
+.sheet{background:#fff;border-radius:18px;width:100%;max-width:520px;max-height:92vh;overflow:auto;padding:18px}
+.sheet h3{margin:0;font-size:19px;flex:1}
+.sh{display:flex;align-items:center;margin-bottom:8px}
+.x{border:0;background:#eef2f3;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer}
+label{display:block;font-size:13px;font-weight:650;color:var(--ink2);margin:10px 0 4px}
+.in{width:100%;border:1px solid #cfd8dc;border-radius:10px;padding:10px 12px;min-height:44px;font:inherit;font-size:16px;background:#fff}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px}
+.checks label{display:flex;gap:8px;align-items:center;font-weight:500;color:var(--ink);margin:0;font-size:15px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-height:44px}
+.send{width:100%;margin-top:14px;border:0;border-radius:12px;background:var(--acc);color:var(--acc-ink);font:inherit;font-weight:800;padding:13px;min-height:48px;cursor:pointer}
+.small{font-size:13px;color:var(--mute)}
+.err{color:#b03a2e;font-size:14px;margin-top:8px}
+.hp{position:absolute;left:-9999px;width:0;height:0;opacity:0}
+
+@media (max-width:900px){.chain{grid-template-columns:repeat(2,minmax(0,1fr))}.how{grid-template-columns:1fr}}
+@media (max-width:600px){.chain{grid-template-columns:1fr}.ledger{grid-template-columns:1fr}.cta{grid-template-columns:1fr}.checks{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:no-preference){.ag{transition:transform .2s}.ag:hover{transform:translateY(-3px)}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="brand">The Tech Principle · AI agents for small businesses</div>
+  <h1>Your office, run by six AI agents</h1>
+  <p class="lede">Each one does one job, from finding the work to getting paid and keeping the books, and hands over to the next. <b>You spend under 5% of the effort</b>: a tap now and then, with an overview you can check any time.</p>
+  <div class="picker" id="picker"><span>Show me examples for</span></div>
+  <div class="for" id="forLine" hidden></div>
+</div></header>
+
+<main class="wrap">
+  <section class="chain" id="chain" aria-label="The six agents"></section>
+
+  <section class="ledger">
+    <div>
+      <span class="tag">For trades</span>
+      <h2>SiteLedger: the records behind the agents</h2>
+      <p>Quotes, jobs, costs, receipts, invoices and your Making Tax Digital returns in one place. The agents do the work; SiteLedger is where you see the detail behind anything they did.</p>
+    </div>
+    <div class="links" id="ledgerLinks"></div>
+  </section>
+
+  <section class="how">
+    <div><b>1 · Watch a demo</b><p>Each agent plays a sample week, fortnight or month in about a minute. Nothing is sent.</p></div>
+    <div><b>2 · Pick what hurts most</b><p>Start with one agent, such as missed calls or late payers, and add the others when you're ready.</p></div>
+    <div><b>3 · We set it up with you</b><p>On your own customers, prices and diary, starting on "ask me first" until you trust it.</p></div>
+  </section>
+
+  <section class="cta">
+    <div><h2 id="ctaH">Want the whole team?</h2><p>Tell us which agents would help most and we'll set them up for you.</p></div>
+    <button id="openForm">Get started</button>
+  </section>
+</main>
+
+<footer class="wrap">Demos use sample data. Prefer the dashboard version of invoice chasing? <a id="chaseLink" href="#">Try ChaseUp</a>. · The Tech Principle, London.</footer>
+
+<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="fh">
+  <div class="sh"><h3 id="fh">Get your agents set up</h3><button class="x" id="closeForm" aria-label="Close">×</button></div>
+  <div id="formBody"></div>
+</div></div>
+
+<script>
+{
+const AGENTS = [
+  {k:'agent_01_scout', l:'S', n:'Scout', stage:'Find work', c:'#1b5e4e', d:'Wins back old customers, gets you Google reviews and referrals, posts your work and introduces you to local companies.', you:'Usually <b>0 taps</b> a week', len:'a week'},
+  {k:'agent_02_frontdesk', l:'F', n:'Frontdesk', stage:'Answer & book', c:'#2a5b8c', d:'Replies to every call, form and message within a minute, asks the right questions and books the job into your diary.', you:'<b>0–1 taps</b> a day', len:'a day'},
+  {k:'agent_03_closer', l:'C', n:'Closer', stage:'Quote & win', c:'#5a438a', d:'Sends good/better/best quotes within hours, follows up on day 3, 7 and 14, and turns a yes into a booked job.', you:'<b>0–1 taps</b> a fortnight', len:'two weeks', sl:'workflow'},
+  {k:'agent_04_collector', l:'$', n:'Collector', stage:'Get paid', c:'#2e7044', d:'Invoices, spots payments in your bank, chases late payers politely then firmly, and agrees payment plans by your rules.', you:'<b>0–1 taps</b> a fortnight', len:'two weeks', sl:'inv'},
+  {k:'agent_05_keeper', l:'K', n:'Keeper', stage:'Repeat work', c:'#9a5a1e', d:'Remembers when every customer is next due, sends the reminders and fills quiet days in your diary.', you:'<b>0–1 taps</b> a month', len:'a month'},
+  {k:'agent_06_bookkeeper', l:'B', n:'Bookkeeper', stage:'Books & tax', c:'#3d5a6e', d:'Reads receipts, codes them to jobs, shows what each job made and prepares your quarterly tax update for your OK.', you:'<b>1 tap</b> a month', len:'a month', sl:'tax'}
+];
+const SECTORS = [['trades','Trades'],['salon','Salons'],['garage','Garages'],['agency','Agencies']];
+const P = new URLSearchParams(location.search);
+let sector = SECTORS.some(s=>s[0]===P.get('sector')) ? P.get('sector') : 'trades';
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function link(path, extra){
+  const q = new URLSearchParams();
+  q.set('sector', sector);
+  ['biz','name','area','src','cid'].forEach(k=>{ if (P.get(k)) q.set(k, P.get(k)); });
+  Object.entries(extra||{}).forEach(([k,v])=>q.set(k,v));
+  return path + '?' + q.toString();
+}
+function render(){
+  document.querySelectorAll('#picker button').forEach(b=>{ b.classList.toggle('on', b.dataset.s===sector); b.setAttribute('aria-pressed', b.dataset.s===sector); });
+  document.getElementById('chain').innerHTML = AGENTS.map((a,i)=>`
+    <article class="ag" style="--c:${a.c}">
+      <span class="num">${i+1} of 6</span>
+      <div class="top"><div class="av">${a.l}</div><div><div class="stage">${a.stage}</div><h2>${a.n}</h2></div></div>
+      <p>${a.d}</p>
+      <div class="you">Your effort: ${a.you}</div>
+      ${i<5?`<div class="arrow">Hands over to ${AGENTS[i+1].n} →</div>`:'<div class="arrow">Feeds the next quarter\'s records ↺</div>'}
+      <a class="go" href="${esc(link(a.k+'/index.html'))}">Watch ${a.n} <small>${a.len} in ~1 min ›</small></a>
+    </article>`).join('');
+  const SL = 'ui_01_siteledger_quote_jobcost/index.html';
+  document.getElementById('ledgerLinks').innerHTML =
+    `<a class="btn main" href="${SL}?play=workflow">SiteLedger guided tour <small>90 sec ›</small></a>
+     <a class="btn" href="${SL}?play=inv">Invoice chase ladder <small>with Collector ›</small></a>
+     <a class="btn" href="${SL}?play=tax">MTD quarterly update <small>with Bookkeeper ›</small></a>`;
+  document.getElementById('chaseLink').href = link('app_01_chaseup/index.html');
+}
+document.getElementById('picker').insertAdjacentHTML('beforeend', SECTORS.map(([k,l])=>`<button data-s="${k}">${l}</button>`).join(''));
+document.getElementById('picker').addEventListener('click', e=>{ const b = e.target.closest('button'); if (!b) return; sector = b.dataset.s; const u = new URL(location); u.searchParams.set('sector', sector); history.replaceState(null,'',u); render(); });
+if (P.get('biz')){ const f = document.getElementById('forLine'); f.textContent = 'Prepared for ' + P.get('biz'); f.hidden = false; document.getElementById('ctaH').textContent = 'Want the whole team working for ' + P.get('biz') + '?'; }
+render();
+
+/* ===== request form ===== */
+const scrim = document.getElementById('scrim');
+function openForm(){
+  document.getElementById('formBody').innerHTML = `
+  <form id="hf" novalidate>
+    <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off">
+    <label for="fName">Your name *</label><input class="in" id="fName" name="name" autocomplete="name" value="${esc(P.get('name')||'')}">
+    <label for="fBiz">Business name *</label><input class="in" id="fBiz" name="business" autocomplete="organization" value="${esc(P.get('biz')||'')}">
+    <label for="fEmail">Email *</label><input class="in" id="fEmail" name="email" type="email" autocomplete="email">
+    <label for="fPhone">Mobile for WhatsApp (optional)</label><input class="in" id="fPhone" name="phone" type="tel" autocomplete="tel">
+    <label>Which agents interest you?</label>
+    <div class="checks">${AGENTS.map(a=>`<label><input type="checkbox" name="agents" value="${a.n}"> ${a.n}</label>`).join('')}<label><input type="checkbox" name="agents" value="SiteLedger"> SiteLedger</label></div>
+    <div class="err" id="fErr" hidden></div>
+    <button class="send" id="fSend" type="submit">Send</button>
+    <div class="small" style="margin-top:8px">We'll only use these details to contact you about this. No card needed.</div>
+  </form>`;
+  scrim.classList.add('on');
+  document.getElementById('hf').onsubmit = submit;
+}
+async function submit(e){
+  e.preventDefault();
+  const fd = new FormData(e.target), err = document.getElementById('fErr'), btn = document.getElementById('fSend');
+  if (fd.get('_honey')) return;
+  const data = {name:(fd.get('name')||'').trim(), business:(fd.get('business')||'').trim(), email:(fd.get('email')||'').trim(), phone:(fd.get('phone')||'').trim(), agents: fd.getAll('agents').join(', ') || 'not chosen'};
+  err.hidden = true;
+  if (!data.name || !data.business){ err.textContent = 'Please add your name and business name.'; err.hidden = false; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)){ err.textContent = 'Please check your email address.'; err.hidden = false; return; }
+  const payload = Object.assign({_subject:'Agent team request: '+data.business, _template:'table', _captcha:'false', app:'EP064 agent hub', sector_viewed:sector,
+    campaign_source:P.get('src')||'direct', campaign_id:P.get('cid')||'', emailed_business:P.get('biz')||'', page:location.href, submitted_at:new Date().toISOString()}, data);
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try{
+    const r = await fetch('https://formsubmit.co/ajax/edward.bell@thetechprinciple.com', {method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body:JSON.stringify(payload)});
+    const j = await r.json().catch(()=>({}));
+    if (!r.ok || String(j.success) === 'false') throw new Error('fail');
+    document.getElementById('formBody').innerHTML = `<div style="text-align:center;padding:16px 0"><div style="font-size:42px">✅</div><h3>Thanks, ${esc(data.name.split(' ')[0])}.</h3><p class="small">We'll be in touch within one working day.</p></div>`;
+  }catch(ex){
+    btn.disabled = false; btn.textContent = 'Send';
+    const body = encodeURIComponent(Object.entries(payload).filter(([k])=>k[0]!=='_').map(([k,v])=>k+': '+v).join('\n'));
+    err.innerHTML = `Couldn't send just now. <a href="mailto:edward.bell@thetechprinciple.com?subject=${encodeURIComponent(payload._subject)}&body=${body}">Email it instead</a> (edward.bell@thetechprinciple.com).`;
+    err.hidden = false;
+  }
+}
+document.getElementById('openForm').onclick = openForm;
+document.getElementById('closeForm').onclick = () => scrim.classList.remove('on');
+scrim.addEventListener('click', e=>{ if (e.target === scrim) scrim.classList.remove('on'); });
+document.addEventListener('keydown', e=>{ if (e.key === 'Escape') scrim.classList.remove('on'); });
+}
+</script>
+</body>
+</html>
