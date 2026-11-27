@@ -213,7 +213,7 @@ body.pb-on{padding-bottom:calc(var(--navh) + 24px + env(safe-area-inset-bottom))
   DateTime: 2026-11-02 05:30:00 UTC
   Version: v1.2.0 (V20261102_0530)
 */
-const KEY='ep064_apexguard_demo_v5';
+const KEY='ep064_apexguard_demo_v6';
 const EP058_BASE=localStorage.getItem('ep058_url')||'http://127.0.0.1:8149';
 const $=s=>document.querySelector(s);
 const usd=n=>(n<0?'-$':'$')+Math.abs(Math.round(n)).toLocaleString('en-US');
@@ -287,6 +287,7 @@ function ensureRules(st){
 }
 const hm=s=>{const [h,m]=String(s).split(':').map(Number);return h*60+m};
 const fmtHM=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+const eventCountdown=(st,n)=>{const d=hm(n.e.t)-hm(st.clock);return d>0?'event in '+d+' min':d===0?'event now':'event '+Math.abs(d)+' min ago'};
 // Consistency rule: biggest single day (incl. today) must be ≤ cons × total cycle profit.
 function consMetrics(a){
   const r=a.rules,days=a.days||[];
@@ -481,7 +482,7 @@ function vCorr(){
     </div>
   </div>
   <h3 style="margin:14px 0 8px">Active Strategy Book &amp; Side Filters</h3>
-  <p class="rnote">BOTH permits buy and sell entries; BUY_ONLY permits buys only; SELL_ONLY permits sells only. These are simulated strategy filters and can be changed with the buttons.</p>
+  <p class="rnote">BOTH permits buy and sell entries; BUY_ONLY permits buys only; SELL_ONLY permits sells only. In this example, S3 starts SELL_ONLY and S4 starts BUY_ONLY to demonstrate one-sided filters, while S6 starts BOTH to demonstrate a two-sided strategy. These are illustrative starting settings, not signals or a consequence of their MeanRev type. Use the buttons to change them.</p>
   <table class="rt" data-pb="book"><thead><tr><th>ID</th><th>Strategy</th><th>Type</th><th>Side Filter</th><th>Day Net</th><th>Max DD</th><th>Status</th><th>Action</th></tr></thead><tbody>
     ${S.strats.map(s=>`<tr>
       <td data-label="ID" class="mono">${s.id}</td>
@@ -556,15 +557,16 @@ function vRules(){
   <div class="grid k4">
     <div class="card kpi ${ready?'good':''}" data-pb="rk-ready"><small>Payout-ready</small><b>${ready} of ${S.accts.length}</b><span>target hit and consistency passed</span></div>
     <div class="card kpi ${blocked?'bad':'good'}" data-pb="rk-blocked"><small>Blocked by consistency</small><b>${blocked}</b><span>biggest day over the limit</span></div>
-    <div class="card kpi ${nx&&(nx.n.inWin||nx.n.mins<=5)?'warn':''}" data-pb="rk-news"><small>Next event · earliest account blackout</small><b class="mono">${nx?(nx.n.inWin?'WINDOW OPEN':fmtHM(hm(nx.n.e.t)) + ' ET event'):'—'}</b><span>${nx?esc(nx.n.e.n)+' · earliest: '+esc(nx.a.name)+' (±'+nx.a.rules.newsMin+' min)'+(nx.n.inWin?' · blackout open':' · blackout in '+nx.n.mins+' min')+'; '+sameEvent.filter(x=>x.a.id!==nx.a.id).map(x=>esc(x.a.name)+' ±'+x.a.rules.newsMin+' min: '+(x.n.inWin?'blackout open':'blackout in '+x.n.mins+' min')).join(', '):'no more events today'}</span></div>
+    <div class="card kpi ${nx&&(nx.n.inWin||nx.n.mins<=5)?'warn':''}" data-pb="rk-news"><small>Next news event (same time for all accounts)</small><b class="mono">${nx?esc(nx.n.e.n)+' · '+fmtHM(hm(nx.n.e.t))+' ET':'—'}</b><span>${nx?eventCountdown(S,nx.n)+' · Earliest blackout: '+esc(nx.a.name)+' (±'+nx.a.rules.newsMin+' min), '+(nx.n.inWin?'open now':'starts in '+nx.n.mins+' min'):'no more events today'}</span></div>
     <div class="card kpi ${atRisk?'bad':'good'}" data-pb="rk-open"><small>Positions into news</small><b>${atRisk}</b><span>open within 5 min of a blackout</span></div>
   </div>
+  <p class="rnote">The event happens at the same time for every account. Blackout countdowns can differ because each account’s example window starts a different number of minutes before it. For example, MFFU’s ±5-minute window starts three minutes before Apex’s ±2-minute window. Topstep has no blackout rule in this demo.</p>
   <p class="rnote">The dashed line is today’s total profit cap. Additional profit is the unused portion; the cap accounts for that profit increasing cycle profit.</p>
   <div class="grid c2" style="margin-top:14px">${ms.map(([a,m,n])=>{
     const r=a.rules;
     const nCls=n&&!n.none&&a.openPnl&&!a.locked?(n.inWin?'bad':n.mins<=5?'warn':''):'';
     const nTxt=!n?'No news rule on this account.':n.none?`No more news events today (±${r.newsMin} min rule).`:
-      `${esc(n.e.n)} at ${esc(n.e.t)}: blackout ${fmtHM(n.s)}–${fmtHM(n.en)} · ${n.inWin?'<b>blackout open now</b>':'blackout in '+n.mins+' min'} · event in ${Math.max(0,hm(n.e.t)-hm(S.clock))} min${a.openPnl&&!a.locked?(n.inWin?' · <b>position open inside the window</b>':n.mins<=5?` · <b>position open: close by ${fmtHM(n.s)}</b>`:''):''}`;
+      `${esc(n.e.n)} at ${esc(n.e.t)}: blackout ${fmtHM(n.s)}–${fmtHM(n.en)} · ${n.inWin?'<b>blackout open now</b>':'blackout in '+n.mins+' min'} · ${eventCountdown(S,n)}${a.openPnl&&!a.locked?(n.inWin?' · <b>position open inside the window</b>':n.mins<=5?` · <b>position open: close by ${fmtHM(n.s)}</b>`:''):''}`;
     return `<div class="card acct" data-pb="rule-${a.id}">
       <div class="acct-top"><div><b>${esc(a.name)}</b>
         <div class="rchips"><span class="rchip">Consistency ${pct(r.cons)}</span><span class="rchip">Target ${usd(r.target)}</span><span class="rchip">${r.newsMin?'News ±'+r.newsMin+' min':'No news rule'}</span></div></div>
