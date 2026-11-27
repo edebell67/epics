@@ -213,7 +213,7 @@ body.pb-on{padding-bottom:calc(var(--navh) + 24px + env(safe-area-inset-bottom))
   DateTime: 2026-11-02 05:30:00 UTC
   Version: v1.2.0 (V20261102_0530)
 */
-const KEY='ep064_apexguard_demo_v6';
+const KEY='ep064_apexguard_demo_v7';
 const EP058_BASE=localStorage.getItem('ep058_url')||'http://127.0.0.1:8149';
 const $=s=>document.querySelector(s);
 const usd=n=>(n<0?'-$':'$')+Math.abs(Math.round(n)).toLocaleString('en-US');
@@ -287,6 +287,10 @@ function ensureRules(st){
 }
 const hm=s=>{const [h,m]=String(s).split(':').map(Number);return h*60+m};
 const fmtHM=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+const demoDates={Fri:'2026-11-27',Sat:'2026-11-28',Sun:'2026-11-29',Mon:'2026-11-30',Tue:'2026-12-01',Wed:'2026-12-02',Thu:'2026-12-03'};
+const dateFor=st=>demoDates[st.today]||'2026-11-27';
+const clockLabel=st=>`${st.today} ${dateFor(st)} ${st.clock} ET · simulated clock`;
+const NEWS_WARNING_MINUTES=1;
 const eventCountdown=(st,n)=>{const d=hm(n.e.t)-hm(st.clock);return d>0?'event in '+d+' min':d===0?'event now':'event '+Math.abs(d)+' min ago'};
 // Consistency rule: biggest single day (incl. today) must be ≤ cons × total cycle profit.
 function consMetrics(a){
@@ -384,7 +388,7 @@ function render(){
   </div>`:'';
   ensureRules(S);
   const body=UI.tab==='prop'?vProp():UI.tab==='rules'?vRules():UI.tab==='corr'?vCorr():UI.tab==='tilt'?vTilt():vLogs();
-  $('#app').innerHTML=sc+lockBanner+body;
+  $('#app').innerHTML=sc+`<p class="rnote" data-pb="shared-clock">${esc(clockLabel(S))} · Example events; not a live calendar</p>`+lockBanner+body;
   pbPanel();
   pbHighlight();
   save();
@@ -396,6 +400,9 @@ function vProp(){
   const totDay=S.accts.reduce((s,a)=>s+a.dayPnl,0);
   const minBuf=Math.min(...ms.map(([,m])=>m.dist));
   const isL=S.mode==='live';
+  const news= S.accts.map(a=>({a,n:newsInfo(S,a)})).filter(x=>x.n&&!x.n.none).sort((a,b)=>a.n.mins-b.n.mins);
+  const first=news[0];
+  const newsCard=`<div class="card ${first&&(first.n.inWin||first.n.mins<=NEWS_WARNING_MINUTES)?'warn':''}" data-pb="prop-news"><h3>📰 News guard · example calendar</h3><p class="rnote">${esc(clockLabel(S))}</p><p>${first?`${esc(first.n.e.n)} at ${esc(first.n.e.t)} ET · ${eventCountdown(S,first.n)}. Earliest blackout: ${esc(first.a.name)} ${first.n.inWin?'open now':'starts in '+first.n.mins+' min'}.`:'No more example events today; see the calendar in Rulebook.'}</p><button class="btn sm" data-act="tab" data-id="rules">View event calendar &amp; account windows</button></div>`;
   const intro=(!PB.id&&!isL)?`<div class="card intro" data-pb="intro">
     <b>What ApexGuard does</b>
     <p>It keeps track of where every prop account's trailing drawdown floor is, how far you are from it, and locks trading before you breach it, including when revenge trading or correlated strategies are about to eat the cushion. It also tracks the consistency and news rules that block payouts. Watch it work:</p>
@@ -413,7 +420,7 @@ function vProp(){
       <div class="chart-box">${svgFloor(S.hist[id],S.hist.t)}</div></div>`}).join('')}</div>
     <div class="fchart-legend"><span><i style="background:#58a6ff"></i>Equity incl. open P&amp;L</span><span><i style="background:#f85149"></i>Trailing floor</span><span><i style="background:#8b949e"></i>Peak (HWM)</span><span><i style="background:#2ea04366;height:8px"></i>Cushion</span></div>
   </div>`:'';
-  return `${intro}<div class="grid k4">
+  return `${intro}${newsCard}<div class="grid k4">
     <div class="card kpi"><small>${isL?'Live Models Active':'Copied accounts'}</small><b>${S.accts.length} ${isL?'models':'linked'}</b><span>${S.accts.filter(a=>acctMetrics(a).state!=='LOCKED').length} active · ${S.accts.filter(a=>acctMetrics(a).state==='LOCKED').length} locked</span></div>
     <div class="card kpi ${totDay>=0?'good':'bad'}"><small>Combined day P&amp;L</small><b class="mono">${sgn(totDay)}</b><span>Total equity ${usd(totEq)}</span></div>
     <div class="card kpi ${minBuf<400?'bad':minBuf<900?'warn':'good'}" data-pb="kpi-buf"><small>Tightest DD buffer</small><b class="mono">${usd(minBuf)}</b><span>nearest trailing floor</span></div>
@@ -503,7 +510,7 @@ function vRules(){
   const nexts=ms.filter(([,,n])=>n&&!n.none).map(([a,,n])=>({a,n})).sort((p,q)=>p.n.mins-q.n.mins);
   const nx=nexts[0];
   const sameEvent=nx?nexts.filter(x=>x.n.e.t===nx.n.e.t):[];
-  const atRisk=ms.filter(([a,,n])=>n&&!n.none&&a.openPnl&&!a.locked&&(n.inWin||n.mins<=5)).length;
+  const atRisk=ms.filter(([a,,n])=>n&&!n.none&&a.openPnl&&!a.locked&&(n.inWin||n.mins<=NEWS_WARNING_MINUTES)).length;
   const pct=v=>(v*100).toFixed(0)+'%';
   const rat=m=>m.ratio===Infinity?'—':(m.ratio*100).toFixed(1)+'%';
   const isRulesPlay=PB.id==='rules';
@@ -513,7 +520,7 @@ function vRules(){
       <div>
         <span style="display:inline-block;background:#1f6feb22;color:#58a6ff;border:1px solid #388bfd44;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:0.5px">Opportunity #1 Guided Simulation</span>
         <h3 style="margin:6px 0 4px;font-size:16px;color:#fff;">Prop Rulebook Guard: Consistency Rule &amp; News Windows</h3>
-        <p style="margin:0;font-size:13px;color:#8b949e;max-width:720px">Walk through how ApexGuard prevents sudden prop payout disqualification: shields positions 1 minute before Tier-1 CPI news, alerts on the 30% single-day profit cap, and shows the profit needed to restore payout eligibility.</p>
+        <p style="margin:0;font-size:13px;color:#8b949e;max-width:720px">Walk through how ApexGuard prevents sudden prop payout disqualification: closes example Apex positions 1 minute before their blackout starts (2 minutes before CPI), alerts on the 30% single-day profit cap, and shows the profit needed to restore payout eligibility.</p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
         <button class="btn sm" data-act="play" data-id="rules" style="background:#1f6feb;border-color:#388bfd;color:#fff;font-weight:600">▶ ${isRulesPlay?'Playing Walkthrough...':'Auto-Play Walkthrough'}</button>
@@ -553,20 +560,21 @@ function vRules(){
     </div>
   </div>`:'';
 
-  return walkthroughCard + roiSummaryCard + `<p class="rnote">Clock <b class="mono">${esc(S.today)} ${esc(S.clock)} ET</b> · Rule values below are <b>examples</b>, not any firm's current terms. Set them to match yours.</p>
+  return walkthroughCard + roiSummaryCard + `<p class="rnote">Clock <b class="mono">${esc(clockLabel(S))}</b> · Rule values below are <b>examples</b>, not any firm's current terms. Set them to match yours.</p>
   <div class="grid k4">
     <div class="card kpi ${ready?'good':''}" data-pb="rk-ready"><small>Payout-ready</small><b>${ready} of ${S.accts.length}</b><span>target hit and consistency passed</span></div>
     <div class="card kpi ${blocked?'bad':'good'}" data-pb="rk-blocked"><small>Blocked by consistency</small><b>${blocked}</b><span>biggest day over the limit</span></div>
-    <div class="card kpi ${nx&&(nx.n.inWin||nx.n.mins<=5)?'warn':''}" data-pb="rk-news"><small>Next news event (same time for all accounts)</small><b class="mono">${nx?esc(nx.n.e.n)+' · '+fmtHM(hm(nx.n.e.t))+' ET':'—'}</b><span>${nx?eventCountdown(S,nx.n)+' · Earliest blackout: '+esc(nx.a.name)+' (±'+nx.a.rules.newsMin+' min), '+(nx.n.inWin?'open now':'starts in '+nx.n.mins+' min'):'no more events today'}</span></div>
-    <div class="card kpi ${atRisk?'bad':'good'}" data-pb="rk-open"><small>Positions into news</small><b>${atRisk}</b><span>open within 5 min of a blackout</span></div>
+    <div class="card kpi ${nx&&(nx.n.inWin||nx.n.mins<=NEWS_WARNING_MINUTES)?'warn':''}" data-pb="rk-news"><small>Next news event (same time for all accounts)</small><b class="mono">${nx?esc(nx.n.e.n)+' · '+fmtHM(hm(nx.n.e.t))+' ET':'—'}</b><span>${nx?eventCountdown(S,nx.n)+' · Earliest blackout: '+esc(nx.a.name)+' (±'+nx.a.rules.newsMin+' min), '+(nx.n.inWin?'open now':'starts in '+nx.n.mins+' min'):'no more events today'}</span></div>
+    <div class="card kpi ${atRisk?'bad':'good'}" data-pb="rk-open"><small>Positions into news</small><b>${atRisk}</b><span>open during or within 1 min before their own blackout</span></div>
   </div>
+  <div class="card" data-pb="news-calendar"><h3>Example news calendar</h3><p class="rnote">Fictional recurring events for this simulation, not a live economic calendar. Passed events remain visible; tomorrow’s examples are included.</p><div class="list">${[0,1].flatMap(offset=>S.news.map(e=>{const day=new Date(dateFor(S)+'T00:00:00Z');day.setUTCDate(day.getUTCDate()+offset);const date=day.toISOString().slice(0,10),passed=offset===0&&hm(e.t)<hm(S.clock);return `<div class="f-row"><span>${date} · ${esc(e.t)} ET · ${esc(e.n)}</span><b>${passed?'Passed':offset?'Upcoming tomorrow':eventCountdown(S,{e})} · High impact (example)</b></div>`})).join('')}</div></div>
   <p class="rnote">The event happens at the same time for every account. Blackout countdowns can differ because each account’s example window starts a different number of minutes before it. For example, MFFU’s ±5-minute window starts three minutes before Apex’s ±2-minute window. Topstep has no blackout rule in this demo.</p>
   <p class="rnote">The dashed line is today’s total profit cap. Additional profit is the unused portion; the cap accounts for that profit increasing cycle profit.</p>
   <div class="grid c2" style="margin-top:14px">${ms.map(([a,m,n])=>{
     const r=a.rules;
-    const nCls=n&&!n.none&&a.openPnl&&!a.locked?(n.inWin?'bad':n.mins<=5?'warn':''):'';
+    const nCls=n&&!n.none&&a.openPnl&&!a.locked?(n.inWin?'bad':n.mins<=NEWS_WARNING_MINUTES?'warn':''):'';
     const nTxt=!n?'No news rule on this account.':n.none?`No more news events today (±${r.newsMin} min rule).`:
-      `${esc(n.e.n)} at ${esc(n.e.t)}: blackout ${fmtHM(n.s)}–${fmtHM(n.en)} · ${n.inWin?'<b>blackout open now</b>':'blackout in '+n.mins+' min'} · ${eventCountdown(S,n)}${a.openPnl&&!a.locked?(n.inWin?' · <b>position open inside the window</b>':n.mins<=5?` · <b>position open: close by ${fmtHM(n.s)}</b>`:''):''}`;
+      `${esc(n.e.n)} at ${esc(n.e.t)}: blackout ${fmtHM(n.s)}–${fmtHM(n.en)} · ${n.inWin?'<b>blackout open now</b>':'blackout in '+n.mins+' min'} · ${eventCountdown(S,n)}${a.openPnl&&!a.locked?(n.inWin?' · <b>position open inside the window</b>':n.mins<=NEWS_WARNING_MINUTES?` · <b>position open: close by ${fmtHM(n.s)}</b>`:''):''}`;
     return `<div class="card acct" data-pb="rule-${a.id}">
       <div class="acct-top"><div><b>${esc(a.name)}</b>
         <div class="rchips"><span class="rchip">Consistency ${pct(r.cons)}</span><span class="rchip">Target ${usd(r.target)}</span><span class="rchip">${r.newsMin?'News ±'+r.newsMin+' min':'No news rule'}</span></div></div>
@@ -914,7 +922,8 @@ function pbInit(h){
   return ensureRules(b);
 }
 const syncValues=st=>st.accts.forEach(a=>{a.eq=a.bal+a.openPnl;a.dayPnl=a.eq-a.dayStart;if(a.mode==='Intraday'&&!a.locked)a.hwm=Math.max(a.hwm,a.eq)});
-const setOpen=(st,v)=>{st.accts.forEach(a=>{if(!a.locked)a.openPnl=v});syncValues(st)};
+function demoNewsEntry(st,ids,at,simulatedPnl=0){const result={blocked:[],allowed:[]};onIds(st,ids,a=>{const n=newsInfo(st,a);if(n&&n.inWin){result.blocked.push(a.name);pbLog(st,at,'WARN',`NEWS BLOCK: ${a.name} simulated entry blocked during ${n.e.n} blackout (${fmtHM(n.s)}–${fmtHM(n.en)} ET).`)}else{a.openPnl=simulatedPnl;result.allowed.push(a.name)}});return result}
+const setOpen=(st,v)=>{st.accts.forEach(a=>{if(!a.locked){const n=newsInfo(st,a);if(v!==0&&a.openPnl===0&&n&&n.inWin){pbLog(st,st.clock,'WARN',`NEWS BLOCK: ${a.name} simulated entry blocked during ${n.e.n} blackout.`)}else a.openPnl=v}});syncValues(st)};
 const closeOpen=st=>{st.accts.forEach(a=>{if(!a.locked){a.bal+=a.openPnl;a.openPnl=0}});syncValues(st)};
 const bookLoss=(st,v)=>st.accts.forEach(a=>{if(!a.locked)a.bal+=v});
 // Mark accounts to market, trail intraday HWMs, apply the ≤15% cushion auto-flatten, record history for the floor chart.
@@ -1017,8 +1026,8 @@ const SC={
       fx:st=>{st.clock='08:24';onIds(st,APEX,a=>a.openPnl=150);pbLog(st,'08:24','WARN','Apex accounts hold a position into the 08:28–08:32 CPI blackout.')},
       body:'CPI is at 08:30. With a ±2-minute news rule, Apex-01 can\'t hold a position from 08:28 to 08:32. ApexGuard warns: close by 08:28.'},
     {at:'Fri 08:27',tab:'rules',focus:['rnews-A1','rnews-A4'],title:'08:27: ApexGuard closes the trade before the blackout',
-      fx:st=>{st.clock='08:27';onIds(st,APEX,a=>{a.openPnl=180;a.bal+=a.openPnl;a.openPnl=0});pbLog(st,'08:27','OK','📰 Closed Apex positions at +$180, 1 minute before the CPI blackout.')},
-      body:'It closes the position on both Apex accounts at +$180, a minute before the window opens. MFFU has a ±5-minute rule but no position; Topstep has no news rule in this example.'},
+      fx:st=>{st.clock='08:27';demoNewsEntry(st,['A4'],'08:27',100);onIds(st,APEX,a=>{a.openPnl=180;a.bal+=a.openPnl;a.openPnl=0});pbLog(st,'08:27','OK','📰 Closed Apex positions at +$180, 1 minute before their 08:28 blackout.')},
+      body:'It closes the position on both Apex accounts at +$180, a minute before the window opens. MFFU’s ±5-minute blackout opened at 08:25: a simulated MFFU entry is blocked and logged. Topstep has no news rule in this example.'},
     {at:'Fri 09:45',tab:'rules',focus:['rcap-A1'],title:'+$600 on the day: near the cap',
       fx:st=>{st.clock='09:45';setDayIds(st,APEX,600);pbLog(st,'09:45','WARN',`Apex-01 near today's consistency cap: ${usd(consOf(st,'A1').capLeft)} left.`)},
       body:st=>{const m=consOf(st,'A1');return `Today's cap is ${usd(m.capTotal)}; ${usd(m.capLeft)} left. Past that, today becomes the day that breaks the rule. ApexGuard flags NEAR CAP: stop, or size down.`}},
@@ -1060,7 +1069,7 @@ const SC={
 };
 function pbBuild(id,n){
   const sc=SC[id],st=sc.init();
-  for(let i=0;i<=n;i++){const s=sc.steps[i];if(s.fx)s.fx(st);pbMark(st,s.at)}
+  for(let i=0;i<=n;i++){const s=sc.steps[i];const match=s.at.match(/(?:(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+)?(\d{2}:\d{2})/);if(match)st.clock=match[2];if(s.fx)s.fx(st);if(match&&match[1])st.today=match[1];pbMark(st,s.at)}
   return st;
 }
 function pbGo(n){
@@ -1069,6 +1078,7 @@ function pbGo(n){
   PB.step=n;
   stopLivePolling();
   S=pbBuild(PB.id,n);
+  clockState=null;
   UI.tab=sc.steps[n].tab||UI.tab;
   render();
   pbSchedule();
@@ -1340,6 +1350,9 @@ document.addEventListener('click',e=>{
   if(PB.id&&!PB_OK.has(act))pbExit();
   const f=A[act];if(f)f(b.dataset.id);
 });
+let clockState=null,clockStarted=0,clockSeconds=0;
+function tickDemoClock(){if(clockState!==S){clockState=S;clockStarted=Date.now();const parts=S.clock.split(':').map(Number);clockSeconds=(parts[0]||0)*3600+(parts[1]||0)*60+(parts[2]||0)}const total=clockSeconds+Math.floor((Date.now()-clockStarted)/1000);const sec=total%86400;S.clock=String(Math.floor(sec/3600)).padStart(2,'0')+':'+String(Math.floor(sec%3600/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');if(total>=86400){const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];S.today=days[(days.indexOf(S.today)+Math.floor(total/86400))%7];clockState=null}render()}
 render();
+setInterval(tickDemoClock,1000);
 (()=>{const q=new URLSearchParams(location.search);const p=q.get('play');if(p&&SC[p])A.play(p);else if(q.get('live')==='1'&&S.mode!=='live')A.toggleLive()})();
 </script></body></html>
